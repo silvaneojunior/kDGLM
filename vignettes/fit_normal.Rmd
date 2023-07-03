@@ -1,0 +1,974 @@
+---
+title: "kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models"
+author: Silvaneo V. dos Santos Jr.
+output: rmdformats::readthedown
+date: "`r Sys.setlocale('LC_TIME', 'English'); format(Sys.Date(),'%d of %B, %Y')`"
+bibliography: '`r system.file("REFERENCES.bib", package="kDGLM")`'
+link-citations: TRUE
+urlcolor: blue
+linkcolor: green
+vignette: >
+  %\VignetteIndexEntry{kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+# library(kDGLM)
+devtools::load_all()
+library(tidyverse)
+library(plotly)
+library(latex2exp)
+```
+
+# Introduction
+
+This vignette is intended as an introduction to use of the kDGLM package. This package aims to routines for Kalman filtering and smoothing, forecasting, sampling and Bayesian analysis of Dynamic Generalized Linear Models, following the theoretical results developed and/or explored in @Kalman_filter_origins, @WestHarr-DLM and @ArtigokParametrico.
+
+In this document we will focus exclusively in the usage of the package and will only briefly mention the theory behind these models and only with the intention of highlighting the notation. We highly recommend all users to read the theoretical work in which we based this package.
+
+This document is organized in the following order: 
+
+1. First we introduce the notations and the class of models we will be dealing with;
+2. Then we proceed to present the tools offered by our package to specify the model structure in an easy, fast and (hopefully) intuitive way;
+3. In the following section we discuss how the user can specify the observational model; with the model structure defined, we can proceed presenting the tools for fitting a defined model, also showing the auxiliary function that help the user to analyse the fitted model;
+4. In the next section we present a variety of more advanced examples, combining and stacking the basic structures shown in previous sections to create more complex models. We also show tools for easy model selection;
+5. In this section, we show how the user can combine different types of outcomes in a same model to analyse multiple time series simultaneously;
+6. Lastly, we show how to make interventions on the model and also present the tools offered for automatic monitoring of time series.
+
+# Notation
+
+Let us assume that the user is interested in analyzing a Time Series $Y_t$, $t=1,...T$, in which we can be described by the following model:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim \mathcal{F}\left(\eta_t\right),\\
+g(\eta_t) &=\lambda_{t}=F_t'\theta_t,\\
+\theta_t&=G_t\theta_{t-1}+\epsilon_t,\\
+\epsilon_t &\sim \mathcal{N}(0,W^*_t),
+\end{align}
+$$
+where:
+
+
+- $\theta_t$ are the unknown parameter of interest;
+- $\mathcal{F}$ is a probability distribution in the Exponential Family and indexed by $\eta_t$;
+- $g$, called the link function, is a pre-specified function (in this package, each choice of $\mathcal{F}$ will have a pre-specified $g$);
+- $F_t$, called the design matrix, is a (mostly) known matrix specified by the user;
+- $G_t$, called the evolution matrix, is a (mostly) known matrix specified by the user;
+- $W^*_t$ is a known covariance matrix specified by the user.
+
+Also, following the notation in @WestHarr-DLM, we will define $\mathcal{D}_t$ as the information one has after the first $t$ observations, such that $\mathcal{D}_t=\mathcal{D}_{t-1}\cup\{Y_t\}$ (for now, let's assume that there is no external source of information beside $Y_t$ itself) and $\mathcal{D}_0$ denotes the information we have about the process $Y_t$ *prior* to observing the data.
+
+For the specification of $W^*_t$, we will always assume that $W^*_t=W_t+\frac{1-D_t}{D_t}Var[\theta_t|\mathcal{D}_{t-1}]$, where $D_t$ (called the discount matrix) is a matrix of values between $0$ and $1$ and all the operations involving $D_t$ are made element-wise. In this specification, one can observe that, if all entries of $D_t$ are equal to $1$, then $W^*_t=W_t$. If also all entries of $W_t$ are equal to 0, then we have no temporal dynamic and our model becomes equivalent to a Generalized Linear Model.
+
+Notice that we **did not** make any assumptions on the dimension of $Y_t$ or $\eta_t$, indeed, this package offers tools for fitting time series made of vectors (as in the Multinomial case) ad/or with multiple unknown parameters (as in the Normal with unknown variance case).
+
+Naturally, the manual specification of all the structural components of the model can be quite tiresome. With that in mind, our package offers a wide and ever expanding set of auxiliary functions that aim to help the user to specify the struture of a model. In the next section we explore those tools.
+
+# Creating the model structure
+
+In this sections we will discuss the specification of the model structure. We will consider the structure of a model as all the elements that determine the relation between our linear predictor $\lambda_t$ and our latent states $\theta_t$ though time, namely, the structure of a model consists of the matrices $F_t$, $G_t$, $W_t$ and $D_t$. Although we allow the user to manually define each entry of each of these matrices, we also offer tools to simplify this task. Let's start by presenting the basis function for all structural blocks, the `polynomial_block` function.
+
+## A structure for polynomial trend models
+
+```{r eval=FALSE, include=TRUE}
+polynomial_block(
+  ...,
+  order = 1,
+  name = "Var_Poly",
+  D = 1,
+  W = 0,
+  m0 = 0,
+  C0 = c(NA, rep(1, order - 1))
+)
+```
+
+This function will create a latent vector $\theta_t=(\theta_{1t},...,\theta_{k\ t})'$,, where $k$ is the order of the polynomial block, so that:
+
+$$
+\begin{align}
+\theta_{it} &= \theta_{it-1}+\theta_{i+1\ t-1}+\epsilon_{it},\\
+\theta_{kt} &= \theta_{kt-1}+\epsilon_{kt},\\
+\theta_1&\sim \mathcal{N}_k(m_0,C_0),\\
+\epsilon_{1t},...,\epsilon_{kt}&\sim \mathcal{N}_k(0,W^*_t),
+\end{align}
+$$
+where $W^*_t=W_t+\frac{1-D_t}{D_t}Var[\theta_t|\mathcal{D}_{t-1}]$.
+
+Notice that the user do not need to specify the matrix $G_t$, since it is implicitly determined by the order of the polynomial block (each type of block will define it own matrix $G_t$).
+
+It is easy to see the correspondence between most of the arguments of the `polynomial_block` function and their respective meaning in the block specification, remaining only to explain the use of the `...` and `name` arguments.
+
+The argument `...` is used to specify the matrix $F_t$, specifically, the user must provide a list of named values, whose name indicate a linear predictor $\lambda_t$ and it's associated value represent the effect of $\theta_{1t}$ in this predictor (the other latent states are assumed to have no effect on the linear predictors). Naturally, if a linear predictor is not present in `...`, it is understood that $\theta_{1t}$ have no effect whatsoever on that linear predictor. It may seem strange such specification of $F_t$, but as the reader will see further bellow, this way of specifying $F_t$ is very useful to avoid confusion when dealing with multiple linear predictors.
+
+It is important to emphasize that $\theta_t$ is implicitly determined by the block structure, besides, $\lambda_t$ is implicitly determined by `...`, since one linear predictor will be created for each named value passed by the user.
+
+Lastly, the argument name is optional and it is used to help the user to identify each latent state after fitting the model, specifically, each latent state will be called by it's own name when ploting or printing $\theta_t$.
+
+To exemplify the usage of this function, let's assume that we have a simply Normal model with known variance $\sigma^2$, in which $\eta$ is the mean parameter and the link function $g$ is such that $g(\eta)=\eta$. Let's also assume that the mean is constant over time and we have no explanatory variables, such that our model can be written simple as:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim \mathcal{N}\left(\eta_t, \sigma^2\right),\\
+\eta_t &=\lambda_{t}=\theta_t,\\
+\theta_t&=\theta_{t-1}=\theta.
+\end{align}
+$$
+
+In this case, we have that $F_t=1$, $G_t=1$, $D_t=1$ and $W_t=0$, for all $t$. Assuming a prior distribution $\mathcal{N}(0,1)$ for $\theta$, we can create such structure using the following code:
+
+```{r eval=FALSE, include=TRUE}
+mean_block=polynomial_block(
+  eta=1,
+  order = 1,
+  name = "Mean",
+)
+```
+
+By setting `eta=1`, we specify that there is a linear predictor called *eta*, and that $eta = 1 \times \theta$. By setting `order = 1`, we specify that $\theta_t$ is a scalar and that $G_t=1$. We can omit the values of `m0` , `C0`, `D` and `W`, since the default values are equal to the desired. We could also omit the argument `order`, since the default is already $1$, but we choose to explicit define it so as to emphasize it's usage.
+
+Suppose now that we have a explanatory variable $X$ that we would like to introduce in our model to help explain the behavior of $\eta_t$. We could similarly define such structure by creating an additional block such as:
+
+```{r eval=FALSE, include=TRUE}
+polynomial_block(
+  eta=X,
+  name = "Var X"
+)
+```
+
+By setting `eta=X`, we specify that there is a linear predictor called *eta*, and that $eta = X \times \theta$. If $X=(X_1,...,X_T)'$ is a vector, then we would have $F_t=X_t$, for each $t$, such that $\eta_t = X_t \times \theta_t$.
+
+Until now, we only discussed the creation of static models, but the inclusion of temporal dynamic is very straighfoward, one must simply specify the values of `W` to be greater than 0 and/or the values of `D` to be lesser than 1:
+
+```{r eval=FALSE, include=TRUE}
+mean_block=polynomial_block(
+  eta=1,
+  order = 1,
+  name = "Mean",
+  D=0.95
+)
+```
+
+Bellow we present a plot of two models fitted to the same data: one with a static mean and another using a dynamic mean.
+
+```{r echo=FALSE}
+# Normal case
+T <- 200
+mu <- rnorm(T, 0, 0.1)
+data <- rnorm(T, cumsum(mu))
+
+level1 <- polynomial_block(
+mu1 = 1,
+D = 1,
+name='Static mean'
+)
+level2 <- polynomial_block(
+mu2 = 1,
+D = 0.95,
+name='Dynamic mean'
+)
+# Known variance
+outcome <- list('Static mean'=Normal(mu = "mu1", Sigma = 1, outcome = data),
+                'Dynamic mean'=Normal(mu = "mu2", Sigma = 1, outcome = data))
+
+fitted_data <- fit_model(level1,level2, outcomes = outcome)
+
+plot(fitted_data, smooth = TRUE)
+```
+
+The detailed theory behind the structure discussed in this section can be found in chapters 6, 7 and 9 from @WestHarr-DLM.
+
+## A structure for harmonic trend models
+
+```{r eval=FALSE, include=TRUE}
+harmonic_block(...,
+               period,
+               name = "Var_Sazo",
+               D = 1,
+               W = 0,
+               m0 = 0,
+               C0 = 1)
+```
+
+This function will create a latent vector $\theta_t=(\theta_{1t},\theta_{2t})'$, so that:
+
+$$
+\begin{align}
+\begin{bmatrix}\theta_{1t}\\ \theta_{2t}\end{bmatrix} &= \begin{bmatrix}cos(w) & sin(w)\\ -sin(w) & cos(w)\end{bmatrix}\begin{bmatrix}\theta_{1t}\\  \theta_{2t}\end{bmatrix}\\
+\theta_1&\sim \mathcal{N}_2(m_0,C_0),\\
+\epsilon_{1t},...,\epsilon_{kt}&\sim \mathcal{N}_k(0,W^*_t),
+\end{align}
+$$
+where $W^*_t=W_t+\frac{1-D_t}{D_t}Var[\theta_t|\mathcal{D}_{t-1}]$ and $w=\frac{2 * pi}{period}$.
+
+Notice that the user do not need to specify the matrix $G_t$, since it is implicitly determined by the period of the harmonic block, being a rotation matrix for an angle $w$, such that, if `period` is an integer, $G_t^{period}=I$. This way, if `period` is an integer, it represents the length of the seasonal cycle. For instance, if we have a time series with monthly observations and we believe that this series to have a annual pattern, then we would set the `period` for the harmonic block to be equal to 12 (the number of observations until the cycle resets).
+
+Similar to the `polynomial_block` function, the argument `...` is used to specify the matrix $F_t$, specifically, the user must provide a list of named values, whose name indicate a linear predictor $\lambda_t$ and it's associated value represent the effect of $\theta_{1t}$ in this predictor (the other latent state is assumed to have no effect on the linear predictors). Naturally, if a linear predictor is not present in `...`, it is understood that $\theta_{1t}$ have no effect whatsoever on that linear predictor. This allows the user to specify seasonal trends for the model and explanatory variables with seasonal effect on the linear predictor, both with support to temporal dynamic.
+
+Here we present a simply usage example for a harmonic block with period 12:
+
+```{r eval=FALSE, include=TRUE}
+mean_block=harmonic_block(
+  eta=1,
+  period = 12,
+  D=0.95
+)
+```
+
+Bellow we present a plot of a Poisson model with such structure. We will refrain to show the code for fitting the model itself, since we will discuss the tools for fitting in a section of it's own.
+
+```{r echo=FALSE}
+# Poisson case
+T <- 12*6
+w <- (T / 12) * 2 * pi
+data <- rpois(T, 2 * (sin(w * 1:T / T) + 2))
+
+level <- polynomial_block(rate = 1, D = 1)
+season <- harmonic_block(rate = 1, period = 12, D = 0.95)
+
+outcome <- Poisson(lambda = "rate", outcome = data)
+
+fitted_data <- fit_model(level, season, outcomes = outcome)
+
+plot(fitted_data, smooth = TRUE)
+```
+
+
+The detailed theory behind the structure discussed in this section can be found in chapters 6, 8 and 9 from @WestHarr-DLM.
+
+## A structure for auto regresive models
+
+```{r eval=FALSE, include=TRUE}
+AR_block(
+  ...,
+  order,
+  noise_var,
+  pulse = 0,
+  name = "Var_AR",
+  AR_support = "constrained",
+  D = 1,
+  W = 0,
+  m0 = 0,
+  C0 = 1,
+  m0_states = 0,
+  C0_states = 1,
+  D_states = 1,
+  m0_pulse = 0,
+  C0_pulse = 1,
+  D_pulse = 1,
+  W_pulse = 0
+)
+```
+
+This function will create a latent state $\theta_t$, an auto regressive (AR) coefficient vector $\phi_t=(\phi_{1t},...,\phi_{kt})'$, and an pulse coefficient vector $\rho_t=(\rho_{1t},...,\rho_{lt})'$, where $k=order$ and $l$ is the number of pulses (discussed later on) so that:
+
+$$
+\begin{align}
+\theta_{t} &= \sum_{i=1}^{k}\phi_{it}\theta_{t-i}+\sum_{i=1}^{l}\rho_{it}X_{it}+\epsilon_{t},\\
+\phi_t&=\phi_{t-1}+\omega_t,\\
+\rho_t&=\rho_{t-1}+\omega_t^{pulse},\\
+\epsilon_{t}&\sim \mathcal{N}(0,\sigma^2),\\
+\omega_{t}&\sim \mathcal{N}_k(0,W_t^*),\\
+\omega_{t}^{pulse}&\sim \mathcal{N}_l(0,W_t^{*pulse}),\\
+\theta_1&\sim \mathcal{N}(m_0^{states},C_0^{states}),\\
+\phi_1&\sim \mathcal{N}_k(m_0,C_0),\\
+\rho_1&\sim \mathcal{N}_l(m_0^{pulse},C_0^{pulse}).
+\end{align}
+$$
+where:
+
+$$
+\begin{align}
+\sigma^2&=noise\_var&+&\frac{1-D_t^{states}}{D_t^{states}}&Var[\theta_t|\mathcal{D}_{t-1}],\\ W^*_t&=W_t&+&\frac{1-D_t}{D_t}&Var[\phi_t|\mathcal{D}_{t-1}],\\ W^{*pulse}_t&=W_t^{pulse}&+&\frac{1-D_t^{pulse}}{D_t^{pulse}}&Var[\rho_t|\mathcal{D}_{t-1}]
+\end{align}
+$$
+and $X$, called pulse matrix, is a known $T \times l$ matrix.
+
+Notice that the user do not need to specify the matrix $G_t$, since it is implicitly determined by the order of the AR block and the equation above, although, as the reader might have noticed, that evolution will always be non linear. Since the method used to fit models in this package requires a linear evolution, we use the approach described in @WestHarr-DLM, chapter 13. Also, for more details about the usage of auto regressive models in the context of DLM's, see @WestHarr-DLM, chapter 9.
+
+It is easy to understand the meaning of most arguments of the `AR_block` function based on the equation above, but some explanation is still needed for the `...`, `name` and `AR_support` arguments, plus the arguments related with the so called pulse.
+
+Similar to the `polynomial_block` function, the argument `...` is used to specify the matrix $F_t$, specifically, the user must provide a list of named values, whose name indicate a linear predictor $\lambda_t$ and it's associated value represent the effect of $\theta_{t}$ in this predictor (we assume that $\phi_t$ and $\rho_t$ have no effect on the linear predictors). Naturally, if a linear predictor is not present in `...`, it is understood that $\theta_{t}$ has no effect whatsoever on that linear predictor.
+
+Also, in the same fashion that the other structure functions work, the `name` argument is optional, providing an easy way to identify each latent variable when plotting and summarizing a fitted model.
+
+The `AR_support` is a character string, either `"constrained"` or `"free"`. If `AR_support` is `"constrained"`, then the AR coefficients $\phi_t$ will be forced to be on the interval $(-1,1)$, otherwise, the coefficients will be unrestricted. Beware that, under no restriction on the coefficients, there is no guarantee that the estimated coefficients will imply in a stationary process, furthermore, if the order of the AR block is greater than 1, then the restriction imposed when AR_support is equal to `"constrained"` does NOT guarantee that the process will be stationary (although it may help). To constrain $\phi_t$ to the interval $(-1,1)$, we apply the function $\frac{2}{1+e^{-x}}-1$, which is very similar to the inverse Fisher transformation and, by adapting the prior for $\phi_t$, wields the same fit.
+
+The pulse matrix $X$ is informed through the argument pulse, with the dimension of $\rho_t$ being deduce by the number of columns in $X$. It is important to notice that the package expects that $X$ will inform the pulse value for each time instance, interpreting each column as a distinct pulse with an associated coordinate of $\rho_t$.
+
+Finally, we can summarize the usage of the `AR_block` function as:
+
+- The arguments `m0`, `C0` are the parameter for the prior for the AR coefficient $\phi_1$;
+- The arguments `D` and `W` define the variance of oscillations of $phi_t$ through time;
+- The arguments `m0_state`, `C0_state` are the parameter for the prior for the latent states $\theta_1, ...\theta_{1-k}$;
+- The arguments `noise_var` and `D` define the variance of oscillations of $\theta_t$ through time;
+- The arguments `m0_pulse`, `C0_pulse` are the parameter for the prior for the pulse coefficient $\rho_1$;
+- The arguments `D_pulse` and `W_pulse` define the variance of oscillation of $rho_t$ through time; 
+- The argument `pulse` is the pulse matrix $X$;
+- The argument `AR_support` defines the support for the AR coefficients $\phi_t$.
+
+```{r eval=FALSE, include=TRUE}
+mean_block=AR_block(eta=1,
+                    order=1,
+                    noise_var=0.1
+)
+```
+
+Bellow we present a plot of a Gamma model with known shape $\alpha=1.5$ and a AR structure for the mean fitted with simulated data. We will refrain to show the code for fitting the model itself, since we will discuss the tools for fitting in a section of it's own.
+
+```{r echo=FALSE, fig.height=9, fig.width=16}
+# Poisson case
+set.seed(13031998)
+T=200
+phi=0.95
+W=0.1
+ht=rep(NA,T)
+ht_i=0
+for(i in 1:T){
+  ht_i=phi*ht_i+rnorm(1,0,sqrt(W))
+  ht[i]=ht_i
+}
+# plot(exp(ht))
+
+data=rgamma(T,3/2,(3/2)/exp(ht))
+
+volatility=AR_block(eta=1,order=1,
+                    D=1,
+                    noise_var=W,
+                    AR_support='free',
+                    m0=1)
+
+############################################################
+fitted_data=fit_model(volatility,
+                       outcomes=Gamma(phi=3/2,mu='eta',outcome = data,alt_method = FALSE))
+
+# show_fit(fitted_data, smooth = TRUE)$plot
+par(mfrow=c(1,2))
+x=seq(fitted_data$mts[2,T]-4*sqrt(fitted_data$Cts[2,2,T]),
+      fitted_data$mts[2,T]+4*sqrt(fitted_data$Cts[2,2,T]),
+      l=1000)
+fx=dnorm(x,fitted_data$mts[2,T],sqrt(fitted_data$Cts[2,2,T]))
+plot(x,fx, main='Posterior distribuition for the AR coefficient', type='l', xlab=TeX('$\\phi$'),ylab='Density')
+lines(c(0.95,0.95),c(0,max(fx)+1),lty=2)
+legend('topright',legend=c(TeX('True $\\phi$')),lty=c(2))
+
+plot(ht, main='Latent states estimation',xlab='Time',ylab=TeX('$\\theta_t$'))
+lines(fitted_data$mts[1,])
+lines(fitted_data$mts[1,]-1.96*sqrt(fitted_data$Cts[1,1,]),lty=2)
+lines(fitted_data$mts[1,]+1.96*sqrt(fitted_data$Cts[1,1,]),lty=2)
+legend('bottomleft',legend=c('True states','Estimated states'),lty=c(0,1),pch=c(1,NA))
+par(mfrow=c(1,1))
+```
+
+
+## Handling multiple structural blocks
+
+In the previous subsections, we discussed how to define how to define the structure of a model using the functions `polynomial_block`, `harmonic_block` and `AR_block`, yet we have dealt only with cases when a model had only one of those structures. Generally, the user will want to mix and match multiple types of structures, each one being responsible to explain part of the outcome $Y_t$. For this task, we introduce two operator: one to merge and other to multiple blocks.
+
+Suppose that we have a model with variety of structural blocks such that:
+
+$$
+\begin{align}
+\theta_t&=\begin{bmatrix}\theta_t^1\\ \vdots\\ \theta_t^n\end{bmatrix}\\
+F_t&=\begin{bmatrix}F_t^1 & \dots & F_t^n\end{bmatrix}\\
+G_t&=diag\{G_t^{1},...,G_t^{n}\},\\
+W^*_t&=diag\{W_t^{*1},...,W_t^{*n}\},
+\end{align}
+$$
+where $diag\{M^1,...,M^{n}\}$ represents a block diagonal matrix such that it's diagonal is composed of  $M^1,...,M^{n}$, $\theta_t$ is vector obtained by the concatenation of the vectors $\theta_t^1,..., \theta_t^n$ and $F_t$ is a matrix obtained by the column-wise concatenation of the matrices $F_t^1,..., F_t^n$ (remember that each line of $F_t$ correspond to one linear predictor, such that $F_t^1,..., F_t^n$ have all the same number of lines).
+
+In this scenario, to facilitate the specification of such model, we could create one structural block for each $\theta_t^i$, $F_t^{i}$, $G_t^{i}$ and $W_t^{*i}$, $i=1,...n$ and than "merge" all blocks together. Our package allows that operation through the function `block_merge` or, (almost always) equivalently, through the `+` operator:
+
+```{r eval=FALSE, include=FALSE}
+block_1=...
+.
+.
+.
+block_n=...
+
+complete_structure=block_merge(block_1,...,block_n)
+# or
+complete_structure=block_1+...+block_n)
+```
+
+To futher demostrate the usage of this operator, suppose we would like to create a model using the three structures presented in the previous sections (a polynomial trend, a harmonic trend and a AR model). Then, we could do so with the following code:
+
+```{r eval=FALSE, include=TRUE}
+poly_subblock=polynomial_block(
+  eta=1,
+  order = 1,
+  name = "Poly",
+  D=0.95
+)
+
+harm_subblock=harmonic_block(
+  eta=1,
+  period = 12,
+  name = "Harm",
+  D=0.95
+)
+
+AR_subblock=AR_block(
+  eta=1,
+  order=1,
+  noise_var=0.1,
+  name='AR'
+)
+
+complete_block=poly_subblock+harm_subblock+AR_subblock
+```
+
+Ideally, the user should provide each block with a name to help identify then after the model is fitted, but, if the user does not provide a name, then the block will have the default name for that type of block. In case one or more blocks have the same name, the package will automatically add an index to the variables with conflicting names based on the order that the blocks were merged, but this might make the analysis of the fitted model confusing, specially when dealing with a large number of latent variable. With that in mind, we **strongly** recommend the users to specify an intuitive name for each structural block.
+
+Lastly, we present the `block_mult` function and it's associated operator `*`. This function allows the user to create multiple blocks with identical structure, but each associated with a different linear predictor. The usage of this function is as simple as:
+
+```{r include=FALSE}
+base_block=polynomial_block(
+  eta=1,
+  order = 1,
+  name = "Poly",
+  D=0.95
+)
+
+block_mult(base_block,4)
+# or
+4*base_block
+# or
+base_block*4
+```
+
+When multiplying block, the package understand that each copy of the base block is independent of each other (i.e., they have their own latent states) and each block is associated with a different set of linear predictors. The linear predictor of each block are taken to be the original name with a index:
+
+```{r echo=TRUE}
+final_block=4*base_block
+final_block$var_names
+```
+
+
+Naturally, the user might want to rename the linear predictor to a more intuitive label. For such task, we provide the function `rename_block`, whose usage is as follows:
+
+```{r echo=TRUE}
+final_block=block_rename(final_block,c('Matthew', 'Mark', 'Luke', 'John'))
+final_block$var_names
+```
+
+# Creating the model outcome
+
+Until now, we have presented the tools for creating the structure of a DGLM model, specifically, we have shown how to define the relationship between the latent vector $\theta_t$ and the linear predictors $\lambda_t$, along with the temporal dynamic of $\theta_t$. Now we proceed to define the observational model for $Y_t$ and the relationship between $\lambda_t$ and $\eta_t$, the parameters for the observational model.
+
+In each subsection, we will assume that the linear predictors are already defined, along with all the structure that must come along with then, moreover, we also assume that the user have created the necessary amount of linear predictors for each type of outcome (we will see, in each case, what that amount is) and that those linear predictors were named as `lambda_1`,...,`lambda_k`.
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim \mathcal{F}\left(\eta_t\right),\\
+g(\eta_t) &=\lambda_{t}=F_t'\theta_t.
+\end{align}
+$$
+
+## Poisson case
+
+Let's begin with most simply (and yet non trivial) outcome offered by the package: The Poisson outcome with unknown rate.
+
+In this case, we assume the following observational model model:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim Poisson\left(\eta_t\right),\\
+\ln(\eta_t) &=\lambda_{t}.
+\end{align}
+$$
+
+In the notation introduced before, we have that our link function $g$ is the (natural) logarithm function.
+
+To define such observation model, we offer the `Poisson` function, whose usage is presented bellow:
+
+```{r eval=FALSE, include=FALSE}
+Poisson(
+  lambda,
+  outcome,
+  offset = outcome^0
+)
+```
+
+As is common in the literature, we refer to the rate parameter of the Poisson distribution as `lambda` (altough, in the context of this document, this might seem confusing) and the user must provide for this argument the name of the linear predictor associated with this parameter.
+
+For the argument `outcome` the user must provide a set of numerical values consisting of the observed values of $Y_t$ at each time. Since the $Y_t$ is a scalar for all $t$, the user can pass the outcome as a vector or as a matrix with a single column.
+
+Lastly, the `offset` argument is optional and can be used to provide a measure of the scale of the data. If the offset is provided and is equal to $E_t$, then we will fit a model assuming that:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim Poisson\left(\eta_tE_t\right),\\
+\ln(\eta_t) &=\lambda_{t}.
+\end{align}
+$$
+
+Now, we present a code that fits some simulated data to the described model. We use some functions described in the previous section, as well as some functions that will present later on, for now, let's focus only on the usage of the `Poisson` function.
+
+```{r include=FALSE}
+# Poisson case
+T <- 200
+w <- (200 / 40) * 2 * pi
+data <- rpois(T, 20 * (sin(w * 1:T / T) + 2))
+```
+
+
+```{r}
+# Structure
+level <- polynomial_block(rate = 1, D = 0.95)
+season <- harmonic_block(rate = 1, period = 40, D = 0.98)
+
+# Outcome
+outcome <- Poisson(lambda = "rate", outcome = data)
+
+# Fitting and ploting
+fitted_data <- fit_model(level, season, outcomes = outcome)
+plot(fitted_data)
+```
+
+In the code above, we have that the variable `data` is simply a vector of size 200 contained the simulated data.
+
+Notice that, while creating the structure, we defined a linear predictor named `rate`, whose behavior is being explained by a first order polynomial trend and a seasonal component defined in the harmonic block. Since the value passed to `rate` equals 1 in both blocks, we have that these components have a constant effect (and equal to 1) on the linear predictor on all times, although the components themselves vary their value through time, such as to capture the behavior of the series.
+
+Later on, when creating the outcome, we pass the name `'rate'` as the linear predictor associated with `lambda`, the rate parameter of the Poisson distribution.
+
+This is a particularly simply usage of the package, the Poisson kernel being the one we the lesser amount of parameters. Moving forward, we will present outcomes whose specification can be a bit more complex.
+
+## Gamma case
+
+In this subsection we will present the Gamma case, in which we assume the following observational model:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim \mathcal{G}\left(\alpha_t,\beta_t\right),\\
+\alpha_t&=\exp\{\lambda_{1t}\},\\
+\beta_t&=\exp\{\lambda_{2t}\}
+\end{align}
+$$
+
+For this outcome we have a few variations. First, there's a matter of parametrization. We allow the user to define the model by any non redundant pair of:
+
+$$
+\begin{align}
+\alpha_t&,\\
+\beta_t&,\\
+\phi_t&=\alpha_t,\\
+\mu_t&=\frac{\alpha_t}{\beta_t},\\
+\sigma_t&=\frac{1}{\beta_t}.
+\end{align}
+$$
+
+Naturally, the user **CANNOT** specify both $\alpha_t$ AND $\phi_t$ or $\beta_t$ AND $\sigma_t$, as such specification is redundant at best, and incoherent at worst. Outside of those cases, in which the package will raise an error, any combination can be used by the user, allowing for the structure of the model to be define with the variables that are most convenient (it may be easier or more intuitive to specify the structure in the mean $\mu_t$ and the scale $\sigma_t$, than on the shape $\alpha_t$ and rate $\beta_t$).
+
+Another particularity of the Gamma outcome is that the user may set the shape parameter $\phi_t$ to a known constant. In that case, the user must specify the structure to the mean parameter $\mu_t$ (he is not allowed to specify neither $\beta_t$ nor $\sigma_t$). In general, it is not expected that the shape parameter is known, still, there are some important applications where it is common the use of Exponential Model ($\phi_t=1$) or some other particular cases of the Gamma distribution. The estimation of the shape parameter shape parameter $\phi_t$ is still under development, as such, results may be unreliable and we will not discuss the fitting of such models in this document (a version of the package with a proper estimation for $\phi_t$ will be released very soon).
+
+No matter the parametrization, the link function $g$ will always be the logarithm function, since, given a certain parametrization, we can write the linear predictor of any other parametrization as a linear transformation of the original linear predictors.
+
+In the examples of this section, we will always use the parameters $\phi_t$ (when applicable) and $\mu_t$, but the code used can be trivially adapted to other parametrizations.
+
+```{r eval=FALSE, include=TRUE}
+Gamma(
+  phi = NA,
+  mu = NA,
+  alpha = NA,
+  beta = NA,
+  sigma = NA,
+  outcome,
+  offset = outcome^0
+)
+```
+
+Similar to the Poisson case, the argument `outcome` must provide a set of numerical values consisting of the observed values of $Y_t$ at each time. Since the $Y_t$ is a scalar for all $t$, the user can pass the outcome as a vector or as a matrix with a single column.
+
+The `offset` argument is optional and can be used to provide a measure of the scale of the data. If the offset is provided and is equal to $E_t$, then we will fit a model assuming that:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim \mathcal{G}\left(\alpha_t,\beta_t E_t^{-1}\right).
+\end{align}
+$$
+
+Note that the above model implies that:
+
+$$
+\mathbb{E}[Y_t|\theta_t]=\frac{\alpha_t}{\beta_t}E_t.
+$$
+
+The arguments `phi`, `mu`, `alpha`, `beta` and `sigma` should be character strings indicating the name of the linear predictor associated with their respective linear predictor. The user may opt to pass `phi` as a positive numerical value, it that case, the shape parameter $\phi_t$ is considered known and equal to `phi` for all $t$.
+
+
+
+```{r include=FALSE}
+T <- 200
+w <- (200 / 40) * 2 * pi
+phi <- 2.5
+data <- matrix(rgamma(T, phi, phi / (20 * (sin(w * 1:T / T) + 2))), T, 1)
+
+level <- polynomial_block(mu = 1, D = 0.95)
+season <- harmonic_block(mu = 1, period = 40, D = 0.98)
+scale <- polynomial_block(phi = 1, D = 1)
+```
+
+
+```{r}
+outcome <- Gamma(phi = phi, mu = "mu", outcome = data)
+
+fitted_data <- fit_model(level, season, outcomes = outcome)
+
+plot(fitted_data, smooth = TRUE)
+```
+
+## Multinomial case
+
+In this subsection we will present the Multinomial case. Suppose that we have a sequence of $k$-dimensional non-negative integer vectors $Y_t$, such that $Y_t=(Y_{1t},...,Y_{kt})'$. We assume that:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim Multinom\left(N_t,\vec{p}_t\right),\\
+\ln\left\{\frac{p_{it}}{p_{kt}}\right\}&=\lambda_{it}, i=1,...,k-1,\\
+N_t&=\sum_{i=1}^{k}Y_{it},
+\end{align}
+$$
+where $\vec{p}_t=(p_{1t},...,p_{kt})'$, with $p_{it} \ge 0, \forall i$ and $\sum_{i=1}^k p_{it}=1$.
+
+Notice that $N_t$ is automatically defined by the values of $Y_t$, which we suppose known, as a consequence of that, we have that $N_t$ is always considered a known parameter. Also, it is important to point out that this model has only $k-1$ free parameters (instead of $k$), since the restriction $\sum_{i=1}^k p_{it}=1$ implies that defining $k-1$ entries of $\vec{p}_t$ defines the remaining value. Specifically, we will always take the last entry (or category) of $Y_t$ as the reference value, such that $p_{kt}$ can be considered as the baseline probability of observing data from a category (i.e., we will model how each $p_{it}$ relates to the baseline probability $p_{kt}$).
+
+To create an outcome for this model, we can make use of the `Multinom` function:
+
+```{r eval=FALSE, include=TRUE}
+Multinom(
+  p,
+  outcome,
+  offset = outcome^0
+)
+```
+
+For the Multinomial case, `p` must be a character vector of size $k-1$ containing the names of the linear predictors associated with $\ln\left\{\frac{p_{it}}{p_{kt}}\right\}$ for $i=1,...,k-1$.
+
+The `outcome` argument must be a $T \times k$ matrix containing the values of $Y_t$ for each observation. Notice that each line $i$ must be the values of all categories in time $i$ and each column $j$ must represent the values of a category $j$ through time .
+
+The `offset` argument is optional and must have the same shape of `outcome` (it's shape is also interpreted in the same manner). The argument can be used to provide a measure of the scale of the data and, if the offset is provided, such that for each time $t$ it is equal to $E_t=(E_{1t},...,E_{kt})'$, then we will fit a model assuming that:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim Multinom\left(N_t,\vec{p}^*_t\right),\\
+\ln\left\{\frac{p^*_{it}}{p^*_{kt}}\right\}&=\ln\left\{\frac{p_{it}}{p_{kt}}\right\}+\ln\left\{\frac{E_{it}}{E_{kt}}\right\}, i=1,...,k-1.
+\end{align}
+$$
+
+At the end of this section we present a brief discussion of the inclusion of the offset, how to interpret it and why we chose to include it as such.
+
+
+Again, we present a brief example for the usage of this outcome:
+
+```{r include=FALSE}
+# Multinomial case
+T <- 200
+y1 <- rpois(T, exp(5 + (-T:T / T) * 5))
+y2 <- rpois(T, exp(6 + (-T:T / T) * 5 + sin((-T:T) * (2 * pi / 12))))
+y3 <- rpois(T, exp(5))
+
+y <- cbind(y1, y2, y3)
+```
+
+
+```{r}
+level1 <- polynomial_block(p1 = 1, order = 2)
+level2 <- polynomial_block(p2 = 1, order = 2)
+season <- harmonic_block(p2 = 1, period = 12)
+outcome <- Multinom(p = c("p1", "p2"), outcome = y)
+
+fitted_data <- fit_model(level1, level2, season, outcomes = outcome)
+plot(fitted_data, smooth = TRUE)
+```
+
+### Some comments on the usage of a offset
+
+The model presented in this section intend to model a phenomena such that we have $N_t$ subjects that were distributed randomly (but not necessarily uniformly randomly) among $k$ categories. In this scenario, $p_{it}$ represent the probability of one observation fall within the category $i$, such that:
+
+$$
+p_{it}=\mathbb{P}(Y_{it}=1|N_t=1).
+$$
+In some application, it might be the case that $N_t$ represents the counting of some event of interest and we want to model the probability of this event occurring in each category, supposing that we already know the probability of an observation to belong to category $i$ (whether the event occurred or not). In this scenario, it is not clear how to use the multinomial model, since we will have that:
+
+$$
+p_{it}=\mathbb{P}(\text{Observation belong to category }i|\text{Event occured}),
+$$
+but we actually want to know:
+
+$$
+p^*_{it}=\mathbb{P}(\text{Event occured}|\text{Observation belong to category }i).
+$$
+
+Since we are assuming that $\mathbb{P}(\text{Event occured})$ is known, we can write:
+
+$$
+\begin{aligned}
+p^*_{it}&=\mathbb{P}(\text{Event occured}|\text{Observation belong to category }i)=\frac{\mathbb{P}(\text{Observation belong to category }i|\text{Event occured})\mathbb{P}(\text{Event occured})}{\mathbb{P}(\text{Observation belong to category }i)}\\
+&=\frac{p_{it}\mathbb{P}(\text{Event occured})}{\mathbb{P}(\text{Observation belong to category }i)}.
+\end{aligned}
+$$
+
+The above relation implies that:
+
+$$
+\begin{aligned}
+\ln\left\{\frac{p^*_{it}}{p^*_{kt}}\right\}
+&=\ln\left\{\frac{p_{it}}{p_{kt}}\right\}-\ln\left\{\frac{\mathbb{P}(\text{Observation belong to category }i)}{\mathbb{P}(\text{Observation belong to category }k)}\right\}.
+\end{aligned}
+$$
+
+If we pass to the `offset` argument of the `Multinom` function such that $E_{it}=\frac{\mathbb{P}(\text{Observation belong to category }i)}{\mathbb{P}(\text{Observation belong to category }k)}$, then, by the specification provided in this section, we have that:
+
+$$
+\ln\left\{\frac{p^*_{it}}{p^*_{kt}}\right\}=\lambda_{it},
+$$
+in other words, the linear predictors (and consequently, the model structure) will model the probability that a event occur in a specific class (instead of the probability that an observation belongs to a class, given that the event occurred).
+
+## Normal case
+
+In some sense, we can think of these as the most basic, at least in a theoretical point of view, since the Kalman Filter was develop for this specific scenario. In truth, we will present this case in two contexts, the first, which is indeed a simply implementation of the Kalman Filter and Smoother, deals with data coming from a Normal distribution (possibly multivariated) with unknown mean and known variance (or covariance matrix), the second scenario deals with data coming from a univariate Normal distribution with unknown mean and unknown variance.
+
+Also, at the end of the second subsection, we present an extension to the bivariated Normal distribution with unknown mean and unknown covariance matrix. A study is being conducted to expand this approach to the $k$-variated case, for any arbitrary $k$.
+
+### Normal outcome with known variance
+
+Similarly to the Multinomial case, suppose that we have a sequence of $k$-dimensional vectors $Y_t$, such that $Y_t=(Y_{1t},...,Y_{kt})'$. We assume that:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim \mathcal{N}_k\left(\mu_t,\Sigma\right),\\
+\mu_{it}&=\lambda_{it}, i=1,...,k,\\
+\end{align}
+$$
+where $\Sigma$ is a known symmetric, definite positive $k\times k$ matrix. Also, for this model, we assume that the link function $g$ is the identity function
+
+To create an outcome for this model, we can make use of the `Normal` function:
+
+```{r eval=FALSE, include=TRUE}
+Normal(
+  mu,
+  Tau = NA,
+  Sigma = NA,
+  Sd = NA,
+  outcome,
+  offset = outcome^0
+)
+```
+
+Intuitively, the `mu` argument must be a character vector of size $k$ containing the names of the linear predictors associated with each $\mu_{i.}$. The user must also specify one (and only one) of `Tau`, `Sigma` or `Sd`. If the user provides `Sigma`, $\Sigma$ is assumed to be the passed value; if the user provides `Tau`, $\Sigma$ is assumed to be the inverse of the passed matrix (i.e., `Tau` is the precision matrix); if the user provides `Sd`, $\Sigma$ is assumed to be such that the standard deviation of the observations is equal to diagonal of `Sd` and the covariance between observations is assumed the be equal to the off-diagonal elements of `Sd`. 
+
+The `outcome` argument must be a $T \times k$ matrix containing the values of $Y_t$ for each observation. Notice that each line $i$ must be the values of all categories in time $i$ and each column $j$ must represent the values of a category $j$ through time .
+
+The `offset` argument is optional and must have the same shape of `outcome` (it's shape is also interpreted in the same manner). The argument can be used to provide a measure of the scale of the data and, if the offset is provided, such that for each time $t$ it is equal to $E_t=(E_{1t},...,E_{kt})'$, then we will fit a model assuming that:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim \mathcal{N}_k\left(\mu_t,\Sigma^*_t\right),\\
+\mu_it&=\lambda_{it}E_{it}, i=1,...,k-1,\\
+\Sigma^*_t&=\begin{bmatrix}E_{1t} & & 0\\& \ddots & \\0 & & E_{kt}\end{bmatrix}\Sigma\begin{bmatrix}E_{1t} & & 0\\& \ddots & \\0 & & E_{kt}\end{bmatrix}\\
+\end{align}
+$$
+Next, we present two brief examples for the usage of this outcome: One for a univariate outcome and the other for a multivariate model.
+
+```{r include=FALSE}
+T <- 200
+mu <- rnorm(T, 0, 0.1)
+data <- rnorm(T, cumsum(mu))
+```
+
+
+```{r}
+level <- polynomial_block(mu = 1,D = 0.95)
+outcome <- Normal(mu = "mu", Sigma = 1, outcome = data)
+
+fitted_data <- fit_model(level, outcomes = outcome)
+
+plot(fitted_data, smooth = TRUE)
+```
+
+```{r include=FALSE}
+T <- 200
+mu1 <- cumsum(rnorm(T, 0, 0.1))+5
+mu2 <- cumsum(rnorm(T, 0, 0.2))-5
+Sigma=matrix(c(1,1,1,4),2,2)
+data <- Rfast::rmvnorm(T, c(0,0),Sigma)+cbind(mu1,mu2)
+```
+
+
+```{r}
+devtools::load_all()
+level <- polynomial_block(mu = 1,D = 0.95)*2
+outcome <- Normal(mu = c("mu_1","mu_2"),
+                  Sigma = matrix(c(1,1,1,4),2,2),
+                  outcome = data)
+
+fitted_data <- fit_model(level, outcomes = outcome)
+
+plot(fitted_data, smooth = TRUE)
+```
+
+### Normal outcome with unknown variance
+
+For this type of outcome, we assume that:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim \mathcal{N}\left(\mu_t,\tau^{-1}\right),\\
+\mu_{t}&=\lambda_{1t},\\
+\ln\{\tau_{t}\}&=\lambda_{2t}.\\
+\end{align}
+$$
+
+To create an outcome for this model, we can make use of the `Normal` function:
+
+```{r eval=FALSE, include=TRUE}
+Normal(
+  mu,
+  Tau = NA,
+  Sigma = NA,
+  Sd = NA,
+  outcome,
+  offset = outcome^0
+)
+```
+
+Intuitively, the `mu` argument must be a character representing the name of the linear predictor associated with each $\mu_.$. The user must also specify one (and only one) of `Tau`, `Sigma` or `Sd`.
+
+Similar to the Gamma case, we allow multiple parametrizations for the variance of the observational model. Specifically, if the user provides `Sigma`, we assume that $\lambda_{2t}=\ln\{\sigma^2_{t}\}=-\ln\{\tau_t\}$; if the user provides `Sd`, we assume that $\lambda_{2t}=\ln\{\sigma_{t}\}=-\ln\{\tau_t\}/2$; if the user provides `Tau`, then the default parametrization is used, i.e., $\lambda_{2t}=\ln\{\tau_t\}$. 
+
+The `outcome` argument must be a $T \times k$ matrix containing the values of $Y_t$ for each observation. Notice that each line $i$ must be the values of all categories in time $i$ and each column $j$ must represent the values of a category $j$ through time .
+
+The `offset` argument is optional and must have the same shape of `outcome` (it's shape is also interpreted in the same manner). The argument can be used to provide a measure of the scale of the data and, if the offset is provided, such that for each time $t$ it is equal to $E_t=(E_{1t},...,E_{kt})'$, then we will fit a model assuming that:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim \mathcal{N}_k\left(\mu_t,\Sigma^*_t\right),\\
+\mu_it&=\lambda_{it}E_{it}, i=1,...,k-1,\\
+\Sigma^*_t&=\begin{bmatrix}E_{1t} & & 0\\& \ddots & \\0 & & E_{kt}\end{bmatrix}\Sigma\begin{bmatrix}E_{1t} & & 0\\& \ddots & \\0 & & E_{kt}\end{bmatrix}\\
+\end{align}
+$$
+
+Next, we present two brief examples for the usage of this outcome: One for a univariate outcome and the other for a multivariate model.
+
+```{r include=FALSE}
+T <- 200
+mu <- rnorm(T, 0, 0.1)
+data <- rnorm(T, cumsum(mu))
+```
+
+
+```{r}
+level <- polynomial_block(mu = 1,D = 0.95)
+scale <- polynomial_block(sigma = 1,D = 1)
+outcome <- Normal(mu = "mu", Sigma = 'sigma', outcome = data)
+
+fitted_data <- fit_model(
+  level,scale,
+  outcomes = outcome
+)
+
+plot(fitted_data, smooth = TRUE)
+```
+
+```{r include=FALSE}
+T <- 200
+mu1 <- cumsum(rnorm(T, 0, 0.1))+5
+mu2 <- cumsum(rnorm(T, 0, 0.2))-5
+Sigma=matrix(c(1,1,1,4),2,2)
+data <- Rfast::rmvnorm(T, c(0,0),Sigma)+cbind(mu1,mu2)
+```
+
+
+```{r}
+devtools::load_all()
+level <- polynomial_block(mu = 1,D = 0.95)*2+
+         polynomial_block(sigma = 1,D = 1)*2+
+         polynomial_block(rho = 1,D = 1)
+  
+outcome <- Normal(mu = c("mu_1","mu_2"),
+                  Sigma = matrix(c('sigma_1','rho','rho','sigma_2'),2,2),
+                  outcome = data)
+
+fitted_data <- fit_model(level, outcomes = outcome)
+
+plot(fitted_data, smooth = TRUE)
+```
+
+#### Extension to the bivariate case
+
+# Fitting and analysing models
+
+# Advanced examples
+
+# Modeling multiple time séries
+
+# Intervention and monitoring
+
+
+
+# The Normal model with known variance
+
+We will consider the following model:
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim \mathcal{N}\left(\mu_t,\sigma^2\right),\\
+\mu_t &=\lambda_{t}=F_t'\theta_t,\\
+\theta_t&=G_t\theta_{t-1}+\epsilon_t,\\
+\epsilon_t &\sim \mathcal{N}(0,\Sigma_t).
+\end{align}
+$$
+where $Y_t$ is the observed outcome, $\theta_t$ is a vector of latent variables, $F_t$ and $G_t$ are (generally) known matrices, $\Sigma_t$ is a covariance matrix (i.e., symmetric and positive defined) and $\sigma^2$ is a known positive value.
+
+We also will consider $\mathcal{D}_t$ as representing the knowledge we have after observing the data first $t$ time iterations. In this notation, we have that $\mathcal{D}_t=\{Y_t\} \cup D_{t-1}$, while $\mathcal{D}_0$ represent our prior knowledge about the phenomena we are studying.
+
+To fit a model with this specification, the user must first specify the model structure. For this task, the package offers a variety of functions to allow the user to create pre-specified types of structures. For now, we will focus on the use of the `polynomial_block` function, whose usage syntax is as follows:
+
+```{r eval=FALSE, include=TRUE}
+polynomial_block(
+  ...,
+  order = 1,
+  name = "Var_Poly",
+  D = 1,
+  W = 0,
+  m0 = 0,
+  C0 = c(NA, rep(1, order - 1))
+)
+```
+
+This function will create a latent vector $\theta_t=(\theta_{1t},...,\theta_{k\ t})'$,, where $k$ is the order of the polynomial block, so that:
+
+$$
+\begin{align}
+\theta_{it} &= \theta_{it-1}+\theta_{i+1\ t-1}+\epsilon_{it},\\
+\theta_{kt} &= \theta_{kt-1}+\epsilon_{kt},\\
+\theta_1&\sim \mathcal{N}_k(m_0,C_0),\\
+\epsilon_{1t},...,\epsilon_{kt}&\sim \mathcal{N}_k(0,\Sigma_t),
+\end{align}
+$$
+where $\Sigma_t=\frac{1-D_t}{D_t}Var[\theta_t|\mathcal{D}_{t-1}]+W_t$.
+
+Notice that the user do not need to specify the matrix $G_t$, since it is implicitly determined by the order of the polynomial block (each type of block will define it own matrix $G_t$).
+
+It is easy to see the correspondence between most of the arguments of the `polynomial_block` function and their respective meaning in the block specification, remaining only to explain the use of the `...` and `name` arguments.
+
+The argument `...` is used to specify the matrix $F_t$, specifically, the user must provide a list of named values, whose name indicate a linear predictor $\lambda_t$ and it's associated value represent the effect of $\theta_{1t}$ in this predictor. Naturally, if a linear predictor is not present in `...`, it is understood that $\theta_{1t}$ have no effect whatsoever in that linear predictor. It may seem strange such specification of $F_t$, but as the reader will see further bellow (and in other types of models, specially the ones with multiple outcomes), this way of specifying $F_t$ is very useful to avoid confusion when dealing with multiple linear predictors.
+
+
+$$
+\begin{align}
+Y_t|\theta_t &\sim \mathcal{N}\left(\mu_t,\tau_t^{-1}\right),\\
+\begin{bmatrix}\mu_t\\\ln(\tau_t)\end{bmatrix} &=\begin{bmatrix}\lambda_{1t}\\\lambda_{2t}\end{bmatrix}=F_t'\theta_t,\\
+\theta_t&=G_t\theta_{t-1}+\epsilon_t,\\
+\epsilon_t &\sim \mathcal{N}(0,\Sigma_t).
+\end{align}
+$$
+
+# References
