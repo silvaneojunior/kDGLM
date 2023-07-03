@@ -16,7 +16,6 @@ Prints a report for a searched_dlm object.
 Other {auxiliary visualization functions for the fitted_dlm class}: 
 \code{\link{plot_lat_var}()},
 \code{\link{plot_lin_pred}()},
-\code{\link{report_distr}()},
 \code{\link{report_dlm}()},
 \code{\link{show_fit}()}
 }

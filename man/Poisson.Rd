@@ -29,7 +29,7 @@ For the details about the implementation see  \insertCite{ArtigoPacote;textual}{
 # Poisson case
 T <- 200
 w <- (200 / 40) * 2 * pi
-data <- rpois(T, 20 * (sin(w * 1:T / T) + 2))
+data <- rpois(T, exp(sin(w * 1:T / T) + 2))
 
 level <- polynomial_block(rate = 1, D = 0.95)
 season <- harmonic_block(rate = 1, period = 40, D = 0.98)
@@ -51,6 +51,7 @@ show_fit(fitted_data, smooth = TRUE)$plot
 Other {auxiliary functions for a creating outcomes}: 
 \code{\link{Gamma}()},
 \code{\link{Multinom}()},
-\code{\link{Normal}()}
+\code{\link{Normal}()},
+\code{\link{report_distr}()}
 }
 \concept{{auxiliary functions for a creating outcomes}}

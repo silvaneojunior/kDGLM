@@ -7,9 +7,8 @@
 show_fit(
   model,
   pred_cred = 0.95,
-  smooth = model$smooth,
-  plotly = requireNamespace("plotly", quietly = TRUE),
-  h = 0
+  lag = 1,
+  plotly = requireNamespace("plotly", quietly = TRUE)
 )
 }
 \arguments{
@@ -17,11 +16,9 @@ show_fit(
 
 \item{pred_cred}{Numeric: The credibility value for the credibility interval.}
 
-\item{smooth}{Bool: A flag indicating if the smoothed should be used. If false, the filtered distribution will be used.}
+\item{lag}{Integer: A integer with the number of steps ahead should be used for prediction. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribuition is used.}
 
 \item{plotly}{Bool: A flag indicating if plotly should be used for creating plots.}
-
-\item{h}{Integer: A integer with the amount of steps ahead should be used for prediction. Only used if smooth is false.}
 }
 \value{
 A list containing:
@@ -53,7 +50,6 @@ show_fit(fitted_data, smooth = TRUE)$plot
 Other {auxiliary visualization functions for the fitted_dlm class}: 
 \code{\link{plot_lat_var}()},
 \code{\link{plot_lin_pred}()},
-\code{\link{report_distr}()},
 \code{\link{report_dlm}()},
 \code{\link{report_searched_dlm}()}
 }

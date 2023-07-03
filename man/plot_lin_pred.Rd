@@ -7,20 +7,20 @@
 plot_lin_pred(
   model,
   pred = "",
-  smooth = model$smooth,
-  cut_off = 10,
+  lag = -1,
+  cutoff = floor(model$t/10),
   pred_cred = 0.95,
   plotly = requireNamespace("plotly", quietly = TRUE)
 )
 }
 \arguments{
-\item{model}{<undefined class> or list: A fitted DGLM model.}
+\item{model}{fitted_dlm: A fitted DGLM model.}
 
 \item{pred}{Character: The name of the linear predictors to plot (same value passed while creating the structure). Any predictors whose name partially match this variable will be plotted.}
 
-\item{smooth}{Bool: A flag indicating if the smoothed distribution should be used. If false, the filtered distribution shall be used.}
+\item{lag}{Integer: A integer with the number of steps ahead should be used for evaluating the linear predictors. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribution is used.}
 
-\item{cut_off}{Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.}
+\item{cutoff}{Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.}
 
 \item{pred_cred}{Numeric: The credibility value for the credibility interval.}
 
@@ -56,7 +56,6 @@ plot_lin_pred(fitted_data, smooth = TRUE)$plot
 \seealso{
 Other {auxiliary visualization functions for the fitted_dlm class}: 
 \code{\link{plot_lat_var}()},
-\code{\link{report_distr}()},
 \code{\link{report_dlm}()},
 \code{\link{report_searched_dlm}()},
 \code{\link{show_fit}()}

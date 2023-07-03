@@ -18,7 +18,7 @@
 #' # Poisson case
 #' T <- 200
 #' w <- (200 / 40) * 2 * pi
-#' data <- rpois(T, 20 * (sin(w * 1:T / T) + 2))
+#' data <- rpois(T, exp(sin(w * 1:T / T) + 2))
 #'
 #' level <- polynomial_block(rate = 1, D = 0.95)
 #' season <- harmonic_block(rate = 1, period = 40, D = 0.98)
@@ -61,7 +61,7 @@ Poisson <- function(lambda, outcome, offset = outcome**0, alt_method = FALSE) {
     },
     link_function = log, inv_link_function = exp,
     param_names = c("alpha", "beta"),
-    var_names = c(lambda),
+    pred_names = c("Mean (labmda)" = lambda),
     r = r,
     k = k,
     l = k,
@@ -127,13 +127,13 @@ convert_Normal_Poisson <- function(conj_prior, parms) {
   return(list("ft" = ft, "Qt" = Qt))
 }
 
-#' convert_Poisson_Normal_LB
-convert_Poisson_Normal_LB <- function(ft, Qt, parms) {
-  h <- -3 + 3 * sqrt(1 + 2 * Qt / 3)
-  alpha <- (1 / h)
-  beta <- alpha * exp(-ft + 0.5 * Qt)
-  return(list("alpha" = alpha, "beta" = beta))
-}
+# # convert_Poisson_Normal_LB
+# convert_Poisson_Normal_LB <- function(ft, Qt, parms) {
+#   h <- -3 + 3 * sqrt(1 + 2 * Qt / 3)
+#   alpha <- (1 / h)
+#   beta <- alpha * exp(-ft + 0.5 * Qt)
+#   return(list("alpha" = alpha, "beta" = beta))
+# }
 
 #' update_Poisson
 #'

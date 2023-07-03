@@ -66,7 +66,6 @@ var_decomp <- function(S) {
 #'
 #' @importFrom Rfast cholesky
 #' @keywords internal
-# ginv <- MASS::ginv
 ginv <- function(S) {
   Chol_decomp <- cholesky(S)
   if (prod(if.nan(diag(Chol_decomp), 0)) < 1e-6) {
@@ -86,6 +85,36 @@ ginv <- function(S) {
   }
 }
 
+#' create_G
+#'
+#' Creates a matrix G such that G %*% S0 %*% G'= S1.
+#'
+#' @param S0 A covariance matrix
+#' @param S1 A covariance matrix
+#'
+#' @keywords internal
+create_G <- function(S0, S1) {
+  svd_decomp0 <- svd(S0)
+  svd_decomp1 <- svd(S1)
+  d0 <- sqrt(svd_decomp0$d)
+  d1 <- sqrt(svd_decomp1$d)
+  d <- ifelse(d0 > 1e-6, d1 / d0, 0)
+
+  u0 <- transpose(svd_decomp0$u)
+  # u0 <- transpose(svd_decomp0$v)
+  u1 <- svd_decomp1$u
+  return(u1 %*% diag(d) %*% u0)
+}
+
+#' bdiag
+#'
+#' Creates a block diagonal matrix with the matrix passed as argument.
+#'
+#' @param ...  A list of matrices to be used.
+#'
+#' @return A block diagonal matrix whose diagonal elements are equal to the matrices passed as arguments.
+#'
+#' @keywords internal
 bdiag <- function(...) {
   mats <- list(...)
   ns <- sapply(mats, function(x) {
@@ -102,15 +131,15 @@ bdiag <- function(...) {
   mat_final
 }
 
-#' calcula_max
+#' evaluate_max
 #'
 #' Auxiliary function to calculate the axis limits and gradation for plots.
 #'
 #' @param pre_max Numeric: A vector/matrix from which to calculate the axis limits and gradation.
 #'
-#' @return A list contaning the gradation for the axis, the number of ticks in the axis and the maximum value.
+#' @return A list containing the gradation for the axis, the number of ticks in the axis and the maximum value.
 #' @keywords internal
-calcula_max <- function(pre_max) {
+evaluate_max <- function(pre_max) {
   if (length(pre_max) == 0 | sum(pre_max**2) < 10**-20) {
     pre_max <- 1
   } else {
@@ -145,6 +174,7 @@ calcula_max <- function(pre_max) {
 #'
 #' @importFrom Rfast colnth
 #'
+#' @export
 #' @return Vector: The chosen quantile for each column of X.
 #' @keywords internal
 colQuantile <- function(X, q) {
@@ -164,6 +194,7 @@ colQuantile <- function(X, q) {
 #'
 #' @importFrom Rfast rownth
 #'
+#' @export
 #' @return Vector: The chosen quantile for each row of X.
 #' @keywords internal
 rowQuantile <- function(X, q) {
@@ -210,4 +241,27 @@ f_root <- function(f, df, start, tol = 1e-8, n_max = 1000) {
     warning("Steady state not reached.\n")
   }
   return(list("root" = x_root, "f.root" = fx, "inter." = count))
+}
+
+#' check.block.status
+#'
+#' Checks if a block is defined.
+#'
+#' @param block A dlm_block object.
+#'
+#' @return A string ("defined" or "undefined") indicating if all parameters in the block are defined.
+#'
+#' @keywords internal
+check.block.status <- function(block) {
+  status <- "defined"
+  for (param in c("G", "D", "H", "a1", "R1")) {
+    if (any(is.character(if.na(block[[param]], 0)))) {
+      status <- "undefined"
+      break
+    }
+  }
+  if (!all(block$FF_labs %in% c("const", block$pred_names))) {
+    status <- "undefined"
+  }
+  return(status)
 }

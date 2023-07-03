@@ -53,10 +53,10 @@ Multinom <- function(p, outcome, offset = outcome**0, alt_method = FALSE) {
   }
   convert_mat_default <- convert_mat_canom <- diag(k)
   parms <- list()
-  # var_names=p
-  # names(var_names)=paste0('p',c(1:r))
+  # pred_names=p
+  names(p) <- paste0("Odds for category ", c(1:k), " (p_", c(1:k), ")")
   distr <- list(
-    var_names = p,
+    pred_names = p,
     r = r,
     k = k,
     l = r,
@@ -278,6 +278,20 @@ multnom_pred <- function(conj_param, outcome, parms = list(), pred_cred = 0.95) 
       const <- lgamma(alpha0) + lgamma(N + 1) - lgamma(N + alpha0)
 
       if (pred.flag) {
+        # alpha=c(5,4,3,9)*5
+        # alpha0 <- sum(alpha)
+        # N <- 2000
+        # r=4
+        # pred_cred=0.95
+        # t_i=1
+        # icl.pred=matrix(NA,r,1)
+        # icu.pred=matrix(NA,r,1)
+        # icl.pred2=matrix(NA,r,1)
+        # icu.pred2=matrix(NA,r,1)
+        # pred=matrix(NA,r,1)
+        # var.pred=array(NA,c(r,r,1))
+        # const <- lgamma(alpha0) + lgamma(N + 1) - lgamma(N + alpha0)
+
         p <- alpha / alpha0
         p_var <- p * (1 - p) / (alpha0 + 1)
 
@@ -289,21 +303,86 @@ multnom_pred <- function(conj_param, outcome, parms = list(), pred_cred = 0.95) 
           }
         }
 
-        x_mat <- matrix(0:N, N + 1, r)
-        alpha_mat <- matrix(alpha, N + 1, r, byrow = TRUE)
-        x_alpha_mat <- x_mat + alpha_mat
+        # pseu_lgamma=function(x){0.5*log(2*pi*x)+x*(log(x)-1)}
+        #
+        # x_mat <- matrix(0:N, N + 1, r)
+        # alpha_mat <- matrix(alpha, N + 1, r, byrow = TRUE)
+        #
+        # lgamma_x_plus_mat <- matrix(lgamma(0:N+1), N + 1, r)
+        # lgamma_alpha_mat <- matrix(lgamma(alpha), N + 1, r, byrow = TRUE)
+        # lgamma_N_x_plus_mat <- matrix(lgamma(N:0+1), N + 1, r)
+        # lgamma_alpha0_alpha_mat <- matrix(lgamma(alpha0-alpha), N + 1, r, byrow = TRUE)
+        #
+        # x_alpha_mat <- x_mat + alpha_mat
+        #
+        # lgamma_x_alpha_mat <- x_alpha_mat
+        # lgamma_N_alpha0_alpha_mat <- N + alpha0 - x_alpha_mat
+        #
+        # if(N>10){
+        #   lgamma_x_alpha_mat[1:(N-11),]=lgamma(lgamma_x_alpha_mat[1:(N-11),])
+        #   lgamma_x_alpha_mat[-c(1:(N-11)),]=pseu_lgamma(lgamma_x_alpha_mat[-c(1:(N-11)),])
+        #
+        #   lgamma_N_alpha0_alpha_mat[1:11,]=lgamma(lgamma_N_alpha0_alpha_mat[1:11,])
+        #   lgamma_N_alpha0_alpha_mat[-c(1:11),]=pseu_lgamma(lgamma_N_alpha0_alpha_mat[-c(1:11),])
+        # }else{
+        #   lgamma_x_alpha_mat <- lgamma(x_alpha_mat)
+        #   lgamma_N_alpha0_alpha_mat <- lgamma(N + alpha0 - x_alpha_mat)
+        # }
+        # prob_mat <- matrix(NA, N + 1, r)
+        #
+        # prob_mat <-
+        #   lgamma(x_alpha_mat) -
+        #   lgamma_x_plus_mat -
+        #   lgamma_alpha_mat +
+        #   lgamma(N + alpha0 - x_alpha_mat) -
+        #   lgamma_N_x_plus_mat -
+        #   lgamma_alpha0_alpha_mat
+        # prob_mat <- exp(const + prob_mat)
+        # probs_acum <- colCumSums(prob_mat)
+        # icl.pred[,t_i] <- colSums(probs_acum < ((1 - pred_cred) / 2))
+        # icu.pred[,t_i] <- colSums(probs_acum < (1 - (1 - pred_cred) / 2))
 
-        prob_mat <- lgamma(x_alpha_mat) - lgamma(x_mat + 1) - lgamma(alpha_mat) + lgamma(N + alpha0 - x_alpha_mat) - lgamma(N - x_mat + 1) - lgamma(alpha0 - alpha_mat)
-        prob_mat <- exp(const + prob_mat)
-        for (i in 1:r) {
-          probs_acum <- cumsum(prob_mat[, i])
+        const <- lgamma(alpha0) + lgamma(N + 1) - lgamma(N + alpha0)
 
-          icl.pred[i, t_i] <- sum(probs_acum <= ((1 - pred_cred) / 2)) - 1
-          icu.pred[i, t_i] <- sum(probs_acum <= (1 - (1 - pred_cred) / 2))
+        beta <- alpha0 - alpha
+        lgamma_alpha <- lgamma(alpha)
+        lgamma_beta <- lgamma(beta)
 
-          icl.pred[i, t_i] <- max(0, icl.pred[i])
-          icu.pred[i, t_i] <- min(N, icu.pred[i])
+        probs_acum <- rep(0, r)
+        N_cur <- rep(0, r)
+        flags <- probs_acum < ((1 - pred_cred) / 2)
+        while (any(flags)) {
+          probs_acum[flags] <- probs_acum[flags] +
+            exp(
+              lgamma((N_cur[flags] + alpha[flags])) +
+                -lgamma((N_cur[flags] + 1)) +
+                -lgamma_alpha[flags] +
+                lgamma(N + beta[flags] - N_cur[flags]) +
+                -lgamma(N - N_cur[flags] + 1) +
+                -lgamma_beta[flags] +
+                const
+            )
+          N_cur[flags] <- N_cur[flags] + 1
+          flags <- probs_acum < ((1 - pred_cred) / 2)
         }
+        icl.pred[, t_i] <- N_cur
+
+        flags <- probs_acum < (1 - (1 - pred_cred) / 2)
+        while (any(flags)) {
+          probs_acum[flags] <- probs_acum[flags] +
+            exp(
+              lgamma((N_cur[flags] + alpha[flags])) +
+                -lgamma((N_cur[flags] + 1)) +
+                -lgamma_alpha[flags] +
+                lgamma(N + beta[flags] - N_cur[flags]) +
+                -lgamma(N - N_cur[flags] + 1) +
+                -lgamma_beta[flags] +
+                const
+            )
+          N_cur[flags] <- N_cur[flags] + 1
+          flags <- probs_acum < (1 - (1 - pred_cred) / 2)
+        }
+        icu.pred[, t_i] <- N_cur
       }
       if (like.flag) {
         log.like[t_i] <- const + sum(lgamma(outcome_t + alpha) - lgamma(outcome_t + 1) - lgamma(alpha))

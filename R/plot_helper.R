@@ -4,9 +4,8 @@
 #'
 #' @param model fitted_dlm: A fitted DGLM.
 #' @param pred_cred Numeric: The credibility value for the credibility interval.
-#' @param smooth Bool: A flag indicating if the smoothed should be used. If false, the filtered distribution will be used.
+#' @param lag Integer: A integer with the number of steps ahead should be used for prediction. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribuition is used.
 #' @param plotly Bool: A flag indicating if plotly should be used for creating plots.
-#' @param h Integer: A integer with the amount of steps ahead should be used for prediction. Only used if smooth is false.
 #'
 #' @return A list containing:
 #' \itemize{
@@ -36,13 +35,13 @@
 #' show_fit(fitted_data, smooth = TRUE)$plot
 #'
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-show_fit <- function(model, pred_cred = 0.95, smooth = model$smooth, plotly = requireNamespace("plotly", quietly = TRUE), h = 0) {
+show_fit <- function(model, pred_cred = 0.95, lag = 1, plotly = requireNamespace("plotly", quietly = TRUE)) {
   t_last <- dim(model$mt)[2]
-  eval <- eval_past(model, smooth = smooth, h = h, pred_cred = pred_cred)
+  eval <- eval_past(model, lag = lag, pred_cred = pred_cred, eval_pred = TRUE)$data
 
   obs_na_rm <- eval$Observation[!is.na(eval$Observation)]
-  max_value <- calcula_max(obs_na_rm - min(obs_na_rm))[[3]] + min(obs_na_rm)
-  min_value <- -calcula_max(-(obs_na_rm - max(obs_na_rm)))[[3]] + max(obs_na_rm)
+  max_value <- evaluate_max(obs_na_rm - min(obs_na_rm))[[3]] + min(obs_na_rm)
+  min_value <- -evaluate_max(-(obs_na_rm - max(obs_na_rm)))[[3]] + max(obs_na_rm)
 
   n_colors <- length(unique(eval$Serie))
   colors <- rainbow(n_colors, s = 0.6)
@@ -60,6 +59,16 @@ show_fit <- function(model, pred_cred = 0.95, smooth = model$smooth, plotly = re
     "Fitted values" = NA
   )
 
+  title <- if (lag < 0) {
+    "Smoothed predictions"
+  } else if (lag == 0) {
+    "Filtered predictions"
+  } else if (lag == 1) {
+    "One-step-ahead predictions"
+  } else {
+    paste0(lag, "-steps-ahead predictions")
+  }
+
   plt <- ggplot() +
     geom_ribbon(data = eval, aes_string(x = "Time", fill = "Serie", ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25) +
     geom_line(data = eval, aes_string(x = "Time", color = "Serie", y = "Prediction", linetype = "'Fitted values'")) +
@@ -70,15 +79,18 @@ show_fit <- function(model, pred_cred = 0.95, smooth = model$smooth, plotly = re
     scale_color_manual("", na.value = NA, values = colors) +
     scale_y_continuous(name = "$y_t$") +
     scale_x_continuous("Time") +
+    ggtitle(title) +
     theme_bw() +
     coord_cartesian(ylim = c(min_value, max_value))
-
-  if (any(model$outcomes[[1]]$alt.flags == 1)) {
-    plt <- plt +
-      geom_vline(
-        data = data.frame(xintercept = (1:t_last)[model$outcomes[[1]]$alt.flags == 1], linetype = "Detected changes"),
-        aes_string(xintercept = "xintercept", linetype = "linetype", fill = "linetype", color = "linetype")
-      )
+  for (name_i in names(model$outcomes)) {
+    outcome_i <- model$outcomes[[name_i]]
+    if (any(outcome_i$alt.flags == 1)) {
+      plt <- plt +
+        geom_vline(
+          data = data.frame(xintercept = (1:t_last)[outcome_i$alt.flags == 1], linetype = "Detected changes", serie = name_i),
+          aes_string(xintercept = "xintercept", linetype = "linetype")
+        )
+    }
   }
   if (plotly) {
     if (!requireNamespace("plotly", quietly = TRUE)) {
@@ -97,6 +109,11 @@ show_fit <- function(model, pred_cred = 0.95, smooth = model$smooth, plotly = re
         plt$x$data[[i + 1 + 2 * n_colors]]$legendgroup <-
           plt$x$data[[i + 1 + 2 * n_colors]]$name <- paste0(series_names[i + 1], ": observations")
       }
+      n <- length(plt$x$data)
+      if (n %% 3 == 1) {
+        plt$x$data[[n]]$legendgroup <-
+          plt$x$data[[n]]$name <- "Detected changes"
+      }
     }
   }
   return(list("data" = eval, "plot" = plt))
@@ -104,17 +121,17 @@ show_fit <- function(model, pred_cred = 0.95, smooth = model$smooth, plotly = re
 
 #' Visualizing latent states in a fitted kDGLM model
 #'
-#' @param model <undefined class> or list: A fitted DGLM model.
+#' @param model fitted_dlm: A fitted DGLM model.
 #' @param var Character: The name of the variables to plot (same value passed while creating the structure). Any variable whose name partially match this variable will be plotted.
-#' @param smooth Bool: A flag indicating if the smoothed distribution should be used. If false, the filtered distribution shall be used.
-#' @param cut_off Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.
+#' @param lag Integer: A integer with the number of steps ahead should be used for evaluating the latent variables. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribution is used.
+#' @param cutoff Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.
 #' @param pred_cred Numeric: The credibility value for the credibility interval.
 #' @param plotly Bool: A flag indicating if plotly should be used to create plots.
 #'
 #' @return A list containing:
 #' \itemize{
 #'    \item plot ggplot or plotly object: A plot showing the predictive mean and credibility interval with the observed data.
-#'    \item data tibble: A data frame containing the data used in the plot.
+#'    \item data data.frame: A data frame containing the data used in the plot.
 #' }
 #' @export
 #'
@@ -141,57 +158,28 @@ show_fit <- function(model, pred_cred = 0.95, smooth = model$smooth, plotly = re
 #' plot_lat_var(fitted_data, smooth = TRUE)$plot
 #'
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-plot_lat_var <- function(model, var = "", smooth = model$smooth, cut_off = round(model$t/10), pred_cred = 0.95, plotly = requireNamespace("plotly", quietly = TRUE)) {
-  if (!any(grepl(var, names(model$names)))) {
-    stop(paste0("Error: Invalid selected variable. Got ", var, ", expected one of the following:\n", names(model$names)))
+plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10), pred_cred = 0.95, plotly = requireNamespace("plotly", quietly = TRUE)) {
+  if (!any(grepl(var, model$var_labels))) {
+    stop(paste0("Error: Invalid variable selection. Got '", var, "', expected one of the following:\n", paste0(names(model$var_names), collapse = "\n")))
   }
   if (pred_cred >= 1 | pred_cred <= 0) {
     stop(paste0("Error: Invalid value for I.C. width. Must be between 0 and 1, got ", pred_cred))
   }
 
-  indice <- c()
-  names_var <- c()
-  for (i in names(model$names)) {
-    if (grepl(var, i)) {
-      indice <- c(indice, model$names[[i]])
-      count <- 0
-      k_i=length(model$names[[i]])
-      size=floor(log10(k_i))+1
-      size_i=size-floor(log10(1:k_i))-1
-      names_index=sapply(size_i,function(x){
-        paste0(rep('0',x),collapse='')
-      })
-      for (index in model$names[[i]]) {
-        count <- count + 1
-        if (length(model$names[[i]]) > 1) {
-          names_var <- c(names_var, paste0(i, ":\nlat. val. ",names_index[count], count))
-        } else {
-          names_var <- c(names_var, i)
-        }
-      }
-    }
-  }
+  indice <- (1:model$n)[grepl(var, model$var_labels)]
+  var_names <- model$var_labels[grepl(var, model$var_labels)]
+
   size <- length(indice)
-  t <- dim(model$mts)[2]
-  m1 <- if (smooth) {
-    model$mts[indice, ]
-  } else {
-    model$mt[indice, ]
-  }
-  m1 <- m1 %>%
-    matrix(size, t) %>%
+  t <- model$t
+
+  param_distr <- eval_past(model, lag = lag, pred_cred = pred_cred, eval_pred = FALSE)
+
+  m1 <- param_distr$mt[indice, (cutoff + 1):t, drop = FALSE] %>%
     t()
-  std_mat <- if (smooth) {
-    model$Cts[indice, indice, ]
-  } else {
-    model$Ct[indice, indice, ]
-  }
-  if (size > 1) {
-    std_mat <- std_mat %>% apply(3, diag)
-  }
-  std_mat <- std_mat %>%
+  std_mat <- param_distr$Ct[indice, indice, (cutoff + 1):t, drop = FALSE] %>%
+    apply(3, diag) %>%
     sqrt() %>%
-    matrix(size, t) %>%
+    matrix(size, t - cutoff) %>%
     t()
 
   lim_i <- m1 + qnorm((1 - pred_cred) / 2) * std_mat
@@ -201,12 +189,12 @@ plot_lat_var <- function(model, var = "", smooth = model$smooth, cut_off = round
   lim_i <- as.data.frame(lim_i)
   lim_s <- as.data.frame(lim_s)
 
-  names(m1) <- names_var
-  names(lim_i) <- names_var
-  names(lim_s) <- names_var
+  names(m1) <- var_names
+  names(lim_i) <- var_names
+  names(lim_s) <- var_names
 
-  max_value <- calcula_max(m1 - min(m1))[[3]] + min(m1)
-  min_value <- -calcula_max(-(m1 - max(m1)))[[3]] + max(m1)
+  max_value <- evaluate_max(m1 - min(m1))[[3]] + min(m1)
+  min_value <- -evaluate_max(-(m1 - max(m1)))[[3]] + max(m1)
 
   if (max_value - min_value < 1e-2) {
     center <- (max_value + min_value) / 2
@@ -214,45 +202,58 @@ plot_lat_var <- function(model, var = "", smooth = model$smooth, cut_off = round
     max_value <- center - 0.01
   }
 
-  m1$time <- c(1:dim(m1)[1])
-  lim_i$time <- c(1:dim(lim_i)[1])
-  lim_s$time <- c(1:dim(lim_s)[1])
 
-  m1 <- m1[-c(1:cut_off), ] %>%
+  m1$time <- c(1:dim(m1)[1]) + cutoff
+  lim_i$time <- c(1:dim(lim_i)[1]) + cutoff
+  lim_s$time <- c(1:dim(lim_s)[1]) + cutoff
+
+  m1 <- m1 %>%
     pivot_longer(1:size) %>%
     rename("media" = "value")
-  lim_i <- lim_i[-c(1:cut_off), ] %>%
+  lim_i <- lim_i %>%
     pivot_longer(1:size) %>%
     rename("lim_i" = "value")
-  lim_s <- lim_s[-c(1:cut_off), ] %>%
+  lim_s <- lim_s %>%
     pivot_longer(1:size) %>%
     rename("lim_s" = "value")
 
-  label <- paste0("\n(", pred_cred * 100 %>% round(), "%)")
+  label <- paste0("\n(cred. ", pred_cred * 100 %>% round(), "%)")
 
   plot_data <- m1 %>%
     inner_join(lim_i, by = c("time", "name")) %>%
     inner_join(lim_s, by = c("time", "name"))
 
-  n_var <- length(unique(plot_data$name))
+  plot_data$name <- factor(plot_data$name, levels = unique(plot_data$name))
+
+  n_var <- length(levels(plot_data$name))
   color_list <- rainbow(n_var, s = 0.5)
-  names(color_list) <- paste(unique(plot_data$name), label)
+  names(color_list) <- paste(levels(plot_data$name), label)
 
   fill_list <- rainbow(n_var, s = 0.5)
-  names(fill_list) <- paste(unique(plot_data$name), label)
+  names(fill_list) <- paste(levels(plot_data$name), label)
   plot_data$fill_name <- paste(plot_data$name, label)
   plot_data$color_name <- paste(plot_data$name, label)
+
+  title <- if (lag < 0) {
+    "Smoothed estimation of latent variables"
+  } else if (lag == 0) {
+    "Filtered estimation of latent variables"
+  } else if (lag == 1) {
+    "One-step-ahead prediction for latent variables"
+  } else {
+    paste0(lag, "-steps-ahead prediction for latent variables")
+  }
 
   plt <- ggplot(plot_data, aes_string(x = "time", fill = "fill_name", color = "color_name")) +
     geom_hline(yintercept = 0, linetype = "dashed") +
     scale_x_continuous("Time") +
     scale_color_manual("", values = color_list, na.value = NA) +
     scale_fill_manual("", values = fill_list, na.value = NA) +
-    labs(title = paste0(var, " (", ifelse(smooth, "smoothed", "only filtered"), ")")) +
+    labs(title = title) +
     scale_y_continuous("Parameter value") +
     theme_bw() +
     theme(axis.text.x = element_text(angle = 90)) +
-    geom_ribbon(aes_string(ymin = "lim_i", ymax = "lim_s"), alpha = 0.25) +
+    geom_ribbon(aes_string(ymin = "lim_i", ymax = "lim_s"), alpha = 0.25, color = NA) +
     geom_line(aes_string(y = "media")) +
     coord_cartesian(ylim = c(min_value, max_value))
   if (plotly) {
@@ -261,14 +262,14 @@ plot_lat_var <- function(model, var = "", smooth = model$smooth, cut_off = round
     } else {
       plt <- plotly::ggplotly(plt)
 
-      # for (i in (1:size) - 1) {
-      #   plt$x$data[[i + 1+1]]$legendgroup <-
-      #     plt$x$data[[i + 1 + size+1]]$legendgroup <-
-      #     plt$x$data[[i + 1+1]]$name <-
-      #     plt$x$data[[i + 1 + size+1]]$name <- plt$x$data[[i + 1 + size+1]]$name
-      #
-      #   plt$x$data[[i + 1+1]]$showlegend <- FALSE
-      # }
+      for (i in (1:size) - 1) {
+        plt$x$data[[i + 1 + 1]]$legendgroup <-
+          plt$x$data[[i + 1 + size + 1]]$legendgroup <-
+          plt$x$data[[i + 1 + 1]]$name <-
+          plt$x$data[[i + 1 + size + 1]]$name <- plt$x$data[[i + 1 + size + 1]]$name
+
+        plt$x$data[[i + 1 + 1]]$showlegend <- FALSE
+      }
     }
   }
   return(list("plot" = plt, "data" = plot_data))
@@ -276,10 +277,10 @@ plot_lat_var <- function(model, var = "", smooth = model$smooth, cut_off = round
 
 #' Visualizing linear predictors in a fitted kDGLM model
 #'
-#' @param model <undefined class> or list: A fitted DGLM model.
+#' @param model fitted_dlm: A fitted DGLM model.
 #' @param pred Character: The name of the linear predictors to plot (same value passed while creating the structure). Any predictors whose name partially match this variable will be plotted.
-#' @param smooth Bool: A flag indicating if the smoothed distribution should be used. If false, the filtered distribution shall be used.
-#' @param cut_off Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.
+#' @param lag Integer: A integer with the number of steps ahead should be used for evaluating the linear predictors. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribution is used.
+#' @param cutoff Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.
 #' @param pred_cred Numeric: The credibility value for the credibility interval.
 #' @param plotly Bool: A flag indicating if plotly should be used to create plots.
 #'
@@ -313,41 +314,28 @@ plot_lat_var <- function(model, var = "", smooth = model$smooth, cut_off = round
 #' plot_lin_pred(fitted_data, smooth = TRUE)$plot
 #'
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-plot_lin_pred <- function(model, pred = "", smooth = model$smooth, cut_off = 10, pred_cred = 0.95, plotly = requireNamespace("plotly", quietly = TRUE)) {
-  if (!any(grepl(pred, model$var_names))) {
-    stop(paste0("Error: Invalid selected variable. Got ", pred, ", expected one of the following:\n", model$var_names))
+plot_lin_pred <- function(model, pred = "", lag = -1, cutoff = floor(model$t / 10), pred_cred = 0.95, plotly = requireNamespace("plotly", quietly = TRUE)) {
+  if (!any(grepl(pred, model$pred_names))) {
+    stop(paste0("Error: Invalid selected variable. Got ", pred, ", expected one of the following:\n", paste0(names(model$pred_names), collapse = "\n")))
   }
   if (pred_cred >= 1 | pred_cred <= 0) {
     stop(paste0("Error: Invalid value for I.C. width. Must be between 0 and 1, got ", pred_cred))
   }
 
-  indice <- (1:length(model$var_names))[grepl(pred, model$var_names)]
-  names_var <- model$var_names[grepl(pred, model$var_names)]
+  indice <- (1:model$k)[grepl(pred, model$pred_names)]
+  var_names <- model$pred_names[grepl(pred, model$pred_names)]
 
   size <- length(indice)
-  t <- dim(model$mts)[2]
-  m1 <- if (smooth) {
-    model$mts
-  } else {
-    model$mt
-  }
-  C1 <- if (smooth) {
-    model$Cts
-  } else {
-    model$Ct
-  }
-  f1 <- (sapply(1:t, function(t) {
-    t(model$FF[, indice, t]) %*% m1[, t]
-  }) %>% matrix(size, t))[, ]
-  R1 <- (sapply(1:t, function(t) {
-    sqrt(diag(t(model$FF[, indice, t]) %*% C1[, , t] %*% model$FF[, indice, t]))
-  }) %>% matrix(size, t))
-  f1 <- f1 %>%
-    matrix(size, t) %>%
+  t <- model$t
+
+  param_distr <- eval_past(model, lag = lag, pred_cred = pred_cred, eval_pred = FALSE)
+
+  f1 <- param_distr$ft[indice, (cutoff + 1):t, drop = FALSE] %>%
     t()
-  std_mat <- R1 %>%
+  std_mat <- param_distr$Qt[indice, indice, (cutoff + 1):t, drop = FALSE] %>%
+    apply(3, diag) %>%
     sqrt() %>%
-    matrix(size, t) %>%
+    matrix(size, t - cutoff) %>%
     t()
 
   lim_i <- f1 + qnorm((1 - pred_cred) / 2) * std_mat
@@ -357,12 +345,12 @@ plot_lin_pred <- function(model, pred = "", smooth = model$smooth, cut_off = 10,
   lim_i <- as.data.frame(lim_i)
   lim_s <- as.data.frame(lim_s)
 
-  names(f1) <- names_var
-  names(lim_i) <- names_var
-  names(lim_s) <- names_var
+  names(f1) <- var_names
+  names(lim_i) <- var_names
+  names(lim_s) <- var_names
 
-  max_value <- calcula_max(f1 - min(f1))[[3]] + min(f1)
-  min_value <- -calcula_max(-(f1 - max(f1)))[[3]] + max(f1)
+  max_value <- evaluate_max(f1 - min(f1))[[3]] + min(f1)
+  min_value <- -evaluate_max(-(f1 - max(f1)))[[3]] + max(f1)
 
   if (max_value - min_value < 1e-2) {
     center <- (max_value + min_value) / 2
@@ -370,17 +358,17 @@ plot_lin_pred <- function(model, pred = "", smooth = model$smooth, cut_off = 10,
     max_value <- center - 0.01
   }
 
-  f1$time <- c(1:dim(f1)[1])
-  lim_i$time <- c(1:dim(lim_i)[1])
-  lim_s$time <- c(1:dim(lim_s)[1])
+  f1$time <- c(1:dim(f1)[1]) + cutoff
+  lim_i$time <- c(1:dim(lim_i)[1]) + cutoff
+  lim_s$time <- c(1:dim(lim_s)[1]) + cutoff
 
-  f1 <- f1[-c(1:cut_off), ] %>%
+  f1 <- f1 %>%
     pivot_longer(1:size) %>%
     rename("media" = "value")
-  lim_i <- lim_i[-c(1:cut_off), ] %>%
+  lim_i <- lim_i %>%
     pivot_longer(1:size) %>%
     rename("lim_i" = "value")
-  lim_s <- lim_s[-c(1:cut_off), ] %>%
+  lim_s <- lim_s %>%
     pivot_longer(1:size) %>%
     rename("lim_s" = "value")
 
@@ -400,12 +388,22 @@ plot_lin_pred <- function(model, pred = "", smooth = model$smooth, cut_off = 10,
   plot_data$color_name <- paste(plot_data$name, label)
   plot_data$IC_name <- paste(plot_data$name, label)
 
+  title <- if (lag < 0) {
+    "Smoothed estimation of linear predictors"
+  } else if (lag == 0) {
+    "Filtered estimation of linear predictors"
+  } else if (lag == 1) {
+    "One-step-ahead prediction for linear predictors"
+  } else {
+    paste0(lag, "-steps-ahead prediction for linear predictors")
+  }
+
   plt <- ggplot(plot_data, aes_string(x = "time", fill = "fill_name", color = "color_name")) +
     geom_hline(yintercept = 0, linetype = "dashed") +
     scale_x_continuous("Time") +
     scale_color_manual("", values = color_list, na.value = NA) +
     scale_fill_manual("", values = fill_list, na.value = NA) +
-    labs(title = paste0(pred, " (", ifelse(smooth, "smoothed", "only filtered"), ")")) +
+    labs(title = title) +
     scale_y_continuous("predictor value") +
     theme_bw() +
     theme(axis.text.x = element_text(angle = 90)) +

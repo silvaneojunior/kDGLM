@@ -7,8 +7,9 @@
 report_dlm(
   fitted_dlm,
   t = fitted_dlm$t,
-  smooth = fitted_dlm$smooth,
-  metric_cutoff = round(fitted_dlm$t/10)
+  lag = -1,
+  metric_cutoff = floor(fitted_dlm$t/10),
+  pred_cred = 0.95
 )
 }
 \arguments{
@@ -16,9 +17,11 @@ report_dlm(
 
 \item{t}{Integer: The time index for the latent states.}
 
-\item{smooth}{Bool: A flag indicating if the smoothed distribution should be used for the latent states.}
+\item{lag}{Integer: The number of steps ahead used for the evaluating the latent variables. Use lag<0 for the smoothed distribution, If lag==0 for the filtered distribution and lag=h for the h-step-ahead prediction.}
 
 \item{metric_cutoff}{Integer: The cutoff time index for the metric calculation. Values before that time will be ignored.}
+
+\item{pred_cred}{numeric: The credibility interval to be used for the interval score.}
 }
 \description{
 Prints a report for a fitted_dlm object.
@@ -42,7 +45,6 @@ report_dlm(fitted_data)
 Other {auxiliary visualization functions for the fitted_dlm class}: 
 \code{\link{plot_lat_var}()},
 \code{\link{plot_lin_pred}()},
-\code{\link{report_distr}()},
 \code{\link{report_searched_dlm}()},
 \code{\link{show_fit}()}
 }

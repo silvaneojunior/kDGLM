@@ -4,28 +4,32 @@
 \alias{eval_past}
 \title{eval_past}
 \usage{
-eval_past(model, smooth = FALSE, h = 0, pred_cred = 0.95)
+eval_past(model, T = 1:t_last, lag = -1, pred_cred = 0.95, eval_pred = TRUE)
 }
 \arguments{
-\item{model}{<undefined class> or list: The fitted model to be use for evaluation.}
+\item{model}{fitted_dlm: The fitted model to be use for evaluation.}
 
-\item{smooth}{bool: The flag indicating if smoothed values should be used. If TRUE, h will not be used.}
+\item{T}{vector: A vector of positive integers indicating the time index from which to extract predictions. Default is to extract all observed times in model.}
 
-\item{h}{positive integer: The relative offset for forecast. Values for time t will be calculated based on the filtered values of time t-h Will be ignored if smooth is TRUE.}
+\item{lag}{positive integer: The relative offset for forecast. Values for time t will be calculated based on the filtered values of time t-h. If lag is negative, then the smoothed distribuition will be used.}
 
 \item{pred_cred}{Numeric: The credibility level for the I.C. intervals.}
+
+\item{eval_pred}{Bool: A flag indicating if the predictions should be calculated.}
 }
 \value{
 A list containing:
 \itemize{
-   \item pred Matrix: A matrix with the predictive mean at each time. Dimensions are k x t, where k is the number of outcomes.
-   \item var.pred Array: A 3D-array with the predictive covariance matrix at each time. Dimensions are k x k x t, where k is the number of outcomes.
-   \item icl.pred Matrix: A matrix with the lower bound of the I.C. based on the credibility given in the arguments. Dimensions are k x t, where k is the number of outcomes.
-   \item icu.pred Matrix: A matrix with the upper bound of the I.C. based on the credibility given in the arguments. Dimensions are k x t, where k is the number of outcomes.
+   \item data data.frame: A table with the model evaluated at each observed time.
+   \item mt Matrix: The mean of the latent variables at each time. Dimensions are n x t, where t is the size of T.
+   \item Ct Array: A 3D-array containing the covariance matrix of the latent variable at each time. Dimensions are n x n x t.
+   \item ft Matrix: The mean of the linear predictor at each time. Dimensions are k x t.
+   \item Qt Array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t.
 }
 }
 \description{
-Evaluates the predictive values for the observed values used to fit the model. Predictions can be made with smoothed values or with filtered values with a time offset.
+Evaluates the predictive values for the observed values used to fit the model and it's latent variables.
+Predictions can be made with smoothed values or with filtered values with a time offset.
 }
 \examples{
 T <- 200

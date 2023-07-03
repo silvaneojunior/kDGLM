@@ -6,6 +6,7 @@
 \usage{
 Normal(
   mu,
+  V = NA,
   Tau = NA,
   Sigma = NA,
   Sd = NA,
@@ -15,13 +16,15 @@ Normal(
 )
 }
 \arguments{
-\item{mu}{character: Name of the linear predictor associated with the mean parameter of the Normal distribution. The parameter is treated as unknowed and equal to the associated linear predictor.}
+\item{mu}{character: Name of the linear predictor associated with the mean parameter of the Normal distribution. The parameter is treated as unknown and equal to the associated linear predictor.}
 
-\item{Tau}{character or numeric: If Tau is a character, it is interpreted as the names of the linear preditors associated with the precisions parameter of the Normal distribution. If Tau is numeric, the precision is considered known and equal to the value of Tau, otherwise, the precison is considere unknowned and equal to the exponential of the linear predictor informed in Tau. If the outcome is a Multivariate Normal, then Tau must be a matrix and, if the precision is unknowned, the elements outside it's main diagonal are treated as the linear predictor associated with the correlation between the each coordinate of the outcome, otherwise Tau is treated as the precision matrix. The user cannot be specify Tau with Sigma or Sd.}
+\item{V}{character or numeric: If V is a character, it is interpreted as the names of the linear predictors associated with the variance parameter of the Normal distribution. If V is numeric, the variance is considered known and equal to the value of V, otherwise, the variance is considered unknown and equal to the exponential of the linear predictor informed in V. If the outcome is a Multivariate Normal, then V must be a matrix and, if the variance is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise V is treated as the covariance matrix. The user cannot specify V with Sigma, Tau or Sd.}
 
-\item{Sigma}{character or numeric: If Sigma is a character, it is interpreted as the names of the linear preditors associated with the variance parameter of the Normal distribution. If Sigma is numeric, the variance is considered known and equal to the value of Sigma, otherwise, the variance is considere unknowned and equal to the exponential of the linear predictor informed in Sigma. If the outcome is a Multivariate Normal, then Sigma must be a matrix and, if the variance is unknowned, the elements outside it's main diagonal are treated as the linear predictor associated with the correlation between the each coordinate of the outcome, otherwise Sigma is treated as the covariance matrix. The user cannot be specify Sigma with Tau or Sd.}
+\item{Tau}{character or numeric: If Tau is a character, it is interpreted as the names of the linear predictors associated with the precisions parameter of the Normal distribution. If Tau is numeric, the precision is considered known and equal to the value of Tau, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed in Tau. If the outcome is a Multivariate Normal, then Tau must be a matrix and, if the precision is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise Tau is treated as the precision matrix. The user cannot specify Tau with V, Sigma or Sd.}
 
-\item{Sd}{character or numeric: If Sd is a character, it is interpreted as the names of the linear preditors associated with the standard deviation parameter of the Normal distribution. If Sd is numeric, the standard deviation is considered known and equal to the value of Sd, otherwise, the precison is considere unknowned and equal to the exponential of the linear predictor informed by in Sd. If the outcome is a Multivariate Normal, then Tau must be a matrix and the elements outside it's main diagonal are treated as the correlation (or the name of the linear predictor associated) between the each coordinate of the outcome. The user cannot be specify Sd with Tau or Sigma.}
+\item{Sigma}{character or numeric: If Sigma is a character, it is interpreted as the names of the linear predictors associated with the variance parameter of the Normal distribution. If Sigma is numeric, the variance is considered known and equal to the value of Sigma, otherwise, the variance is considered unknown and equal to the exponential of the linear predictor informed in Sigma. If the outcome is a Multivariate Normal, then Sigma must be a matrix and, if the variance is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise Sigma is treated as the covariance matrix. The user cannot specify Sigma with V, Tau or Sd.}
+
+\item{Sd}{character or numeric: If Sd is a character, it is interpreted as the names of the linear predictors associated with the standard deviation parameter of the Normal distribution. If Sd is numeric, the standard deviation is considered known and equal to the value of Sd, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed by in Sd. If the outcome is a Multivariate Normal, then Tau must be a matrix and the elements outside its main diagonal are treated as the correlation (or the name of the linear predictor associated) between each coordinate of the outcome. The user cannot specify Sd with V, Tau or Sigma.}
 
 \item{outcome}{vector: Values of the observed data.}
 
@@ -79,6 +82,7 @@ show_fit(fitted_data, smooth = TRUE)$plot
 Other {auxiliary functions for a creating outcomes}: 
 \code{\link{Gamma}()},
 \code{\link{Multinom}()},
-\code{\link{Poisson}()}
+\code{\link{Poisson}()},
+\code{\link{report_distr}()}
 }
 \concept{{auxiliary functions for a creating outcomes}}

@@ -7,18 +7,17 @@
 report_distr(dlm_distr)
 }
 \arguments{
-\item{dlm_distr}{A fitted_dlm object.}
+\item{dlm_distr}{A dlm_distr object.}
 }
 \description{
 Prints a report for a dlm_distr object.
 }
 \seealso{
-Other {auxiliary visualization functions for the fitted_dlm class}: 
-\code{\link{plot_lat_var}()},
-\code{\link{plot_lin_pred}()},
-\code{\link{report_dlm}()},
-\code{\link{report_searched_dlm}()},
-\code{\link{show_fit}()}
+Other {auxiliary functions for a creating outcomes}: 
+\code{\link{Gamma}()},
+\code{\link{Multinom}()},
+\code{\link{Normal}()},
+\code{\link{Poisson}()}
 }
-\concept{{auxiliary visualization functions for the fitted_dlm class}}
+\concept{{auxiliary functions for a creating outcomes}}
 \keyword{internal}

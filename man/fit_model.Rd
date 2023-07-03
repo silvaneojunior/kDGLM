@@ -27,10 +27,36 @@ fit_model(
 \item{c_monit}{numeric (optional, if p_monit is not specified): The relative cost of false alarm in the monitoring compared to the cost of not detecting abnormalities.}
 }
 \value{
-The fitted model (a fitted_dlm object). Contains the values of the estimated parameter and some extra info regarding the quality of the fit.
+A fitted_dlm object. Contains:
+\itemize{
+   \item mt Matrix: The filtered mean of the latent variables for each time. Dimensions are n x t.
+   \item Ct Array: A 3D-array containing the filtered covariance matrix of the latent variable for each time. Dimensions are n x n x t.
+   \item mts Matrix: The smoothed mean of the latent variables for each time. Dimensions are n x t. Only available if smooth=TRUE.
+   \item Cts Array: A 3D-array containing the smoothed covariance matrix of the latent variable for each time. Dimensions are n x n x t. Only available if smooth=TRUE.
+   \item at Matrix: The one-step-ahead mean of the latent variables at each time. Dimensions are n x t.
+   \item Rt Array: A 3D-array containing the one-step-ahead covariance matrix for latent variables at each time. Dimensions are n x n x t.
+   \item ft Matrix: The one-step-ahead linear predictor for each time. Dimensions are k x t.
+   \item Qt Array: A 3D-array containing the one-step-ahead covariance matrix for the linear predictor for each time. Dimensions are k x k x t.
+   \item FF Array: The same as the argument (same values).
+   \item G Matrix: The same as the argument (same values).
+   \item G_labs Matrix: The same as the argument (same values).
+   \item D Array: The same as the argument (same values) when there is no monitoring. When monitoring for abnormalities, the value in times where abnormalities were detected is increased.
+   \item h Matrix: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.
+   \item H Array: The same as the argument (same values).
+   \item W Array: A 3D-array containing the effective covariance matrix of the noise for each time, i.e., considering both H and D. Its dimension should be the same as H and D.
+   \item outcome List: The same as the argument outcome (same values).
+   \item pred_names Vector: The names of the linear predictors.
+   \item var_names List: A list containing names and indexes for latent variables.
+   \item a1 Matrix: The prior mean for time 1. Dimensions are n x 1.
+   \item R1 Matrix: The prior covariance matrix for time 1. Dimensions are n x n.
+   \item smooth Bool: The same as the argument (same value).
+   \item pred_cred Numeric: The same as the argument (same value).
+   \item t Numeric: The time range for which the model has been fitted.
+   \item structure dlm_block: The structure of the model. It's equivalent to block_superpos(...), but also taking into consideration the outcome length.
+}
 }
 \description{
-Fit a model given it's structure and the observed data. This function can be used for any supported family (see vignette).
+Fit a model given its structure and the observed data. This function can be used for any supported family (see vignette).
 }
 \details{
 This is the main function of the kDGLM package, as it is used to fit all models.
@@ -46,8 +72,8 @@ library(kDGLM)
 
 # Poisson case
 T <- 200
-w <- (200 / 40) * 2 * pi
-data <- rpois(T, 20 * (sin(w * 1:T / T) + 2))
+w <- (T / 40) * 2 * pi
+data <- rpois(T, exp(sin(w * 1:T / T) + 2))
 
 level <- polynomial_block(rate = 1, D = 0.95)
 season <- harmonic_block(rate = 1, period = 40, D = 0.98)
@@ -115,7 +141,8 @@ show_fit(fitted_data, smooth = TRUE)$plot
 T <- 200
 w <- (200 / 40) * 2 * pi
 phi <- 2.5
-data <- matrix(rgamma(T, phi, phi / (20 * (sin(w * 1:T / T) + 2))), T, 1)
+mu <- exp(sin(w * 1:T / T) + 2)
+data <- matrix(rgamma(T, phi, phi / mu), T, 1)
 
 level <- polynomial_block(mu = 1, D = 0.95)
 season <- harmonic_block(mu = 1, period = 40, D = 0.98)

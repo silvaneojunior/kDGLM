@@ -7,15 +7,15 @@
 block_mult(block, k)
 }
 \arguments{
-\item{block}{dlm_block: A block to be multiplied.}
+\item{block}{dlm_block: A block to be replicated}
 
 \item{k}{Integer: The number of blocks to generate.}
 }
 \value{
-The merged block as a dlm_block.
+The combined replicated blocks as a dlm_block.
 }
 \description{
-An auxiliary function to merge blocks.
+An auxiliary function to replicate blocks.
 }
 \examples{
 # Long way
@@ -32,10 +32,11 @@ final_block <- 5 * polynomial_block(alpha = 1, order = 1)
 
 Other {auxiliary functions for structural blocks}: 
 \code{\link{AR_block}()},
-\code{\link{block_merge}()},
 \code{\link{block_rename}()},
-\code{\link{correlation_block}()},
+\code{\link{block_superpos}()},
 \code{\link{harmonic_block}()},
-\code{\link{polynomial_block}()}
+\code{\link{polynomial_block}()},
+\code{\link{regression_block}()},
+\code{\link{report_block}()}
 }
 \concept{{auxiliary functions for structural blocks}}

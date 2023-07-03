@@ -16,13 +16,13 @@ dlm_sampling(model, sample_size, filtered_distr = FALSE)
 \value{
 A list containing the following values:
 \itemize{
-   \item mt Array: An array containing the samples of latent states. Dimensions are n x T x sample_size, where n is the number of latent variable in the model and T is the number of observed values.
-   \item ft Array: An array containing the samples of linear predictors. Dimensions are m x T x sample_size, where m is the number of linear predictors in the model and T is the number of observed values.
-   \item param Array: An array containing the samples of the parameters of the observational model. Dimensions are k x T x sample_size, where k is the number of parameters in the observational model and T is the number of observed values.
+   \item mt Array: An array containing the samples of latent states. Dimensions are n x t x sample_size, where n is the number of latent variables in the model and T is the number of observed values.
+   \item ft Array: An array containing the samples of linear predictors. Dimensions are k x t x sample_size, where k is the number of linear predictors in the model and t is the number of observed values.
+   \item param List: A named list containing, for each model outcome, an array with the samples of the parameters of the observational model. Each array will have dimensions l x t x sample_size, where l is the number of parameters in the observational model and t is the number of observed values.
 }
 }
 \description{
-This is function draws samples from the latent states using the FFBS algorithm. See \insertCite{WestHarr-DLM;textual}{kDGLM}, chapter 15, for details.
+This is function draws samples from the latent states using the backward sampling algorithm. See \insertCite{WestHarr-DLM;textual}{kDGLM}, chapter 15, for details.
 }
 \examples{
 

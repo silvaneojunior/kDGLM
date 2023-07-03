@@ -24,6 +24,19 @@ summary.fitted_dlm <- function(object, ...) {
   report_dlm(object, ...)
 }
 
+#' summary.dlm_block
+#'
+#' summary method for class dlm_block
+#'
+#' @param object A dlm_block object.
+#' @param ... Arguments passed to report_dlm
+#'
+#' @export
+#' @keywords internal
+summary.dlm_block <- function(object, ...) {
+  report_block(object, ...)
+}
+
 #' summary.searched_dlm
 #'
 #' summary method for class searched_dlm
@@ -72,6 +85,17 @@ print.dlm_distr <- function(x, ...) {
   summary.dlm_distr(x, ...)
 }
 
+#' print.dlm_block
+#'
+#' @param x A dlm_block object.
+#' @param ... Arguments passed to summary.dlm_block
+#'
+#' @export
+#' @keywords internal
+print.dlm_block <- function(x, ...) {
+  summary.dlm_block(x, ...)
+}
+
 #' print.searched_dlm
 #'
 #' @param x A searched_dlm object.
@@ -83,19 +107,34 @@ print.searched_dlm <- function(x, ...) {
   summary.searched_dlm(x, ...)
 }
 
-#' effects.fitted_dlm
+#' coef.fitted_dlm
 #'
-#' effects method for class fitted_dlm
+#' coef method for class fitted_dlm
 #'
 #' @param object A fitted_dlm object.
-#' @param ... Arguments passed to plot_lat_var.
+#' @param ... Arguments passed to eval_past.
 #'
-#' @importFrom stats effects
+#' @importFrom stats coef
 #'
 #' @export
 #' @keywords internal
-effects.fitted_dlm <- function(object, ...) {
-  plot_lat_var(object, ...)
+coef.fitted_dlm <- function(object, ...) {
+  eval_past(object, ...)
+}
+
+#' coefficients.fitted_dlm
+#'
+#' coefficients method for class fitted_dlm
+#'
+#' @param object A fitted_dlm object.
+#' @param ... Arguments passed to eval_past.
+#'
+#' @importFrom stats coefficients
+#'
+#' @export
+#' @keywords internal
+coefficients.fitted_dlm <- function(object, ...) {
+  eval_past(object, ...)
 }
 
 #' fitted.values.fitted_dlm
@@ -121,7 +160,7 @@ fitted.values.fitted_dlm <- function(object, ...) {
 #' @export
 #' @keywords internal
 `+.dlm_block` <- function(e1, e2) {
-  block_merge(e1, e2)
+  block_superpos(e1, e2)
 }
 
 #' *.fitted_dlm

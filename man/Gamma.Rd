@@ -16,7 +16,7 @@ Gamma(
 )
 }
 \arguments{
-\item{phi}{character or numeric: Name of the linear predictor associated with the shape parameter of the gamma distribution. If numeric, this parameter is treated as knowed and equal to the value passed. If a character, the parameter is treated as unknown and equal to the exponential of the associated linear predictor. It cannot be specified with alpha.}
+\item{phi}{character or numeric: Name of the linear predictor associated with the shape parameter of the gamma distribution. If numeric, this parameter is treated as known and equal to the value passed. If a character, the parameter is treated as unknown and equal to the exponential of the associated linear predictor. It cannot be specified with alpha.}
 
 \item{mu}{character: Name of the linear predictor associated with the mean parameter of the gamma distribution. The parameter is treated as unknown and equal to the exponential of the associated linear predictor.}
 
@@ -47,7 +47,8 @@ For the details about the implementation see  \insertCite{ArtigoPacote;textual}{
 T <- 200
 w <- (200 / 40) * 2 * pi
 phi <- 2.5
-data <- matrix(rgamma(T, phi, phi / (20 * (sin(w * 1:T / T) + 2))), T, 1)
+mu <- exp((sin(w * 1:T / T) + 2))
+data <- matrix(rgamma(T, phi, phi / mu), T, 1)
 
 level <- polynomial_block(mu = 1, D = 0.95)
 season <- harmonic_block(mu = 1, period = 40, D = 0.98)
@@ -80,6 +81,7 @@ show_fit(fitted_data, smooth = TRUE)$plot
 Other {auxiliary functions for a creating outcomes}: 
 \code{\link{Multinom}()},
 \code{\link{Normal}()},
-\code{\link{Poisson}()}
+\code{\link{Poisson}()},
+\code{\link{report_distr}()}
 }
 \concept{{auxiliary functions for a creating outcomes}}

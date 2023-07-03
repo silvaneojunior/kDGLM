@@ -27,6 +27,7 @@ Collate:
     'kernel_multnom.R'
     'kernel_gamma.R'
     'kernel_normal.R'
+    'kernel_multinormal.R'
     'structure_helper.R'
     'main.R'
     'plot_helper.R'

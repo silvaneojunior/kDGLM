@@ -54,6 +54,7 @@ show_fit(fitted_data, smooth = TRUE)$plot
 Other {auxiliary functions for a creating outcomes}: 
 \code{\link{Gamma}()},
 \code{\link{Normal}()},
-\code{\link{Poisson}()}
+\code{\link{Poisson}()},
+\code{\link{report_distr}()}
 }
 \concept{{auxiliary functions for a creating outcomes}}

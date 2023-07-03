@@ -4,12 +4,12 @@
 \alias{block_rename}
 \title{block_rename}
 \usage{
-block_rename(block, names)
+block_rename(block, pred_names)
 }
 \arguments{
 \item{block}{A dlm_block object.}
 
-\item{names}{A vector of string with names for each linear predictor in block.}
+\item{pred_names}{A vector of string with names for each linear predictor in block.}
 }
 \value{
 A dlm_block with the linear predictors renamed to the values passed in names.
@@ -19,23 +19,24 @@ block_rename
 }
 \examples{
 
-base_block=polynomial_block(
-eta=1,
-order = 1,
-name = "Poly",
-D=0.95
+base_block <- polynomial_block(
+  eta = 1,
+  order = 1,
+  name = "Poly",
+  D = 0.95
 )
 
-final_block=block_rename(2*base_block,c('mu','sigma'))
+final_block <- block_rename(2 * base_block, c("mu", "sigma"))
 
 }
 \seealso{
 Other {auxiliary functions for structural blocks}: 
 \code{\link{AR_block}()},
-\code{\link{block_merge}()},
 \code{\link{block_mult}()},
-\code{\link{correlation_block}()},
+\code{\link{block_superpos}()},
 \code{\link{harmonic_block}()},
-\code{\link{polynomial_block}()}
+\code{\link{polynomial_block}()},
+\code{\link{regression_block}()},
+\code{\link{report_block}()}
 }
 \concept{{auxiliary functions for structural blocks}}
