@@ -49,13 +49,13 @@ outcome <- Multinom(p = c("p1", "p2"), outcome = y)
 
 fitted_data <- fit_model(level, season_2, outcomes = outcome)
 
-past <- eval_past(fitted_data, smooth = TRUE)
+past <- eval_past(fitted_data, lag = -1)
 
 }
 \seealso{
 Other {auxiliary functions for fitted_dlm objects}: 
 \code{\link{dlm_sampling}()},
 \code{\link{fit_model}()},
-\code{\link{forecast}()}
+\code{\link{forecast_dlm}()}
 }
 \concept{{auxiliary functions for fitted_dlm objects}}

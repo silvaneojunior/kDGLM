@@ -9,18 +9,18 @@ f_root(f, df, start, tol = 1e-08, n_max = 1000)
 \arguments{
 \item{f}{function: A function that receives a vector and return a vector of the same size.}
 
-\item{df}{function: A function that receives a vector and return the derivatives of f in relation to it's arguments (must return a matrix, if f returns a vector).}
+\item{df}{function: A function that receives a vector and return the derivatives of f with respect to its arguments (if f returns a vector, it must be a matrix).}
 
 \item{start}{vector: The initial value to start the algorithm.}
 
-\item{tol}{numeric: The tolerance for the solution error.}
+\item{tol}{numeric: The tolerance for the solution.}
 
 \item{n_max}{numeric: The maximum number of iterations allowed.}
 }
 \value{
 A list containing:
 \itemize{
-   \item root vector: The solution for the system.
+   \item root vector: The solution for the system f(x)=0.
    \item f.root vector: The function f evaluated at the root.
    \item iter numeric: The number of steps taken.
 }

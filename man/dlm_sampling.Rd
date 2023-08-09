@@ -43,7 +43,7 @@ outcome <- Normal(mu = "mu", Sigma = "sigma2", outcome = data)
 fitted_data <- fit_model(level, variance, outcomes = outcome)
 summary(fitted_data)
 
-show_fit(fitted_data, smooth = TRUE)$plot
+show_fit(fitted_data, lag = -1)$plot
 
 sample <- dlm_sampling(fitted_data, 2000)
 
@@ -52,6 +52,6 @@ sample <- dlm_sampling(fitted_data, 2000)
 Other {auxiliary functions for fitted_dlm objects}: 
 \code{\link{eval_past}()},
 \code{\link{fit_model}()},
-\code{\link{forecast}()}
+\code{\link{forecast_dlm}()}
 }
 \concept{{auxiliary functions for fitted_dlm objects}}

@@ -37,7 +37,7 @@
 #' fitted_data <- fit_model(level, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' show_fit(fitted_data, smooth = TRUE)$plot
+#' show_fit(fitted_data, lag = -1)$plot
 #'
 #' # Unknown variance
 #' outcome <- Normal(mu = "mu", Sigma = "sigma2", outcome = data)
@@ -45,7 +45,7 @@
 #' fitted_data <- fit_model(level, variance, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' show_fit(fitted_data, smooth = TRUE)$plot
+#' show_fit(fitted_data, lag = -1)$plot
 #'
 #' @details
 #'
@@ -411,32 +411,32 @@ normal_pred <- function(conj_param, outcome = NULL, parms = list(), pred_cred = 
   }
 
   if (is.null(dim(conj_param))) {
-    conj_param <- conj_param %>% matrix(1, length(conj_param))
+    conj_param <- conj_param |> matrix(1, length(conj_param))
   }
   r <- dim(conj_param)[2]
   r <- (-1 + sqrt(1 + 4 * r)) / 2
   t <- dim(conj_param)[1]
 
   pred <- t(data.frame.to_matrix(conj_param[, 1:r, drop = FALSE]))
-  var.pred <- conj_param[(r + 1):(r * r + r)] %>%
-    t() %>%
+  var.pred <- conj_param[(r + 1):(r * r + r)] |>
+    t() |>
     array(c(r, r, t))
-  icl.pred <- matrix(NA, t, r)
-  icu.pred <- matrix(NA, t, r)
+  icl.pred <- matrix(NA, r, t)
+  icu.pred <- matrix(NA, r, t)
   log.like <- rep(NA, t)
   if (like.flag) {
     outcome <- matrix(outcome, t, r)
   }
   for (i in 1:t) {
     mu <- pred[, i]
-    sigma2 <- (var.pred[, , i] + parms$V) %>% matrix(r, r)
+    sigma2 <- (var.pred[, , i] + parms$V) |> matrix(r, r)
     if (pred.flag) {
       var.pred[, , i] <- sigma2
       # if (length(sigma2) > 1) {
       #   sigma2 <- diag(sigma2)
       # }
-      icl.pred[i, ] <- rep(qnorm((1 - pred_cred) / 2), r) * sqrt(diag(sigma2)) + mu
-      icu.pred[i, ] <- rep(qnorm(1 - (1 - pred_cred) / 2), r) * sqrt(diag(sigma2)) + mu
+      icl.pred[, i] <- rep(qnorm((1 - pred_cred) / 2), r) * sqrt(diag(sigma2)) + mu
+      icu.pred[, i] <- rep(qnorm(1 - (1 - pred_cred) / 2), r) * sqrt(diag(sigma2)) + mu
     }
     if (like.flag) {
       log.like[i] <- dmvnorm(outcome[i, ], mu, sigma2, logged = TRUE)
@@ -523,6 +523,7 @@ update_NG <- function(conj_prior, ft, Qt, y, parms = list()) {
 #'
 #' @return The parameters of the posterior distribution.
 #' @importFrom stats dnorm dlnorm
+#' @importFrom cubature cubintegrate
 #' @keywords internal
 #' @family {auxiliary functions for a Normal outcome}
 #'

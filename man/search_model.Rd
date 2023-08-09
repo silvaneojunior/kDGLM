@@ -13,7 +13,9 @@ search_model(
   smooth = TRUE,
   lag = 1,
   pred_cred = 0.95,
-  metric_cutoff = NA
+  metric_cutoff = NA,
+  p_monit = NA,
+  c_monit = 1
 )
 }
 \arguments{
@@ -34,6 +36,10 @@ search_model(
 \item{pred_cred}{Numeric: A number between 0 and 1 (not included) indicating the credibility interval for predictions. If not within the valid range of values, 0.95 will be used.}
 
 \item{metric_cutoff}{Integer: The number of observations to ignore when calculating the metrics. Default is 1/10 of the number of observations (rounded down).}
+
+\item{p_monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of it's dynamic.}
+
+\item{c_monit}{numeric (optional, if p_monit is not specified): The relative cost of false alarm in the monitoring compared to the cost of not detecting abnormalities.}
 }
 \value{
 A searched_dlm object containing the following values:

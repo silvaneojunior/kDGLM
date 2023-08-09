@@ -8,6 +8,7 @@ report_dlm(
   fitted_dlm,
   t = fitted_dlm$t,
   lag = -1,
+  metric_lag = 1,
   metric_cutoff = floor(fitted_dlm$t/10),
   pred_cred = 0.95
 )
@@ -18,6 +19,8 @@ report_dlm(
 \item{t}{Integer: The time index for the latent states.}
 
 \item{lag}{Integer: The number of steps ahead used for the evaluating the latent variables. Use lag<0 for the smoothed distribution, If lag==0 for the filtered distribution and lag=h for the h-step-ahead prediction.}
+
+\item{metric_lag}{Integer: The number of steps ahead used for the evaluating the predictions used when calculating metrics. Use metric_lag<0 for the smoothed distribution, If metric_lag==0 for the filtered distribution and metric_lag=h for the h-step-ahead prediction.}
 
 \item{metric_cutoff}{Integer: The cutoff time index for the metric calculation. Values before that time will be ignored.}
 

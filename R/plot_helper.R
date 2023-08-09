@@ -5,7 +5,7 @@
 #' @param model fitted_dlm: A fitted DGLM.
 #' @param pred_cred Numeric: The credibility value for the credibility interval.
 #' @param lag Integer: A integer with the number of steps ahead should be used for prediction. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribuition is used.
-#' @param plotly Bool: A flag indicating if plotly should be used for creating plots.
+#' @param plot_pkg String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.
 #'
 #' @return A list containing:
 #' \itemize{
@@ -14,10 +14,8 @@
 #' }
 #' @export
 #' @importFrom grDevices rainbow
-#'
-#' @import ggplot2
-#' @import dplyr
-#' @import tidyr
+#' @import graphics
+#' @import grDevices
 #'
 #' @examples
 #' T <- 200
@@ -32,10 +30,20 @@
 #' fitted_data <- fit_model(level, season, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' show_fit(fitted_data, smooth = TRUE)$plot
+#' show_fit(fitted_data, lag = -1)$plot
 #'
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-show_fit <- function(model, pred_cred = 0.95, lag = 1, plotly = requireNamespace("plotly", quietly = TRUE)) {
+show_fit <- function(model, pred_cred = 0.95, lag = 1, plot_pkg = "auto") {
+  if (plot_pkg == "auto") {
+    plot_pkg <- if (requireNamespace("plotly", quietly = TRUE) & requireNamespace("ggplot2", quietly = TRUE)) {
+      "plotly"
+    } else if (requireNamespace("ggplot2", quietly = TRUE)) {
+      "ggplot2"
+    } else {
+      "base"
+    }
+  }
+
   t_last <- dim(model$mt)[2]
   eval <- eval_past(model, lag = lag, pred_cred = pred_cred, eval_pred = TRUE)$data
 
@@ -69,54 +77,122 @@ show_fit <- function(model, pred_cred = 0.95, lag = 1, plotly = requireNamespace
     paste0(lag, "-steps-ahead predictions")
   }
 
-  plt <- ggplot() +
-    geom_ribbon(data = eval, aes_string(x = "Time", fill = "Serie", ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25) +
-    geom_line(data = eval, aes_string(x = "Time", color = "Serie", y = "Prediction", linetype = "'Fitted values'")) +
-    geom_point(data = eval, aes_string(x = "Time", color = "Serie", y = "Observation", shape = '"Observation"'), alpha = 0.5) +
-    scale_linetype_manual("", values = linetypes) +
-    scale_shape_manual("", values = shapes) +
-    scale_fill_manual("", na.value = NA, values = colors) +
-    scale_color_manual("", na.value = NA, values = colors) +
-    scale_y_continuous(name = "$y_t$") +
-    scale_x_continuous("Time") +
-    ggtitle(title) +
-    theme_bw() +
-    coord_cartesian(ylim = c(min_value, max_value))
-  for (name_i in names(model$outcomes)) {
-    outcome_i <- model$outcomes[[name_i]]
-    if (any(outcome_i$alt.flags == 1)) {
-      plt <- plt +
-        geom_vline(
-          data = data.frame(xintercept = (1:t_last)[outcome_i$alt.flags == 1], linetype = "Detected changes", serie = name_i),
-          aes_string(xintercept = "xintercept", linetype = "linetype")
-        )
+  if (plot_pkg == "base" | !requireNamespace("ggplot2", quietly = TRUE)) {
+    points <- paste0(colors, "55")
+    fills <- paste0(colors, "33")
+    names(colors) <- names(points) <- names(fills) <- series_names
+
+    if (plot_pkg != "base") {
+      warning("The ggplot2 package is required for ggplot2 and plotly plots and was not found. Falling back to R base plot functions.")
+    }
+    cur_height <- dev.size("cm")[2]
+    count_spaces <- ceiling(n_colors / 4)
+    font_cm <- 0.35
+
+    config <- par()
+    layout(
+      mat = matrix(c(1, 2, 3), 3, 1),
+      heights = c(
+        cur_height - font_cm * count_spaces - 1 - 0.75,
+        0.75,
+        font_cm * count_spaces + 1
+      )
+    )
+
+
+    par(mar = c(4.1, 4.1, 4.1, 2.1), cex = 1)
+    plot(0, 0, type = "n", xlim = c(1, t_last), ylim = c(min_value, max_value), ylab = "$y_t$", xlab = "Time", main = title)
+    for (serie in series_names) {
+      plot_serie <- eval[eval$Serie == serie, ]
+      points(plot_serie$Time[1:t_last], plot_serie$Observation[1:t_last],
+        col = points[[serie]],
+        pch = 16
+      )
+      lines(plot_serie$Time[1:t_last], plot_serie$Prediction[1:t_last], col = colors[[serie]])
+      base_ribbon(plot_serie$Time, plot_serie$C.I.lower, plot_serie$C.I.upper,
+        col = fills[[serie]], lty = 0
+      )
+    }
+
+    par(mar = c(0, 0, 0, 0), cex = 1)
+    plot(0, type = "n", axes = FALSE, xlab = "", ylab = "", xlim = c(0, 1), ylim = c(0, 1))
+    legend(
+      legend = c("Fit", "Obs."),
+      col = c("black", "black"),
+      lty = c(1, 0),
+      seg.len = 0.6,
+      pch = c(0, 16),
+      pt.cex = c(0, 1),
+      fill = c("#00000033", "#ffffff00"),
+      border = "#ffffff00",
+      cex = 0.75,
+      x = "top", bty = "n", ncol = 2
+    )
+    par(mar = c(0, 0, 0, 0), cex = 1)
+    plot(0, type = "n", axes = FALSE, xlab = "", ylab = "", xlim = c(0, 1), ylim = c(0, 1))
+    legend(
+      legend = series_names,
+      col = colors,
+      lty = rep(0, n_colors),
+      pch = rep(22, n_colors),
+      pt.cex = rep(2, n_colors),
+      pt.bg = colors,
+      x = 0.5, xjust = 0.5, y = 1, inset = 0, bty = "n",
+      cex = 0.75,
+      ncol = min(4, ceiling(n_colors / count_spaces))
+    )
+    par(mar = config$mar)
+    plt <- NULL
+  } else {
+    plt <- ggplot2::ggplot() +
+      ggplot2::geom_ribbon(data = eval, ggplot2::aes_string(x = "Time", fill = "Serie", ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25) +
+      ggplot2::geom_line(data = eval, ggplot2::aes_string(x = "Time", color = "Serie", y = "Prediction", linetype = "'Fitted values'")) +
+      ggplot2::geom_point(data = eval, ggplot2::aes_string(x = "Time", color = "Serie", y = "Observation", shape = '"Observation"'), alpha = 0.5) +
+      ggplot2::scale_linetype_manual("", values = linetypes) +
+      ggplot2::scale_shape_manual("", values = shapes) +
+      ggplot2::scale_fill_manual("", na.value = NA, values = colors) +
+      ggplot2::scale_color_manual("", na.value = NA, values = colors) +
+      ggplot2::scale_y_continuous(name = "$y_t$") +
+      ggplot2::scale_x_continuous("Time") +
+      ggplot2::ggtitle(title) +
+      ggplot2::theme_bw() +
+      ggplot2::coord_cartesian(ylim = c(min_value, max_value))
+    for (name_i in names(model$outcomes)) {
+      outcome_i <- model$outcomes[[name_i]]
+      if (any(outcome_i$alt.flags == 1)) {
+        plt <- plt +
+          ggplot2::geom_vline(
+            data = data.frame(xintercept = (1:t_last)[outcome_i$alt.flags == 1], linetype = "Detected changes", serie = name_i),
+            ggplot2::aes_string(xintercept = "xintercept", linetype = "linetype")
+          )
+      }
+    }
+    if (plot_pkg == "plotly") {
+      if (!requireNamespace("plotly", quietly = TRUE)) {
+        warning("The plotly package is required for plotly plots.")
+      } else {
+        plt <- plotly::ggplotly(plt)
+
+        for (i in (1:n_colors) - 1) {
+          plt$x$data[[i + 1]]$legendgroup <-
+            plt$x$data[[i + 1 + n_colors]]$legendgroup <-
+            plt$x$data[[i + 1]]$name <-
+            plt$x$data[[i + 1 + n_colors]]$name <- paste0(series_names[i + 1], ": fitted values")
+
+          plt$x$data[[i + 1]]$showlegend <- FALSE
+
+          plt$x$data[[i + 1 + 2 * n_colors]]$legendgroup <-
+            plt$x$data[[i + 1 + 2 * n_colors]]$name <- paste0(series_names[i + 1], ": observations")
+        }
+        n <- length(plt$x$data)
+        if (n %% 3 == 1) {
+          plt$x$data[[n]]$legendgroup <-
+            plt$x$data[[n]]$name <- "Detected changes"
+        }
+      }
     }
   }
-  if (plotly) {
-    if (!requireNamespace("plotly", quietly = TRUE)) {
-      warning("The plotly package is required for plotly plots.")
-    } else {
-      plt <- plotly::ggplotly(plt)
-
-      for (i in (1:n_colors) - 1) {
-        plt$x$data[[i + 1]]$legendgroup <-
-          plt$x$data[[i + 1 + n_colors]]$legendgroup <-
-          plt$x$data[[i + 1]]$name <-
-          plt$x$data[[i + 1 + n_colors]]$name <- paste0(series_names[i + 1], ": fitted values")
-
-        plt$x$data[[i + 1]]$showlegend <- FALSE
-
-        plt$x$data[[i + 1 + 2 * n_colors]]$legendgroup <-
-          plt$x$data[[i + 1 + 2 * n_colors]]$name <- paste0(series_names[i + 1], ": observations")
-      }
-      n <- length(plt$x$data)
-      if (n %% 3 == 1) {
-        plt$x$data[[n]]$legendgroup <-
-          plt$x$data[[n]]$name <- "Detected changes"
-      }
-    }
-  }
-  return(list("data" = eval, "plot" = plt))
+  return(list(data = eval, plot = plt))
 }
 
 #' Visualizing latent states in a fitted kDGLM model
@@ -126,7 +202,7 @@ show_fit <- function(model, pred_cred = 0.95, lag = 1, plotly = requireNamespace
 #' @param lag Integer: A integer with the number of steps ahead should be used for evaluating the latent variables. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribution is used.
 #' @param cutoff Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.
 #' @param pred_cred Numeric: The credibility value for the credibility interval.
-#' @param plotly Bool: A flag indicating if plotly should be used to create plots.
+#' @param plot_pkg String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.
 #'
 #' @return A list containing:
 #' \itemize{
@@ -135,11 +211,10 @@ show_fit <- function(model, pred_cred = 0.95, lag = 1, plotly = requireNamespace
 #' }
 #' @export
 #'
-#' @import ggplot2
-#' @import dplyr
-#' @import tidyr
 #' @importFrom grDevices rainbow
 #' @importFrom stats qnorm
+#' @import graphics
+#' @import grDevices
 #'
 #' @examples
 #'
@@ -155,10 +230,20 @@ show_fit <- function(model, pred_cred = 0.95, lag = 1, plotly = requireNamespace
 #' fitted_data <- fit_model(level, season, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' plot_lat_var(fitted_data, smooth = TRUE)$plot
+#' plot_lat_var(fitted_data)$plot
 #'
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10), pred_cred = 0.95, plotly = requireNamespace("plotly", quietly = TRUE)) {
+plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10), pred_cred = 0.95, plot_pkg = "auto") {
+  if (plot_pkg == "auto") {
+    plot_pkg <- if (requireNamespace("plotly", quietly = TRUE) & requireNamespace("ggplot2", quietly = TRUE)) {
+      "plotly"
+    } else if (requireNamespace("ggplot2", quietly = TRUE)) {
+      "ggplot2"
+    } else {
+      "base"
+    }
+  }
+
   if (!any(grepl(var, model$var_labels))) {
     stop(paste0("Error: Invalid variable selection. Got '", var, "', expected one of the following:\n", paste0(names(model$var_names), collapse = "\n")))
   }
@@ -174,24 +259,16 @@ plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10)
 
   param_distr <- eval_past(model, lag = lag, pred_cred = pred_cred, eval_pred = FALSE)
 
-  m1 <- param_distr$mt[indice, (cutoff + 1):t, drop = FALSE] %>%
+  m1 <- param_distr$mt[indice, (cutoff + 1):t, drop = FALSE] |>
     t()
-  std_mat <- param_distr$Ct[indice, indice, (cutoff + 1):t, drop = FALSE] %>%
-    apply(3, diag) %>%
-    sqrt() %>%
-    matrix(size, t - cutoff) %>%
+  std_mat <- param_distr$Ct[indice, indice, (cutoff + 1):t, drop = FALSE] |>
+    apply(3, diag) |>
+    sqrt() |>
+    matrix(size, t - cutoff) |>
     t()
 
   lim_i <- m1 + qnorm((1 - pred_cred) / 2) * std_mat
   lim_s <- m1 + qnorm(1 - (1 - pred_cred) / 2) * std_mat
-
-  m1 <- as.data.frame(m1)
-  lim_i <- as.data.frame(lim_i)
-  lim_s <- as.data.frame(lim_s)
-
-  names(m1) <- var_names
-  names(lim_i) <- var_names
-  names(lim_s) <- var_names
 
   max_value <- evaluate_max(m1 - min(m1))[[3]] + min(m1)
   min_value <- -evaluate_max(-(m1 - max(m1)))[[3]] + max(m1)
@@ -202,37 +279,27 @@ plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10)
     max_value <- center - 0.01
   }
 
+  plot_data <- data.frame(
+    Time = c((cutoff + 1):t),
+    Label = as.factor(c(sapply(var_names, function(x) {
+      rep(x, t - cutoff)
+    }))),
+    Mean = c(m1),
+    C.I.lower = c(lim_i),
+    C.I.upper = c(lim_s)
+  )
 
-  m1$time <- c(1:dim(m1)[1]) + cutoff
-  lim_i$time <- c(1:dim(lim_i)[1]) + cutoff
-  lim_s$time <- c(1:dim(lim_s)[1]) + cutoff
+  label <- paste0("C.I. (", pred_cred * 100 |> round(), "%)")
 
-  m1 <- m1 %>%
-    pivot_longer(1:size) %>%
-    rename("media" = "value")
-  lim_i <- lim_i %>%
-    pivot_longer(1:size) %>%
-    rename("lim_i" = "value")
-  lim_s <- lim_s %>%
-    pivot_longer(1:size) %>%
-    rename("lim_s" = "value")
+  var_names <- levels(plot_data$Label)
+  n_var <- length(var_names)
+  color_list <- rainbow(n_var, s = 0.6)
+  names(color_list) <- var_names
 
-  label <- paste0("\n(cred. ", pred_cred * 100 %>% round(), "%)")
-
-  plot_data <- m1 %>%
-    inner_join(lim_i, by = c("time", "name")) %>%
-    inner_join(lim_s, by = c("time", "name"))
-
-  plot_data$name <- factor(plot_data$name, levels = unique(plot_data$name))
-
-  n_var <- length(levels(plot_data$name))
-  color_list <- rainbow(n_var, s = 0.5)
-  names(color_list) <- paste(levels(plot_data$name), label)
-
-  fill_list <- rainbow(n_var, s = 0.5)
-  names(fill_list) <- paste(levels(plot_data$name), label)
-  plot_data$fill_name <- paste(plot_data$name, label)
-  plot_data$color_name <- paste(plot_data$name, label)
+  fill_list <- rainbow(n_var, s = 0.6)
+  names(fill_list) <- var_names
+  plot_data$fill_name <- plot_data$Label
+  plot_data$color_name <- plot_data$Label
 
   title <- if (lag < 0) {
     "Smoothed estimation of latent variables"
@@ -244,35 +311,102 @@ plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10)
     paste0(lag, "-steps-ahead prediction for latent variables")
   }
 
-  plt <- ggplot(plot_data, aes_string(x = "time", fill = "fill_name", color = "color_name")) +
-    geom_hline(yintercept = 0, linetype = "dashed") +
-    scale_x_continuous("Time") +
-    scale_color_manual("", values = color_list, na.value = NA) +
-    scale_fill_manual("", values = fill_list, na.value = NA) +
-    labs(title = title) +
-    scale_y_continuous("Parameter value") +
-    theme_bw() +
-    theme(axis.text.x = element_text(angle = 90)) +
-    geom_ribbon(aes_string(ymin = "lim_i", ymax = "lim_s"), alpha = 0.25, color = NA) +
-    geom_line(aes_string(y = "media")) +
-    coord_cartesian(ylim = c(min_value, max_value))
-  if (plotly) {
-    if (!requireNamespace("plotly", quietly = TRUE)) {
-      warning("The plotly package is required for plotly plots.")
-    } else {
-      plt <- plotly::ggplotly(plt)
+  if (plot_pkg == "base" | !requireNamespace("ggplot2", quietly = TRUE)) {
+    points <- paste0(color_list, "55")
+    fills <- paste0(color_list, "33")
+    names(color_list) <- names(points) <- names(fills) <- var_names
 
-      for (i in (1:size) - 1) {
-        plt$x$data[[i + 1 + 1]]$legendgroup <-
-          plt$x$data[[i + 1 + size + 1]]$legendgroup <-
-          plt$x$data[[i + 1 + 1]]$name <-
-          plt$x$data[[i + 1 + size + 1]]$name <- plt$x$data[[i + 1 + size + 1]]$name
+    if (plot_pkg != "base") {
+      warning("The ggplot2 package is required for ggplot2 and plotly plots and was not found. Falling back to R base plot functions.")
+    }
 
-        plt$x$data[[i + 1 + 1]]$showlegend <- FALSE
+    cur_height <- dev.size("cm")[2]
+    count_spaces <- ceiling(n_var / 4)
+    font_cm <- 0.35
+
+    config <- par()
+    layout(
+      mat = matrix(c(1, 2, 3), 3, 1),
+      heights = c(
+        cur_height - font_cm * count_spaces - 1 - 0.75,
+        0.75,
+        font_cm * count_spaces + 1
+      )
+    )
+
+    par(mar = c(4.1, 4.1, 4.1, 2.1), cex = 1)
+    plot(0, 0, type = "n", xlim = c(cutoff, t), ylim = c(min_value, max_value), ylab = "$y_t$", xlab = "Time", main = title)
+    for (var_name in var_names) {
+      plot_serie <- plot_data[plot_data$Label == var_name, ]
+      points(plot_serie$Time, plot_serie$Observation,
+        col = points[[var_name]],
+        pch = 16
+      )
+      lines(plot_serie$Time, plot_serie$Mean, col = color_list[[var_name]])
+      base_ribbon(plot_serie$Time, plot_serie$C.I.lower, plot_serie$C.I.upper,
+        col = fills[[var_name]], lty = 0
+      )
+    }
+    lines(c(-1, t + 2), c(0, 0), lty = 2)
+
+    par(mar = c(0, 0, 0, 0), cex = 1)
+    plot(0, type = "n", axes = FALSE, xlab = "", ylab = "", xlim = c(0, 1), ylim = c(0, 1))
+    legend(
+      legend = c("Mean", label),
+      col = c("black", "black"),
+      lty = c(1, 0),
+      seg.len = 0.6,
+      pch = c(0, 22),
+      pt.cex = c(0, 2),
+      pt.bg = c("#00000000", "#00000033"),
+      border = "#ffffff00",
+      x = 0.5, xjust = 0.5, y = 1, bty = "n", cex = 0.75, horiz = TRUE
+    )
+    par(mar = c(0, 0, 0, 0), cex = 1)
+    plot(0, type = "n", axes = FALSE, xlab = "", ylab = "", xlim = c(0, 1), ylim = c(0, 1))
+    legend(
+      legend = var_names,
+      col = color_list,
+      lty = rep(0, n_var),
+      pch = rep(22, n_var),
+      pt.cex = rep(2, n_var),
+      pt.bg = color_list,
+      x = 0.5, xjust = 0.5, y = 1, inset = 0, cex = 0.75, bty = "n",
+      ncol = min(4, ceiling(n_var / count_spaces))
+    )
+    par(mar = config$mar)
+    plt <- NULL
+  } else {
+    plt <- ggplot2::ggplot(plot_data, ggplot2::aes_string(x = "Time", fill = "Label", color = "color_name")) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
+      ggplot2::scale_x_continuous("Time") +
+      ggplot2::scale_color_manual("", values = color_list, na.value = NA) +
+      ggplot2::scale_fill_manual("", values = fill_list, na.value = NA) +
+      ggplot2::labs(title = title) +
+      ggplot2::scale_y_continuous("Parameter value") +
+      ggplot2::theme_bw() +
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
+      ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25, color = NA) +
+      ggplot2::geom_line(ggplot2::aes_string(y = "Mean")) +
+      ggplot2::coord_cartesian(ylim = c(min_value, max_value))
+    if (plot_pkg == "plotly") {
+      if (!requireNamespace("plotly", quietly = TRUE)) {
+        warning("The plotly package is required for plotly plots.")
+      } else {
+        plt <- plotly::ggplotly(plt)
+
+        for (i in (1:size) - 1) {
+          plt$x$data[[i + 1 + 1]]$legendgroup <-
+            plt$x$data[[i + 1 + size + 1]]$legendgroup <-
+            plt$x$data[[i + 1 + 1]]$name <-
+            plt$x$data[[i + 1 + size + 1]]$name <- plt$x$data[[i + 1 + size + 1]]$name
+
+          plt$x$data[[i + 1 + 1]]$showlegend <- FALSE
+        }
       }
     }
   }
-  return(list("plot" = plt, "data" = plot_data))
+  return(list(data = plot_data[, 1:5], plot = plt))
 }
 
 #' Visualizing linear predictors in a fitted kDGLM model
@@ -282,7 +416,7 @@ plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10)
 #' @param lag Integer: A integer with the number of steps ahead should be used for evaluating the linear predictors. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribution is used.
 #' @param cutoff Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.
 #' @param pred_cred Numeric: The credibility value for the credibility interval.
-#' @param plotly Bool: A flag indicating if plotly should be used to create plots.
+#' @param plot_pkg String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.
 #'
 #' @return A list containing:
 #' \itemize{
@@ -292,10 +426,8 @@ plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10)
 #' @export
 #' @importFrom grDevices rainbow
 #' @importFrom stats qnorm
-#'
-#' @import ggplot2
-#' @import dplyr
-#' @import tidyr
+#' @import graphics
+#' @import grDevices
 #'
 #' @examples
 #'
@@ -311,10 +443,20 @@ plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10)
 #' fitted_data <- fit_model(level, season, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' plot_lin_pred(fitted_data, smooth = TRUE)$plot
+#' plot_lin_pred(fitted_data)$plot
 #'
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-plot_lin_pred <- function(model, pred = "", lag = -1, cutoff = floor(model$t / 10), pred_cred = 0.95, plotly = requireNamespace("plotly", quietly = TRUE)) {
+plot_lin_pred <- function(model, pred = "", lag = -1, cutoff = floor(model$t / 10), pred_cred = 0.95, plot_pkg = "auto") {
+  if (plot_pkg == "auto") {
+    plot_pkg <- if (requireNamespace("plotly", quietly = TRUE) & requireNamespace("ggplot2", quietly = TRUE)) {
+      "plotly"
+    } else if (requireNamespace("ggplot2", quietly = TRUE)) {
+      "ggplot2"
+    } else {
+      "base"
+    }
+  }
+
   if (!any(grepl(pred, model$pred_names))) {
     stop(paste0("Error: Invalid selected variable. Got ", pred, ", expected one of the following:\n", paste0(names(model$pred_names), collapse = "\n")))
   }
@@ -330,24 +472,16 @@ plot_lin_pred <- function(model, pred = "", lag = -1, cutoff = floor(model$t / 1
 
   param_distr <- eval_past(model, lag = lag, pred_cred = pred_cred, eval_pred = FALSE)
 
-  f1 <- param_distr$ft[indice, (cutoff + 1):t, drop = FALSE] %>%
+  f1 <- param_distr$ft[indice, (cutoff + 1):t, drop = FALSE] |>
     t()
-  std_mat <- param_distr$Qt[indice, indice, (cutoff + 1):t, drop = FALSE] %>%
-    apply(3, diag) %>%
-    sqrt() %>%
-    matrix(size, t - cutoff) %>%
+  std_mat <- param_distr$Qt[indice, indice, (cutoff + 1):t, drop = FALSE] |>
+    apply(3, diag) |>
+    sqrt() |>
+    matrix(size, t - cutoff) |>
     t()
 
   lim_i <- f1 + qnorm((1 - pred_cred) / 2) * std_mat
   lim_s <- f1 + qnorm(1 - (1 - pred_cred) / 2) * std_mat
-
-  f1 <- as.data.frame(f1)
-  lim_i <- as.data.frame(lim_i)
-  lim_s <- as.data.frame(lim_s)
-
-  names(f1) <- var_names
-  names(lim_i) <- var_names
-  names(lim_s) <- var_names
 
   max_value <- evaluate_max(f1 - min(f1))[[3]] + min(f1)
   min_value <- -evaluate_max(-(f1 - max(f1)))[[3]] + max(f1)
@@ -358,35 +492,27 @@ plot_lin_pred <- function(model, pred = "", lag = -1, cutoff = floor(model$t / 1
     max_value <- center - 0.01
   }
 
-  f1$time <- c(1:dim(f1)[1]) + cutoff
-  lim_i$time <- c(1:dim(lim_i)[1]) + cutoff
-  lim_s$time <- c(1:dim(lim_s)[1]) + cutoff
+  plot_data <- data.frame(
+    Time = c((cutoff + 1):t),
+    Label = as.factor(c(sapply(var_names, function(x) {
+      rep(x, t - cutoff)
+    }))),
+    Mean = c(f1),
+    C.I.lower = c(lim_i),
+    C.I.upper = c(lim_s)
+  )
 
-  f1 <- f1 %>%
-    pivot_longer(1:size) %>%
-    rename("media" = "value")
-  lim_i <- lim_i %>%
-    pivot_longer(1:size) %>%
-    rename("lim_i" = "value")
-  lim_s <- lim_s %>%
-    pivot_longer(1:size) %>%
-    rename("lim_s" = "value")
+  label <- paste0("C.I. (", pred_cred * 100 |> round(), "%)")
 
-  label <- paste0("\n(cred. ", pred_cred * 100 %>% round(), "%)")
+  n_var <- length(unique(plot_data$Label))
+  color_list <- rainbow(n_var, s = 0.6)
+  names(color_list) <- unique(plot_data$Label)
 
-  plot_data <- f1 %>%
-    inner_join(lim_i, by = c("time", "name")) %>%
-    inner_join(lim_s, by = c("time", "name"))
-
-  n_var <- length(unique(plot_data$name))
-  color_list <- rainbow(n_var, s = 0.5)
-  names(color_list) <- paste(unique(plot_data$name), label)
-
-  fill_list <- rainbow(n_var, s = 0.5)
-  names(fill_list) <- paste(unique(plot_data$name), label)
-  plot_data$fill_name <- paste(plot_data$name, label)
-  plot_data$color_name <- paste(plot_data$name, label)
-  plot_data$IC_name <- paste(plot_data$name, label)
+  fill_list <- rainbow(n_var, s = 0.6)
+  names(fill_list) <- unique(plot_data$Label)
+  plot_data$fill_name <- plot_data$Label
+  plot_data$color_name <- plot_data$Label
+  plot_data$IC_name <- plot_data$Label
 
   title <- if (lag < 0) {
     "Smoothed estimation of linear predictors"
@@ -398,33 +524,100 @@ plot_lin_pred <- function(model, pred = "", lag = -1, cutoff = floor(model$t / 1
     paste0(lag, "-steps-ahead prediction for linear predictors")
   }
 
-  plt <- ggplot(plot_data, aes_string(x = "time", fill = "fill_name", color = "color_name")) +
-    geom_hline(yintercept = 0, linetype = "dashed") +
-    scale_x_continuous("Time") +
-    scale_color_manual("", values = color_list, na.value = NA) +
-    scale_fill_manual("", values = fill_list, na.value = NA) +
-    labs(title = title) +
-    scale_y_continuous("predictor value") +
-    theme_bw() +
-    theme(axis.text.x = element_text(angle = 90)) +
-    geom_ribbon(aes_string(ymin = "lim_i", ymax = "lim_s"), alpha = 0.25, color = NA) +
-    geom_line(aes_string(y = "media")) +
-    coord_cartesian(ylim = c(min_value, max_value))
-  if (plotly) {
-    if (!requireNamespace("plotly", quietly = TRUE)) {
-      warning("The plotly package is required for plotly plots.")
-    } else {
-      plt <- plotly::ggplotly(plt)
+  if (plot_pkg == "base" | !requireNamespace("ggplot2", quietly = TRUE)) {
+    points <- paste0(color_list, "55")
+    fills <- paste0(color_list, "33")
+    names(color_list) <- names(points) <- names(fills) <- var_names
 
-      for (i in (1:size) - 1) {
-        plt$x$data[[i + 1 + 1]]$legendgroup <-
-          plt$x$data[[i + 1 + size + 1]]$legendgroup <-
-          plt$x$data[[i + 1 + 1]]$name <-
-          plt$x$data[[i + 1 + size + 1]]$name <- plt$x$data[[i + 1 + size + 1]]$name
+    if (plot_pkg != "base") {
+      warning("The ggplot2 package is required for ggplot2 and plotly plots and was not found. Falling back to R base plot functions.")
+    }
 
-        plt$x$data[[i + 1 + 1]]$showlegend <- FALSE
+    cur_height <- dev.size("cm")[2]
+    count_spaces <- ceiling(n_var / 4)
+    font_cm <- 0.35
+
+    config <- par()
+    layout(
+      mat = matrix(c(1, 2, 3), 3, 1),
+      heights = c(
+        cur_height - font_cm * count_spaces - 1 - 0.75,
+        0.75,
+        font_cm * count_spaces + 1
+      )
+    )
+
+    par(mar = c(4.1, 4.1, 4.1, 2.1), cex = 1)
+    plot(0, 0, type = "n", xlim = c(cutoff, t), ylim = c(min_value, max_value), ylab = "$y_t$", xlab = "Time", main = title)
+    for (var_name in var_names) {
+      plot_serie <- plot_data[plot_data$Label == var_name, ]
+      points(plot_serie$Time, plot_serie$Observation,
+        col = points[[var_name]],
+        pch = 16
+      )
+      lines(plot_serie$Time, plot_serie$Mean, col = color_list[[var_name]])
+      base_ribbon(plot_serie$Time, plot_serie$C.I.lower, plot_serie$C.I.upper,
+        col = fills[[var_name]], lty = 0
+      )
+    }
+    lines(c(-1, t + 2), c(0, 0), lty = 2)
+
+    par(mar = c(0, 0, 0, 0), cex = 1)
+    plot(0, type = "n", axes = FALSE, xlab = "", ylab = "", xlim = c(0, 1), ylim = c(0, 1))
+    legend(
+      legend = c("Mean", label),
+      col = c("black", "black"),
+      lty = c(1, 0),
+      seg.len = 0.6,
+      pch = c(0, 22),
+      pt.cex = c(0, 2),
+      pt.bg = c("#00000000", "#00000033"),
+      border = "#ffffff00",
+      x = 0.5, xjust = 0.5, y = 1, bty = "n", cex = 0.75, ncol = 2
+    )
+    par(mar = c(0, 0, 0, 0), cex = 1)
+    plot(0, type = "n", axes = FALSE, xlab = "", ylab = "", xlim = c(0, 1), ylim = c(0, 1))
+    legend(
+      legend = var_names,
+      col = color_list,
+      lty = rep(0, n_var),
+      pch = rep(22, n_var),
+      pt.cex = rep(2, n_var),
+      pt.bg = color_list,
+      x = 0.5, xjust = 0.5, y = 1, inset = 0, cex = 0.75, bty = "n",
+      ncol = min(4, ceiling(n_var / count_spaces))
+    )
+    par(mar = config$mar)
+    plt <- NULL
+  } else {
+    plt <- ggplot2::ggplot(plot_data, ggplot2::aes_string(x = "Time", fill = "Label", color = "color_name")) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
+      ggplot2::scale_x_continuous("Time") +
+      ggplot2::scale_color_manual("", values = color_list, na.value = NA) +
+      ggplot2::scale_fill_manual("", values = fill_list, na.value = NA) +
+      ggplot2::labs(title = title) +
+      ggplot2::scale_y_continuous("predictor value") +
+      ggplot2::theme_bw() +
+      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
+      ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25, color = NA) +
+      ggplot2::geom_line(ggplot2::aes_string(y = "Mean")) +
+      ggplot2::coord_cartesian(ylim = c(min_value, max_value))
+    if (plot_pkg == "plotly") {
+      if (!requireNamespace("plotly", quietly = TRUE)) {
+        warning("The plotly package is required for plotly plots.")
+      } else {
+        plt <- plotly::ggplotly(plt)
+
+        for (i in (1:size) - 1) {
+          plt$x$data[[i + 1 + 1]]$legendgroup <-
+            plt$x$data[[i + 1 + size + 1]]$legendgroup <-
+            plt$x$data[[i + 1 + 1]]$name <-
+            plt$x$data[[i + 1 + size + 1]]$name <- plt$x$data[[i + 1 + size + 1]]$name
+
+          plt$x$data[[i + 1 + 1]]$showlegend <- FALSE
+        }
       }
     }
   }
-  return(list("plot" = plt, "data" = plot_data))
+  return(list(data = plot_data[, 1:5], plot = plt))
 }

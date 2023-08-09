@@ -83,7 +83,7 @@ fit_model(
   ...,
   outcomes,
   pred_cred = 0.95,
-  smooth = TRUE,
+  lag = -1,
   p_monit = NA,
   c_monit = 1
 )
@@ -136,7 +136,7 @@ The user may see how to model fits the data using the `plot` method, which is a 
 ```{r}
 # show_fit(fitted_data)
 # or
-plot(fitted_data, plotly = FALSE)
+plot(fitted_data, plot_pkg = "base")
 ```
 
 As default, this method return the one-step ahead prediction for the observations, but the user may change the arguments of this function such as to evaluate the $h$-steps ahead or the smoothed predictions. See the documentation of the `show_fit` function for more details.
@@ -160,9 +160,9 @@ For more details about the usage of the `report_dlm` function, see the associate
 Naturally, the user might want to access the estimated values of each parameter, along with the parameters for they posterior distribution. The `coef` method, which is a wrapper for the `eval_past` function, can provide this information for the user:
 
 ```{r echo=TRUE, eval=FALSE}
-# eval_past(fitted_data, smooth = TRUE)
+# eval_past(fitted_data, lag=-1)
 # or
-coef(fitted_data, smooth = TRUE)
+coef(fitted_data, lag = -1)
 ```
 
 The output of this function is a list containing:
@@ -180,19 +180,19 @@ The output of this function is a list containing:
 The user may also want to plot the latent variables, for which he (?) can use the `plot_lat_var` function:
 
 ```{r}
-plot_lat_var(fitted_data, plotly = FALSE)$plot
+plot_lat_var(fitted_data, plot_pkg = "base")$plot
 ```
 
 The user may also plot the linear predictors, for that he can use the `plot_lin_pred` function:
 
 ```{r}
-plot_lin_pred(fitted_data, plotly = FALSE)$plot
+plot_lin_pred(fitted_data, plot_pkg = "base")$plot
 ```
 
 Notice that, in all cases, estimation is restricted to the period where the model was fitted. If the user wishes make predictions for future observations, he (?) can use the `forecast` function:
 
 ```{r}
-forecast(fitted_data, 20, plot = TRUE)$plot
+forecast(fitted_data, 20, plot = "base")$plot
 ```
 
 
@@ -318,7 +318,7 @@ outcome <- list(
 
 fitted_data <- fit_model(level1, level2, outcomes = outcome)
 
-plot(fitted_data, smooth = TRUE, plotly = FALSE)
+plot(fitted_data, lag = -1, plot_pkg = "base")
 ```
 
 The detailed theory behind the structure discussed in this section can be found in chapters 6, 7 and 9 from @WestHarr-DLM.
@@ -373,23 +373,23 @@ summary(fitted_data)
 
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-plot_lat_var(fitted_data, plotly = FALSE, cut_off = 0)$plot +
-  geom_point(aes(x = time, y = values, color = "True values", fill = "True values"), inherit.aes = FALSE, data = data.frame(time = 1:T, values = gamma_coef, color = "True values"), alpha = 0.75) +
-  scale_color_manual("",
-    labels = c(
-      "True values" = "True",
-      "Var_Reg \n(cred. 95%)" = "Estimated"
-    ),
-    values = c("Var_Reg \n(cred. 95%)" = rainbow(1, s = 0.5)[1], "True values" = "black")
-  ) +
-  scale_fill_manual("",
-    labels = c(
-      "True values" = "True",
-      "Var_Reg \n(cred. 95%)" = "Estimated"
-    ),
-    values = c("Var_Reg \n(cred. 95%)" = rainbow(1, s = 0.5)[1], "True values" = "black")
-  ) +
-  theme_bw()
+plot_lat_var(fitted_data, plot_pkg = "base", cutoff = 0) # $plot +
+# geom_point(aes(x = time, y = values, color = "True values", fill = "True values"), inherit.aes = FALSE, data = data.frame(time = 1:T, values = gamma_coef, color = "True values"), alpha = 0.75) +
+# scale_color_manual("",
+#   labels = c(
+#     "True values" = "True",
+#     "Var_Reg \n(cred. 95%)" = "Estimated"
+#   ),
+#   values = c("Var_Reg \n(cred. 95%)" = rainbow(1, s = 0.5)[1], "True values" = "black")
+# ) +
+# scale_fill_manual("",
+#   labels = c(
+#     "True values" = "True",
+#     "Var_Reg \n(cred. 95%)" = "Estimated"
+#   ),
+#   values = c("Var_Reg \n(cred. 95%)" = rainbow(1, s = 0.5)[1], "True values" = "black")
+# ) +
+# theme_bw()
 ```
 
 ## A structure for harmonic trend models
@@ -448,7 +448,7 @@ outcome <- Poisson(lambda = "rate", outcome = data)
 
 fitted_data <- fit_model(season, outcomes = outcome)
 
-plot(fitted_data, smooth = TRUE, plotly = FALSE)
+plot(fitted_data, lag = -1, plot_pkg = "base")
 ```
 
 
@@ -570,7 +570,7 @@ fitted_data <- fit_model(volatility,
   outcomes = Gamma(phi = 3 / 2, mu = "eta", outcome = data, alt_method = FALSE)
 )
 
-# show_fit(fitted_data, smooth = TRUE)$plot
+# show_fit(fitted_data, lag=-1)$plot
 par(mfrow = c(1, 2))
 x <- seq(fitted_data$mts[2, T] - 4 * sqrt(fitted_data$Cts[2, 2, T]),
   fitted_data$mts[2, T] + 4 * sqrt(fitted_data$Cts[2, 2, T]),
@@ -752,7 +752,7 @@ outcome <- Poisson(lambda = "rate", outcome = data)
 
 # Fitting and ploting
 fitted_data <- fit_model(level, season, outcomes = outcome)
-plot(fitted_data, plotly = FALSE)
+plot(fitted_data, plot_pkg = "base")
 ```
 
 In the code above, we have that the variable `data` is simply a vector of size 200 contained the simulated data.
@@ -845,7 +845,7 @@ outcome <- Gamma(phi = phi, mu = "mu", outcome = data)
 
 fitted_data <- fit_model(level, season, outcomes = outcome)
 
-plot(fitted_data, smooth = TRUE, plotly = FALSE)
+plot(fitted_data, lag = -1, plot_pkg = "base")
 ```
 
 ## Multinomial case
@@ -909,7 +909,7 @@ season <- harmonic_block(p2 = 1, period = 12)
 outcome <- Multinom(p = c("p1", "p2"), outcome = y)
 
 fitted_data <- fit_model(level1, level2, season, outcomes = outcome)
-plot(fitted_data, smooth = TRUE, plotly = FALSE)
+plot(fitted_data, lag = -1, plot_pkg = "base")
 ```
 
 ### Some comments on the usage of an offset
@@ -1029,7 +1029,7 @@ outcome <- Normal(mu = "mu", V = 1, outcome = data)
 
 fitted_data <- fit_model(level, outcomes = outcome)
 
-plot(fitted_data, smooth = TRUE, plotly = FALSE)
+plot(fitted_data, lag = -1, plot_pkg = "base")
 ```
 
 ```{r include=FALSE}
@@ -1052,7 +1052,7 @@ outcome <- Normal(
 
 fitted_data <- fit_model(level, outcomes = outcome)
 
-plot(fitted_data, smooth = TRUE, plotly = FALSE)
+plot(fitted_data, lag = -1, plot_pkg = "base")
 ```
 
 ### Univariated Normal outcome with unknown variance
@@ -1115,7 +1115,7 @@ fitted_data <- fit_model(
   outcomes = outcome
 )
 
-plot(fitted_data, smooth = TRUE, plotly = FALSE)
+plot(fitted_data, lag = -1, plot_pkg = "base")
 ```
 
 
@@ -1147,7 +1147,7 @@ var(data)
 ```
 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 level <- polynomial_block(mu = 1, D = 0.95, C0 = 1) * 2 +
   polynomial_block(sigma = 1, D = 1, C0 = 1) * 2 +
   polynomial_block(rho = 1, D = 1, C0 = 1)
@@ -1160,7 +1160,7 @@ outcome <- Normal(
 
 fitted_data <- fit_model(level, outcomes = outcome)
 
-plot(fitted_data, smooth = TRUE, plotly = FALSE)
+plot(fitted_data, lag = -1, plot_pkg = "base")
 ```
 
 # Advanced examples

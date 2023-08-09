@@ -10,7 +10,7 @@ plot_lat_var(
   lag = -1,
   cutoff = floor(model$t/10),
   pred_cred = 0.95,
-  plotly = requireNamespace("plotly", quietly = TRUE)
+  plot_pkg = "auto"
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ plot_lat_var(
 
 \item{pred_cred}{Numeric: The credibility value for the credibility interval.}
 
-\item{plotly}{Bool: A flag indicating if plotly should be used to create plots.}
+\item{plot_pkg}{String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.}
 }
 \value{
 A list containing:
@@ -50,7 +50,7 @@ outcome <- Poisson(lambda = "rate", outcome = data)
 fitted_data <- fit_model(level, season, outcomes = outcome)
 summary(fitted_data)
 
-plot_lat_var(fitted_data, smooth = TRUE)$plot
+plot_lat_var(fitted_data)$plot
 
 }
 \seealso{

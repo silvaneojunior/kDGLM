@@ -14,7 +14,7 @@ harmonic_block(
   H = 0,
   a1 = 0,
   R1 = 4,
-  monitoring = c(FALSE, FALSE)
+  monitoring = rep(FALSE, order * 2)
 )
 }
 \arguments{

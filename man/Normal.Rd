@@ -62,7 +62,7 @@ outcome <- Normal(mu = "mu", Sigma = 1, outcome = data)
 fitted_data <- fit_model(level, outcomes = outcome)
 summary(fitted_data)
 
-show_fit(fitted_data, smooth = TRUE)$plot
+show_fit(fitted_data, lag = -1)$plot
 
 # Unknown variance
 outcome <- Normal(mu = "mu", Sigma = "sigma2", outcome = data)
@@ -70,7 +70,7 @@ outcome <- Normal(mu = "mu", Sigma = "sigma2", outcome = data)
 fitted_data <- fit_model(level, variance, outcomes = outcome)
 summary(fitted_data)
 
-show_fit(fitted_data, smooth = TRUE)$plot
+show_fit(fitted_data, lag = -1)$plot
 
 }
 \references{

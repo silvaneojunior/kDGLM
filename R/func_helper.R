@@ -13,7 +13,7 @@ if.null <- function(vec, val) {
 
 #' if.na
 #'
-#' This function is wrapper for ifelse(is.null(.),.,.)
+#' This function is wrapper for ifelse(is.na(.),.,.)
 #'
 #' @param vec A vector or matrix.
 #' @param val The value to replace NA with.
@@ -27,7 +27,7 @@ if.na <- function(vec, val) {
 
 #' if.nan
 #'
-#' This function is wrapper for ifelse(is.null(.),.,.)
+#' This function is wrapper for ifelse(is.nan(.),.,.)
 #'
 #' @param vec A vector or matrix.
 #' @param val The value to replace NaN with.
@@ -70,13 +70,10 @@ ginv <- function(S) {
   Chol_decomp <- cholesky(S)
   if (prod(if.nan(diag(Chol_decomp), 0)) < 1e-6) {
     svd_decomp <- svd(S)
-    # Q=(svd_decomp$u+svd_decomp$v)/2
-    # Q=svd_decomp$u
     Q_l <- svd_decomp$u
     Q_r <- svd_decomp$v
     D <- svd_decomp$d
     D <- ifelse(D > 1e-6, 1 / D, 0)
-    # D <- 1/D
     D_mat <- diag(length(D))
     diag(D_mat) <- D
     return(Q_l %*% D_mat %*% transpose(Q_r))
@@ -87,10 +84,10 @@ ginv <- function(S) {
 
 #' create_G
 #'
-#' Creates a matrix G such that G %*% S0 %*% G'= S1.
+#' Creates a matrix G such that G %*% S0 %*% t(G)= S1.
 #'
 #' @param S0 A covariance matrix
-#' @param S1 A covariance matrix
+#' @param S1 Another covariance matrix
 #'
 #' @keywords internal
 create_G <- function(S0, S1) {
@@ -101,7 +98,6 @@ create_G <- function(S0, S1) {
   d <- ifelse(d0 > 1e-6, d1 / d0, 0)
 
   u0 <- transpose(svd_decomp0$u)
-  # u0 <- transpose(svd_decomp0$v)
   u1 <- svd_decomp1$u
   return(u1 %*% diag(d) %*% u0)
 }
@@ -210,14 +206,14 @@ rowQuantile <- function(X, q) {
 #' Calculates the root of a function given an initial value and a function to calculate it's derivatives.
 #'
 #' @param f function: A function that receives a vector and return a vector of the same size.
-#' @param df function: A function that receives a vector and return the derivatives of f in relation to it's arguments (must return a matrix, if f returns a vector).
+#' @param df function: A function that receives a vector and return the derivatives of f with respect to its arguments (if f returns a vector, it must be a matrix).
 #' @param start vector: The initial value to start the algorithm.
-#' @param tol numeric: The tolerance for the solution error.
+#' @param tol numeric: The tolerance for the solution.
 #' @param n_max numeric: The maximum number of iterations allowed.
 #'
 #' @return A list containing:
 #' \itemize{
-#'    \item root vector: The solution for the system.
+#'    \item root vector: The solution for the system f(x)=0.
 #'    \item f.root vector: The function f evaluated at the root.
 #'    \item iter numeric: The number of steps taken.
 #' }
@@ -251,6 +247,8 @@ f_root <- function(f, df, start, tol = 1e-8, n_max = 1000) {
 #'
 #' @return A string ("defined" or "undefined") indicating if all parameters in the block are defined.
 #'
+#' @import graphics
+#'
 #' @keywords internal
 check.block.status <- function(block) {
   status <- "defined"
@@ -264,4 +262,23 @@ check.block.status <- function(block) {
     status <- "undefined"
   }
   return(status)
+}
+
+#' base_ribbon
+#'
+#' Makes a ribbon plot using R base functions.
+#'
+#' @param x Vector: A sequence of values for the x-axis.
+#' @param ymin Vector: A sequence of values for lower bound of the ribbon.
+#' @param ymax Vector: A sequence of values for upper bound of the ribbon.
+#' @param ... Extra arguments for the polygon function.
+#'
+#' @keywords internal
+base_ribbon <- function(x, ymin, ymax, ...) {
+  l <- length(x)
+  polygon(
+    x = c(x[1], x, x[l:1]),
+    y = c(ymax[1], ymin, ymax[l:1]),
+    ...
+  )
 }

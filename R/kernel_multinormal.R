@@ -193,12 +193,12 @@ update_multi_NG_correl <- function(conj_prior, ft, Qt, y, parms) {
           dSigma[, , 1:r] <- array_mult_left(dx[, , 1:r], aux_1)
 
           dSigma[, , 1:r] <- dSigma[, , 1:r] + array_transp(dSigma[, , 1:r])
-          dSigma[, , -(1:r)] <- dx[, , -(1:r), drop = FALSE] %>%
-            array_mult_left(sd) %>%
+          dSigma[, , -(1:r)] <- dx[, , -(1:r), drop = FALSE] |>
+            array_mult_left(sd) |>
             array_mult_right(sd)
 
           dSigma_part <- dSigma[(1:(i - 1)), (1:(i - 1)), , drop = FALSE]
-          dSigma_rho <- dSigma[i, (1:(i - 1)), ] %>% matrix(i - 1, r * (r + 1) / 2)
+          dSigma_rho <- dSigma[i, (1:(i - 1)), ] |> matrix(i - 1, r * (r + 1) / 2)
 
           dSigma_p1 <- -array_mult_right(dSigma_part, S)
           dSigma_p1 <- array_mult_left(dSigma_p1, S)
@@ -310,7 +310,7 @@ multi_normal_gamma_pred <- function(conj_param, outcome = NULL, parms = list(), 
 
   conj_param <- data.frame.to_matrix(conj_param)
   if (dim(conj_param)[2] == 1) {
-    conj_param <- conj_param %>% t()
+    conj_param <- conj_param |> t()
   }
 
   mu0 <- conj_param[, seq(1, r * 4 - 1, 4), drop = FALSE]
@@ -322,7 +322,7 @@ multi_normal_gamma_pred <- function(conj_param, outcome = NULL, parms = list(), 
   sigma2 <- (beta0 / alpha0) * (1 + 1 / c0)
 
   if (pred.flag) {
-    pred <- mu0 %>% t()
+    pred <- mu0 |> t()
     if (r == 1) {
       var.pred <- array(sigma2, c(1, 1, t))
     } else {
@@ -332,8 +332,8 @@ multi_normal_gamma_pred <- function(conj_param, outcome = NULL, parms = list(), 
       }
     }
 
-    icl.pred <- (qt((1 - pred_cred) / 2, nu) * sqrt(sigma2) + mu0) %>% t()
-    icu.pred <- (qt(1 - (1 - pred_cred) / 2, nu) * sqrt(sigma2) + mu0) %>% t()
+    icl.pred <- (qt((1 - pred_cred) / 2, nu) * sqrt(sigma2) + mu0) |> t()
+    icu.pred <- (qt(1 - (1 - pred_cred) / 2, nu) * sqrt(sigma2) + mu0) |> t()
   } else {
     pred <- NULL
     var.pred <- NULL
@@ -342,7 +342,7 @@ multi_normal_gamma_pred <- function(conj_param, outcome = NULL, parms = list(), 
   }
   if (like.flag) {
     outcome <- matrix(outcome, t, r)
-    log.like <- colSums(dt((outcome - mu0) * sqrt(alpha0 / beta0), nu, log = TRUE))
+    log.like <- colSums(dt((outcome - mu0) * sqrt(c0 * alpha0 / beta0), nu, log = TRUE) + log(c0 * alpha0 / beta0))
   } else {
     log.like <- NULL
   }

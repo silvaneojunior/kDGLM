@@ -31,11 +31,7 @@ In this scenario, the marginal distribution of the data is obtained via Monte Ca
 }
 \seealso{
 Other {auxiliary functions for a Gamma outcome with unknowned shape}: 
-\code{\link{Fgamma_pred}()},
-\code{\link{convert_FGamma_Normal}()},
-\code{\link{convert_Normal_FGamma}()},
-\code{\link{update_FGamma_alt}()},
-\code{\link{update_FGamma}()}
+\code{\link{update_FGamma_alt}()}
 }
 \concept{{auxiliary functions for a Gamma outcome with unknowned shape}}
 \keyword{internal}

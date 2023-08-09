@@ -88,7 +88,7 @@ polynomial_block <- function(..., order = 1, name = "Var_Poly", D = 1, h = 0, H 
   if (length(D) == 1) {
     D <- array(D, c(order, order, t))
   } else if (is.vector(D)) {
-    D <- array(D, c(length(D), order, order)) %>% aperm(c(3, 2, 1))
+    D <- array(D, c(length(D), order, order)) |> aperm(c(3, 2, 1))
   } else if (is.matrix(D)) {
     D <- array(D, c(dim(D)[1], dim(D)[2], t))
   }
@@ -302,7 +302,7 @@ polynomial_block <- function(..., order = 1, name = "Var_Poly", D = 1, h = 0, H 
 #'
 #' @references
 #'    \insertAllCited{}
-harmonic_block <- function(..., period, order = 1, name = "Var_Sazo", D = 1, h = 0, H = 0, a1 = 0, R1 = 4, monitoring = c(FALSE, FALSE)) {
+harmonic_block <- function(..., period, order = 1, name = "Var_Sazo", D = 1, h = 0, H = 0, a1 = 0, R1 = 4, monitoring = rep(FALSE, order * 2)) {
   w <- 2 * pi / period
   block <- polynomial_block(..., order = 2 * order, name = name, D = D, h = h, H = H, a1 = a1, R1 = R1, monitoring = monitoring)
   G <- matrix(0, 2 * order, 2 * order)
@@ -516,12 +516,18 @@ AR_block <- function(..., order, noise_var, noise_discount = 1, pulse = 0, name 
     AR_support <- "free"
   }
 
+  ts <- c(length(noise_var), length(noise_discount), length(h_states))
+  t <- max(ts)
+  if (any(!(ts %in% c(1, t)))) {
+    stop(paste0("Error: Incompatible length between noise_var, noise_discount and h_states. Expected values to be 1 or equal, got", ts, ".", collapse = ", "))
+  }
+
   h_states_placeholder <- h_states
-  h_states <- matrix(0, order, length(h_states))
+  h_states <- matrix(0, order, t)
   h_states[1, ] <- h_states_placeholder
-  H_states <- array(0, c(order, order, length(noise_var)))
+  H_states <- array(0, c(order, order, t))
   H_states[1, 1, ] <- noise_var
-  D_states <- array(1, c(order, order, length(noise_var)))
+  D_states <- array(1, c(order, order, t))
   D_states[1, 1, ] <- noise_discount
   block_state <-
     polynomial_block(..., order = order, name = paste0(name, "_State"), a1 = a1_states, R1 = R1_states, D = D_states, h = h_states, H = H_states, monitoring = c(monitoring_states, rep(FALSE, order - 1)))
@@ -546,6 +552,16 @@ AR_block <- function(..., order, noise_var, noise_discount = 1, pulse = 0, name 
   names(block_coeff$var_names[[paste0(name, "_Coef")]]) <- paste0("Lag_", 0:(order - 1))
 
   block <- block_state + block_coeff
+  block$var_names[[1]] <- 2 * (1:order) - 1
+  block$var_names[[2]] <- 2 * (1:order)
+
+  ord <- sort(rep(1:order, 2)) + rep(c(0, order), order)
+  block$a1 <- block$a1[ord, drop = FALSE]
+  block$R1 <- block$R1[ord, ord, drop = FALSE]
+  block$D <- block$D[ord, ord, , drop = FALSE]
+  block$h <- block$h[ord, , drop = FALSE]
+  block$H <- block$H[ord, ord, , drop = FALSE]
+
   k <- block$k
 
   if (order == 1) {

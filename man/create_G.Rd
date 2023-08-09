@@ -9,9 +9,9 @@ create_G(S0, S1)
 \arguments{
 \item{S0}{A covariance matrix}
 
-\item{S1}{A covariance matrix}
+\item{S1}{Another covariance matrix}
 }
 \description{
-Creates a matrix G such that G %*% S0 %*% G'= S1.
+Creates a matrix G such that G %*% S0 %*% t(G)= S1.
 }
 \keyword{internal}

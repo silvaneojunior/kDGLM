@@ -4,12 +4,7 @@
 \alias{show_fit}
 \title{Visualizing a fitted kDGLM model}
 \usage{
-show_fit(
-  model,
-  pred_cred = 0.95,
-  lag = 1,
-  plotly = requireNamespace("plotly", quietly = TRUE)
-)
+show_fit(model, pred_cred = 0.95, lag = 1, plot_pkg = "auto")
 }
 \arguments{
 \item{model}{fitted_dlm: A fitted DGLM.}
@@ -18,7 +13,7 @@ show_fit(
 
 \item{lag}{Integer: A integer with the number of steps ahead should be used for prediction. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribuition is used.}
 
-\item{plotly}{Bool: A flag indicating if plotly should be used for creating plots.}
+\item{plot_pkg}{String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.}
 }
 \value{
 A list containing:
@@ -43,7 +38,7 @@ outcome <- Poisson(lambda = "rate", outcome = data)
 fitted_data <- fit_model(level, season, outcomes = outcome)
 summary(fitted_data)
 
-show_fit(fitted_data, smooth = TRUE)$plot
+show_fit(fitted_data, lag = -1)$plot
 
 }
 \seealso{

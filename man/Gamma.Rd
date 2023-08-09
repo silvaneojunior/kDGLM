@@ -60,7 +60,7 @@ outcome <- Gamma(phi = phi, mu = "mu", outcome = data)
 fitted_data <- fit_model(level, season, outcomes = outcome)
 summary(fitted_data)
 
-show_fit(fitted_data, smooth = TRUE)$plot
+show_fit(fitted_data, lag = -1)$plot
 
 # DO NOT RUN
 # # Unknown shape
@@ -69,7 +69,7 @@ show_fit(fitted_data, smooth = TRUE)$plot
 # fitted_data <- fit_model(level, season, scale, outcomes = outcome)
 # summary(fitted_data)
 #
-# show_fit(fitted_data, smooth = TRUE)$plot
+# show_fit(fitted_data, lag=-1)$plot
 
 }
 \references{

@@ -42,7 +42,7 @@
 array_mult_left <- function(A, B) {
   apply(A, 3, function(x) {
     x %*% B
-  }, simplify = FALSE) %>% simplify2array(except = NULL)
+  }, simplify = FALSE) |> simplify2array(except = NULL)
 }
 
 #' array_mult_right
@@ -58,7 +58,7 @@ array_mult_left <- function(A, B) {
 array_mult_right <- function(A, B) {
   apply(A, 3, function(x) {
     B %*% x
-  }, simplify = FALSE) %>% simplify2array(except = NULL)
+  }, simplify = FALSE) |> simplify2array(except = NULL)
 }
 
 #' array_transp
@@ -73,7 +73,7 @@ array_mult_right <- function(A, B) {
 array_transp <- function(A) {
   apply(A, 3, function(x) {
     t(x)
-  }, simplify = FALSE) %>% simplify2array(except = NULL)
+  }, simplify = FALSE) |> simplify2array(except = NULL)
 }
 
 #' array_collapse_left

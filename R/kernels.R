@@ -111,7 +111,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1, FF, FF_labs, G, G_labs, D,
   k <- dim(FF)[2]
 
   pred_names <- colnames(FF)
-  D_flags <- (D == 0) | array((t(monitoring) %>% crossprod(., .)) == 0, c(n, n, T))
+  D_flags <- (D == 0) | array(crossprod(t(monitoring), t(monitoring)) == 0, c(n, n, T))
   D <- ifelse(D == 0, 1, D)
   D_inv <- 1 / D
   a1 <- matrix(a1, n, 1)
@@ -138,7 +138,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1, FF, FF_labs, G, G_labs, D,
       stop(paste0("Error: Outcome contains is not of the right class Expected a dlm_distr object, got a ", class(outcomes[[outcome_name]]), " object."))
     }
     param_names <- outcomes[[outcome_name]]$param_names
-    outcomes[[outcome_name]]$conj_prior_param <- matrix(NA, T, length(param_names)) %>% as.data.frame()
+    outcomes[[outcome_name]]$conj_prior_param <- matrix(NA, T, length(param_names)) |> as.data.frame()
     names(outcomes[[outcome_name]]$conj_prior_param) <- param_names
 
     outcomes[[outcome_name]]$log.like.null <- rep(NA, T)
@@ -167,7 +167,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1, FF, FF_labs, G, G_labs, D,
       D_p <- D_inv[, , t]
       D_p[!D_flags[, , t]] <- D_p[!D_flags[, , t]] * D_mult[[model]]
 
-      next_step <- one_step_evolve(last_m, last_C, G[, , t] %>% matrix(n, n), G_labs, D_p**0, h[, t], H[, , t] + diag(n) * H_add[[model]] + last_C_D * (D_p - 1))
+      next_step <- one_step_evolve(last_m, last_C, G[, , t] |> matrix(n, n), G_labs, D_p**0, h[, t], H[, , t] + diag(n) * H_add[[model]] + last_C_D * (D_p - 1))
 
       models[[model]] <- list(
         "at" = next_step$at, "Rt" = next_step$Rt,
@@ -222,7 +222,9 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1, FF, FF_labs, G, G_labs, D,
       if (!is.na(p_monit)) {
         outcomes[[outcome_name]]$log.like.null[t] <- models$null_model$log_like
         outcomes[[outcome_name]]$log.like.alt[t] <- models$alt_model$log_like
-        bayes_factor <- sum(outcomes[[outcome_name]]$log.like.null[t:(t - monit_win + 1)] - outcomes[[outcome_name]]$log.like.alt[t:(t - monit_win + 1)]) %>% if.nan(0)
+        bayes_factor <- sum(outcomes[[outcome_name]]$log.like.null[t:(t - monit_win + 1)] +
+          -outcomes[[outcome_name]]$log.like.alt[t:(t - monit_win + 1)]) |>
+          if.nan(0)
 
         if (monit_win > 0) {
           if (bayes_factor < threshold) {
@@ -313,7 +315,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1, FF, FF_labs, G, G_labs, D,
     "FF" = FF, "FF_labs" = FF_labs,
     "G" = G, "G_labs" = G_labs,
     "D" = D, "h" = h, "H" = H, "W" = W,
-    "monitoring" = monitoring,
+    "monitoring" = monitoring, smooth = FALSE,
     "outcomes" = outcomes, "pred_names" = pred_names
   )
   return(result)
@@ -321,7 +323,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1, FF, FF_labs, G, G_labs, D,
 
 calc_current_G <- function(m0, C0, G, G_labs) {
   n <- if.null(dim(G)[1], 1)
-  G_now <- G %>% as.matrix()
+  G_now <- G |> as.matrix()
 
   drift <- m0 * 0
   flag_na <- rowSums(is.na(G_now)) >= 1
@@ -480,18 +482,18 @@ format_param <- function(conj_param, parms) {
     r_star <- length(conj_param)
     r <- (-1 + sqrt(1 + 4 * r_star)) / 2
     t <- 1
-    ft <- conj_param[1:r] %>% matrix(r, t)
-    Qt <- conj_param[(r + 1):(r * r + r)] %>% array(c(r, r, t))
+    ft <- conj_param[1:r] |> matrix(r, t)
+    Qt <- conj_param[(r + 1):(r * r + r)] |> array(c(r, r, t))
   } else {
     r_star <- dim(conj_param)[2]
     t <- dim(conj_param)[1]
     r <- (-1 + sqrt(1 + 4 * r_star)) / 2
-    ft <- conj_param[, 1:r] %>%
-      data.frame.to_matrix() %>%
+    ft <- conj_param[, 1:r] |>
+      data.frame.to_matrix() |>
       t()
-    Qt <- conj_param[, (r + 1):(r * r + r)] %>%
-      data.frame.to_matrix() %>%
-      t() %>%
+    Qt <- conj_param[, (r + 1):(r * r + r)] |>
+      data.frame.to_matrix() |>
+      t() |>
       array(c(r, r, t))
   }
   if (t == 1) {

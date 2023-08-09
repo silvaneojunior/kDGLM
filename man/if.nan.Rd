@@ -12,6 +12,6 @@ if.nan(vec, val)
 \item{val}{The value to replace NaN with.}
 }
 \description{
-This function is wrapper for ifelse(is.null(.),.,.)
+This function is wrapper for ifelse(is.nan(.),.,.)
 }
 \keyword{internal}

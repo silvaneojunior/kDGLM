@@ -37,11 +37,7 @@ For the detail about the modification of the method proposed in \insertCite{Arti
 }
 \seealso{
 Other {auxiliary functions for a Gamma outcome with unknowned shape}: 
-\code{\link{Fgamma_pred_alt}()},
-\code{\link{Fgamma_pred}()},
-\code{\link{convert_FGamma_Normal}()},
-\code{\link{convert_Normal_FGamma}()},
-\code{\link{update_FGamma}()}
+\code{\link{Fgamma_pred_alt}()}
 }
 \concept{{auxiliary functions for a Gamma outcome with unknowned shape}}
 \keyword{internal}

@@ -12,6 +12,6 @@ if.na(vec, val)
 \item{val}{The value to replace NA with.}
 }
 \description{
-This function is wrapper for ifelse(is.null(.),.,.)
+This function is wrapper for ifelse(is.na(.),.,.)
 }
 \keyword{internal}

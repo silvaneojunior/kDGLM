@@ -43,7 +43,7 @@
 #' fitted_data <- fit_model(level, season, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' show_fit(fitted_data, smooth = TRUE)$plot
+#' show_fit(fitted_data, lag = -1)$plot
 #'
 #' # DO NOT RUN
 #' # # Unknown shape
@@ -52,7 +52,7 @@
 #' # fitted_data <- fit_model(level, season, scale, outcomes = outcome)
 #' # summary(fitted_data)
 #' #
-#' # show_fit(fitted_data, smooth = TRUE)$plot
+#' # show_fit(fitted_data, lag=-1)$plot
 #'
 #' @references
 #'    \insertAllCited{}
@@ -89,6 +89,9 @@ Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, outcome,
 
     parms <- list(phi = phi)
   } else {
+    if (!alt_method) {
+      stop("Error: The estimation of the shape parameter phi is still under development. See the nightly build in GitHub to use this functionality.")
+    }
     warning("The estimation of the shape parameter phi is still under development. Results are not reliable.")
     k <- 2
     flags <- !is.na(c(phi, mu, alpha, beta, sigma))
@@ -109,11 +112,11 @@ Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, outcome,
     names(pred_names) <- c("Shape (phi)", "Mean (mu)", "Shape (alpha)", "Rate (beta)", "Scale (sigma)")[flags]
 
     distr <- list(
-      conj_prior = convert_FGamma_Normal,
-      conj_post = convert_Normal_FGamma,
-      update = update_FGamma,
+      # conj_prior = convert_FGamma_Normal,
+      # conj_post = convert_Normal_FGamma,
+      # update = update_FGamma,
       smoother = generic_smoother,
-      calc_pred = Fgamma_pred,
+      # calc_pred = Fgamma_pred,
       apply_offset = function(ft, Qt, offset) {
         list("ft" = ft + matrix(c(0, log(offset)), 2, dim(ft)[2]), "Qt" = Qt)
       },
@@ -146,378 +149,6 @@ Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, outcome,
   class(distr) <- "dlm_distr"
   distr$alt_method <- alt_method
   return(distr)
-}
-
-##### Gamma with unknown shape and mean #####
-
-#' system_full_gamma
-#'
-#' Evaluate the compatibilizing equation for the full gamma model \insertCite{@see ArtigokParametrico;textual}{kDGLM}.
-#'
-#' @param x vector: current tau values.
-#' @param parms list: auxiliary values for the system.
-#'
-#' @importFrom cubature cubintegrate
-#'
-#' @return A vector with the values of the system \insertCite{@see ArtigokParametrico;textual}{kDGLM}.
-#' @keywords internal
-system_full_gamma <- function(x, parms) {
-  n <- exp(x) # exp(x[1])
-  tau <- (parms$Hq1 - n) / parms$Hq2
-  theta <- log(tau) - (1 + 5 / n) / (2 * parms$Hq1)
-
-  a <- (n + 5) / 2
-  b <- n(log(tau) - theta)
-
-  # print((parms$Hq3 + parms$Hq4))
-  if (n < 50) {
-    # Densidade marginal aproximada de alpha (uso opcional).
-    # f_densi=function(x){dgamma(a,b))}
-    # c_val=1
-    # Densidade marginal exata de phi.
-    # f_densi_raw <- function(x) {
-    #   exp(n * (x + 1) * log(x) + lgamma(n * x + 1) + theta * x - n * lgamma(x + 1) - (n * x + 1) * log(x * tau))
-    # }
-    f_densi_raw <- function(x) {
-      exp(-n * lgamma(x) + x * n * theta + lgamma(n * x - 1) + log(x) - n * x * log(n * tau))
-    }
-    lim_sup <- Inf
-    c_val <- cubintegrate(f_densi_raw, (1 + 1e-1) / n, lim_sup, nVec = 200)$integral
-    # print("--------------------")
-    # print(n)
-    # print(c_val)
-    f_densi <- function(x) {
-      f_densi_raw(x) / c_val
-    }
-    # print('a')
-    f <- function(x) {
-      -x * (digamma(x * n - 1) - log(x * n * tau)) * f_densi(x)
-    }
-    Hp3 <- cubintegrate(f, 1 / n + 1e-2, lim_sup, nVec = 200)$integral
-
-    # print('b')
-    f <- function(x) {
-      (-x * log(x) + lgamma(x)) * f_densi(x)
-    }
-    Hp4 <- cubintegrate(f, 1 / n + 1e-2, lim_sup, nVec = 200)$integral
-
-    # print('c')
-    # f <- function(x) {
-    #   (x * digamma(x * n + 1)  - lgamma(x)- x*log(tau)) * f_densi(x)
-    # }
-    # Hp5 <- cubintegrate(f, 0, Inf, nVec = 200)$integral
-    # print('sd')
-    Hp5 <- Hp3 + Hp4
-
-
-    # f <- function(x) {
-    #   (lgamma(x)-x*digamma(n*x+1)) * f_densi(x)
-    # }
-    # Hp5 <- integrate(f, 0, Inf)$value+parms$Hq1*log(tau)
-  } else {
-    c_val <- 1
-    # Hp3 <- log(tau / n) * a / b - 1 / n + b / (12 * (n**2) * (a - 1))
-    # Hp4 <- a / b + 0.5 * (digamma(a) - log(b)) - b / (12 * (a - 1)) - 11 / 12
-    # Hp5=Hp3+Hp4
-    Hp5 <- a * log(tau) / b + 1 / n + 1 + b / (12 * (n**2) * (a - 1))
-  }
-
-  f_all <- c(
-    (Hp5 - (parms$Hq3 + parms$Hq4))
-  )
-  # print(f_all)
-  return(f_all)
-}
-
-a <- log(7e-18)
-
-system_full_gamma2 <- function(x, parms) {
-  n <- exp(x[1]) # exp(x[1])
-
-  tau <- exp(x[2])
-  theta <- exp(x[3])
-
-  phi_proxy <- -3 + 3 * sqrt(1 - 4 * log(theta / tau) / 3)
-  mu_proxy <- tau
-
-  c <- n * (phi_proxy * log(phi_proxy / mu_proxy) -
-    lgamma(phi_proxy) +
-    log(theta) * phi_proxy - tau * phi_proxy / mu_proxy)
-
-
-  f_densi_raw <- function(x) {
-    phi <- x[1, ]
-    mu <- x[2, ]
-
-    val1 <- phi
-    val2 <- phi / mu
-    val3 <- phi * log(phi / mu) - lgamma(phi)
-
-    l.fx <- n * (val3 + log(theta) * val1 - tau * val2) - c
-    # a=max(l.fx,a)
-    fx <- exp(l.fx - a) %>% as.matrix()
-
-    rbind(
-      fx,
-      val1 * fx,
-      val2 * fx,
-      val3 * fx
-    )
-  }
-  lim_sup <- Inf
-  vals <- cubintegrate(f_densi_raw, c(0, 0), c(lim_sup, lim_sup), fDim = 4, nVec = 200)$integral
-
-  Hp1 <- vals[2] / vals[1]
-  Hp2 <- vals[3] / vals[1]
-  Hp3 <- vals[4] / vals[1]
-  # if (all(!is.nan(x))) {
-  #   print(x)
-  #   print(vals)
-  # }
-  return(c(
-    parms$Hq1 - Hp1,
-    parms$Hq2 - Hp2,
-    parms$Hq3 + parms$Hq4 - Hp3
-  ))
-}
-
-#' convert_FGamma_Normal
-#'
-#' Calculate the parameters of the conjugated prior that best approximates the given log-Normal distribution.
-#' The approximation is the best in the sense that it minimizes the KL divergence from the log-Normal to the conjugated prior.
-#'
-#'
-#' @param ft vector: A vector representing the means from the normal distribution.
-#' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution.
-#' @param parms list: A list of extra known parameters of the distribution. Not used in this function.
-#'
-#' @importFrom rootSolve multiroot
-#' @importFrom stats dlnorm
-#'
-#' @return The parameters of the conjugated distribution of the linear predictor.
-#' @keywords internal
-#' @family {auxiliary functions for a Gamma outcome with unknowned shape}
-convert_FGamma_Normal <- function(ft, Qt, parms) {
-  # s <- exp(ft[2, ] + 1)
-  s <- 1
-  f1 <- ft[1, ]
-  f2 <- ft[2, ] - log(s)
-  q1 <- Qt[1, 1]
-  q2 <- Qt[2, 2]
-  q12 <- Qt[1, 2]
-
-  Hq1 <- exp(f1 + q1 / 2)
-  Hq2 <- exp(f1 - f2 + (q1 + q2 - 2 * q12) / 2)
-  Hq3 <- (f2 + q12) * Hq1
-
-  Hq4 <- cubintegrate(function(x) {
-    (-x * log(x) + lgamma(x)) * dlnorm(x, f1, sqrt(q1))
-  }, 0, Inf, nVec = 200)$integral
-
-  parms <- list(
-    "Hq1" = Hq1,
-    "Hq2" = Hq2,
-    "Hq3" = Hq3,
-    "Hq4" = Hq4
-  )
-
-  # ss1 <- multiroot(f = system_full_gamma, start = c(0), parms = parms, maxiter = 2000)
-  # ss1 <- multiroot(function(x){trigamma((exp(x)+5)/2)-q1},0)
-  ss1 <- multiroot(f = system_full_gamma2, start = c(
-    0,
-    f2,
-    -3 * ((exp(f1) / 3 + 1)**2) / 4 + 3 / 4 + log(tau)
-  ), parms = parms, maxiter = 2000)
-
-
-  x <- as.numeric(ss1$root)
-  # n <- exp(x) # exp(x[1])
-  # n=max(2/q1-5,1/Hq1+1e-2)
-
-  # Calculando tau e theta dado n e k
-  # tau <- (n * Hq1 - 1) / Hq2
-  # theta <- n * log(tau / n) - (n + 5) / (2 * Hq1)
-  # tau <- tau * s
-  # theta <- theta + n * log(s)
-  n <- exp(x[1])
-  tau <- exp(x[2])
-  theta <- exp(x[3])
-  return(list("n" = n, "k" = n, "tau" = tau, "theta" = theta))
-}
-
-#' convert_Normal_FGamma
-#'
-#' Calculate the parameters of the log-Normal that best approximates the given conjugated distribution.
-#' The approximation is the best in the sense that it minimizes the KL divergence from the conjugated distribution to the log-Normal
-#'
-#' @param conj_prior list: A vector containing the parameters of the conjugated distribution (n, tau, theta).
-#' @param parms list: A list of extra known parameters of the distribution. Not used in this function.
-#'
-#' @importFrom cubature cubintegrate
-#'
-#' @return The parameters of the Normal distribution of the linear predictor.
-#' @keywords internal
-#' @family {auxiliary functions for a Gamma outcome with unknowned shape}
-convert_Normal_FGamma <- function(conj_prior, parms) {
-  n <- conj_prior$n
-  tau <- conj_prior$tau
-  theta <- conj_prior$theta
-
-  f_densi_raw <- function(x) {
-    phi <- x[1, ]
-    mu <- x[2, ]
-
-    val1 <- phi
-    val2 <- phi / mu
-    val3 <- phi * log(phi / mu) - lgamma(phi)
-
-    l.fx <- n * (val3 + log(theta) * val1 - tau * val2)
-    # a=max(l.fx,a)
-    fx <- exp(l.fx - a) %>% as.matrix()
-
-    rbind(
-      fx,
-      log(phi) * fx,
-      log(mu) * fx,
-      (log(phi)**2) * fx,
-      (log(mu)**2) * fx,
-      log(phi) * log(mu) * fx,
-    )
-  }
-  vals <- cubintegrate(f_densi_raw, c(0, 0), c(Inf, Inf), nVec = 200, fdim = 6)$integral
-
-  ft <- matrix(c(vals[2], vals[3]), 2, 1) / vals[1]
-  Qt <- matrix(c(vals[4], vals[6], vals[6], vals[5]), 2, 2) / vals[1] - ft %*% t(ft)
-  return(list("ft" = ft, "Qt" = Qt))
-}
-
-#' update_FGamma
-#'
-#' Calculate posterior parameter for the conjugated distribution, assuming that the observed values came from a Gamma model with the shape (phi) and mean (mu) parameters having a conjugated prior.
-#'
-#' @param conj_prior list: A vector containing the parameters of the conjugated distribution (n, tau, theta).
-#' @param ft vector: A vector representing the means from the normal distribution. Not used in the default method.
-#' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution. Not used in the default method.
-#' @param y vector: A vector containing the observations.
-#' @param parms list: A list of extra known parameters of the distribution. For this kernel, parms should containing the shape parameter (phi) for the observational gamma model.
-#'
-#' @return The parameters of the posterior distribution.
-#' @keywords internal
-#' @family {auxiliary functions for a Gamma outcome with unknowned shape}
-update_FGamma <- function(conj_prior, ft, Qt, y, parms) {
-  n0 <- conj_prior$n
-  k0 <- conj_prior$k
-  tau0 <- conj_prior$tau
-  theta0 <- conj_prior$theta
-
-  a <- (k0 + 1) / 2
-  b <- (n0 - k0 + n0 * log(tau0 / n0) - theta0)
-
-  n1 <- n0 + 1
-  k1 <- k0 + 1
-  tau1 <- tau0 + y
-  theta1 <- theta0 + log(y)
-
-  a <- (k1 + 1) / 2
-  b <- (n1 - k1 + n1 * log(tau1 / n1) - theta1)
-
-  return(list("n" = n1, "k" = k1, "tau" = tau1, "theta" = theta1))
-}
-
-#' Fgamma_pred
-#'
-#' Calculate the values for the predictive distribution given the values of the parameter of the distribution of the linear predictor.
-#' The data is assumed to have Gamma distribution with unknown shape phi and unknown mean having log-Normal distribution.
-#' In this scenario, the marginal distribution of the data is obtained via Monte Carlo.
-#'
-#' @param conj_param List or data.frame: The parameters of the distribution of the linear predictor.
-#' @param outcome Vector or matrix (optional): The observed values at the current time. Not used in this function.
-#' @param parms List: A list of extra parameters for the model. For this function, it must contain the shape parameter phi of the observational model.
-#' @param pred_cred Numeric: the desired credibility for the credibility interval.
-#'
-#' @return A list containing the following values:
-#' \itemize{
-#'    \item pred vector/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item var.pred vector/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item icl.pred vector/matrix: the percentile of 100*((1-pred_cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item icu.pred vector/matrix: the percentile of 100*(1-(1-pred_cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item log.like vector: the The log likelihood for the outcome given the conjugated parameters.
-#' }
-#'
-#' @importFrom stats rgamma var quantile
-#' @keywords internal
-#' @family {auxiliary functions for a Gamma outcome with unknowned shape}
-Fgamma_pred <- function(conj_param, outcome = NULL, parms = list(), pred_cred = 0.95) {
-  pred.flag <- !is.na(pred_cred)
-  like.flag <- !is.null(outcome)
-  if (!like.flag & !pred.flag) {
-    return(list())
-  }
-  r <- 1
-  t <- length(conj_param$k)
-  k <- 2
-
-  pred <- NULL
-  var.pred <- NULL
-  icl.pred <- NULL
-  icu.pred <- NULL
-  log.like <- NULL
-
-  if (pred.flag | like.flag) {
-    if (pred.flag) {
-      pred <- matrix(NA, r, t)
-      var.pred <- array(NA, c(r, r, t))
-      icl.pred <- matrix(NA, r, t)
-      icu.pred <- matrix(NA, r, t)
-    }
-    if (like.flag) {
-      outcome <- matrix(outcome, t, r)
-      log.like <- rep(NA, t)
-    }
-    N <- 5000
-
-    for (i in 1:t) {
-      n <- conj_param$n[i]
-      k <- conj_param$k[i]
-      tau <- conj_param$tau[i]
-      theta <- conj_param$theta[i]
-
-
-      a <- (k + 1) / 2
-      b <- (n - k + n * log(tau / n) - theta)
-
-      alpha_i <- rgamma(N, a, b)
-      mu_i <- 1 / rgamma(N, n * alpha_i + 1, alpha_i * tau)
-
-      sample_y <- rgamma(N, alpha_i, alpha_i / mu_i)
-      if (pred.flag) {
-        pred[, i] <- mean(sample_y)
-        var.pred[, , i] <- var(sample_y)
-        icl.pred[, i] <- quantile(sample_y, (1 - pred_cred) / 2)
-        icu.pred[, i] <- quantile(sample_y, 1 - (1 - pred_cred) / 2)
-      }
-      if (like.flag) {
-        l.phi <- log(alpha_i)
-        phi <- alpha_i
-        l.mu <- log(mu_i)
-        mu <- mu_i
-
-        log.like.list <- phi * (l.phi - l.mu) - lgamma(phi) + phi * log(outcome[, i]) - phi * outcome[, i] / mu
-        max.log.like <- max(log.like.list)
-        like.list <- exp(log.like.list - max.log.like)
-        log.like[i] <- log(mean(like.list)) + max.log.like
-      }
-    }
-  }
-
-  outcome_list <- list(
-    "pred"     = pred,
-    "var.pred" = var.pred,
-    "icl.pred" = icl.pred,
-    "icu.pred" = icu.pred,
-    "log.like" = log.like
-  )
-  return(outcome_list)
 }
 
 ##### Gamma with known shape but unknown mean #####
@@ -609,8 +240,8 @@ gamma_pred <- function(conj_param, outcome = NULL, parms = list(), pred_cred = 0
 
   phi <- parms$phi
 
-  alpha <- conj_param$alpha %>% t()
-  beta <- conj_param$beta %>% t()
+  alpha <- conj_param$alpha |> t()
+  beta <- conj_param$beta |> t()
   pred <- NULL
   var.pred <- NULL
   icl.pred <- NULL
@@ -659,6 +290,7 @@ gamma_pred <- function(conj_param, outcome = NULL, parms = list(), pred_cred = 0
 #'
 #' @return The parameters of the posterior distribution.
 #' @keywords internal
+#' @importFrom cubature cubintegrate
 #' @family {auxiliary functions for a Gamma outcome with unknowned shape}
 #'
 #' @details
@@ -888,7 +520,7 @@ update_Gamma_alt <- function(conj_prior, ft, Qt, y, parms) {
   f <- function(x) {
     phi <- parms$phi
     l.phi <- log(phi)
-    l.mu <- ft_i[2, ]
+    l.mu <- ft
     mu <- exp(l.mu)
 
     log.like.list <- phi * (l.phi - l.mu) - lgamma(phi) + phi * log(y) - phi * y / mu

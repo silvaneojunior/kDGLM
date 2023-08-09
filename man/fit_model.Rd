@@ -83,7 +83,7 @@ outcome <- Poisson(lambda = "rate", outcome = data)
 fitted_data <- fit_model(level, season, outcomes = outcome)
 summary(fitted_data)
 
-show_fit(fitted_data, smooth = TRUE)$plot
+show_fit(fitted_data, lag = -1)$plot
 
 ##################################################################
 
@@ -102,7 +102,7 @@ outcome <- Multinom(p = c("p1", "p2"), outcome = y)
 fitted_data <- fit_model(level, season, outcomes = outcome)
 summary(fitted_data)
 
-show_fit(fitted_data, smooth = TRUE)$plot
+show_fit(fitted_data, lag = -1)$plot
 
 ##################################################################
 
@@ -125,7 +125,7 @@ outcome <- Normal(mu = "mu", Sigma = 1, outcome = data)
 fitted_data <- fit_model(level, outcomes = outcome)
 summary(fitted_data)
 
-show_fit(fitted_data, smooth = TRUE)$plot
+show_fit(fitted_data, lag = -1)$plot
 
 # Unknown variance
 outcome <- Normal(mu = "mu", Sigma = "sigma2", outcome = data)
@@ -133,7 +133,7 @@ outcome <- Normal(mu = "mu", Sigma = "sigma2", outcome = data)
 fitted_data <- fit_model(level, variance, outcomes = outcome)
 summary(fitted_data)
 
-show_fit(fitted_data, smooth = TRUE)$plot
+show_fit(fitted_data, lag = -1)$plot
 
 ##################################################################
 
@@ -154,7 +154,7 @@ outcome <- Gamma(phi = phi, mu = "mu", outcome = data)
 fitted_data <- fit_model(level, season, outcomes = outcome)
 summary(fitted_data)
 
-show_fit(fitted_data, smooth = TRUE)$plot
+show_fit(fitted_data, lag = -1)$plot
 
 # DO NOT RUN
 # # Unknown shape
@@ -163,7 +163,7 @@ show_fit(fitted_data, smooth = TRUE)$plot
 # fitted_data <- fit_model(level, season, scale, outcomes = outcome)
 # summary(fitted_data)
 #
-# show_fit(fitted_data, smooth = TRUE)$plot
+# show_fit(fitted_data, lag=-1)$plot
 
 }
 \seealso{
@@ -176,6 +176,6 @@ auxiliary function for choosing hyper parameters \code{\link{search_model}}.
 Other {auxiliary functions for fitted_dlm objects}: 
 \code{\link{dlm_sampling}()},
 \code{\link{eval_past}()},
-\code{\link{forecast}()}
+\code{\link{forecast_dlm}()}
 }
 \concept{{auxiliary functions for fitted_dlm objects}}

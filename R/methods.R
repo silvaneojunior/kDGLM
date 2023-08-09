@@ -137,17 +137,17 @@ coefficients.fitted_dlm <- function(object, ...) {
   eval_past(object, ...)
 }
 
-#' fitted.values.fitted_dlm
+#' forecast.fitted_dlm
 #'
-#' fitted.values method for class fitted_dlm
+#' forecast method for class fitted_dlm.
 #'
 #' @param object A fitted_dlm object.
-#' @param ... Arguments passed to eval_past
+#' @param ... Arguments passed to forecast_dlm
 #'
 #' @export
 #' @keywords internal
-fitted.values.fitted_dlm <- function(object, ...) {
-  eval_past(object, ...)
+forecast.fitted_dlm <- function(object, ...) {
+  forecast_dlm(object, ...)
 }
 
 #' +.fitted_dlm
@@ -178,4 +178,33 @@ fitted.values.fitted_dlm <- function(object, ...) {
   } else {
     return(block_mult(e2, e1))
   }
+}
+
+#' Forecasting from an object
+#'
+#' The functions allow producing forecasts based on the provided object. This method is the same as the generics package (version 0.1.3.9000).
+#'
+#' @param object A model for which forecasts are required.
+#' @param ... Other arguments passed to methods
+#'
+#' @section Methods:
+#' \Sexpr[stage=render,results=rd]{generics:::methods_rd("forecast")}
+#'
+#' @author Hadley Wickham, \email{hadley@@rstudio.com}; Max Kuhn, \email{max@@rstudio.com}; Davis Vaughan, \email{davis@@rstudio.com}; RStudio.
+#' @seealso [generics package](https://github.com/r-lib/generics)
+#'
+#' @details
+#' MIT License
+#' Copyright (c) 2020 RStudio
+#'
+#' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+#'
+#' The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+#'
+#' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#'
+#'
+#' @export
+forecast <- function(object, ...) {
+  UseMethod("forecast")
 }

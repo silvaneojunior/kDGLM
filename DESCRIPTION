@@ -1,40 +1,27 @@
 Package: kDGLM
 Type: Package
 Title: kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: person("Silvaneo", "Santos", email = "silvaneo@dme.ufrj.br", role = c("aut", "cre","cph"))
 Description: Provide routines for Kalman filtering and smoothing, forecasting, sampling and Bayesian analysis of Dynamic Generalized Linear Models.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 Imports: 
-    ggplot2 (>= 3.3.6),
-    tidyr (>= 1.2.0),
-    dplyr (>= 1.0.9),
     extraDistr (>= 1.9.1),
     cubature (>= 2.0.4.5),
     Rfast (>= 2.0.6),
-    rootSolve,
     Rdpack
 RdMacros: Rdpack
 RoxygenNote: 7.2.3
-Collate: 
-    'references.R'
-    'func_helper.R'
-    'array_ops.R'
-    'kernels.R'
-    'kernel_poisson.R'
-    'kernel_multnom.R'
-    'kernel_gamma.R'
-    'kernel_normal.R'
-    'kernel_multinormal.R'
-    'structure_helper.R'
-    'main.R'
-    'plot_helper.R'
-    'summarize.R'
-    'methods.R'
-Suggests: 
+Suggests:  
     knitr,
+    rmarkdown,
+    testthat,
+    ggplot2,
     plotly,
-    rmarkdown
+    generics
 VignetteBuilder: knitr
+Repository: https://github.com/silvaneojunior/kDGLM
+BugReports: https://github.com/silvaneojunior/kDGLM/issues
+Config/testthat/edition: 3

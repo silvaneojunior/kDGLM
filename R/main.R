@@ -54,7 +54,7 @@
 #' fitted_data <- fit_model(level, season, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' show_fit(fitted_data, smooth = TRUE)$plot
+#' show_fit(fitted_data, lag = -1)$plot
 #'
 #' ##################################################################
 #'
@@ -73,7 +73,7 @@
 #' fitted_data <- fit_model(level, season, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' show_fit(fitted_data, smooth = TRUE)$plot
+#' show_fit(fitted_data, lag = -1)$plot
 #'
 #' ##################################################################
 #'
@@ -96,7 +96,7 @@
 #' fitted_data <- fit_model(level, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' show_fit(fitted_data, smooth = TRUE)$plot
+#' show_fit(fitted_data, lag = -1)$plot
 #'
 #' # Unknown variance
 #' outcome <- Normal(mu = "mu", Sigma = "sigma2", outcome = data)
@@ -104,7 +104,7 @@
 #' fitted_data <- fit_model(level, variance, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' show_fit(fitted_data, smooth = TRUE)$plot
+#' show_fit(fitted_data, lag = -1)$plot
 #'
 #' ##################################################################
 #'
@@ -125,7 +125,7 @@
 #' fitted_data <- fit_model(level, season, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' show_fit(fitted_data, smooth = TRUE)$plot
+#' show_fit(fitted_data, lag = -1)$plot
 #'
 #' # DO NOT RUN
 #' # # Unknown shape
@@ -134,7 +134,7 @@
 #' # fitted_data <- fit_model(level, season, scale, outcomes = outcome)
 #' # summary(fitted_data)
 #' #
-#' # show_fit(fitted_data, smooth = TRUE)$plot
+#' # show_fit(fitted_data, lag=-1)$plot
 #'
 #' @details
 #'
@@ -246,9 +246,7 @@ fit_model <- function(..., outcomes, pred_cred = 0.95, smooth = TRUE, p_monit = 
     monitoring = structure$monitoring
   )
   if (smooth) {
-    smoothed <- generic_smoother(model$mt, model$Ct, model$at, model$Rt, model$G, model$G_labs)
-    model$mts <- smoothed$mts
-    model$Cts <- smoothed$Cts
+    model <- smoothing(model)
   }
   for (outcome_name in names(model$outcomes)) {
     outcome <- model$outcomes[[outcome_name]]
@@ -269,7 +267,6 @@ fit_model <- function(..., outcomes, pred_cred = 0.95, smooth = TRUE, p_monit = 
   model$R1 <- structure$R1
   model$var_names <- structure$var_names
   model$var_labels <- structure$var_labels
-  model$smooth <- smooth
   model$pred_cred <- pred_cred
   model$t <- t
   model$k <- structure$k
@@ -311,7 +308,7 @@ smoothing <- function(model) {
 #' @param D Array (optional): A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and T is the time series length. If not specified, the last value given to the model will be used in the first step, and 1 will be use thereafter.
 #' @param h Matrix (optional): A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.
 #' @param H Array (optional): A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length. If not specified, 0 will be used.
-#' @param plot Bool: A flag indicating if a plot should be produced.
+#' @param plot Bool or String: A flag indicating if a plot should be produced. Should be one of FALSE, TRUE, 'base', 'ggplot2' or 'plotly'.
 #' @param pred_cred Numeric: The credibility level for the I.C. intervals.
 #'
 #' @return A list containing:
@@ -325,10 +322,9 @@ smoothing <- function(model) {
 #'    \item Qt Array: A 3D-array with the covariance of the linear predictors at each time. Dimensions are n x n x t, where n is the number of linear predictors.
 #'    \item plot (if so chosen): A plotly or ggplot object.
 #' }
-#' @import ggplot2
-#' @import dplyr
-#' @import tidyr
 #' @importFrom Rfast transpose data.frame.to_matrix
+#' @import graphics
+#' @import grDevices
 #' @export
 #'
 #' @examples
@@ -343,10 +339,16 @@ smoothing <- function(model) {
 #'
 #' fitted_data <- fit_model(level, season, outcomes = outcome)
 #'
-#' forecast(fitted_data, 20)$plot
+#' # forecast(fitted_data, 20)$plot
+#' # Or
+#' forecast_dlm(fitted_data, 20)$plot
 #'
 #' @family {auxiliary functions for fitted_dlm objects}
-forecast <- function(model, t = 1, outcome = NULL, offset = NULL, FF = NULL, G = NULL, D = NULL, h = NULL, H = NULL, plot = ifelse(requireNamespace("plotly", quietly = TRUE), "plotly", TRUE), pred_cred = 0.95) {
+forecast_dlm <- function(model, t = 1, outcome = NULL, offset = NULL, FF = NULL, G = NULL, D = NULL, h = NULL, H = NULL, plot = ifelse(requireNamespace("plotly", quietly = TRUE), "plotly", ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot", "base")), pred_cred = 0.95) {
+  if (plot == TRUE) {
+    plot <- ifelse(requireNamespace("plotly", quietly = TRUE), "plotly", ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot", "base"))
+  }
+
   n <- dim(model$mt)[1]
   t_last <- dim(model$mt)[2]
   k <- dim(model$FF)[2]
@@ -441,28 +443,28 @@ forecast <- function(model, t = 1, outcome = NULL, offset = NULL, FF = NULL, G =
 
   R0 <- one_step_evolve(
     last_m, last_C,
-    G[, , 1] %>% matrix(n, n), G_labs,
+    G[, , 1] |> matrix(n, n), G_labs,
     D[, , 1]**0, h[, 1], H[, , 1] * 0
   )$Rt
 
   outcome_forecast <- list()
   for (outcome_name in names(model$outcomes)) {
     r_i <- model$outcomes[[outcome_name]]$r
-    outcome_forecast[[outcome_name]]$conj_param <- matrix(NA, t, length(model$outcomes[[outcome_name]]$conj_prior_param)) %>% as.data.frame()
+    outcome_forecast[[outcome_name]]$conj_param <- matrix(NA, t, length(model$outcomes[[outcome_name]]$conj_prior_param)) |> as.data.frame()
     names(outcome_forecast[[outcome_name]]$conj_param) <- names(model$outcomes[[outcome_name]]$conj_prior_param)
 
     outcome_forecast[[outcome_name]]$ft <- matrix(NA, model$outcomes[[outcome_name]]$k, t)
     outcome_forecast[[outcome_name]]$Qt <- array(NA, c(model$outcomes[[outcome_name]]$k, model$outcomes[[outcome_name]]$k, t))
 
     if (!is.null(outcome)) {
-      outcome_forecast[[outcome_name]]$outcome <- outcome[[outcome_name]] %>% matrix(t, r_i)
+      outcome_forecast[[outcome_name]]$outcome <- outcome[[outcome_name]] |> matrix(t, r_i)
     } else {
-      outcome_forecast[[outcome_name]]$outcome <- model$outcomes[[outcome_name]]$outcome[t_last, ] %>% matrix(t, r_i)
+      outcome_forecast[[outcome_name]]$outcome <- model$outcomes[[outcome_name]]$outcome[t_last, ] |> matrix(t, r_i)
     }
     if (!is.null(offset)) {
-      outcome_forecast[[outcome_name]]$offset <- offset[[outcome_name]] %>% matrix(t, r_i)
+      outcome_forecast[[outcome_name]]$offset <- offset[[outcome_name]] |> matrix(t, r_i)
     } else {
-      outcome_forecast[[outcome_name]]$offset <- model$outcomes[[outcome_name]]$offset[t_last, ] %>% matrix(t, r_i)
+      outcome_forecast[[outcome_name]]$offset <- model$outcomes[[outcome_name]]$offset[t_last, ] |> matrix(t, r_i)
     }
   }
 
@@ -470,14 +472,14 @@ forecast <- function(model, t = 1, outcome = NULL, offset = NULL, FF = NULL, G =
   for (t_i in c(1:t)) {
     W_i <- as.matrix((1 - D[, , t_i]) * R0 / D[, , t_i])
 
-    next_step <- one_step_evolve(last_m, last_C, G[, , t_i] %>% matrix(n, n), G_labs, D[, , t_i]**0, h[, t_i], H[, , t_i] + W_i)
+    next_step <- one_step_evolve(last_m, last_C, G[, , t_i] |> matrix(n, n), G_labs, D[, , t_i]**0, h[, t_i], H[, , t_i] + W_i)
     last_m <- next_step$at
     last_C <- next_step$Rt
 
     m1[, t_i] <- last_m
     C1[, , t_i] <- last_C
 
-    lin_pred <- calc_lin_pred(last_m, last_C, FF[, , t_i] %>% matrix(n, k, dimnames = list(NULL, pred.names)), FF_labs)
+    lin_pred <- calc_lin_pred(last_m, last_C, FF[, , t_i] |> matrix(n, k, dimnames = list(NULL, pred.names)), FF_labs)
     f1[, t_i] <- lin_pred$ft
     Q1[, , t_i] <- lin_pred$Qt
     for (outcome_name in names(model$outcomes)) {
@@ -546,33 +548,20 @@ forecast <- function(model, t = 1, outcome = NULL, offset = NULL, FF = NULL, G =
     r_acum <- r_acum + r_cur
   }
 
-  data_list <- list("obs" = output, "pred" = pred %>% data.frame.to_matrix() %>% t(), "icl.pred" = icl.pred %>% as.matrix() %>% t(), "icu.pred" = icu.pred %>% as.matrix() %>% t())
-  data_name <- c("Observation", "Prediction", "C.I.lower", "C.I.upper")
+  data <- data.frame(
+    Time = 1:t + t_last,
+    Serie = as.factor(c(sapply(out_names, function(x) {
+      rep(x, t)
+    }))),
+    Observation = c(output),
+    Prediction = c(t(pred)),
+    C.I.lower = c(t(icl.pred)),
+    C.I.upper = c(t(icu.pred))
+  )
 
-  data_raw <- lapply(1:4, function(i) {
-    data <- cbind(as.character(1:t + t_last) %>% as.data.frame(), data_list[[i]]) %>%
-      as.data.frame() %>%
-      pivot_longer(1:r + 1)
-
-    data$name <- as.factor(data$name)
-    names(data) <- c("Time", "Serie", data_name[i])
-    levels(data$Serie) <- out_names
-    data
-  })
-  data <- do.call(function(...) {
-    data_list <- list(...)
-    data <- data_list[[1]]
-    for (i in 2:4) {
-      data <- data %>% left_join(data_list[[i]], by = c("Time", "Serie"))
-    }
-    data
-  }, data_raw)
-  data$Time <- as.numeric(data$Time)
-  data$Serie <- as.factor(data$Serie)
-
-  data_past <- eval_past(model, smooth = TRUE, pred_cred = pred_cred)$data
+  data_past <- eval_past(model, lag = -1, pred_cred = pred_cred)$data
   plot_data <- rbind(
-    cbind(data_past, type = "Past"),
+    cbind(data_past, type = "Fit"),
     cbind(data, type = "Forecast")
   )
 
@@ -584,48 +573,117 @@ forecast <- function(model, t = 1, outcome = NULL, offset = NULL, FF = NULL, G =
     min_value <- -evaluate_max(-(obs_na_rm - max(obs_na_rm)))[[3]] + max(obs_na_rm)
     plot_data$shape_point <- ifelse(plot_data$type == "Forecast", "Future", "Obs.")
     plot_data$group_ribbon <- paste0(plot_data$Serie, plot_data$type)
+    series_names <- levels(plot_data$Serie)
+    n_series <- length(series_names)
+    colors <- rainbow(n_series, s = 0.6)
+    points <- paste0(colors, "55")
+    fills <- paste0(colors, "33")
+    names(colors) <- names(points) <- names(fills) <- series_names
+    if (plot == "base" | !requireNamespace("ggplot2", quietly = TRUE)) {
+      if (plot != "base") {
+        warning("The ggplot2 package is required for ggplot2 and plotly plots and was not found. Falling back to R base plot functions.")
+      }
+      cur_height <- dev.size("cm")[2]
+      count_spaces <- ceiling(n_series / 4)
+      font_cm <- 0.35
 
+      config <- par()
+      layout(
+        mat = matrix(c(1, 2, 3), 3, 1),
+        heights = c(
+          cur_height - font_cm * count_spaces - 1 - 0.75,
+          0.75,
+          font_cm * count_spaces + 1
+        )
+      )
 
-    plt.obj <- ggplot(plot_data, aes_string(x = "Time")) +
-      geom_line(aes_string(y = "Prediction", linetype = "type", color = "Serie")) +
-      geom_ribbon(aes_string(ymin = "C.I.lower", ymax = "C.I.upper", fill = "Serie", group = "group_ribbon"), alpha = 0.25, color = NA) +
-      geom_point(aes_string(y = "Observation", shape = "shape_point", color = "Serie")) +
-      scale_fill_hue("", na.value = NA) +
-      scale_color_hue("", na.value = NA) +
-      scale_linetype_manual("", values = c("dashed", "solid")) +
-      scale_shape_manual("", values = c(17, 16)) +
-      scale_x_continuous("Time") +
-      scale_y_continuous("$y_t$") +
-      theme_bw() +
-      coord_cartesian(ylim = c(min_value, max_value))
-    if (plot == "plotly") {
-      if (!requireNamespace("plotly", quietly = TRUE)) {
-        warning("The plotly package is required for plotly plots.")
-      } else {
-        series_names <- unique(plot_data$Serie)
-        n_series <- length(series_names)
-        plt.obj <- plotly::ggplotly(plt.obj)
-        for (i in (1:n_series) - 1) {
-          plt.obj$x$data[[2 * i + 1]]$legendgroup <-
-            plt.obj$x$data[[2 * i + 1]]$name <-
-            plt.obj$x$data[[2 * i + 2]]$legendgroup <-
-            plt.obj$x$data[[2 * i + 2]]$name <-
-            plt.obj$x$data[[i + 2 * n_series + 1]]$legendgroup <-
-            plt.obj$x$data[[i + 2 * n_series + 1]]$name <-
-            paste0(series_names[i + 1], ": fitted values")
+      par(mar = c(4.1, 4.1, 4.1, 2.1), cex = 1)
+      plot(0, 0, type = "n", xlim = c(1, t + t_last), ylim = c(min_value, max_value), ylab = "$y_t$", xlab = "Time")
+      for (serie in series_names) {
+        plot_serie <- plot_data[plot_data$Serie == serie, ]
+        points(plot_serie$Time[1:t_last], plot_serie$Observation[1:t_last],
+          col = points[[serie]],
+          pch = 16
+        )
+        points(plot_serie$Time[t_last:(t_last + t)], plot_serie$Observation[t_last:(t_last + t)],
+          col = points[[serie]],
+          pch = 17
+        )
+        lines(plot_serie$Time[1:t_last], plot_serie$Prediction[1:t_last], col = colors[[serie]])
+        lines(plot_serie$Time[t_last:(t_last + t)], plot_serie$Prediction[t_last:(t_last + t)], col = colors[[serie]], lty = 2)
+        base_ribbon(plot_serie$Time, plot_serie$C.I.lower, plot_serie$C.I.upper,
+          col = fills[[serie]], lty = 0
+        )
+      }
 
-          plt.obj$x$data[[2 * i + 1 + 3 * n_series]]$legendgroup <-
-            plt.obj$x$data[[2 * i + 1 + 3 * n_series]]$name <-
-            plt.obj$x$data[[2 * i + 2 + 3 * n_series]]$legendgroup <-
-            plt.obj$x$data[[2 * i + 2 + 3 * n_series]]$name <- paste0(series_names[i + 1], ": observations")
+      par(mar = c(0, 0, 0, 0), cex = 1)
+      plot(1, type = "n", axes = FALSE, xlab = "", ylab = "", xlim = c(0, 1), ylim = c(0, 1))
+      legend(
+        legend = c("Fit", "Forecast", "Obs.", "Future"),
+        col = c("black", "black", "black", "black"),
+        lty = c(1, 2, 0, 0),
+        pch = c(0, 0, 16, 17),
+        pt.cex = c(0, 0, 1, 1),
+        fill = c("gray", "gray", "white", "white"),
+        border = "#ffffff00",
+        seg.len = 0.6,
+        x = 0.5, y = 1, xjust = 0.5, inset = 0, cex = 0.75, bty = "n", horiz = TRUE
+      )
+      par(mar = c(0, 0, 0, 0), cex = 1)
+      plot(1, type = "n", axes = FALSE, xlab = "", ylab = "", xlim = c(0, 1), ylim = c(0, 1))
+      legend(
+        legend = series_names,
+        col = colors,
+        lty = rep(0, n_series),
+        pch = rep(22, n_series),
+        pt.cex = rep(2, n_series),
+        pt.bg = colors,
+        x = 0.5, xjust = 0.5, y = 1, inset = 0, cex = 0.75, bty = "n",
+        ncol = min(4, ceiling(n_series / count_spaces))
+      )
+      par(mar = config$mar)
+    } else {
+      plt.obj <- ggplot2::ggplot(plot_data, ggplot2::aes_string(x = "Time")) +
+        ggplot2::geom_line(ggplot2::aes_string(y = "Prediction", linetype = "type", color = "Serie")) +
+        ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper", fill = "Serie", group = "group_ribbon"), alpha = 0.25, color = NA) +
+        ggplot2::geom_point(ggplot2::aes_string(y = "Observation", shape = "shape_point", color = "Serie")) +
+        ggplot2::scale_fill_hue("", na.value = NA) +
+        ggplot2::scale_color_hue("", na.value = NA) +
+        ggplot2::scale_linetype_manual("", values = c("solid", "dashed")) +
+        ggplot2::scale_shape_manual("", values = c(17, 16)) +
+        ggplot2::scale_x_continuous("Time") +
+        ggplot2::scale_y_continuous("$y_t$") +
+        ggplot2::theme_bw() +
+        ggplot2::coord_cartesian(ylim = c(min_value, max_value))
+      if (plot == "plotly") {
+        if (!requireNamespace("plotly", quietly = TRUE)) {
+          warning("The plotly package is required for plotly plots.")
+        } else {
+          series_names <- unique(plot_data$Serie)
+          n_series <- length(series_names)
+          plt.obj <- plotly::ggplotly(plt.obj)
+          for (i in (1:n_series) - 1) {
+            plt.obj$x$data[[2 * i + 1]]$legendgroup <-
+              plt.obj$x$data[[2 * i + 1]]$name <-
+              plt.obj$x$data[[2 * i + 2]]$legendgroup <-
+              plt.obj$x$data[[2 * i + 2]]$name <-
+              plt.obj$x$data[[i + 2 * n_series + 1]]$legendgroup <-
+              plt.obj$x$data[[i + 2 * n_series + 1]]$name <-
+              paste0(series_names[i + 1], ": fitted values")
 
-          plt.obj$x$data[[2 * i + 1]]$showlegend <-
-            plt.obj$x$data[[i + 1 + 2 * n_series]]$showlegend <-
-            plt.obj$x$data[[2 * i + 1 + 3 * n_series]]$showlegend <- FALSE
+            plt.obj$x$data[[2 * i + 1 + 3 * n_series]]$legendgroup <-
+              plt.obj$x$data[[2 * i + 1 + 3 * n_series]]$name <-
+              plt.obj$x$data[[2 * i + 2 + 3 * n_series]]$legendgroup <-
+              plt.obj$x$data[[2 * i + 2 + 3 * n_series]]$name <- paste0(series_names[i + 1], ": observations")
+
+            plt.obj$x$data[[2 * i + 1]]$showlegend <-
+              plt.obj$x$data[[i + 1 + 2 * n_series]]$showlegend <-
+              plt.obj$x$data[[2 * i + 1 + 3 * n_series]]$showlegend <- FALSE
+          }
         }
       }
+      return_list$plot <- plt.obj
     }
-    return_list$plot <- plt.obj
   }
 
   return(return_list)
@@ -671,7 +729,7 @@ forecast <- function(model, t = 1, outcome = NULL, offset = NULL, FF = NULL, G =
 #'
 #' fitted_data <- fit_model(level, season_2, outcomes = outcome)
 #'
-#' past <- eval_past(fitted_data, smooth = TRUE)
+#' past <- eval_past(fitted_data, lag = -1)
 #'
 #' @family {auxiliary functions for fitted_dlm objects}
 eval_past <- function(model, T = 1:t_last, lag = -1, pred_cred = 0.95, eval_pred = TRUE) {
@@ -724,6 +782,10 @@ eval_past <- function(model, T = 1:t_last, lag = -1, pred_cred = 0.95, eval_pred
   G <- model$G
 
   if (lag < 0) {
+    if (!model$smooth) {
+      model <- smoothing(model)
+    }
+
     lag <- 0
     ref_mt <- model$mts
     ref_Ct <- model$Cts
@@ -753,7 +815,7 @@ eval_past <- function(model, T = 1:t_last, lag = -1, pred_cred = 0.95, eval_pred
         next_step <- one_step_evolve(next_step$at, next_step$Rt, G[, , i - t + 1], G_labs, D_inv[, , i - t + 1]**(t == 1), h[, i - t + 1], H[, , i - t + 1])
       }
     }
-    lin_pred <- calc_lin_pred(next_step$at %>% matrix(n, 1), next_step$Rt, FF[, , i] %>% matrix(n, k, dimnames = list(NULL, pred.names)), FF_labs)
+    lin_pred <- calc_lin_pred(next_step$at |> matrix(n, 1), next_step$Rt, FF[, , i] |> matrix(n, k, dimnames = list(NULL, pred.names)), FF_labs)
 
     mt.pred[, i - init_t + 1] <- next_step$at
     Ct.pred[, , i - init_t + 1] <- next_step$Rt
@@ -789,7 +851,7 @@ eval_past <- function(model, T = 1:t_last, lag = -1, pred_cred = 0.95, eval_pred
           pred_cred,
           parms = outcome$parms
         )
-        out_ref <- t(outcome$outcome)[, i - init_t + 1, drop = FALSE]
+        out_ref <- t(outcome$outcome)[, i, drop = FALSE]
 
         pred[(r_acum + 1):(r_acum + r_cur), i - init_t + 1] <- prediction$pred
         var.pred[(r_acum + 1):(r_acum + r_cur), (r_acum + 1):(r_acum + r_cur), i - init_t + 1] <- prediction$var.pred
@@ -825,40 +887,28 @@ eval_past <- function(model, T = 1:t_last, lag = -1, pred_cred = 0.95, eval_pred
     r_acum <- r_acum + r_cur
   }
 
-  data_list <- list("obs" = output, "pred" = pred %>% data.frame.to_matrix() %>% t(), "icl.pred" = icl.pred %>% as.matrix() %>% t(), "icu.pred" = icu.pred %>% as.matrix() %>% t())
-  data_name <- c("Observation", "Prediction", "C.I.lower", "C.I.upper")
+  data <- data.frame(
+    Time = init_t:final_t,
+    Serie = as.factor(c(sapply(out_names, function(x) {
+      rep(x, final_t - init_t + 1)
+    }))),
+    Observation = c(output),
+    Prediction = c(t(pred)),
+    C.I.lower = c(t(icl.pred)),
+    C.I.upper = c(t(icu.pred))
+  )
 
-  data_raw <- lapply(1:4, function(i) {
-    data <- cbind(as.character(init_t:final_t) %>% as.data.frame(), data_list[[i]]) %>%
-      as.data.frame() %>%
-      pivot_longer(1:r + 1)
-
-    data$name <- as.factor(data$name)
-    names(data) <- c("Time", "Serie", data_name[i])
-    levels(data$Serie) <- out_names[as.numeric(levels(data$Serie))]
-    data
-  })
-  data <- do.call(function(...) {
-    data_list <- list(...)
-    data <- data_list[[1]]
-    for (i in 2:4) {
-      data <- data %>% left_join(data_list[[i]], by = c("Time", "Serie"))
-    }
-    data
-  }, data_raw)
-  data$Time <- as.numeric(data$Time)
-  data$Serie <- as.factor(data$Serie)
   return(list(
     data = data[data$Time %in% T, ],
-    mt = mt.pred[, init_t:final_t %in% T],
-    Ct = Ct.pred[, , init_t:final_t %in% T],
-    ft = ft.pred[, init_t:final_t %in% T],
-    Qt = Qt.pred[, , init_t:final_t %in% T],
-    log.like = log.like[init_t:final_t %in% T],
-    mae = mae[init_t:final_t %in% T],
-    rae = rae[init_t:final_t %in% T],
-    mse = mse[init_t:final_t %in% T],
-    interval.score = interval.score[init_t:final_t %in% T]
+    mt = mt.pred[, init_t:final_t %in% T, drop = FALSE],
+    Ct = Ct.pred[, , init_t:final_t %in% T, drop = FALSE],
+    ft = ft.pred[, init_t:final_t %in% T, drop = FALSE],
+    Qt = Qt.pred[, , init_t:final_t %in% T, drop = FALSE],
+    log.like = log.like[init_t:final_t %in% T, drop = FALSE],
+    mae = mae[init_t:final_t %in% T, drop = FALSE],
+    rae = rae[init_t:final_t %in% T, drop = FALSE],
+    mse = mse[init_t:final_t %in% T, drop = FALSE],
+    interval.score = interval.score[init_t:final_t %in% T, drop = FALSE]
   ))
 }
 
@@ -900,7 +950,7 @@ eval_past <- function(model, T = 1:t_last, lag = -1, pred_cred = 0.95, eval_pred
 #' fitted_data <- fit_model(level, variance, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' show_fit(fitted_data, smooth = TRUE)$plot
+#' show_fit(fitted_data, lag = -1)$plot
 #'
 #' sample <- dlm_sampling(fitted_data, 2000)
 #'
@@ -910,7 +960,6 @@ dlm_sampling <- function(model, sample_size, filtered_distr = FALSE) {
   G_labs <- model$G_labs
   at <- model$at
   mt <- model$mt
-  mts <- model$mts
   FF <- model$FF
   FF_labs <- model$FF_labs
   T_len <- dim(mt)[2]
@@ -932,7 +981,7 @@ dlm_sampling <- function(model, sample_size, filtered_distr = FALSE) {
     )
   }
 
-  mt_sample <- rnorm(n * T_len * sample_size) %>% array(c(n, T_len, sample_size))
+  mt_sample <- rnorm(n * T_len * sample_size) |> array(c(n, T_len, sample_size))
   ft_sample <- array(NA, c(k, T_len, sample_size))
 
   Ct_chol <- var_decomp(model$Ct[, , T_len])
@@ -1064,6 +1113,8 @@ dlm_sampling <- function(model, sample_size, filtered_distr = FALSE) {
 #' @param lag Integer: The number of steps ahead used for the prediction when calculating the metrics. If lag<0, predictions are made using the smoothed distribuition of the latent variables.
 #' @param pred_cred Numeric: A number between 0 and 1 (not included) indicating the credibility interval for predictions. If not within the valid range of values, 0.95 will be used.
 #' @param metric_cutoff Integer: The number of observations to ignore when calculating the metrics. Default is 1/10 of the number of observations (rounded down).
+#' @param p_monit numeric (optional): The prior probability of changes in the latent space variables that are not part of it's dynamic.
+#' @param c_monit numeric (optional, if p_monit is not specified): The relative cost of false alarm in the monitoring compared to the cost of not detecting abnormalities.
 #'
 #' @return A searched_dlm object containing the following values:
 #' \itemize{
@@ -1103,7 +1154,7 @@ dlm_sampling <- function(model, sample_size, filtered_distr = FALSE) {
 #' @seealso \code{\link{fit_model}}
 #' @references
 #'    \insertAllCited{}
-search_model <- function(..., outcomes, search_grid, condition = "TRUE", metric = "log.like", smooth = TRUE, lag = 1, pred_cred = 0.95, metric_cutoff = NA) {
+search_model <- function(..., outcomes, search_grid, condition = "TRUE", metric = "log.like", smooth = TRUE, lag = 1, pred_cred = 0.95, metric_cutoff = NA, p_monit = NA, c_monit = 1) {
   if (is.null(pred_cred) | is.na(pred_cred)) {
     pred_cred <- 0.95
   } else {
@@ -1132,8 +1183,9 @@ search_model <- function(..., outcomes, search_grid, condition = "TRUE", metric 
   }
 
   var_length <- length(search_grid)
-  search_data <- do.call(expand.grid, search_grid) %>%
-    filter(eval(parse(text = condition)))
+  search_data <- do.call(expand.grid, search_grid)
+  search_data <- search_data[eval(parse(text = condition), envir = search_data), ]
+
   search_data$log.like <- NA
   search_data$mae <- NA
   search_data$rae <- NA
@@ -1205,7 +1257,7 @@ search_model <- function(..., outcomes, search_grid, condition = "TRUE", metric 
       stop(paste0("Error: invalid value for R1. Expected a non negative number, got: ", paste(structure$R1[if.na(structure$R1, 0) < 0], collapse = ", "), "."))
     }
 
-    fitted_model <- fit_model(structure, outcomes = outcomes, pred_cred = NA, smooth = smooth, p_monit = NA, c_monit = 1)
+    fitted_model <- fit_model(structure, outcomes = outcomes, pred_cred = NA, smooth = FALSE, p_monit = p_monit, c_monit = c_monit)
 
     T <- fitted_model$t
     if (is.na(metric_cutoff)) {
@@ -1230,7 +1282,14 @@ search_model <- function(..., outcomes, search_grid, condition = "TRUE", metric 
     }
   }
   cat("\n")
-  search_data <- search_data %>% arrange(-log.like, -rae)
+  if (metric == "log.like") {
+    search_data <- search_data[order(-search_data[[metric]]), ]
+  } else {
+    search_data <- search_data[order(search_data[[metric]]), ]
+  }
+  if (smooth) {
+    best_model <- smoothing(best_model)
+  }
 
   out.vals <- list(
     search.data = search_data,

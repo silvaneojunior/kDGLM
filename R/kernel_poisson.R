@@ -28,7 +28,7 @@
 #' fitted_data <- fit_model(level, season, outcomes = outcome)
 #' summary(fitted_data)
 #'
-#' show_fit(fitted_data, smooth = TRUE)$plot
+#' show_fit(fitted_data, lag = -1)$plot
 #'
 #' @details
 #'

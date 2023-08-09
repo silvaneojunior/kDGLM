@@ -5,6 +5,7 @@
 #' @param fitted_dlm A fitted_dlm object.
 #' @param t Integer: The time index for the latent states.
 #' @param lag Integer: The number of steps ahead used for the evaluating the latent variables. Use lag<0 for the smoothed distribution, If lag==0 for the filtered distribution and lag=h for the h-step-ahead prediction.
+#' @param metric_lag Integer: The number of steps ahead used for the evaluating the predictions used when calculating metrics. Use metric_lag<0 for the smoothed distribution, If metric_lag==0 for the filtered distribution and metric_lag=h for the h-step-ahead prediction.
 #' @param metric_cutoff Integer: The cutoff time index for the metric calculation. Values before that time will be ignored.
 #' @param pred_cred numeric: The credibility interval to be used for the interval score.
 #'
@@ -26,16 +27,17 @@
 #' report_dlm(fitted_data)
 #'
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-report_dlm <- function(fitted_dlm, t = fitted_dlm$t, lag = -1, metric_cutoff = floor(fitted_dlm$t / 10), pred_cred = 0.95) {
+report_dlm <- function(fitted_dlm, t = fitted_dlm$t, lag = -1, metric_lag = 1, metric_cutoff = floor(fitted_dlm$t / 10), pred_cred = 0.95) {
   r <- length(fitted_dlm$outcomes)
   k <- dim(fitted_dlm$mt)[1]
   T <- dim(fitted_dlm$mt)[2]
-  predictions <- eval_past(fitted_dlm, T = metric_cutoff:T, lag = lag, pred_cred = pred_cred, eval_pred = TRUE)
+  predictions <- eval_past(fitted_dlm, T = (metric_cutoff + 1):T, lag = metric_lag, pred_cred = pred_cred, eval_pred = TRUE)
   distr_like <- sum(predictions$log.like)
   distr_rae <- mean(predictions$rae)
   distr_mae <- mean(predictions$mae)
   distr_mse <- mean(predictions$mse)
   distr_interval_score <- sum(predictions$interval.score)
+  predictions <- eval_past(fitted_dlm, T = (metric_cutoff + 1):T, lag = min(lag, 0), pred_cred = pred_cred, eval_pred = FALSE)
 
   distr_names <- lapply(fitted_dlm$outcomes, function(x) {
     x$name
@@ -50,6 +52,16 @@ report_dlm <- function(fitted_dlm, t = fitted_dlm$t, lag = -1, metric_cutoff = f
     "one-step-ahead prediction"
   } else {
     paste0(lag, "-steps-ahead prediction")
+  }
+
+  metric_label <- if (metric_lag < 0) {
+    "Smoothed predictions"
+  } else if (metric_lag == 0) {
+    "Filtered predictions"
+  } else if (metric_lag == 1) {
+    "One-step-ahead prediction"
+  } else {
+    paste0(metric_lag, "-steps-ahead prediction")
   }
   coef_names <- rep(NA, k)
   for (name in names(fitted_dlm$var_names)) {
@@ -124,6 +136,7 @@ report_dlm <- function(fitted_dlm, t = fitted_dlm$t, lag = -1, metric_cutoff = f
     "---\n",
     "Signif. codes:  0 \xe2\x80\x98***\xe2\x80\x99 0.001 \xe2\x80\x98**\xe2\x80\x99 0.01 \xe2\x80\x98*\xe2\x80\x99 0.05 \xe2\x80\x98.\xe2\x80\x99 0.1 \xe2\x80\x98 \xe2\x80\x99 1\n\n",
     "---\n",
+    metric_label, "\n",
     format(" ", width = distr_names_len, justify = "l"), "  Pred. log-like  Mean abs. Error  Relative abs. Error  Mean Squared Error  Interval Score\n",
     paste0(format(names(distr_names), width = distr_names_len, justify = "l"), ": ", distr_like, distr_mae, distr_rae, distr_mse, distr_interval_score, "\n", collapse = ""),
     "---"
