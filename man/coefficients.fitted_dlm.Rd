@@ -14,4 +14,13 @@
 \description{
 coefficients method for class fitted_dlm
 }
+\seealso{
+Other {auxiliary functions for fitted_dlm objects}: 
+\code{\link{coef.fitted_dlm}()},
+\code{\link{dlm_sampling}()},
+\code{\link{eval_past}()},
+\code{\link{forecast.fitted_dlm}()},
+\code{\link{forecast_dlm}()}
+}
+\concept{{auxiliary functions for fitted_dlm objects}}
 \keyword{internal}

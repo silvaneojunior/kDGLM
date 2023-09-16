@@ -4,7 +4,7 @@
 \alias{f_root}
 \title{f_root}
 \usage{
-f_root(f, df, start, tol = 1e-08, n_max = 1000)
+f_root(f, df, start, tol = 1e-08, n.max = 1000)
 }
 \arguments{
 \item{f}{function: A function that receives a vector and return a vector of the same size.}
@@ -15,7 +15,7 @@ f_root(f, df, start, tol = 1e-08, n_max = 1000)
 
 \item{tol}{numeric: The tolerance for the solution.}
 
-\item{n_max}{numeric: The maximum number of iterations allowed.}
+\item{n.max}{numeric: The maximum number of iterations allowed.}
 }
 \value{
 A list containing:
@@ -26,6 +26,6 @@ A list containing:
 }
 }
 \description{
-Calculates the root of a function given an initial value and a function to calculate it's derivatives.
+Calculates the root of a function given an initial value and a function to calculate its derivatives.
 }
 \keyword{internal}

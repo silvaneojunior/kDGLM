@@ -7,6 +7,9 @@
 #'
 #' @export
 #' @keywords internal
+#'
+#' @family {auxiliary functions for a creating outcomes}
+#' @family {Reports for dlm_distr objects.}
 summary.dlm_distr <- function(object, ...) {
   report_distr(object)
 }
@@ -20,6 +23,8 @@ summary.dlm_distr <- function(object, ...) {
 #'
 #' @export
 #' @keywords internal
+#'
+#' @family {auxiliary visualization functions for the fitted.dlm class}
 summary.fitted_dlm <- function(object, ...) {
   report_dlm(object, ...)
 }
@@ -33,6 +38,7 @@ summary.fitted_dlm <- function(object, ...) {
 #'
 #' @export
 #' @keywords internal
+#' @family {auxiliary functions for structural blocks}
 summary.dlm_block <- function(object, ...) {
   report_block(object, ...)
 }
@@ -46,6 +52,7 @@ summary.dlm_block <- function(object, ...) {
 #'
 #' @export
 #' @keywords internal
+#' @family {auxiliary visualization functions for the fitted.dlm class}
 summary.searched_dlm <- function(object, ...) {
   report_searched_dlm(object, ...)
 }
@@ -59,6 +66,7 @@ summary.searched_dlm <- function(object, ...) {
 #'
 #' @export
 #' @keywords internal
+#' @family {auxiliary visualization functions for the fitted_dlm class}
 plot.fitted_dlm <- function(x, ...) {
   show_fit(x, ...)$plot
 }
@@ -70,6 +78,7 @@ plot.fitted_dlm <- function(x, ...) {
 #'
 #' @export
 #' @keywords internal
+#' @family {auxiliary visualization functions for the fitted_dlm class}
 print.fitted_dlm <- function(x, ...) {
   summary.fitted_dlm(x, ...)
 }
@@ -81,6 +90,7 @@ print.fitted_dlm <- function(x, ...) {
 #'
 #' @export
 #' @keywords internal
+#' @family {auxiliary visualization functions for the fitted.dlm class}
 print.dlm_distr <- function(x, ...) {
   summary.dlm_distr(x, ...)
 }
@@ -92,6 +102,7 @@ print.dlm_distr <- function(x, ...) {
 #'
 #' @export
 #' @keywords internal
+#' @family {auxiliary functions for structural blocks}
 print.dlm_block <- function(x, ...) {
   summary.dlm_block(x, ...)
 }
@@ -103,6 +114,7 @@ print.dlm_block <- function(x, ...) {
 #'
 #' @export
 #' @keywords internal
+#' @family {auxiliary visualization functions for the fitted.dlm class}
 print.searched_dlm <- function(x, ...) {
   summary.searched_dlm(x, ...)
 }
@@ -118,6 +130,7 @@ print.searched_dlm <- function(x, ...) {
 #'
 #' @export
 #' @keywords internal
+#' @family {auxiliary functions for fitted_dlm objects}
 coef.fitted_dlm <- function(object, ...) {
   eval_past(object, ...)
 }
@@ -133,6 +146,7 @@ coef.fitted_dlm <- function(object, ...) {
 #'
 #' @export
 #' @keywords internal
+#' @family {auxiliary functions for fitted_dlm objects}
 coefficients.fitted_dlm <- function(object, ...) {
   eval_past(object, ...)
 }
@@ -146,6 +160,7 @@ coefficients.fitted_dlm <- function(object, ...) {
 #'
 #' @export
 #' @keywords internal
+#' @family {auxiliary functions for fitted_dlm objects}
 forecast.fitted_dlm <- function(object, ...) {
   forecast_dlm(object, ...)
 }
@@ -159,6 +174,7 @@ forecast.fitted_dlm <- function(object, ...) {
 #'
 #' @export
 #' @keywords internal
+#' @family {auxiliary functions for structural blocks}
 `+.dlm_block` <- function(e1, e2) {
   block_superpos(e1, e2)
 }
@@ -172,6 +188,7 @@ forecast.fitted_dlm <- function(object, ...) {
 #'
 #' @export
 #' @keywords internal
+#' @family {auxiliary functions for structural blocks}
 `*.dlm_block` <- function(e1, e2) {
   if (is.numeric(e2)) {
     return(block_mult(e1, e2))
@@ -205,6 +222,7 @@ forecast.fitted_dlm <- function(object, ...) {
 #'
 #'
 #' @export
+#' @keywords internal
 forecast <- function(object, ...) {
   UseMethod("forecast")
 }

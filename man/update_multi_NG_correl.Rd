@@ -4,10 +4,10 @@
 \alias{update_multi_NG_correl}
 \title{update_multi_NG_correl}
 \usage{
-update_multi_NG_correl(conj_prior, ft, Qt, y, parms)
+update_multi_NG_correl(conj.param, ft, Qt, y, parms)
 }
 \arguments{
-\item{conj_prior}{list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta).}
+\item{conj.param}{list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta).}
 
 \item{ft}{vector: A vector representing the means from the normal distribution. Not used in the default method.}
 
@@ -41,7 +41,8 @@ Other {auxiliary functions for a Normal outcome}:
 \code{\link{multi_normal_gamma_pred}()},
 \code{\link{normal_pred}()},
 \code{\link{update_NG_alt}()},
-\code{\link{update_Normal}()}
+\code{\link{update_Normal}()},
+\code{\link{update_multi_NG_chol}()}
 }
 \concept{{auxiliary functions for a Normal outcome}}
 \keyword{internal}

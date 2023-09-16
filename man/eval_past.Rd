@@ -4,58 +4,67 @@
 \alias{eval_past}
 \title{eval_past}
 \usage{
-eval_past(model, T = 1:t_last, lag = -1, pred_cred = 0.95, eval_pred = TRUE)
+eval_past(
+  model,
+  eval_t = seq_len(model$t),
+  lag = -1,
+  pred.cred = 0.95,
+  eval.pred = TRUE
+)
 }
 \arguments{
 \item{model}{fitted_dlm: The fitted model to be use for evaluation.}
 
-\item{T}{vector: A vector of positive integers indicating the time index from which to extract predictions. Default is to extract all observed times in model.}
+\item{eval_t}{vector: A vector of positive integers indicating the time index from which to extract predictions. Default is to extract all observed times in model.}
 
-\item{lag}{positive integer: The relative offset for forecast. Values for time t will be calculated based on the filtered values of time t-h. If lag is negative, then the smoothed distribuition will be used.}
+\item{lag}{positive integer: The relative offset for forecast. Values for time t will be calculated based on the filtered values of time t-h. If lag is negative, then the smoothed distribution will be used.}
 
-\item{pred_cred}{Numeric: The credibility level for the I.C. intervals.}
+\item{pred.cred}{Numeric: The credibility level for the I.C. intervals.}
 
-\item{eval_pred}{Bool: A flag indicating if the predictions should be calculated.}
+\item{eval.pred}{Bool: A flag indicating if the predictions should be calculated.}
 }
 \value{
 A list containing:
 \itemize{
    \item data data.frame: A table with the model evaluated at each observed time.
-   \item mt Matrix: The mean of the latent variables at each time. Dimensions are n x t, where t is the size of T.
+   \item mt Matrix: The mean of the latent variables at each time. Dimensions are n x t, where t is the size of eval_t.
    \item Ct Array: A 3D-array containing the covariance matrix of the latent variable at each time. Dimensions are n x n x t.
    \item ft Matrix: The mean of the linear predictor at each time. Dimensions are k x t.
    \item Qt Array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t.
+   \item log.like, mae, mase, rae, mse, interval.score: The metric value at each time.
+   \item conj.param list: A list containing, for each outcome, a data.frame with the parameter of the conjugated distribution at each time.
 }
 }
 \description{
-Evaluates the predictive values for the observed values used to fit the model and it's latent variables.
+Evaluates the predictive values for the observed values used to fit the model and its latent variables.
 Predictions can be made with smoothed values or with filtered values with a time offset.
 }
 \examples{
-T <- 200
-w <- ((T + 20) / 40) * 2 * pi
-y1 <- matrix(rpois((T + 20), 20 * (sin(w * 1:(T + 20) / (T + 20)) + 2)), (T + 20), 1)
-y2 <- matrix(rpois((T + 20), 1:(T + 20) / (T + 20) + 1), (T + 20), 1)
-y3 <- matrix(rpois((T + 20), 6), (T + 20), 1)
-y <- cbind(y1, y2, y3)
-y_pred <- y[T:(T + 20), ]
+# Poisson case
+data <- c(AirPassengers)
 
-y <- y[1:T, ]
+level <- polynomial_block(rate = 1, order = 2, D = 0.95)
+season <- harmonic_block(rate = 1, order = 2, period = 12, D = 0.975)
 
-level <- polynomial_block(p1 = 1) + polynomial_block(p2 = 1)
-season_2 <- harmonic_block(p2 = 1, period = 20)
+outcome <- Poisson(lambda = "rate", data = data)
 
-outcome <- Multinom(p = c("p1", "p2"), outcome = y)
+fitted.data <- fit_model(level, season,
+  AirPassengers = outcome
+)
 
-fitted_data <- fit_model(level, season_2, outcomes = outcome)
-
-past <- eval_past(fitted_data, lag = -1)
+# var.vals <- coef(fitted.data)
+# Or
+# var.vals <- coefficients(fitted.data)
+# Or
+var.vals <- eval_past(fitted.data)
 
 }
 \seealso{
 Other {auxiliary functions for fitted_dlm objects}: 
+\code{\link{coef.fitted_dlm}()},
+\code{\link{coefficients.fitted_dlm}()},
 \code{\link{dlm_sampling}()},
-\code{\link{fit_model}()},
+\code{\link{forecast.fitted_dlm}()},
 \code{\link{forecast_dlm}()}
 }
 \concept{{auxiliary functions for fitted_dlm objects}}

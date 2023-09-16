@@ -4,10 +4,10 @@
 \alias{update_NG_alt}
 \title{update_NG_alt}
 \usage{
-update_NG_alt(conj_prior, ft, Qt, y, parms = list())
+update_NG_alt(conj.param, ft, Qt, y, parms = list())
 }
 \arguments{
-\item{conj_prior}{list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta). Not used in the alternative method.}
+\item{conj.param}{list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta). Not used in the alternative method.}
 
 \item{ft}{vector: A vector representing the means from the normal distribution.}
 
@@ -39,6 +39,7 @@ Other {auxiliary functions for a Normal outcome}:
 \code{\link{multi_normal_gamma_pred}()},
 \code{\link{normal_pred}()},
 \code{\link{update_Normal}()},
+\code{\link{update_multi_NG_chol}()},
 \code{\link{update_multi_NG_correl}()}
 }
 \concept{{auxiliary functions for a Normal outcome}}

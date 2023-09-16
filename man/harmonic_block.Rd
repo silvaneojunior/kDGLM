@@ -8,7 +8,7 @@ harmonic_block(
   ...,
   period,
   order = 1,
-  name = "Var_Sazo",
+  name = "Var.Sazo",
   D = 1,
   h = 0,
   H = 0,
@@ -26,15 +26,15 @@ harmonic_block(
 
 \item{name}{String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.}
 
-\item{D}{Array, Matrix, vector or scalar: The values for the discount factors associated with the latent variables at each time. If D is an array, it's dimensions should be (2n) x (2n) x t, where n is the order of the harmonic block and t is the length of the outcomes. If D is a matrix, it's dimensions should be (2n) x (2n) and the same discount matrix will be used in all observations. If D is a vector, it should have size t and it is interpreted as the discount factor at each observed time (same discount for all variable). If D is a scalar, the same discount will be used for all latent variables at all times.}
+\item{D}{Array, Matrix, vector or scalar: The values for the discount factors associated with the latent variables at each time. If D is an array, its dimensions should be (2n) x (2n) x t, where n is the order of the harmonic block and t is the length of the outcomes. If D is a matrix, its dimensions should be (2n) x (2n) and the same discount matrix will be used in all observations. If D is a vector, it should have size t and it is interpreted as the discount factor at each observed time (same discount for all variable). If D is a scalar, the same discount will be used for all latent variables at all times.}
 
-\item{h}{Matrix, vector or scalar: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, it's dimension should be (2n) x t, where n is the order of the harmonic_block and t is the length of the series. If a vector, it should have size t, and each value will be applied to the first latent variable (the one which affects the linear predictors) in their respective time. If a scalar, the passed value will be used for the first latent variable at each time.}
+\item{h}{Matrix, vector or scalar: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, its dimension should be (2n) x t, where n is the order of the harmonic_block and t is the length of the series. If a vector, it should have size t, and each value will be applied to the first latent variable (the one which affects the linear predictors) in their respective time. If a scalar, the passed value will be used for the first latent variable at each time.}
 
-\item{H}{Array, Matrix, vector or scalar: The values for the covariance matrix for the noise factor at each time. If H is an array, it's dimensions should be (2n) x (2n) x t, where n is the order of the harmonic block and t is the length of the series. If H is a matrix, it's dimensions should be (2n) x (2n) and its values will be used for each time. If H is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of H in the diagonal.}
+\item{H}{Array, Matrix, vector or scalar: The values for the covariance matrix for the noise factor at each time. If H is an array, its dimensions should be (2n) x (2n) x t, where n is the order of the harmonic block and t is the length of the series. If H is a matrix, its dimensions should be (2n) x (2n) and its values will be used for each time. If H is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of H in the diagonal.}
 
-\item{a1}{Vector or scalar: The prior mean for the latent variables associated with this block at time 1. If a1 is a vector, it's dimension should be equal to two times the order of the harmonic block. If a1 is a scalar, it's value will be used for all latent variables.}
+\item{a1}{Vector or scalar: The prior mean for the latent variables associated with this block at time 1. If a1 is a vector, its dimension should be equal to two times the order of the harmonic block. If a1 is a scalar, its value will be used for all latent variables.}
 
-\item{R1}{Matrix, vector or scalar: The prior covariance matrix for the latent variables associated with this block at time 1. If R1 is a matrix, it's dimensions should be (2n) x (2n). If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.}
+\item{R1}{Matrix, vector or scalar: The prior covariance matrix for the latent variables associated with this block at time 1. If R1 is a matrix, its dimensions should be (2n) x (2n). If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.}
 
 \item{monitoring}{Vector: A vector of flags indicating which variables should be monitored (if automated monitoring is used). Its size should be 2n. The default is that only the first order component of this structure should be monitored.}
 }
@@ -42,19 +42,20 @@ harmonic_block(
 A dlm_block object containing the following values:
 \itemize{
    \item FF Array: A 3D-array containing the regression matrix for each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model and t is the time series length.
-   \item FF_labs Array: DESCRIPTION
-   \item G Matrix: The state evolution matrix.
+   \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
+   \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
+   \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
    \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
    \item h Matrix: The mean for the random noise of the temporal evolution. Its dimension should be n x t.
    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.
    \item a1 Vector: The prior mean for the latent vector.
    \item R1 Matrix: The prior covariance matrix for the latent vector.
-   \item var_names list: A list containing the variables indexes by their name.
+   \item var.names list: A list containing the variables indexes by their name.
    \item period Positive integer: Same as argument.
    \item n Positive integer: The number of latent variables associated with this block (2).
    \item t Positive integer: The number of time steps associated with this block. If 1, the block is compatible with blocks of any time length, but if t is greater than 1, this block can only be used with blocks of the same time length.
    \item k Positive integer: The number of outcomes associated with this block. This block can only be used with blocks with the same outcome length.
-   \item pred_names Vector: The name of the linear predictors associated with this block.
+   \item pred.names Vector: The name of the linear predictors associated with this block.
    \item monitoring Vector: Same as argument.
    \item type Character: The type of block (Harmonic).
 }
@@ -63,10 +64,10 @@ A dlm_block object containing the following values:
 Creates the structure for a harmonic block with desired periodicity.
 }
 \details{
-For the ..., D, H, a1 and R1 arguments, the user may set one or more of it's values as a string.
+For the ..., D, H, a1 and R1 arguments, the user may set one or more of its values as a string.
 By doing so, the user will leave the block partially undefined and it can no longer be used in the \code{\link{fit_model}} function.
 Instead, the user must use the \code{\link{search_model}} function to search the best hyper parameters among a defined range of possible values.
-See the \code{\link{search_model}} function for details on it's usage.
+See the \code{\link{search_model}} function for details on its usage.
 
 For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
 
@@ -78,11 +79,11 @@ For the details about dynamic regression models in the context of DLM's, see \in
 # Creating seasonal structure for a model with 2 outcomes.
 # One block is created for each outcome
 # with each block being associated with only one of the outcomes.
-season_1 <- harmonic_block(alpha1 = 1, period = 3)
-season_2 <- harmonic_block(alpha2 = 1, period = 6)
+season.1 <- harmonic_block(alpha1 = 1, period = 3)
+season.2 <- harmonic_block(alpha2 = 1, period = 6)
 
 # Creating a block with shared effect between the outcomes
-season_3 <- harmonic_block(alpha = 1, alpha2 = 1, period = 12)
+season.3 <- harmonic_block(alpha = 1, alpha2 = 1, period = 12)
 
 }
 \references{
@@ -94,12 +95,17 @@ season_3 <- harmonic_block(alpha = 1, alpha2 = 1, period = 12)
 \code{\link{search_model}}
 
 Other {auxiliary functions for structural blocks}: 
+\code{\link{*.dlm_block}()},
+\code{\link{+.dlm_block}()},
 \code{\link{AR_block}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},
+\code{\link{noise_block}()},
 \code{\link{polynomial_block}()},
+\code{\link{print.dlm_block}()},
 \code{\link{regression_block}()},
-\code{\link{report_block}()}
+\code{\link{report_block}()},
+\code{\link{summary.dlm_block}()}
 }
 \concept{{auxiliary functions for structural blocks}}

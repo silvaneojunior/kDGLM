@@ -4,10 +4,10 @@
 \alias{convert_Normal_Multinom}
 \title{convert_Normal_Multinom}
 \usage{
-convert_Normal_Multinom(conj_prior, parms = list())
+convert_Normal_Multinom(conj.param, parms = list())
 }
 \arguments{
-\item{conj_prior}{list: A vector containing the concentration parameters of the Dirichlet.}
+\item{conj.param}{list: A vector containing the concentration parameters of the Dirichlet.}
 
 \item{parms}{list: A list of extra known parameters of the distribution. Not used in this kernel.}
 }

@@ -4,10 +4,10 @@
 \alias{update_Poisson}
 \title{update_Poisson}
 \usage{
-update_Poisson(conj_prior, ft, Qt, y, parms)
+update_Poisson(conj.param, ft, Qt, y, parms)
 }
 \arguments{
-\item{conj_prior}{list: A vector containing the parameters of the Gamma (alpha,beta).}
+\item{conj.param}{list: A vector containing the parameters of the Gamma (alpha,beta).}
 
 \item{ft}{vector: A vector representing the means from the normal distribution. Not used in the default method.}
 

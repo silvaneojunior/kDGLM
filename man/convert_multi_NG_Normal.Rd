@@ -27,6 +27,7 @@ Other {auxiliary functions for a Normal outcome}:
 \code{\link{normal_pred}()},
 \code{\link{update_NG_alt}()},
 \code{\link{update_Normal}()},
+\code{\link{update_multi_NG_chol}()},
 \code{\link{update_multi_NG_correl}()}
 }
 \concept{{auxiliary functions for a Normal outcome}}

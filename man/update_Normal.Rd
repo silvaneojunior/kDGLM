@@ -4,10 +4,10 @@
 \alias{update_Normal}
 \title{update_Normal}
 \usage{
-update_Normal(conj_prior, ft, Qt, y, parms)
+update_Normal(conj.param, ft, Qt, y, parms)
 }
 \arguments{
-\item{conj_prior}{list: A vector containing the concentration parameters of the Normal.}
+\item{conj.param}{list: A vector containing the concentration parameters of the Normal.}
 
 \item{ft}{vector: A vector representing the means from the normal distribution. Not used in the default method.}
 
@@ -29,6 +29,7 @@ Other {auxiliary functions for a Normal outcome}:
 \code{\link{multi_normal_gamma_pred}()},
 \code{\link{normal_pred}()},
 \code{\link{update_NG_alt}()},
+\code{\link{update_multi_NG_chol}()},
 \code{\link{update_multi_NG_correl}()}
 }
 \concept{{auxiliary functions for a Normal outcome}}

@@ -14,4 +14,17 @@
 \description{
 summary method for class dlm_distr.
 }
+\seealso{
+Other {auxiliary functions for a creating outcomes}: 
+\code{\link{Gamma}()},
+\code{\link{Multinom}()},
+\code{\link{Normal}()},
+\code{\link{Poisson}()},
+\code{\link{report_distr}()}
+
+Other {Reports for dlm_distr objects.}: 
+\code{\link{report_distr}()}
+}
+\concept{{Reports for dlm_distr objects.}}
+\concept{{auxiliary functions for a creating outcomes}}
 \keyword{internal}

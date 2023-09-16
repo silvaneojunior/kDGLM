@@ -38,6 +38,21 @@ if.nan <- function(vec, val) {
   ifelse(is.nan(vec), val, vec)
 }
 
+#' check.expr
+#'
+#' Checks if a string is expression and, if it is, evaluates it.
+#'
+#' @param expr A string or expression.
+#'
+#' @keywords internal
+check.expr=function(expr){
+  val=tryCatch({expr |> str2expression() |> eval()},error=function(e){
+    (expr |>
+      gsub(pattern='c(',replacement='',x=_,fixed = TRUE) |>
+      gsub(pattern=')',replacement='',x=_,fixed = TRUE) |>
+      strsplit(', '))[[1]]})
+}
+
 #' var_decomp
 #'
 #' This function receives a covariance matrix S and creates a matrix Q, so that t(Q) %*% Q=S.
@@ -47,14 +62,14 @@ if.nan <- function(vec, val) {
 #' @importFrom Rfast cholesky transpose
 #' @keywords internal
 var_decomp <- function(S) {
-  Chol_decomp <- cholesky(S)
-  if (prod(if.nan(diag(Chol_decomp), 0)) == 0) {
-    svd_decomp <- svd(S)
-    d <- sqrt(svd_decomp$d)
-    u_t <- transpose(svd_decomp$u)
-    return(diag(d) %*% u_t)
+  Chol.decomp <- cholesky(S)
+  if (prod(diag(Chol.decomp), na.rm = TRUE) == 0 || any(is.na(Chol.decomp))) {
+    svd.decomp <- svd(S)
+    d <- sqrt(svd.decomp$d)
+    u.t <- transpose(svd.decomp$u)
+    return(diag(d, nrow = length(d)) %*% u.t)
   } else {
-    return(Chol_decomp)
+    return(Chol.decomp)
   }
 }
 
@@ -67,19 +82,74 @@ var_decomp <- function(S) {
 #' @importFrom Rfast cholesky
 #' @keywords internal
 ginv <- function(S) {
-  Chol_decomp <- cholesky(S)
-  if (prod(if.nan(diag(Chol_decomp), 0)) < 1e-6) {
-    svd_decomp <- svd(S)
-    Q_l <- svd_decomp$u
-    Q_r <- svd_decomp$v
-    D <- svd_decomp$d
+  Chol.decomp <- cholesky(S)
+  if (prod(diag(Chol.decomp), na.rm = TRUE) < 1e-12 || any(is.na(Chol.decomp))) {
+    svd.decomp <- svd(S)
+    Q.l <- svd.decomp$u
+    Q.r <- svd.decomp$v
+    D <- svd.decomp$d
     D <- ifelse(D > 1e-6, 1 / D, 0)
-    D_mat <- diag(length(D))
-    diag(D_mat) <- D
-    return(Q_l %*% D_mat %*% transpose(Q_r))
+    D.mat <- diag(length(D))
+    diag(D.mat) <- D
+    return(Q.l %*% D.mat %*% transpose(Q.r))
   } else {
-    return(chol2inv(Chol_decomp))
+    return(chol2inv(Chol.decomp))
   }
+}
+
+#' dmvnorm
+#'
+#' Calculates the log density of a multivariate normal distribution with mean mu and covariance matrix Sigma.
+#'
+#' @param x Vector: The value from to which calculate the density.
+#' @param mu Vector: The mean vector
+#' @param Sigma Matrix: The Covariance matrix.
+#'
+#' @keywords internal
+dmvnorm <- function(x, mu, Sigma) {
+  # inv.Sigma=ginv(Sigma)
+  # inv.chol.Sigma=var_decomp(inv.Sigma)
+
+  Chol.decomp <- cholesky(Sigma)
+  if (prod(diag(Chol.decomp), na.rm = TRUE) < 1e-6 || any(is.na(Chol.decomp))) {
+    svd.decomp <- svd(Sigma)
+    Q.l <- svd.decomp$u
+    Q.r <- svd.decomp$v
+    D <- svd.decomp$d
+    D <- ifelse(D > 1e-6, 1 / sqrt(D), 0)
+    D.mat <- diag(length(D))
+    diag(D.mat) <- D
+    inv.chol.Sigma <- (Q.l %*% D.mat %*% transpose(Q.r))
+    diag.chol.inv <- D
+  } else {
+    inv.chol.Sigma <- (backsolve(Chol.decomp, diag(length(mu))))
+    diag.chol.inv <- diag(inv.chol.Sigma)
+  }
+
+  flags.valid <- diag.chol.inv > 1e-12
+  norm.x <- transpose(inv.chol.Sigma) %*% (x - mu)
+
+  sum(dnorm(norm.x[flags.valid], log = TRUE)) +
+    sum(log(abs(diag.chol.inv[flags.valid])))
+}
+
+
+#' rmvnorm
+#'
+#' Obtains a sample from a multivariate normal distribution.
+#'
+#' @param n integer: The sample size.
+#' @param mu Vector: The mean vector
+#' @param Sigma Matrix: The Covariance matrix.
+#'
+#' @importFrom Rfast matrnorm
+#'
+#' @keywords internal
+rmvnorm <- function(n, mu, Sigma,
+                    norm.x = matrnorm(k, n)) {
+  k <- length(mu)
+  chol.Sigma <- var_decomp(Sigma)
+  transpose(chol.Sigma) %*% norm.x + c(mu)
 }
 
 #' create_G
@@ -91,14 +161,14 @@ ginv <- function(S) {
 #'
 #' @keywords internal
 create_G <- function(S0, S1) {
-  svd_decomp0 <- svd(S0)
-  svd_decomp1 <- svd(S1)
-  d0 <- sqrt(svd_decomp0$d)
-  d1 <- sqrt(svd_decomp1$d)
+  svd.decomp0 <- svd(S0)
+  svd.decomp1 <- svd(S1)
+  d0 <- sqrt(svd.decomp0$d)
+  d1 <- sqrt(svd.decomp1$d)
   d <- ifelse(d0 > 1e-6, d1 / d0, 0)
 
-  u0 <- transpose(svd_decomp0$u)
-  u1 <- svd_decomp1$u
+  u0 <- transpose(svd.decomp0$u)
+  u1 <- svd.decomp1$u
   return(u1 %*% diag(d) %*% u0)
 }
 
@@ -117,33 +187,33 @@ bdiag <- function(...) {
     if.null(dim(x)[1], 1)
   })
   n <- sum(ns)
-  mat_final <- matrix(0, n, n)
-  n0 <- 0
+  mat.final <- matrix(0, n, n)
+  n.0 <- 0
   for (mat in mats) {
-    n_i <- if.null(dim(mat)[1], 1)
-    mat_final[(n0 + 1):(n0 + n_i), (n0 + 1):(n0 + n_i)] <- mat
-    n0 <- n0 + n_i
+    n.i <- if.null(dim(mat)[1], 1)
+    mat.final[(n.0 + 1):(n.0 + n.i), (n.0 + 1):(n.0 + n.i)] <- mat
+    n.0 <- n.0 + n.i
   }
-  mat_final
+  mat.final
 }
 
 #' evaluate_max
 #'
 #' Auxiliary function to calculate the axis limits and gradation for plots.
 #'
-#' @param pre_max Numeric: A vector/matrix from which to calculate the axis limits and gradation.
+#' @param pre.max Numeric: A vector/matrix from which to calculate the axis limits and gradation.
 #'
 #' @return A list containing the gradation for the axis, the number of ticks in the axis and the maximum value.
 #' @keywords internal
-evaluate_max <- function(pre_max) {
-  if (length(pre_max) == 0 | sum(pre_max**2) < 10**-20) {
-    pre_max <- 1
+evaluate_max <- function(pre.max) {
+  if (length(pre.max) == 0 || sum(pre.max**2) < 10**-20) {
+    pre.max <- 1
   } else {
-    pre_max <- max(pre_max)
+    pre.max <- max(pre.max)
   }
-  scaled_max <- log10(pre_max)
-  category <- scaled_max %% 1
-  value <- 10**(floor(log10(max(pre_max))))
+  scaled.max <- log10(pre.max)
+  category <- scaled.max %% 1
+  value <- 10**(floor(log10(max(pre.max))))
   if (category < 0.1) {
     value <- value / 10
   } else {
@@ -155,10 +225,10 @@ evaluate_max <- function(pre_max) {
       }
     }
   }
-  interval_size <- (pre_max %/% value) + 2
-  max_value <- value * interval_size
+  interval.size <- (pre.max %/% value) + 2
+  max.value <- value * interval.size
 
-  return(list(value, interval_size, max_value))
+  return(list(value, interval.size, max.value))
 }
 
 #' colQuantile
@@ -176,9 +246,9 @@ evaluate_max <- function(pre_max) {
 colQuantile <- function(X, q) {
   n <- dim(X)[1]
   k <- dim(X)[2]
-  min_index <- floor(n * q)
-  max_index <- ceiling(n * q)
-  (colnth(X, rep(min_index, k)) + colnth(X, rep(max_index, k))) / 2
+  min.index <- floor(n * q)
+  max.index <- ceiling(n * q)
+  (colnth(X, rep(min.index, k)) + colnth(X, rep(max.index, k))) / 2
 }
 
 #' rowQuantile
@@ -196,20 +266,20 @@ colQuantile <- function(X, q) {
 rowQuantile <- function(X, q) {
   n <- dim(X)[1]
   k <- dim(X)[2]
-  min_index <- floor(k * q)
-  max_index <- ceiling(k * q)
-  (rownth(X, rep(min_index, n)) + rownth(X, rep(max_index, n))) / 2
+  min.index <- floor(k * q)
+  max.index <- ceiling(k * q)
+  (rownth(X, rep(min.index, n)) + rownth(X, rep(max.index, n))) / 2
 }
 
 #' f_root
 #'
-#' Calculates the root of a function given an initial value and a function to calculate it's derivatives.
+#' Calculates the root of a function given an initial value and a function to calculate its derivatives.
 #'
 #' @param f function: A function that receives a vector and return a vector of the same size.
 #' @param df function: A function that receives a vector and return the derivatives of f with respect to its arguments (if f returns a vector, it must be a matrix).
 #' @param start vector: The initial value to start the algorithm.
 #' @param tol numeric: The tolerance for the solution.
-#' @param n_max numeric: The maximum number of iterations allowed.
+#' @param n.max numeric: The maximum number of iterations allowed.
 #'
 #' @return A list containing:
 #' \itemize{
@@ -219,24 +289,24 @@ rowQuantile <- function(X, q) {
 #' }
 #'
 #' @keywords internal
-f_root <- function(f, df, start, tol = 1e-8, n_max = 1000) {
-  x_root <- start
-  fx <- f(x_root)
-  dfx <- df(x_root)
+f_root <- function(f, df, start, tol = 1e-8, n.max = 1000) {
+  x.root <- start
+  fx <- f(x.root)
+  dfx <- df(x.root)
   error <- max(abs(fx))
   count <- 0
-  while (error >= tol & count < n_max) {
+  while (error >= tol && count < n.max) {
     count <- count + 1
     change <- solve(dfx, -fx)
-    x_root <- x_root + change
-    fx <- f(x_root)
-    dfx <- df(x_root)
+    x.root <- x.root + change
+    fx <- f(x.root)
+    dfx <- df(x.root)
     error <- max(abs(fx))
   }
-  if (count >= n_max) {
+  if (count >= n.max) {
     warning("Steady state not reached.\n")
   }
-  return(list("root" = x_root, "f.root" = fx, "inter." = count))
+  return(list("root" = x.root, "f.root" = fx, "inter." = count))
 }
 
 #' check.block.status
@@ -258,7 +328,7 @@ check.block.status <- function(block) {
       break
     }
   }
-  if (!all(block$FF_labs %in% c("const", block$pred_names))) {
+  if (!all(block$FF.labs %in% c("const", block$pred.names))) {
     status <- "undefined"
   }
   return(status)
@@ -281,4 +351,26 @@ base_ribbon <- function(x, ymin, ymax, ...) {
     y = c(ymax[1], ymin, ymax[l:1]),
     ...
   )
+}
+
+#' lcm
+#'
+#' Calculates the least common multiple of a set of integer. Internal use only.
+#'
+#' @param x Vector: A sequence of integers.
+#'
+#' @return The least common multiple.
+#'
+#' @keywords internal
+lcm <- function(x) {
+  if (any(x != round(x))) {
+    return(1)
+  }
+  if (length(x) == 2) {
+    y <- prod(x)
+    vals1 <- seq.int(x[2], y, x[2])
+    return(min(vals1[(vals1 %% x[1]) == 0]))
+  } else {
+    return(lcm(c(x[1], lcm(x[-1]))))
+  }
 }

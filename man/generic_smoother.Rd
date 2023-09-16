@@ -4,7 +4,7 @@
 \alias{generic_smoother}
 \title{generic_smoother}
 \usage{
-generic_smoother(mt, Ct, at, Rt, G, G_labs)
+generic_smoother(mt, Ct, at, Rt, G, G.labs)
 }
 \arguments{
 \item{mt}{Matrix: A matrix containing the filtered mean of the latent variables at each time. Each row should represent one variable.}
@@ -17,7 +17,7 @@ generic_smoother(mt, Ct, at, Rt, G, G_labs)
 
 \item{G}{Array: A 3D-array representing the transition matrix of the model at each time.}
 
-\item{G_labs}{Matrix: A character matrix containing the type associated with each value in G.}
+\item{G.labs}{Matrix: A character matrix containing the type associated with each value in G.}
 }
 \value{
 List: The smoothed mean (mts) and covariance (Cts) of the latent variables at each time. Their dimension follows, respectively, the dimensions of mt and Ct.

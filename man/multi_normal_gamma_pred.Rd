@@ -5,28 +5,28 @@
 \title{multi_normal_gamma_pred}
 \usage{
 multi_normal_gamma_pred(
-  conj_param,
+  conj.param,
   outcome = NULL,
   parms = list(),
-  pred_cred = 0.95
+  pred.cred = 0.95
 )
 }
 \arguments{
-\item{conj_param}{List or data.frame: The parameters of the conjugated distribution (Normal-Gamma) of the linear predictor.}
+\item{conj.param}{List or data.frame: The parameters of the conjugated distribution (Normal-Gamma) of the linear predictor.}
 
 \item{outcome}{Vector or matrix (optional): The observed values at the current time.}
 
 \item{parms}{List (optional): A list of extra parameters for the model. Not used in this function.}
 
-\item{pred_cred}{Numeric: the desired credibility for the credibility interval.}
+\item{pred.cred}{Numeric: the desired credibility for the credibility interval.}
 }
 \value{
 A list containing the following values:
 \itemize{
    \item pred vector/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
    \item var.pred vector/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-   \item icl.pred vector/matrix: the percentile of 100*((1-pred_cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-   \item icu.pred vector/matrix: the percentile of 100*(1-(1-pred_cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+   \item icl.pred vector/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+   \item icu.pred vector/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
    \item log.like vector: the The log likelihood for the outcome given the conjugated parameters.
 }
 }
@@ -39,6 +39,7 @@ Other {auxiliary functions for a Normal outcome}:
 \code{\link{normal_pred}()},
 \code{\link{update_NG_alt}()},
 \code{\link{update_Normal}()},
+\code{\link{update_multi_NG_chol}()},
 \code{\link{update_multi_NG_correl}()}
 }
 \concept{{auxiliary functions for a Normal outcome}}

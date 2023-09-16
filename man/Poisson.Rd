@@ -4,14 +4,14 @@
 \alias{Poisson}
 \title{Poisson outcome for kDGLM models}
 \usage{
-Poisson(lambda, outcome, offset = outcome^0, alt_method = FALSE)
+Poisson(lambda, data, offset = as.matrix(data)^0)
 }
 \arguments{
 \item{lambda}{character: Name of the linear predictor associated with the rate (mean) parameter of the Poisson distribution. The parameter is treated as unknown and equal to the exponential of the associated linear predictor.}
 
-\item{outcome}{vector: Values of the observed data.}
+\item{data}{vector: Values of the observed data.}
 
-\item{offset}{vector: The offset at each observation. Must have the same shape as outcome.}
+\item{offset}{vector: The offset at each observation. Must have the same shape as data.}
 }
 \value{
 A object of the class dlm_distr
@@ -26,20 +26,19 @@ For the details about the implementation see  \insertCite{ArtigoPacote;textual}{
 }
 \examples{
 
-# Poisson case
-T <- 200
-w <- (200 / 40) * 2 * pi
-data <- rpois(T, exp(sin(w * 1:T / T) + 2))
+data <- c(AirPassengers)
 
-level <- polynomial_block(rate = 1, D = 0.95)
-season <- harmonic_block(rate = 1, period = 40, D = 0.98)
+level <- polynomial_block(rate = 1, D = 0.95, order = 2)
+season <- harmonic_block(rate = 1, period = 12, D = 0.975)
 
-outcome <- Poisson(lambda = "rate", outcome = data)
+outcome <- Poisson(lambda = "rate", data = data)
 
-fitted_data <- fit_model(level, season, outcomes = outcome)
-summary(fitted_data)
+fitted.data <- fit_model(level, season,
+  AirPassengers = outcome
+)
+summary(fitted.data)
 
-show_fit(fitted_data, lag = -1)$plot
+plot(fitted.data, plot.pkg = "base")
 
 }
 \references{
@@ -52,6 +51,7 @@ Other {auxiliary functions for a creating outcomes}:
 \code{\link{Gamma}()},
 \code{\link{Multinom}()},
 \code{\link{Normal}()},
-\code{\link{report_distr}()}
+\code{\link{report_distr}()},
+\code{\link{summary.dlm_distr}()}
 }
 \concept{{auxiliary functions for a creating outcomes}}

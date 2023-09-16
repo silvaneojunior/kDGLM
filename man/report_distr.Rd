@@ -4,10 +4,10 @@
 \alias{report_distr}
 \title{Summary for a kDGLM outcome}
 \usage{
-report_distr(dlm_distr)
+report_distr(dlm.distr)
 }
 \arguments{
-\item{dlm_distr}{A dlm_distr object.}
+\item{dlm.distr}{A dlm_distr object.}
 }
 \description{
 Prints a report for a dlm_distr object.
@@ -17,7 +17,12 @@ Other {auxiliary functions for a creating outcomes}:
 \code{\link{Gamma}()},
 \code{\link{Multinom}()},
 \code{\link{Normal}()},
-\code{\link{Poisson}()}
+\code{\link{Poisson}()},
+\code{\link{summary.dlm_distr}()}
+
+Other {Reports for dlm_distr objects.}: 
+\code{\link{summary.dlm_distr}()}
 }
+\concept{{Reports for dlm_distr objects.}}
 \concept{{auxiliary functions for a creating outcomes}}
 \keyword{internal}

@@ -9,14 +9,14 @@ analytic_filter(
   a1 = 0,
   R1 = 1,
   FF,
-  FF_labs,
+  FF.labs,
   G,
-  G_labs,
+  G.labs,
   D,
   h,
   H,
-  p_monit = NA,
-  c_monit = 1,
+  p.monit = NA,
+  c.monit = 1,
   monitoring = FALSE
 )
 }
@@ -29,11 +29,11 @@ analytic_filter(
 
 \item{FF}{Array: A 3D-array containing the regression matrix for each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model and t is the time series length.}
 
-\item{FF_labs}{Matrix: A character matrix containing the type associated with each value in FF.}
+\item{FF.labs}{Matrix: A character matrix containing the type associated with each value in FF.}
 
 \item{G}{Array: A 3D-array containing the state evolution matrix at each time.}
 
-\item{G_labs}{Matrix: A character matrix containing the type associated with each value in G.}
+\item{G.labs}{Matrix: A character matrix containing the type associated with each value in G.}
 
 \item{D}{Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.}
 
@@ -41,9 +41,9 @@ analytic_filter(
 
 \item{H}{Array: A 3D-array containing the covariance matrix of the noise for each time. It's dimension should be the same as D.}
 
-\item{p_monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of it's dynamic.}
+\item{p.monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.}
 
-\item{c_monit}{numeric (optional, if p_monit is not specified): The relative cost of false alarm in the monitoring compared to the cost of not detecting abnormalities.}
+\item{c.monit}{numeric (optional, if p.monit is not specified): The relative cost of false alarm in the monitoring compared to the cost of not detecting abnormalities.}
 
 \item{monitoring}{Vector: A vector of flags indicating which latent variables should be monitored.}
 }
@@ -58,14 +58,14 @@ A list containing the following values:
    \item Qt Array: A 3D-array containing the one-step-ahead covariance matrix for the linear predictor for each time. Dimensions are m x m x t.
    \item FF Array: The same as the argument (same values).
    \item G Matrix: The same as the argument (same values).
-   \item G_labs Matrix: The same as the argument (same values).
+   \item G.labs Matrix: The same as the argument (same values).
    \item D Array: The same as the argument (same values) when there is no monitoring. When monitoring for abnormalities, the value in times where abnormalities were detected is increased.
    \item h Array: The same as the argument (same values).
    \item H Array: The same as the argument (same values).
    \item W Array: A 3D-array containing the effective covariance matrix of the noise for each time, i.e., considering both H and D. Its dimension are the same as H and D.
    \item monitoring Vector: The same as the argument (same values).
-   \item outcome List: The same as the argument outcome (same values).
-   \item pred_names Vector: The names of the linear predictors.
+   \item outcomes List: The same as the argument outcomes (same values).
+   \item pred.names Vector: The names of the linear predictors.
 }
 }
 \description{

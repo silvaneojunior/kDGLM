@@ -14,4 +14,12 @@
 \description{
 print.fitted_dlm
 }
+\seealso{
+Other {auxiliary visualization functions for the fitted_dlm class}: 
+\code{\link{plot.fitted_dlm}()},
+\code{\link{plot_lat_var}()},
+\code{\link{plot_lin_pred}()},
+\code{\link{show_fit}()}
+}
+\concept{{auxiliary visualization functions for the fitted_dlm class}}
 \keyword{internal}

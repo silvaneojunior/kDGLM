@@ -4,16 +4,7 @@
 \alias{Normal}
 \title{Normal outcome for kDGLM models}
 \usage{
-Normal(
-  mu,
-  V = NA,
-  Tau = NA,
-  Sigma = NA,
-  Sd = NA,
-  outcome,
-  offset = outcome^0,
-  alt_method = FALSE
-)
+Normal(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, data)
 }
 \arguments{
 \item{mu}{character: Name of the linear predictor associated with the mean parameter of the Normal distribution. The parameter is treated as unknown and equal to the associated linear predictor.}
@@ -26,9 +17,9 @@ Normal(
 
 \item{Sd}{character or numeric: If Sd is a character, it is interpreted as the names of the linear predictors associated with the standard deviation parameter of the Normal distribution. If Sd is numeric, the standard deviation is considered known and equal to the value of Sd, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed by in Sd. If the outcome is a Multivariate Normal, then Tau must be a matrix and the elements outside its main diagonal are treated as the correlation (or the name of the linear predictor associated) between each coordinate of the outcome. The user cannot specify Sd with V, Tau or Sigma.}
 
-\item{outcome}{vector: Values of the observed data.}
+\item{data}{vector: Values of the observed data.}
 
-\item{offset}{vector: The offset at each observation. Must have the same shape as outcome.}
+\item{offset}{vector: The offset at each observation. Must have the same shape as data.}
 }
 \value{
 A object of the class dlm_distr
@@ -43,34 +34,28 @@ For the details about the implementation see  \insertCite{ArtigoPacote;textual}{
 }
 \examples{
 
-# Normal case
-T <- 200
-mu <- rnorm(T, 0, 0.1)
-data <- rnorm(T, cumsum(mu))
+# Univariate Normal case
+structure <- polynomial_block(mu = 1, D = 0.95) +
+  polynomial_block(V = 1, D = 0.95)
 
-level <- polynomial_block(
-  mu = 1,
-  D = 0.95
+outcome <- Normal(mu = "mu", V = "V", data = cornWheat$corn.log.return[1:500])
+fitted.data <- fit_model(structure, outcome)
+summary(fitted.data)
+plot(fitted.data, plot.pkg = "base")
+
+# Bivariate Normal case
+structure <- (polynomial_block(mu = 1, D = 0.95) +
+  polynomial_block(V = 1, D = 0.95)) * 2 +
+  polynomial_block(rho = 1, D = 0.95)
+
+outcome <- Normal(
+  mu = c("mu.1", "mu.2"),
+  V = matrix(c("V.1", "rho", "rho", "V.2"), 2, 2),
+  data = cornWheat[1:500, c(4, 5)]
 )
-variance <- polynomial_block(
-  sigma2 = 1
-)
-
-# Known variance
-outcome <- Normal(mu = "mu", Sigma = 1, outcome = data)
-
-fitted_data <- fit_model(level, outcomes = outcome)
-summary(fitted_data)
-
-show_fit(fitted_data, lag = -1)$plot
-
-# Unknown variance
-outcome <- Normal(mu = "mu", Sigma = "sigma2", outcome = data)
-
-fitted_data <- fit_model(level, variance, outcomes = outcome)
-summary(fitted_data)
-
-show_fit(fitted_data, lag = -1)$plot
+fitted.data <- fit_model(structure, outcome)
+summary(fitted.data)
+plot(fitted.data, plot.pkg = "base")
 
 }
 \references{
@@ -83,6 +68,7 @@ Other {auxiliary functions for a creating outcomes}:
 \code{\link{Gamma}()},
 \code{\link{Multinom}()},
 \code{\link{Poisson}()},
-\code{\link{report_distr}()}
+\code{\link{report_distr}()},
+\code{\link{summary.dlm_distr}()}
 }
 \concept{{auxiliary functions for a creating outcomes}}

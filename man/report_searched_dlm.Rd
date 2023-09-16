@@ -4,20 +4,21 @@
 \alias{report_searched_dlm}
 \title{Summary for a searched_dlm object}
 \usage{
-report_searched_dlm(searched_dlm)
+report_searched_dlm(searched.dlm)
 }
 \arguments{
-\item{searched_dlm}{A searched_dlm object.}
+\item{searched.dlm}{A searched_dlm object.}
 }
 \description{
 Prints a report for a searched_dlm object.
 }
 \seealso{
-Other {auxiliary visualization functions for the fitted_dlm class}: 
-\code{\link{plot_lat_var}()},
-\code{\link{plot_lin_pred}()},
+Other {auxiliary visualization functions for the fitted.dlm class}: 
+\code{\link{print.dlm_distr}()},
+\code{\link{print.searched_dlm}()},
 \code{\link{report_dlm}()},
-\code{\link{show_fit}()}
+\code{\link{summary.fitted_dlm}()},
+\code{\link{summary.searched_dlm}()}
 }
-\concept{{auxiliary visualization functions for the fitted_dlm class}}
+\concept{{auxiliary visualization functions for the fitted.dlm class}}
 \keyword{internal}

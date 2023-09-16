@@ -4,16 +4,24 @@
 \alias{show_fit}
 \title{Visualizing a fitted kDGLM model}
 \usage{
-show_fit(model, pred_cred = 0.95, lag = 1, plot_pkg = "auto")
+show_fit(
+  model,
+  pred.cred = 0.95,
+  lag = 1,
+  cutoff = floor(model$t/10),
+  plot.pkg = "auto"
+)
 }
 \arguments{
 \item{model}{fitted_dlm: A fitted DGLM.}
 
-\item{pred_cred}{Numeric: The credibility value for the credibility interval.}
+\item{pred.cred}{Numeric: The credibility value for the credibility interval.}
 
-\item{lag}{Integer: A integer with the number of steps ahead should be used for prediction. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribuition is used.}
+\item{lag}{Integer: The number of steps ahead to be used for prediction. If lag<0, the smoothed distribution is used and, if lag==0, the filtered interval.score is used.}
 
-\item{plot_pkg}{String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.}
+\item{cutoff}{Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the predictions are not reliable.}
+
+\item{plot.pkg}{String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.}
 }
 \value{
 A list containing:
@@ -26,26 +34,25 @@ A list containing:
 Calculate the predictive mean and some quantile for the observed data and show a plot.
 }
 \examples{
-T <- 200
-w <- (200 / 40) * 2 * pi
-data <- rpois(T, 20 * (sin(w * 1:T / T) + 2))
+data <- c(AirPassengers)
 
-level <- polynomial_block(rate = 1, D = 0.95)
-season <- harmonic_block(rate = 1, period = 40, D = 0.98)
+level <- polynomial_block(rate = 1, order = 2, D = 0.95)
+season <- harmonic_block(rate = 1, order = 2, period = 12, D = 0.975)
 
-outcome <- Poisson(lambda = "rate", outcome = data)
+outcome <- Poisson(lambda = "rate", data)
 
-fitted_data <- fit_model(level, season, outcomes = outcome)
-summary(fitted_data)
+fitted.data <- fit_model(level, season,
+  AirPassengers = outcome
+)
 
-show_fit(fitted_data, lag = -1)$plot
+plot(fitted.data, plot.pkg = "base")
 
 }
 \seealso{
 Other {auxiliary visualization functions for the fitted_dlm class}: 
+\code{\link{plot.fitted_dlm}()},
 \code{\link{plot_lat_var}()},
 \code{\link{plot_lin_pred}()},
-\code{\link{report_dlm}()},
-\code{\link{report_searched_dlm}()}
+\code{\link{print.fitted_dlm}()}
 }
 \concept{{auxiliary visualization functions for the fitted_dlm class}}

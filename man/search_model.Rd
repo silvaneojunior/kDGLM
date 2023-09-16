@@ -6,45 +6,42 @@
 \usage{
 search_model(
   ...,
-  outcomes,
-  search_grid,
+  search.grid,
   condition = "TRUE",
   metric = "log.like",
   smooth = TRUE,
   lag = 1,
-  pred_cred = 0.95,
-  metric_cutoff = NA,
-  p_monit = NA,
-  c_monit = 1
+  pred.cred = 0.95,
+  metric.cutoff = NA,
+  p.monit = NA,
+  c.monit = 1
 )
 }
 \arguments{
-\item{...}{dlm_block object: The structural blocks of the model. At least one block must be "undefined". See polynomial_block for more details.}
+\item{...}{dlm_block or dlm_distr objects: The structural blocks of the model (dlm_block objects), alongside the model outcomes (dlm_distr object). All block must be completely defined.}
 
-\item{outcomes}{List: The observed data. It should contain objects of the class dlm_distr.}
-
-\item{search_grid}{List: A named list containing the possible values of each undefined hyper parameter.}
+\item{search.grid}{List: A named list containing the possible values of each undefined hyper parameter.}
 
 \item{condition}{Character: A character defining which combinations of undefined hyper parameter should be tested. See example for details.}
 
-\item{metric}{String: The name of the metric to use for model selection. One of log-likelihood for the one-step-ahead prediction ("log.like"), Mean Absolute Error ("mae"), Relative Absolute Error ("rae"), Mean Squared Error ("mse") or Interval Score ("interval.score") \insertCite{interval_score}{kDGLM}.}
+\item{metric}{String: The name of the metric to use for model selection. One of log-likelihood for the one-step-ahead prediction ("log.like"), Mean Absolute Error ("mae"), Mean Absolute Scaled Error ("mase") \insertCite{mase}{kDGLM}, Relative Absolute Error ("rae"), Mean Squared Error ("mse") or Interval Score ("interval.score") \insertCite{interval_score}{kDGLM}.}
 
 \item{smooth}{Bool: A flag indicating if the smoothed distribution for the latent variables should be calculated.}
 
-\item{lag}{Integer: The number of steps ahead used for the prediction when calculating the metrics. If lag<0, predictions are made using the smoothed distribuition of the latent variables.}
+\item{lag}{Integer: The number of steps ahead used for the prediction when calculating the metrics. If lag<0, predictions are made using the smoothed distribution of the latent variables.}
 
-\item{pred_cred}{Numeric: A number between 0 and 1 (not included) indicating the credibility interval for predictions. If not within the valid range of values, 0.95 will be used.}
+\item{pred.cred}{Numeric: A number between 0 and 1 (not included) indicating the credibility interval for predictions. If not within the valid range of values, 0.95 will be used.}
 
-\item{metric_cutoff}{Integer: The number of observations to ignore when calculating the metrics. Default is 1/10 of the number of observations (rounded down).}
+\item{metric.cutoff}{Integer: The number of observations to ignore when calculating the metrics. Default is 1/10 of the number of observations (rounded down).}
 
-\item{p_monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of it's dynamic.}
+\item{p.monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.}
 
-\item{c_monit}{numeric (optional, if p_monit is not specified): The relative cost of false alarm in the monitoring compared to the cost of not detecting abnormalities.}
+\item{c.monit}{numeric (optional, if p.monit is not specified): The relative cost of false alarm in the monitoring compared to the cost of not detecting abnormalities.}
 }
 \value{
 A searched_dlm object containing the following values:
 \itemize{
-   \item search_data Data.frame: A table contain the metrics of each combination of hyper parameter tested and ordered from best combination to worst.
+   \item search.data Data.frame: A table contain the metrics of each combination of hyper parameter tested and ordered from best combination to worst.
    \item structure dlm_block: The initial structure passed by the user, by with the undefined hyper parameters set to the best values found.
    \item model fitted_dlm: A model fitted with the best combination of hyper parameters.
 }
@@ -58,25 +55,22 @@ This function simple evaluates all possible combinations and chooses the one tha
 }
 \examples{
 
-T <- 200
-w <- (200 / 40) * 2 * pi
-data <- rpois(T, 20 * (sin(w * 1:T / T) + 2))
+data <- c(AirPassengers)
 
-level <- polynomial_block(rate = 1, D = "D_level")
-season <- harmonic_block(rate = "sazo_effect", period = 40, D = "D_sazo")
+level <- polynomial_block(rate = 1, order = 2, D = 'D.level')
+season <- harmonic_block(rate = 'sazo.effect', order = 2, period = 12, D = "D.sazo")
 
-outcome <- Poisson(lambda = "rate", outcome = data)
+outcome <- Poisson(lambda = "rate", data = data)
 
 search_model(level, season,
   outcomes = outcome,
-  search_grid = list(
-    sazo_effect = c(0, 1),
-    D_level = c(seq(0.8, 1, 0.05)),
-    D_sazo = c(seq(0.95, 1, 0.01))
+  search.grid = list(
+    sazo.effect = c(0, 1),
+    D.level = c(seq.int(0.8, 1, l = 11)),
+    D.sazo = c(seq.int(0.95, 1, l = 11))
   ),
-  condition = "sazo_effect==1 | D_sazo==1"
+  condition = "sazo.effect==1 | D.sazo==1"
 )
-
 }
 \references{
 \insertAllCited{}

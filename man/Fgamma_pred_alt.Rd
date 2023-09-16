@@ -4,24 +4,24 @@
 \alias{Fgamma_pred_alt}
 \title{Fgamma_pred_alt}
 \usage{
-Fgamma_pred_alt(conj_param, outcome = NULL, parms = list(), pred_cred = 0.95)
+Fgamma_pred_alt(conj.param, outcome = NULL, parms = list(), pred.cred = 0.95)
 }
 \arguments{
-\item{conj_param}{List or data.frame: The parameters of the distribution of the linear predictor.}
+\item{conj.param}{List or data.frame: The parameters of the distribution of the linear predictor.}
 
 \item{outcome}{Vector or matrix (optional): The observed values at the current time. Not used in this function.}
 
 \item{parms}{List: A list of extra parameters for the model. For this function, it must contain the shape parameter phi of the observational model.}
 
-\item{pred_cred}{Numeric: the desired credibility for the credibility interval.}
+\item{pred.cred}{Numeric: the desired credibility for the credibility interval.}
 }
 \value{
 A list containing the following values:
 \itemize{
    \item pred vector/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
    \item var.pred vector/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-   \item icl.pred vector/matrix: the percentile of 100*((1-pred_cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-   \item icu.pred vector/matrix: the percentile of 100*(1-(1-pred_cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+   \item icl.pred vector/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+   \item icu.pred vector/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
 }
 }
 \description{

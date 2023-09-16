@@ -10,9 +10,8 @@ Gamma(
   alpha = NA,
   beta = NA,
   sigma = NA,
-  outcome,
-  offset = outcome^0,
-  alt_method = FALSE
+  data,
+  offset = as.matrix(data)^0
 )
 }
 \arguments{
@@ -26,9 +25,9 @@ Gamma(
 
 \item{sigma}{character: Name of the linear predictor associated with the scale parameter of the gamma distribution. The parameter is treated as unknown and equal to the exponential of the associated linear predictor. It cannot be specified with beta.}
 
-\item{outcome}{vector: Values of the observed data.}
+\item{data}{vector: Values of the observed data.}
 
-\item{offset}{vector: The offset at each observation. Must have the same shape as outcome.}
+\item{offset}{vector: The offset at each observation. Must have the same shape as data.}
 }
 \value{
 A object of the class dlm_distr
@@ -43,33 +42,12 @@ For the details about the implementation see  \insertCite{ArtigoPacote;textual}{
 }
 \examples{
 
-# Gamma case
-T <- 200
-w <- (200 / 40) * 2 * pi
-phi <- 2.5
-mu <- exp((sin(w * 1:T / T) + 2))
-data <- matrix(rgamma(T, phi, phi / mu), T, 1)
+structure <- polynomial_block(mu = 1, D = 0.95)
 
-level <- polynomial_block(mu = 1, D = 0.95)
-season <- harmonic_block(mu = 1, period = 40, D = 0.98)
-scale <- polynomial_block(phi = 1, D = 1)
-
-# Known shape
-outcome <- Gamma(phi = phi, mu = "mu", outcome = data)
-
-fitted_data <- fit_model(level, season, outcomes = outcome)
-summary(fitted_data)
-
-show_fit(fitted_data, lag = -1)$plot
-
-# DO NOT RUN
-# # Unknown shape
-# outcome <- Gamma(phi = "phi", mu = "mu", outcome = data)
-#
-# fitted_data <- fit_model(level, season, scale, outcomes = outcome)
-# summary(fitted_data)
-#
-# show_fit(fitted_data, lag=-1)$plot
+outcome <- Gamma(phi = 0.5, mu = "mu", data = cornWheat$corn.log.return[1:500]**2)
+fitted.data <- fit_model(structure, outcome)
+summary(fitted.data)
+plot(fitted.data, plot.pkg = "base")
 
 }
 \references{
@@ -82,6 +60,7 @@ Other {auxiliary functions for a creating outcomes}:
 \code{\link{Multinom}()},
 \code{\link{Normal}()},
 \code{\link{Poisson}()},
-\code{\link{report_distr}()}
+\code{\link{report_distr}()},
+\code{\link{summary.dlm_distr}()}
 }
 \concept{{auxiliary functions for a creating outcomes}}

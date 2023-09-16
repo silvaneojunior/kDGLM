@@ -9,8 +9,8 @@ plot_lat_var(
   var = "",
   lag = -1,
   cutoff = floor(model$t/10),
-  pred_cred = 0.95,
-  plot_pkg = "auto"
+  pred.cred = 0.95,
+  plot.pkg = "auto"
 )
 }
 \arguments{
@@ -18,13 +18,13 @@ plot_lat_var(
 
 \item{var}{Character: The name of the variables to plot (same value passed while creating the structure). Any variable whose name partially match this variable will be plotted.}
 
-\item{lag}{Integer: A integer with the number of steps ahead should be used for evaluating the latent variables. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribution is used.}
+\item{lag}{Integer:  The number of steps ahead to be used for evaluating the latent variables. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribution is used.}
 
 \item{cutoff}{Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.}
 
-\item{pred_cred}{Numeric: The credibility value for the credibility interval.}
+\item{pred.cred}{Numeric: The credibility value for the credibility interval.}
 
-\item{plot_pkg}{String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.}
+\item{plot.pkg}{String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.}
 }
 \value{
 A list containing:
@@ -38,26 +38,25 @@ Visualizing latent states in a fitted kDGLM model
 }
 \examples{
 
-T <- 200
-w <- (200 / 40) * 2 * pi
-data <- rpois(T, 20 * (sin(w * 1:T / T) + 2))
+data <- c(AirPassengers)
 
-level <- polynomial_block(rate = 1, D = 0.95)
-season <- harmonic_block(rate = 1, period = 40, D = 0.98)
+level <- polynomial_block(rate = 1, order = 2, D = 0.95)
+season <- harmonic_block(rate = 1, order = 2, period = 12, D = 0.975)
 
-outcome <- Poisson(lambda = "rate", outcome = data)
+outcome <- Poisson(lambda = "rate", data)
 
-fitted_data <- fit_model(level, season, outcomes = outcome)
-summary(fitted_data)
+fitted.data <- fit_model(level, season,
+  AirPassengers = outcome
+)
 
-plot_lat_var(fitted_data)$plot
+plot_lat_var(fitted.data)$plot
 
 }
 \seealso{
 Other {auxiliary visualization functions for the fitted_dlm class}: 
+\code{\link{plot.fitted_dlm}()},
 \code{\link{plot_lin_pred}()},
-\code{\link{report_dlm}()},
-\code{\link{report_searched_dlm}()},
+\code{\link{print.fitted_dlm}()},
 \code{\link{show_fit}()}
 }
 \concept{{auxiliary visualization functions for the fitted_dlm class}}

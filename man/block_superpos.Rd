@@ -21,14 +21,14 @@ Additional details can be found in \insertCite{WestHarr-DLM;textual}{kDGLM}, sec
 \examples{
 
 # Long way
-level_1 <- polynomial_block(alpha1 = 1, order = 1)
-level_2 <- polynomial_block(alpha2 = 1, order = 2)
-season_2 <- harmonic_block(alpha2 = 1, period = 20)
+level.1 <- polynomial_block(alpha1 = 1, order = 1)
+level.2 <- polynomial_block(alpha2 = 1, order = 2)
+season.2 <- harmonic_block(alpha2 = 1, period = 20)
 
-final_block <- block_superpos(level_1, level_2, season_2)
+final.block <- block_superpos(level.1, level.2, season.2)
 
 # Short way
-final_block <- polynomial_block(alpha1 = 1, order = 1) +
+final.block <- polynomial_block(alpha1 = 1, order = 1) +
   polynomial_block(alpha2 = 1, order = 2) +
   harmonic_block(alpha2 = 1, period = 20)
 
@@ -38,12 +38,17 @@ final_block <- polynomial_block(alpha1 = 1, order = 1) +
 }
 \seealso{
 Other {auxiliary functions for structural blocks}: 
+\code{\link{*.dlm_block}()},
+\code{\link{+.dlm_block}()},
 \code{\link{AR_block}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{harmonic_block}()},
+\code{\link{noise_block}()},
 \code{\link{polynomial_block}()},
+\code{\link{print.dlm_block}()},
 \code{\link{regression_block}()},
-\code{\link{report_block}()}
+\code{\link{report_block}()},
+\code{\link{summary.dlm_block}()}
 }
 \concept{{auxiliary functions for structural blocks}}

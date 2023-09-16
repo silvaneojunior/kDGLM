@@ -35,3 +35,4 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 \author{
 Hadley Wickham, \email{hadley@rstudio.com}; Max Kuhn, \email{max@rstudio.com}; Davis Vaughan, \email{davis@rstudio.com}; RStudio.
 }
+\keyword{internal}

@@ -4,10 +4,10 @@
 \alias{update_Gamma}
 \title{update_Gamma}
 \usage{
-update_Gamma(conj_prior, ft, Qt, y, parms)
+update_Gamma(conj.param, ft, Qt, y, parms)
 }
 \arguments{
-\item{conj_prior}{list: A vector containing the parameters of the Inverse-Gamma (alpha,beta).}
+\item{conj.param}{list: A vector containing the parameters of the Inverse-Gamma (alpha,beta).}
 
 \item{ft}{vector: A vector representing the means from the normal distribution. Not used in the default method.}
 

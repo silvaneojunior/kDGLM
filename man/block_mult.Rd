@@ -21,22 +21,27 @@ An auxiliary function to replicate blocks.
 # Long way
 level <- polynomial_block(alpha = 1, order = 1)
 
-final_block <- block_mult(level, 5)
+final.block <- block_mult(level, 5)
 
 # Short way
-final_block <- 5 * polynomial_block(alpha = 1, order = 1)
+final.block <- 5 * polynomial_block(alpha = 1, order = 1)
 
 }
 \seealso{
 \code{\link{block_rename}}
 
 Other {auxiliary functions for structural blocks}: 
+\code{\link{*.dlm_block}()},
+\code{\link{+.dlm_block}()},
 \code{\link{AR_block}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},
 \code{\link{harmonic_block}()},
+\code{\link{noise_block}()},
 \code{\link{polynomial_block}()},
+\code{\link{print.dlm_block}()},
 \code{\link{regression_block}()},
-\code{\link{report_block}()}
+\code{\link{report_block}()},
+\code{\link{summary.dlm_block}()}
 }
 \concept{{auxiliary functions for structural blocks}}

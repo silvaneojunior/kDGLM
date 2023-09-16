@@ -4,10 +4,10 @@
 \alias{evaluate_max}
 \title{evaluate_max}
 \usage{
-evaluate_max(pre_max)
+evaluate_max(pre.max)
 }
 \arguments{
-\item{pre_max}{Numeric: A vector/matrix from which to calculate the axis limits and gradation.}
+\item{pre.max}{Numeric: A vector/matrix from which to calculate the axis limits and gradation.}
 }
 \value{
 A list containing the gradation for the axis, the number of ticks in the axis and the maximum value.

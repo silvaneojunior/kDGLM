@@ -15,8 +15,8 @@ forecast_dlm(
   h = NULL,
   H = NULL,
   plot = ifelse(requireNamespace("plotly", quietly = TRUE), "plotly",
-    ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot", "base")),
-  pred_cred = 0.95
+    ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot2", "base")),
+  pred.cred = 0.95
 )
 }
 \arguments{
@@ -32,7 +32,7 @@ forecast_dlm(
 
 \item{G}{Array (optional): A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables. If not specified, the last value given to the model will be used.}
 
-\item{D}{Array (optional): A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and T is the time series length. If not specified, the last value given to the model will be used in the first step, and 1 will be use thereafter.}
+\item{D}{Array (optional): A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length. If not specified, the last value given to the model will be used in the first step, and 1 will be use thereafter.}
 
 \item{h}{Matrix (optional): A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.}
 
@@ -40,7 +40,7 @@ forecast_dlm(
 
 \item{plot}{Bool or String: A flag indicating if a plot should be produced. Should be one of FALSE, TRUE, 'base', 'ggplot2' or 'plotly'.}
 
-\item{pred_cred}{Numeric: The credibility level for the I.C. intervals.}
+\item{pred.cred}{Numeric: The credibility level for the I.C. intervals.}
 }
 \value{
 A list containing:
@@ -59,26 +59,28 @@ A list containing:
 Makes predictions for t times ahead using the fitted model.
 }
 \examples{
-T <- 200
-w <- (200 / 40) * 2 * pi
-data <- rpois(T, 20 * (sin(w * 1:T / T) + 2))
+data <- c(AirPassengers)
 
-level <- polynomial_block(rate = 1, D = 0.95)
-season <- harmonic_block(rate = 1, period = 40, D = 0.98)
+level <- polynomial_block(rate = 1, order = 2, D = 0.95)
+season <- harmonic_block(rate = 1, order = 2, period = 12, D = 0.975)
 
-outcome <- Poisson(lambda = "rate", outcome = data)
+outcome <- Poisson(lambda = "rate", data)
 
-fitted_data <- fit_model(level, season, outcomes = outcome)
+fitted.data <- fit_model(level, season,
+  AirPassengers = outcome
+)
 
-# forecast(fitted_data, 20)$plot
+# forecast(fitted.data, 20)$plot
 # Or
-forecast_dlm(fitted_data, 20)$plot
+forecast_dlm(fitted.data, 20)$plot
 
 }
 \seealso{
 Other {auxiliary functions for fitted_dlm objects}: 
+\code{\link{coef.fitted_dlm}()},
+\code{\link{coefficients.fitted_dlm}()},
 \code{\link{dlm_sampling}()},
 \code{\link{eval_past}()},
-\code{\link{fit_model}()}
+\code{\link{forecast.fitted_dlm}()}
 }
 \concept{{auxiliary functions for fitted_dlm objects}}

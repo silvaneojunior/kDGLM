@@ -4,10 +4,10 @@
 \alias{update_Multinom}
 \title{update_Multinom}
 \usage{
-update_Multinom(conj_prior, ft, Qt, y, parms = list())
+update_Multinom(conj.param, ft, Qt, y, parms = list())
 }
 \arguments{
-\item{conj_prior}{list: A vector containing the concentration parameters of the Dirichlet.}
+\item{conj.param}{list: A vector containing the concentration parameters of the Dirichlet.}
 
 \item{ft}{vector: A vector representing the means from the normal distribution. Not used in the default method.}
 
@@ -31,3 +31,4 @@ Other {auxiliary functions for a Multinomial outcome}:
 \code{\link{update_Multinom_alt}()}
 }
 \concept{{auxiliary functions for a Multinomial outcome}}
+\keyword{internal}

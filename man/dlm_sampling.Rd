@@ -4,21 +4,21 @@
 \alias{dlm_sampling}
 \title{dlm_sampling}
 \usage{
-dlm_sampling(model, sample_size, filtered_distr = FALSE)
+dlm_sampling(model, sample.size, filt.distr = FALSE)
 }
 \arguments{
 \item{model}{fitted_dlm: A fitted model from which to sample.}
 
-\item{sample_size}{integer: The number of samples to draw.}
+\item{sample.size}{integer: The number of samples to draw.}
 
-\item{filtered_distr}{bool: A flag indicating if the samples should be dawned from the filtered (if TRUE) or smoothed distribution. The default is FALSE.}
+\item{filt.distr}{bool: A flag indicating if the samples should be dawned from the filtered (if TRUE) or smoothed distribution. The default is FALSE.}
 }
 \value{
 A list containing the following values:
 \itemize{
-   \item mt Array: An array containing the samples of latent states. Dimensions are n x t x sample_size, where n is the number of latent variables in the model and T is the number of observed values.
-   \item ft Array: An array containing the samples of linear predictors. Dimensions are k x t x sample_size, where k is the number of linear predictors in the model and t is the number of observed values.
-   \item param List: A named list containing, for each model outcome, an array with the samples of the parameters of the observational model. Each array will have dimensions l x t x sample_size, where l is the number of parameters in the observational model and t is the number of observed values.
+   \item mt Array: An array containing the samples of latent states. Dimensions are n x t x sample.size, where n is the number of latent variables in the model and t is the number of observed values.
+   \item ft Array: An array containing the samples of linear predictors. Dimensions are k x t x sample.size, where k is the number of linear predictors in the model and t is the number of observed values.
+   \item param List: A named list containing, for each model outcome, an array with the samples of the parameters of the observational model. Each array will have dimensions l x t x sample.size, where l is the number of parameters in the observational model and t is the number of observed values.
 }
 }
 \description{
@@ -26,32 +26,21 @@ This is function draws samples from the latent states using the backward samplin
 }
 \examples{
 
-T <- 200
-mu <- rnorm(T, 0, 0.1)
-data <- rnorm(T, cumsum(mu))
+structure <- polynomial_block(mu = 1, D = 0.95) +
+  polynomial_block(V = 1, D = 0.95)
 
-level <- polynomial_block(
-  mu = 1,
-  D = 0.95
-)
-variance <- polynomial_block(
-  sigma2 = 1
-)
-# Unknown variance
-outcome <- Normal(mu = "mu", Sigma = "sigma2", outcome = data)
+outcome <- Normal(mu = "mu", V = "V", data = cornWheat$corn.log.return[1:500])
+fitted.data <- fit_model(structure, outcome)
 
-fitted_data <- fit_model(level, variance, outcomes = outcome)
-summary(fitted_data)
-
-show_fit(fitted_data, lag = -1)$plot
-
-sample <- dlm_sampling(fitted_data, 2000)
+sample <- dlm_sampling(fitted.data, 5000)
 
 }
 \seealso{
 Other {auxiliary functions for fitted_dlm objects}: 
+\code{\link{coef.fitted_dlm}()},
+\code{\link{coefficients.fitted_dlm}()},
 \code{\link{eval_past}()},
-\code{\link{fit_model}()},
+\code{\link{forecast.fitted_dlm}()},
 \code{\link{forecast_dlm}()}
 }
 \concept{{auxiliary functions for fitted_dlm objects}}

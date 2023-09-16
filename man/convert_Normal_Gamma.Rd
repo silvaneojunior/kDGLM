@@ -4,10 +4,10 @@
 \alias{convert_Normal_Gamma}
 \title{convert_Normal_Gamma}
 \usage{
-convert_Normal_Gamma(conj_prior, parms)
+convert_Normal_Gamma(conj.param, parms)
 }
 \arguments{
-\item{conj_prior}{list: A vector containing the parameters of the Inverse-Gamma (alpha,beta).}
+\item{conj.param}{list: A vector containing the parameters of the Inverse-Gamma (alpha,beta).}
 
 \item{parms}{list: A list of extra known parameters of the distribution. Not used in this function.}
 }

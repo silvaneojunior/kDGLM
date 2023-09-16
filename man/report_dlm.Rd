@@ -5,50 +5,53 @@
 \title{Summary for a fitted kDGLM model}
 \usage{
 report_dlm(
-  fitted_dlm,
-  t = fitted_dlm$t,
+  fitted.dlm,
+  t = fitted.dlm$t,
   lag = -1,
-  metric_lag = 1,
-  metric_cutoff = floor(fitted_dlm$t/10),
-  pred_cred = 0.95
+  metric.lag = 1,
+  metric.cutoff = floor(fitted.dlm$t/10),
+  pred.cred = 0.95
 )
 }
 \arguments{
-\item{fitted_dlm}{A fitted_dlm object.}
+\item{fitted.dlm}{A fitted.dlm object.}
 
 \item{t}{Integer: The time index for the latent states.}
 
 \item{lag}{Integer: The number of steps ahead used for the evaluating the latent variables. Use lag<0 for the smoothed distribution, If lag==0 for the filtered distribution and lag=h for the h-step-ahead prediction.}
 
-\item{metric_lag}{Integer: The number of steps ahead used for the evaluating the predictions used when calculating metrics. Use metric_lag<0 for the smoothed distribution, If metric_lag==0 for the filtered distribution and metric_lag=h for the h-step-ahead prediction.}
+\item{metric.lag}{Integer: The number of steps ahead used for the evaluating the predictions used when calculating metrics. Use metric.lag<0 for the smoothed distribution, If metric.lag==0 for the filtered distribution and metric.lag=h for the h-step-ahead prediction.}
 
-\item{metric_cutoff}{Integer: The cutoff time index for the metric calculation. Values before that time will be ignored.}
+\item{metric.cutoff}{Integer: The cutoff time index for the metric calculation. Values before that time will be ignored.}
 
-\item{pred_cred}{numeric: The credibility interval to be used for the interval score.}
+\item{pred.cred}{numeric: The credibility interval to be used for the interval score.}
 }
 \description{
-Prints a report for a fitted_dlm object.
+Prints a report for a fitted.dlm object.
 }
 \examples{
 
-T <- 200
-w <- (200 / 40) * 2 * pi
-data <- rpois(T, 20 * (sin(w * 1:T / T) + 2))
+data <- c(AirPassengers)
 
-level <- polynomial_block(rate = 1, D = 0.95)
-season <- harmonic_block(rate = 1, period = 40, D = 0.98)
+level <- polynomial_block(rate = 1, order = 2, D = 0.95)
+season <- harmonic_block(rate = 1, order = 2, period = 12, D = 0.975)
 
-outcome <- Poisson(lambda = "rate", outcome = data)
+outcome <- Poisson(lambda = "rate", data)
 
-fitted_data <- fit_model(level, season, outcomes = outcome)
-report_dlm(fitted_data)
+fitted.data <- fit_model(level, season,
+  AirPassengers = outcome
+)
+# summary(fitted.data)
+# or
+report_dlm(fitted.data)
 
 }
 \seealso{
-Other {auxiliary visualization functions for the fitted_dlm class}: 
-\code{\link{plot_lat_var}()},
-\code{\link{plot_lin_pred}()},
+Other {auxiliary visualization functions for the fitted.dlm class}: 
+\code{\link{print.dlm_distr}()},
+\code{\link{print.searched_dlm}()},
 \code{\link{report_searched_dlm}()},
-\code{\link{show_fit}()}
+\code{\link{summary.fitted_dlm}()},
+\code{\link{summary.searched_dlm}()}
 }
-\concept{{auxiliary visualization functions for the fitted_dlm class}}
+\concept{{auxiliary visualization functions for the fitted.dlm class}}

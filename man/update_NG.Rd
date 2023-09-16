@@ -4,10 +4,10 @@
 \alias{update_NG}
 \title{update_NG}
 \usage{
-update_NG(conj_prior, ft, Qt, y, parms = list())
+update_NG(conj.param, ft, Qt, y, parms = list())
 }
 \arguments{
-\item{conj_prior}{list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta).}
+\item{conj.param}{list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta).}
 
 \item{ft}{vector: A vector representing the means from the normal distribution. Not used in the default method.}
 

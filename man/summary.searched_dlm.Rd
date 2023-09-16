@@ -14,4 +14,13 @@
 \description{
 summary method for class searched_dlm
 }
+\seealso{
+Other {auxiliary visualization functions for the fitted.dlm class}: 
+\code{\link{print.dlm_distr}()},
+\code{\link{print.searched_dlm}()},
+\code{\link{report_dlm}()},
+\code{\link{report_searched_dlm}()},
+\code{\link{summary.fitted_dlm}()}
+}
+\concept{{auxiliary visualization functions for the fitted.dlm class}}
 \keyword{internal}

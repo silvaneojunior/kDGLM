@@ -4,14 +4,14 @@
 \alias{Multinom}
 \title{Multinom outcome for kDGLM models}
 \usage{
-Multinom(p, outcome, offset = outcome^0, alt_method = FALSE)
+Multinom(p, data, offset = as.matrix(data)^0)
 }
 \arguments{
-\item{p}{character: a vector with the name of the linear predictor associated with the probality of each category (except the base one, which is assumed to be the last).}
+\item{p}{character: a vector with the name of the linear predictor associated with the probability of each category (except the base one, which is assumed to be the last).}
 
-\item{outcome}{vector: Values of the observed data.}
+\item{data}{vector: Values of the observed data.}
 
-\item{offset}{vector: The offset at each observation. Must have the same shape as outcome.}
+\item{offset}{vector: The offset at each observation. Must have the same shape as data.}
 }
 \value{
 A object of the class dlm_distr
@@ -26,23 +26,17 @@ For the details about the implementation see  \insertCite{ArtigoPacote;textual}{
 }
 \examples{
 
-# Multinomial case
-T <- 200
-y1 <- rpois(T, exp(5 + (-T:T / T) * 5))
-y2 <- rpois(T, exp(6 + (-T:T / T) * 5 + sin((-T:T) * (2 * pi / 12))))
-y3 <- rpois(T, exp(5))
+structure <- (
+  polynomial_block(p = 1, order = 2, D = 0.95) +
+    harmonic_block(p = 1, period = 12, D = 0.975) +
+    noise_block(p=1,R1=0.1)+
+    regression_block(p = as.Date('2013-09-1')) # Vaccine was introduced in September of 2013
+) * 4
 
-y <- cbind(y1, y2, y3)
-
-level1 <- polynomial_block(p1 = 1, order = 2)
-level2 <- polynomial_block(p2 = 1, order = 2)
-season <- harmonic_block(p2 = 1, period = 12)
-outcome <- Multinom(p = c("p1", "p2"), outcome = y)
-
-fitted_data <- fit_model(level1, level2, season, outcomes = outcome)
-summary(fitted_data)
-
-show_fit(fitted_data, lag = -1)$plot
+outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
+fitted.data <- fit_model(structure, outcome)
+summary(fitted.data)
+plot(fitted.data, plot.pkg = "base")
 
 }
 \references{
@@ -55,6 +49,7 @@ Other {auxiliary functions for a creating outcomes}:
 \code{\link{Gamma}()},
 \code{\link{Normal}()},
 \code{\link{Poisson}()},
-\code{\link{report_distr}()}
+\code{\link{report_distr}()},
+\code{\link{summary.dlm_distr}()}
 }
 \concept{{auxiliary functions for a creating outcomes}}
