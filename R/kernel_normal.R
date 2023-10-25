@@ -2,13 +2,16 @@
 
 #' Normal outcome for kDGLM models
 #'
-#' Creates an outcome with Normal distribution with the chosen parameters (can only specify 2,).
+#' Creates an outcome with Normal distribution with the chosen parameters (can only specify 2).
 #'
 #' @param mu character: Name of the linear predictor associated with the mean parameter of the Normal distribution. The parameter is treated as unknown and equal to the associated linear predictor.
-#' @param V character or numeric: If V is a character, it is interpreted as the names of the linear predictors associated with the variance parameter of the Normal distribution. If V is numeric, the variance is considered known and equal to the value of V, otherwise, the variance is considered unknown and equal to the exponential of the linear predictor informed in V. If the outcome is a Multivariate Normal, then V must be a matrix and, if the variance is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise V is treated as the covariance matrix. The user cannot specify V with Sigma, Tau or Sd.
-#' @param Tau character or numeric: If Tau is a character, it is interpreted as the names of the linear predictors associated with the precisions parameter of the Normal distribution. If Tau is numeric, the precision is considered known and equal to the value of Tau, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed in Tau. If the outcome is a Multivariate Normal, then Tau must be a matrix and, if the precision is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise Tau is treated as the precision matrix. The user cannot specify Tau with V, Sigma or Sd.
-#' @param Sigma character or numeric: If Sigma is a character, it is interpreted as the names of the linear predictors associated with the variance parameter of the Normal distribution. If Sigma is numeric, the variance is considered known and equal to the value of Sigma, otherwise, the variance is considered unknown and equal to the exponential of the linear predictor informed in Sigma. If the outcome is a Multivariate Normal, then Sigma must be a matrix and, if the variance is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise Sigma is treated as the covariance matrix. The user cannot specify Sigma with V, Tau or Sd.
-#' @param Sd character or numeric: If Sd is a character, it is interpreted as the names of the linear predictors associated with the standard deviation parameter of the Normal distribution. If Sd is numeric, the standard deviation is considered known and equal to the value of Sd, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed by in Sd. If the outcome is a Multivariate Normal, then Tau must be a matrix and the elements outside its main diagonal are treated as the correlation (or the name of the linear predictor associated) between each coordinate of the outcome. The user cannot specify Sd with V, Tau or Sigma.
+#' @param V character or numeric: If V is a character, it is interpreted as the names of the linear predictors associated with the variance parameter of the Normal distribution. If V is numeric, the variance is considered known and equal to the value of V, otherwise, the variance is considered unknown and equal to the exponential of the linear predictor informed in V. If the outcome is a Multivariate Normal, then V must be a matrix and, if the variance is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise V is treated as the covariance matrix. The user cannot specify V with Sigma, Tau, Sd, n0 or d0.
+#' @param Tau character or numeric: If Tau is a character, it is interpreted as the names of the linear predictors associated with the precisions parameter of the Normal distribution. If Tau is numeric, the precision is considered known and equal to the value of Tau, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed in Tau. If the outcome is a Multivariate Normal, then Tau must be a matrix and, if the precision is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise Tau is treated as the precision matrix. The user cannot specify Tau with V, Sigma, Sd, n0 or d0.
+#' @param Sigma character or numeric: If Sigma is a character, it is interpreted as the names of the linear predictors associated with the variance parameter of the Normal distribution. If Sigma is numeric, the variance is considered known and equal to the value of Sigma, otherwise, the variance is considered unknown and equal to the exponential of the linear predictor informed in Sigma. If the outcome is a Multivariate Normal, then Sigma must be a matrix and, if the variance is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise Sigma is treated as the covariance matrix. The user cannot specify Sigma with V, Tau, Sd, n0 or d0.
+#' @param Sd character or numeric: If Sd is a character, it is interpreted as the names of the linear predictors associated with the standard deviation parameter of the Normal distribution. If Sd is numeric, the standard deviation is considered known and equal to the value of Sd, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed by in Sd. If the outcome is a Multivariate Normal, then Tau must be a matrix and the elements outside its main diagonal are treated as the correlation (or the name of the linear predictor associated) between each coordinate of the outcome. The user cannot specify Sd with V, Tau, Sigma, n0 or d0.
+#' @param n0 Numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify n0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.
+#' @param d0 Numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify d0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.
+#' @param delta Numeric: The discount factor for the observational variance. This option is meant only for didactic reasons, we discourage its usage.
 #' @param data vector: Values of the observed data.
 #' @param offset vector: The offset at each observation. Must have the same shape as data.
 #'
@@ -43,7 +46,8 @@
 #'
 #' @details
 #'
-#' For evaluating the posterior parameters, we use the method proposed in \insertCite{ArtigokParametrico;textual}{kDGLM}.
+#' If V/Sigma/Tau/Sd is a string, we use the method proposed in \insertCite{ArtigokParametrico;textual}{kDGLM}.
+#' Otherwise, if V/Sigma/Tau/Sd is numeric or n0 and d0 are not NA, we follow the theory presented in \insertCite{WestHarr-DLM;textual}{kDGLM}.
 #'
 #' For the details about the implementation see  \insertCite{ArtigoPacote;textual}{kDGLM}.
 #'
@@ -52,12 +56,26 @@
 #'
 #' @references
 #'    \insertAllCited{}
-Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, data) {
-  offset = as.matrix(data)**0
+Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, n0 = NA, d0 = NA, delta = 1, data) {
+  offset <- as.matrix(data)**0
   alt.method <- FALSE
   data <- as.matrix(data)
   t <- if.null(dim(data)[1], length(data))
   r <- if.null(dim(data)[2], 1)
+
+  if (is.na(n0) != is.na(d0)) {
+    stop("Error: n0 and d0 must be BOTH numeric or BOTH NA.")
+  }
+  parms <- list()
+  alt.var <- FALSE
+  if (!is.na(n0)) {
+    alt.var <- TRUE
+    Tau <- "Obs.Prec."
+    parms$n0 <- n0
+    parms$d0 <- d0
+    parms$delta <- delta
+  }
+  parms$alt.var <- alt.var
 
   # mu=deparse(substitute(mu))[[1]] |> check.expr()
   # V=deparse(substitute(V))[[1]] |> check.expr()
@@ -154,7 +172,9 @@ Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, data) {
       update = update_Normal,
       smoother = generic_smoother,
       calc_pred = normal_pred,
-      apply_offset = function(ft, Qt, offset) {list("ft" = ft, "Qt" = Qt)},
+      apply_offset = function(ft, Qt, offset) {
+        list("ft" = ft, "Qt" = Qt)
+      },
       link_function = function(x) {
         x
       },
@@ -166,7 +186,7 @@ Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, data) {
       },
       param.names = generic_param_names(r)
     )
-    parms <- list(V = Var)
+    parms$V <- Var
     convert.mat.canom <- convert.mat.default <- diag(r)
     convert.canom.flag <- FALSE
 
@@ -195,11 +215,15 @@ Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, data) {
     distr <- list(
       conj_distr = if (r > 1) {
         convert_multi_NG_Normal
+      } else if (alt.var) {
+        convert_Normal_Gamma_Normal
       } else {
         convert_NG_Normal
       },
       norm_distr = if (r > 1) {
         convert_multi_Normal_NG
+      } else if (alt.var) {
+        convert_Normal_Normal_Gamma
       } else {
         convert_Normal_NG
       },
@@ -214,7 +238,9 @@ Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, data) {
       },
       smoother = generic_smoother,
       calc_pred = multi_normal_gamma_pred,
-      apply_offset = function(ft, Qt, offset) {list("ft" = ft, "Qt" = Qt)},
+      apply_offset = function(ft, Qt, offset) {
+        list("ft" = ft, "Qt" = Qt)
+      },
       link_function = if (r > 1) {
         function(x) {
           x[var.index, ] <- log(x[var.index, ])
@@ -292,13 +318,16 @@ Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, data) {
       distr$param.names <- paste(rep(distr$param.names, r), sort(rep(mu.index, 4)), sep = ".")
     }
 
-    parms <- list(
-      alt.method = alt.method,
-      mu.index = mu.index,
-      var.index = var.index,
-      cor.index = cor.index,
-      upper.index = upper.index,
-      lower.index = lower.index
+    parms <- append(
+      parms,
+      list(
+        alt.method = alt.method,
+        mu.index = mu.index,
+        var.index = var.index,
+        cor.index = cor.index,
+        upper.index = upper.index,
+        lower.index = lower.index
+      )
     )
     convert.mat.canom <- convert.mat.default <- diag(k)
     convert.canom.flag <- FALSE
@@ -450,6 +479,51 @@ normal_pred <- function(conj.param, outcome = NULL, parms = list(), pred.cred = 
     "icu.pred" = icu.pred,
     "log.like" = log.like
   )
+}
+
+convert_Normal_Gamma_Normal <- function(ft, Qt, parms = list()) {
+  ft <- matrix(ft, 2, 1)
+  mu0 <- ft[1, ]
+
+  # if(ft[2,]<=0){
+  #   stop('Error: Precision mean cannot be negative.')
+  # }
+  # beta <- ft[2,]/Qt[2,2]
+  # alpha <- ft[2,]*beta
+
+  helper <- -3 + 3 * sqrt(1 + 2 * Qt[2, 2] / 3)
+  alpha <- 1 / helper
+  alpha <- f_root(
+    function(x) {
+      trigamma(x) - Qt[2, 2]
+    },
+    function(x) {
+      psigamma(x, 2)
+    },
+    alpha,
+    tol = 1e-15
+  )$root
+  beta <- exp(digamma(alpha) - ft[2, ])
+
+  c0 <- beta / (Qt[1, 1] * alpha)
+  return(list("mu0" = mu0, "c0" = c0, "alpha" = alpha, "beta" = beta))
+}
+
+convert_Normal_Normal_Gamma <- function(conj.param, parms = list()) {
+  f1 <- conj.param$mu
+  # f2 <- conj.param$alpha/conj.param$beta
+  f2 <- digamma(conj.param$alpha) - log(conj.param$beta)
+  q1 <- conj.param$beta / (conj.param$c * conj.param$alpha)
+  # q2 <- conj.param$alpha/(conj.param$beta**2)
+  q2 <- trigamma(conj.param$alpha)
+  # helper=1/conj.param$alpha
+  # q2 <- 3*((helper/3+1)**2-1)/2
+
+  q12 <- 0
+
+  ft <- c(f1, f2)
+  Qt <- matrix(c(q1, q12, q12, q2), byrow = F, ncol = 2)
+  return(list("ft" = ft, "Qt" = Qt))
 }
 
 ##### Normal with unknown variance #####

@@ -16,8 +16,6 @@ noise_block(..., name = "Noise", D = 0.99, R1 = 0.1, H = 0)
 \item{R1}{scalar: The prior variance of the noise.}
 
 \item{H}{scalar: The variance of the noise. If both D and H are specified, the value of D is ignored.}
-
-\item{monitoring}{}
 }
 \value{
 A dlm_block object containing the following values:
@@ -60,7 +58,7 @@ For the details about dynamic regression models in the context of DLM's, see \in
 }
 \examples{
 
-noise_block(mu=1,D=0.99,R1=1e-2)
+noise_block(mu = 1, D = 0.99, R1 = 1e-2)
 
 }
 \references{
@@ -73,6 +71,7 @@ Other {auxiliary functions for structural blocks}:
 \code{\link{*.dlm_block}()},
 \code{\link{+.dlm_block}()},
 \code{\link{AR_block}()},
+\code{\link{PCAR_block}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},

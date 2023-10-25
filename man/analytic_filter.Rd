@@ -54,8 +54,10 @@ A list containing the following values:
    \item Ct Array: A 3D-array containing the filtered covariance matrix of the latent variable for each time. Dimensions are n x n x t.
    \item at Matrix: The one-step-ahead mean of the latent variables at each time. Dimensions are n x t.
    \item Rt Array: A 3D-array containing the one-step-ahead covariance matrix for latent variables at each time. Dimensions are n x n x t.
-   \item ft Matrix: The one-step-ahead linear predictor for each time. Dimensions are m x t.
-   \item Qt Array: A 3D-array containing the one-step-ahead covariance matrix for the linear predictor for each time. Dimensions are m x m x t.
+   \item ft Matrix: The one-step-ahead mean of the linear predictors at each time. Dimensions are k x t.
+   \item Qt Array: A 3D-array containing the one-step-ahead covariance matrix for linear predictors at each time. Dimensions are k x k x t.
+   \item ft.star Matrix: The filtered mean of the linear predictors for each time. Dimensions are k x t.
+   \item Qt.star Array: A 3D-array containing the linear predictors matrix of the latent variable for each time. Dimensions are k x k x t.
    \item FF Array: The same as the argument (same values).
    \item G Matrix: The same as the argument (same values).
    \item G.labs Matrix: The same as the argument (same values).

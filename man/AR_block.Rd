@@ -14,7 +14,7 @@ AR_block(
   AR.support = "free",
   h = 0,
   a1 = 0,
-  R1 = 0.1,
+  R1 = 4,
   monitoring = TRUE,
   D.coef = 1,
   h.coef = 0,
@@ -136,6 +136,7 @@ AR_block(mu = 1, pulse = beaver1$activ, order = 1)
 Other {auxiliary functions for structural blocks}: 
 \code{\link{*.dlm_block}()},
 \code{\link{+.dlm_block}()},
+\code{\link{PCAR_block}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},

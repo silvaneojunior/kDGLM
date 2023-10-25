@@ -24,8 +24,8 @@
 #' structure <- (
 #'   polynomial_block(p = 1, order = 2, D = 0.95) +
 #'     harmonic_block(p = 1, period = 12, D = 0.975) +
-#'     noise_block(p=1,R1=0.1)+
-#'     regression_block(p = as.Date('2013-09-1')) # Vaccine was introduced in September of 2013
+#'     noise_block(p = 1, R1 = 0.1) +
+#'     regression_block(p = as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
 #' ) * 4
 #'
 #' outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
@@ -39,8 +39,12 @@
 #' @references
 #'    \insertAllCited{}
 Multinom <- function(p, data, offset = as.matrix(data)**0) {
+  if(any(ceiling(data)!=floor(data))){
+    stop('Error: data must be an intenger matrix.')
+  }
   alt.method <- FALSE
   data <- as.matrix(data)
+  offset <- as.matrix(offset)
 
   # p=deparse(substitute(p))[[1]] |> check.expr()
 
@@ -157,10 +161,18 @@ convert_Multinom_Normal <- function(ft, Qt, parms = list()) {
   p0 <- exp(c(ft, 0))
   p <- p0 / sum(p0)
 
+  # print('a')
+  # print(ft)
+  # print(Qt)
+
+  # h <- -3 + 3 * sqrt(1 + 2 * diag(Qt) / 3)
+  # alpha <- (1 / h)
+  # print(p * sum(alpha))
+
   ss1 <- f_root(system_multinom,
     jacob_multinom,
-    # start = log(c(rep(0.01, r-1), 0.01 * r)))
-    start = log(c(p[-r], 1) * 1)
+    start = log(c(rep(0.01, r - 1), 0.01 * r))
+    # start = log(p * sum(alpha))
   )
 
   tau <- exp(as.numeric(ss1$root))
@@ -308,21 +320,21 @@ multnom_pred <- function(conj.param, outcome, parms = list(), pred.cred = 0.95) 
         x_alpha_mat <- x_mat + alpha_mat
 
         lgamma_x_alpha_mat <- lgamma(x_alpha_mat)
-        lgamma_neg_x_alpha_mat <- lgamma(N+alpha0-x_alpha_mat)
+        lgamma_neg_x_alpha_mat <- lgamma(N + alpha0 - x_alpha_mat)
 
         lgamma_alpha_mat <- matrix(lgamma(alpha), N + 1, r, byrow = TRUE)
-        lgamma_neg_alpha_mat <- matrix(lgamma(alpha0-alpha), N + 1, r, byrow = TRUE)
+        lgamma_neg_alpha_mat <- matrix(lgamma(alpha0 - alpha), N + 1, r, byrow = TRUE)
 
-        lgamma_x_mat <- matrix(lgamma(seq_len(N+1)), N + 1, r)
-        lgamma_neg_x_mat <- matrix(lgamma(N:0+1), N + 1, r)
+        lgamma_x_mat <- matrix(lgamma(seq_len(N + 1)), N + 1, r)
+        lgamma_neg_x_mat <- matrix(lgamma(N:0 + 1), N + 1, r)
 
         prob_mat <-
           lgamma_x_alpha_mat +
           lgamma_neg_x_alpha_mat +
-          - lgamma_alpha_mat +
-          - lgamma_neg_alpha_mat +
-          - lgamma_x_mat +
-          - lgamma_neg_x_mat
+          -lgamma_alpha_mat +
+          -lgamma_neg_alpha_mat +
+          -lgamma_x_mat +
+          -lgamma_neg_x_mat
 
         prob_mat <- exp(const + prob_mat)
         probs_acum <- colCumSums(prob_mat)
@@ -373,6 +385,10 @@ multnom_pred <- function(conj.param, outcome, parms = list(), pred.cred = 0.95) 
 #' @references
 #'    \insertAllCited{}
 update_Multinom_alt <- function(conj.param, ft, Qt, y, parms = list()) {
+  # y=c(0,740)
+  # ft=-10.47013
+  # Qt=1
+
   f0 <- ft
   S0 <- ginv(Qt)
   n <- sum(y)

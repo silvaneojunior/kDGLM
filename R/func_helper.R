@@ -45,12 +45,20 @@ if.nan <- function(vec, val) {
 #' @param expr A string or expression.
 #'
 #' @keywords internal
-check.expr=function(expr){
-  val=tryCatch({expr |> str2expression() |> eval()},error=function(e){
-    (expr |>
-      gsub(pattern='c(',replacement='',x=_,fixed = TRUE) |>
-      gsub(pattern=')',replacement='',x=_,fixed = TRUE) |>
-      strsplit(', '))[[1]]})
+check.expr <- function(expr) {
+  val <- tryCatch(
+    {
+      expr |>
+        str2expression() |>
+        eval()
+    },
+    error = function(e) {
+      (expr |>
+        gsub(pattern = "c(", replacement = "", x = _, fixed = TRUE) |>
+        gsub(pattern = ")", replacement = "", x = _, fixed = TRUE) |>
+        strsplit(", "))[[1]]
+    }
+  )
 }
 
 #' var_decomp
@@ -216,14 +224,10 @@ evaluate_max <- function(pre.max) {
   value <- 10**(floor(log10(max(pre.max))))
   if (category < 0.1) {
     value <- value / 10
-  } else {
-    if (category < 0.25) {
-      value <- value / 5
-    } else {
-      if (category < 0.5) {
-        value <- value / 2
-      }
-    }
+  } else if (category < 0.25) {
+    value <- value / 5
+  } else if (category < 0.5) {
+    value <- value / 2
   }
   interval.size <- (pre.max %/% value) + 2
   max.value <- value * interval.size
@@ -301,6 +305,45 @@ f_root <- function(f, df, start, tol = 1e-8, n.max = 1000) {
     x.root <- x.root + change
     fx <- f(x.root)
     dfx <- df(x.root)
+    error <- max(abs(fx))
+  }
+  if (count >= n.max) {
+    warning("Steady state not reached.\n")
+  }
+  return(list("root" = x.root, "f.root" = fx, "inter." = count))
+}
+
+#' f_joint_root
+#'
+#' Calculates the root of a function given an initial value and a function to calculate its derivatives.
+#'
+#' @param f function: A function that receives a vector and return a vector of the same size and a matrix representing its derivatives.
+#' @param start vector: The initial value to start the algorithm.
+#' @param tol numeric: The tolerance for the solution.
+#' @param n.max numeric: The maximum number of iterations allowed.
+#'
+#' @return A list containing:
+#' \itemize{
+#'    \item root vector: The solution for the system f(x)=0.
+#'    \item f.root vector: The function f evaluated at the root.
+#'    \item iter numeric: The number of steps taken.
+#' }
+#'
+#' @keywords internal
+f_joint_root <- function(f, start, tol = 1e-8, n.max = 1000) {
+  x.root <- start
+  fx.joint <- f(x.root)
+  fx <- fx.joint[[1]]
+  dfx <- fx.joint[[2]]
+  error <- max(abs(fx))
+  count <- 0
+  while (error >= tol && count < n.max) {
+    count <- count + 1
+    change <- solve(dfx, -fx)
+    x.root <- x.root + change
+    fx.joint <- f(x.root)
+    fx <- fx.joint[[1]]
+    dfx <- fx.joint[[2]]
     error <- max(abs(fx))
   }
   if (count >= n.max) {

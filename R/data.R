@@ -13,15 +13,16 @@
 #' @source \link{https://www.macrotrends.net/charts/commodities}
 "cornWheat"
 
-#' Hospital admissions by chicken pox in Brazil
+#' SARI data from Belo Horizonte
 #'
-#' Monthly hospital admissions by chicken pox in Brazil from January 2010 to December 2019.
+#' A dataset containing reports from Severe Acute Respiratory Illness (SARI) from 2020 to April 2022 by week.
 #'
-#' @format
-#' A data frame with 120 rows and 6 columns:
+#' @format A data frame with 65404 rows and 7 variables:
 #' \describe{
-#'   \item{date}{The date of the observations.}
-#'   \item{< 5 year, 5 to 9 years, 10 to 14 years, 15 to 49 years, 50 years or more}{The number of admissions for each age group.}
+#'   \item{ref.week}{The reference week, counting since the monitoring begun.}
+#'   \item{reported.k.week}{The number of cases occurred in the period and reported until the k weeks after the reference week.}
+#'   \item{occured}{The total number of cases reported (at any time).}
+#'   ...
 #' }
-#' @source \link{https://datasus.saude.gov.br/informacoes-de-saude-tabnet/}
-"chickenPox"
+#' @source \url{https://opendatasus.saude.gov.br/}
+"noticeSARI"

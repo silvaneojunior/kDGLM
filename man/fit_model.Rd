@@ -24,10 +24,6 @@ A fitted_dlm object. Contains:
    \item Ct Array: A 3D-array containing the filtered covariance matrix of the latent variable for each time. Dimensions are n x n x t.
    \item mts Matrix: The smoothed mean of the latent variables for each time. Dimensions are n x t. Only available if smooth=TRUE.
    \item Cts Array: A 3D-array containing the smoothed covariance matrix of the latent variable for each time. Dimensions are n x n x t. Only available if smooth=TRUE.
-   \item at Matrix: The one-step-ahead mean of the latent variables at each time. Dimensions are n x t.
-   \item Rt Array: A 3D-array containing the one-step-ahead covariance matrix for latent variables at each time. Dimensions are n x n x t.
-   \item ft Matrix: The one-step-ahead linear predictor for each time. Dimensions are k x t.
-   \item Qt Array: A 3D-array containing the one-step-ahead covariance matrix for the linear predictor for each time. Dimensions are k x k x t.
    \item FF Array: The same as the argument (same values).
    \item G Matrix: The same as the argument (same values).
    \item G.labs Matrix: The same as the argument (same values).
@@ -85,8 +81,8 @@ plot(fitted.data, plot.pkg = "base")
 structure <- (
   polynomial_block(p = 1, order = 2, D = 0.95) +
     harmonic_block(p = 1, period = 12, D = 0.975) +
-    noise_block(p=1,R1=0.1)+
-    regression_block(p = as.Date('2013-09-1')) # Vaccine was introduced in September of 2013
+    noise_block(p = 1, R1 = 0.1) +
+    regression_block(p = as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
 ) * 4
 
 outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])

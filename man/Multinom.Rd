@@ -29,8 +29,8 @@ For the details about the implementation see  \insertCite{ArtigoPacote;textual}{
 structure <- (
   polynomial_block(p = 1, order = 2, D = 0.95) +
     harmonic_block(p = 1, period = 12, D = 0.975) +
-    noise_block(p=1,R1=0.1)+
-    regression_block(p = as.Date('2013-09-1')) # Vaccine was introduced in September of 2013
+    noise_block(p = 1, R1 = 0.1) +
+    regression_block(p = as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
 ) * 4
 
 outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])

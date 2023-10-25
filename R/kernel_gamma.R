@@ -37,6 +37,9 @@
 #' @references
 #'    \insertAllCited{}
 Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, offset = as.matrix(data)**0) {
+  if(any(data<=0)){
+    stop('Error: data must be a positive vector/matrix.')
+  }
   alt.method <- FALSE
   data <- as.matrix(data)
 
@@ -54,7 +57,7 @@ Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, of
     if (any(!is.na(c(alpha, beta, sigma)))) {
       stop("Error: When phi is known only mu can be estimated.")
     }
-    pred.names <- c("Mean (mu)"=mu)
+    pred.names <- c("Mean (mu)" = mu)
     convert.mat.default <- convert.mat.canom <- diag(1)
     convert.canom.flag <- FALSE
     distr <- list(
@@ -96,7 +99,7 @@ Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, of
     if (all(flags[4:5])) {
       stop("Error: Scale specified in more than one variable.")
     }
-    if (all(flags[c(1,3)])) {
+    if (all(flags[c(1, 3)])) {
       stop("Error: Shape specified in more than one variable.")
     }
     convert.mat.default <- matrix(c(1, 0, 0, 1, 1, 0, 1, -1, -2, 2), 2, 5)[, flags]

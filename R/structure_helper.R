@@ -88,8 +88,8 @@ base_block <- function(..., order, name,
     t
   }
 
-  if(t==1 & is.null(dim(h)) & length(h)!=order){
-    t=length(h)
+  if (t == 1 & is.null(dim(h)) & length(h) != order) {
+    t <- length(h)
   }
   if (!(length(h) %in% c(1, order, t, order * t))) {
     stop(paste0("Error: Invalid shape for h. Expected ", order, "x", t, ". Got ", paste(if (is.null(dim(h))) {
@@ -128,18 +128,13 @@ base_block <- function(..., order, name,
   FF <- ifelse(not.observed.flag, 0, FF)
 
   G <- diag(order)
-
-  a1 <- if (length(a1) == 1) {
-    rep(a1, order)
-  } else {
-    a1
+  if (length(a1) == 1) {
+    a1 <- rep(a1, order)
   }
   if (length(R1) == 1 | is.vector(R1)) {
     pre.R1 <- diag(order)
     diag(pre.R1) <- R1
     R1 <- pre.R1
-  } else {
-    R1
   }
 
 
@@ -371,8 +366,8 @@ harmonic_block <- function(..., period, order = 1, name = "Var.Sazo",
                            D = 1, h = 0, H = 0,
                            a1 = 0, R1 = 4,
                            monitoring = rep(FALSE, order * 2)) {
-  if(order>period/2 & order>1){
-    stop('Error: order should be lesser or equal to period/2.')
+  if (order > period / 2 & order > 1) {
+    stop("Error: order should be lesser or equal to period/2.")
   }
   w <- 2 * pi / period
 
@@ -447,7 +442,7 @@ harmonic_block <- function(..., period, order = 1, name = "Var.Sazo",
 #' structure <- (
 #'   polynomial_block(p = 1, order = 2, D = 0.95) +
 #'     harmonic_block(p = 1, period = 12, D = 0.95) +
-#'     regression_block(p = as.Date('2013-09-1')) # Vaccine was introduced in September of 2013
+#'     regression_block(p = as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
 #' ) * 4
 #'
 #' outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
@@ -588,7 +583,7 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #' @references
 #'    \insertAllCited{}
 AR_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0, name = "Var.AR", AR.support = "free",
-                     h = 0, a1 = 0, R1 = 0.1, monitoring = TRUE,
+                     h = 0, a1 = 0, R1 = 4, monitoring = TRUE,
                      D.coef = 1, h.coef = 0, H.coef = 0, a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)), monitoring.coef = rep(FALSE, order),
                      D.pulse = 1, h.pulse = 0, H.pulse = 0, a1.pulse = 0, R1.pulse = 4, monitoring.pulse = FALSE) {
   if (AR.support == "constrained" & order > 1) {
@@ -673,7 +668,7 @@ AR_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
     if (length(h.pulse) > 1 & length(dim(h.pulse)) < 2) {
       h.pulse <- matrix(h.pulse, order, length(h.pulse))
     }
-    if (length(monitoring.pulse)==1) {
+    if (length(monitoring.pulse) == 1) {
       monitoring.pulse <- rep(FALSE, k)
     }
     block.pulse <-
@@ -703,7 +698,6 @@ AR_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
 #' @param D scalar or vector: A sequence of values specifying the desired discount factor for each time. It should have length 1 or t, where t is the size of the series. If both D and H are specified, the value of D is ignored.
 #' @param R1 scalar: The prior variance of the noise.
 #' @param H scalar: The variance of the noise. If both D and H are specified, the value of D is ignored.
-#' @param monitoring
 #'
 #' @return A dlm_block object containing the following values:
 #' \itemize{
@@ -728,7 +722,7 @@ AR_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
 #' @export
 #' @examples
 #'
-#' noise_block(mu=1,D=0.99,R1=1e-2)
+#' noise_block(mu = 1, D = 0.99, R1 = 1e-2)
 #'
 #' @details
 #'
@@ -753,33 +747,133 @@ AR_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
 noise_block <- function(..., name = "Noise",
                         D = 0.99, R1 = 0.1,
                         H = 0) {
-  labs='noise.disc'
-  if(any(H>0) | is.character(H)){
-    warning('H is non-zero, ignoring the discount factor.')
-    D=1
-    R1=H
-    labs='noise'
+  labs <- "noise.disc"
+  if (any(H > 0) | is.character(H)) {
+    if (D > 1) {
+      warning("H is non-zero, ignoring the discount factor.")
+    }
+    D <- 1
+    R1 <- H
+    labs <- "noise"
   }
   block <- base_block(...,
-                      order = 1, name = name,
-                      D = D, h = 0, H = H,
-                      a1 = 0, R1 = R1,
-                      monitoring = FALSE
+    order = 1, name = name,
+    D = D, h = 0, H = H,
+    a1 = 0, R1 = R1,
+    monitoring = FALSE
   )
 
-  block$G[,,] <- 0
-  block$G.labs[,] <- labs
+  block$G[, , ] <- 0
+  block$G.labs[, ] <- labs
 
   var.labs <- c(1)
   names(var.labs) <- "Var"
   block$var.names <- list()
   block$var.names[[name]] <- var.labs
-  block$type='Noise'
+  block$type <- "Noise"
   return(block)
 }
 
--715.1862
--745.9057
+#' PCAR_block
+#'
+#' Creates the structure for a random effect with Proper Conditional Autoregressive (PCAR) prior. This block represents an independent random noise that should be added to the linear predictor.
+#'
+#' @param ... Named values for the planning matrix.
+#' @param adj.matrix Matrix: The adjacency matrix.
+#' @param tau Numeric: The tau parameter for the PCAR model (see references).
+#' @param rho Numeric: The rho parameter for the PCAR model (see references).
+#' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
+#' @param D Array, Matrix, vector or scalar: The values for the discount factors associated with the latent variables at each time. If D is an array, its dimensions should be n x n x t, where n is the order of the polynomial block and t is the length of the outcomes. If D is a matrix, its dimensions should be n x n and the same discount matrix will be used in all observations. If D is a vector, it should have size t and it is interpreted as the discount factor at each observed time (same discount for all variable). If D is a scalar, the same discount will be used for all latent variables at all times.
+#' @param h Matrix, vector or scalar: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, its dimension should be n x t, where n is the number of latent variables (i.e., the order) and t is the length of the series. If a vector, it should have size t, and each value will be applied to the first latent variable (the one which affects the linear predictors) in their respective time. If a scalar, the passed value will be used for the first latent variable at each time.
+#' @param H Array, Matrix, vector or scalar: The values for the covariance matrix for the noise factor at each time. If H is an array, its dimensions should be n x n x t, where n is the order of the polynomial block and t is the length of the series. If H is a matrix, its dimensions should be n x n and its values will be used for each time. If H is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of H in the diagonal.
+#' @param a1 Vector or scalar: The prior mean for the latent variables associated with this block at time 1. If a1 is a vector, its dimension should be equal to the order of the polynomial block. If a1 is a scalar, its value will be used for all latent variables.
+#' @param R1 Matrix, vector or scalar: The prior covariance matrix for the latent variables associated with this block at time 1. If R1 is a matrix, its dimensions should be n x n. If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal. If not null, tau and rho are ignored.
+#' @param monitoring Vector: A vector of flags indicating which variables should be monitored (if automated monitoring is used). Its size should be n. The default is that only the first order component of this structure should be monitored.
+#'
+#' @return A dlm_block object containing the following values:
+#' \itemize{
+#'    \item FF Array: A 3D-array containing the regression matrix for each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model and t is the time series length.
+#'    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
+#'    \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
+#'    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
+#'    \item D Array: A 3D-array containing the discount factor matrix for each time. It's dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
+#'    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. It's dimension should be the same as D.
+#'    \item a1 Vector: The prior mean for the latent vector.
+#'    \item R1 Matrix: The prior covariance matrix for the latent vector.
+#'    \item var.names list: A list containing the variables indexes by their name.
+#'    \item order Positive integer: Same as argument.
+#'    \item n Positive integer: The number of latent variables associated with this block (2).
+#'    \item t Positive integer: The number of time steps associated with this block. If 1, the block is compatible with blocks of any time length, but if t is greater than 1, this block can only be used with blocks of the same time length.
+#'    \item k Positive integer: The number of outcomes associated with this block. This block can only be used with blocks with the same outcome length.
+#'    \item pred.names Vector: The name of the linear predictors associated with this block.
+#'    \item monitoring Vector: The combination of monitoring, monitoring and monitoring.pulse.
+#'    \item type Character: The type of block (Noise).
+#' }
+#'
+#' @export
+#' @examples
+#'
+#' noise_block(mu = 1, D = 0.99, R1 = 1e-2)
+#'
+#' @details
+#'
+#' For a revision of the CAR prior, see \insertCite{AlexCar;textual}{kDGLM}
+#'
+#' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
+#'
+#' For the details about Auto regressive models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapter 9.
+#'
+#' For the details about the linearization of non-linear evolution equations in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapter 13.
+#'
+#' For the details about dynamic regression models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
+#'
+#' @seealso \code{\link{fit_model}}
+#' @family {auxiliary functions for structural blocks}
+#'
+#' @references
+#'    \insertAllCited{}
+PCAR_block <- function(..., adj.matrix, tau, rho, name = "CAR",
+                       D = 1, h = 0, H = 0,
+                       a1 = 0, R1 = NULL,
+                       monitoring = rep(FALSE, length(args))) {
+  args <- list(...)
+  if (is.null(R1)) {
+    k <- dim(adj.matrix)[1]
+    D.mat <- diag(rowSums(adj.matrix[-k, -k]))
+    R1 <- ginv(tau * (D.mat - rho * adj.matrix[-k, -k]))
+    A <- cbind(diag(k - 1), -1)
+    R1 <- crossprod(A, R1) %*% A
+    # R1=ginv(tau*(D.mat-adj.matrix))
+    # R1=(1-rho)*diag(dim(adj.matrix)[1])+rho*R1
+    # R1=matrix(-tau,dim(adj.matrix)[1],dim(adj.matrix)[1])
+    # diag(R1)=tau*(rowSums(adj.matrix)+rho)
+    # R1=ginv(R1)
+  } else {
+    warning("R1 is not null. tau and rho will be ignored.")
+  }
+  if (length(args) != dim(adj.matrix)[1]) {
+    stop("Error: The number of linear predictor must be equal to number of regions in adj.matrix.")
+  }
+  if (is.null(colnames(adj.matrix))) {
+    len.char <- floor(log10(length(args))) + 1
+    reg.names <- paste0("Region.", formatC(1:length(args), width = len.char, flag = "0"))
+  } else {
+    reg.names <- colnames(adj.matrix)
+  }
+
+  block <- base_block(..., order = length(args), name = name, H = H, D = D, h = h, a1 = a1, R1 = R1, monitoring = monitoring)
+  for (i in 1:block$t) {
+    block$FF[, , i] <- diag(block$FF[1, , i])
+  }
+  labs <- block$FF.labs[1, ]
+  block$FF.labs[, ] <- "const"
+  diag(block$FF.labs) <- labs
+  block$type <- "PCAR"
+  block$var.names <- list()
+  block$var.names[[name]] <- 1:length(args)
+  names(block$var.names[[name]]) <- reg.names
+  return(block)
+}
 
 #' Auxiliary function for block superposition
 #'

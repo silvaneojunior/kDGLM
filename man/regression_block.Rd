@@ -78,7 +78,7 @@ For the details about dynamic regression models in the context of DLM's, see \in
 structure <- (
   polynomial_block(p = 1, order = 2, D = 0.95) +
     harmonic_block(p = 1, period = 12, D = 0.95) +
-    regression_block(p = as.Date('2013-09-1')) # Vaccine was introduced in September of 2013
+    regression_block(p = as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
 ) * 4
 
 outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
@@ -99,6 +99,7 @@ Other {auxiliary functions for structural blocks}:
 \code{\link{*.dlm_block}()},
 \code{\link{+.dlm_block}()},
 \code{\link{AR_block}()},
+\code{\link{PCAR_block}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},

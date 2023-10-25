@@ -41,6 +41,9 @@
 #' @references
 #'    \insertAllCited{}
 Poisson <- function(lambda, data, offset = as.matrix(data)**0) {
+  if(any(ceiling(data)!=floor(data))){
+    stop('Error: data must be an intenger vector/matrix.')
+  }
   alt.method <- FALSE
   data <- as.matrix(data)
 
@@ -58,7 +61,6 @@ Poisson <- function(lambda, data, offset = as.matrix(data)**0) {
     smoother = generic_smoother,
     calc_pred = poisson_pred,
     apply_offset = function(ft, Qt, offset) {
-
       list("ft" = ft + log(offset), "Qt" = Qt)
     },
     link_function = log, inv_link_function = exp,
@@ -286,35 +288,75 @@ poisson_pred <- function(conj.param, outcome = NULL, parms = list(), pred.cred =
 #' @references
 #'    \insertAllCited{}
 update_Poisson_alt <- function(conj.param, ft, Qt, y, parms) {
-  if(y>0){
-    S=1/y
-    l.f0=(log(y)/S+ft/Qt)/(1/S+1/Qt)
-    Q0=1/(1/S+1/Qt)
+  if (TRUE) {
+    # y=29
+    # ft=2.768110
+    # Qt=0.010849
 
-    f0=exp(l.f0)
-    c.val <- c(y * log(f0) - f0 + dlnorm(f0, ft, sqrt(Qt), log = TRUE))
-  }else{
-    c.val=c(y * log(ft) - ft + dlnorm(ft, ft, sqrt(Qt), log = TRUE))
-    f0=Inf
-    Q0=0
+    if (y > 0) {
+      S <- 1 / y
+      f0 <- (log(y) / S + ft / Qt) / (1 / S + 1 / Qt)
+    } else {
+      f0 <- ft
+    }
+
+    df <- function(x) {
+      # x*y-exp(x)-0.5*((x-ft)**2)/Qt
+      y - exp(x) - (x - ft) / Qt
+    }
+    ddf <- function(x) {
+      # x*y-exp(x)-0.5*((x-ft)**2)/Qt
+      -exp(x) - 1 / Qt
+    }
+    solve <- f_root(df, ddf, start = f0)
+    m <- f_root(df, ddf, start = ft)$root
+    S <- -1 / ddf(m)
+    ft <- matrix(m, 1, 1)
+    Qt <- matrix(S, 1, 1)
+  } else {
+    c.val <- 1
+    f <- function(x) {
+      log.prob <- y * log(x) - x + dlnorm(x, ft, sqrt(Qt), log = TRUE)
+
+      prob <- exp(log.prob - c.val)
+
+      rbind(
+        prob,
+        log(x) * prob,
+        (log(x)**2) * prob
+      )
+    }
+
+    if (y > 0) {
+      S <- 1 / y
+      l.f0 <- (log(y) / S + ft / Qt) / (1 / S + 1 / Qt)
+      Q0 <- 1 / (1 / S + 1 / Qt)
+
+      f0 <- exp(l.f0)
+      c.val <- c(y * l.f0 - f0 + dlnorm(f0, ft, sqrt(Qt), log = TRUE))
+      # c.val <- c(y * l.f0 - f0 + dnorm(l.f0, ft, sqrt(Qt), log = TRUE))
+      # c.val=1
+    } else {
+      f0 <- 1
+      l.f0 <- 0
+      Q0 <- Qt
+      c.val <- c(-exp(ft) + dlnorm(exp(ft), ft, sqrt(Qt), log = TRUE))
+      # c.val <- c(- exp(ft) + dnorm(ft, ft, sqrt(Qt), log = TRUE))
+    }
+    print(ft)
+    print(Qt)
+    print(l.f0)
+    print(Q0)
+
+    # val <- cubintegrate(f, c(l.f0-8*sqrt(Q0)), c(l.f0+8*sqrt(Q0)), fDim = 3, nVec = 1000)$integral
+    val <- cubintegrate(f, c(0), c(exp(l.f0 + 8 * sqrt(Q0))), fDim = 3, nVec = 1000)$integral
+    # val <- cubintegrate(f, c(0), c(Inf), fDim = 3, nVec = 1000)$integral
+    ft <- matrix(val[2] / val[1], 1, 1)
+    Qt <- matrix(val[3], 1, 1) / val[1] - ft**2
+    print(cubintegrate(f, c(l.f0 - 8 * sqrt(Q0)), c(l.f0 + 8 * sqrt(Q0)), fDim = 3, nVec = 1000))
+    print(ft)
+    print(Qt)
   }
-
-  f <- function(x) {
-    log.prob <- y * log(x) - x + dlnorm(x, ft, sqrt(Qt), log = TRUE)
-
-    prob <- exp(log.prob - c.val)
-
-    rbind(
-      prob,
-      log(x) * prob,
-      (log(x)**2) * prob
-    )
-  }
-
-  val <- cubintegrate(f, c(0), c(exp(l.f0+8*sqrt(Q0))), fDim = 3, nVec = 1000)$integral
-  val
-  ft <- matrix(val[2] / val[1], 1, 1)
-  Qt <- matrix(val[3], 1, 1) / val[1] - ft**2
 
   return(list("ft" = ft, "Qt" = Qt))
 }

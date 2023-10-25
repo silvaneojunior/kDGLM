@@ -14,7 +14,8 @@ search_model(
   pred.cred = 0.95,
   metric.cutoff = NA,
   p.monit = NA,
-  c.monit = 1
+  c.monit = 1,
+  save.models = FALSE
 )
 }
 \arguments{
@@ -57,8 +58,8 @@ This function simple evaluates all possible combinations and chooses the one tha
 
 data <- c(AirPassengers)
 
-level <- polynomial_block(rate = 1, order = 2, D = 'D.level')
-season <- harmonic_block(rate = 'sazo.effect', order = 2, period = 12, D = "D.sazo")
+level <- polynomial_block(rate = 1, order = 2, D = "D.level")
+season <- harmonic_block(rate = "sazo.effect", order = 2, period = 12, D = "D.sazo")
 
 outcome <- Poisson(lambda = "rate", data = data)
 

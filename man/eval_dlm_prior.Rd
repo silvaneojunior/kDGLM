@@ -4,12 +4,14 @@
 \alias{eval_dlm_prior}
 \title{Auxiliary function for evaluating the prior density of a DLM}
 \usage{
-eval_dlm_prior(theta, model)
+eval_dlm_prior(theta, model, lin.pred = TRUE)
 }
 \arguments{
 \item{theta}{Matrix: A matrix representing the set of parameter for which to evaluate the density. Its size should be n x t, where n is the number of latent states and t is the length of the time series;}
 
 \item{model}{fitted_dlm: A fitted_dlm object.}
+
+\item{lin.pred}{Bool: A flag indicating if theta represents the linear predictors.}
 }
 \value{
 A scalar representing the log density evaluated at theta.

@@ -33,7 +33,7 @@
 #' plot(fitted.data, plot.pkg = "base")
 #'
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-show_fit <- function(model, pred.cred = 0.95, lag = 1,cutoff=floor(model$t / 10), plot.pkg = "auto") {
+show_fit <- function(model, pred.cred = 0.95, lag = 1, cutoff = floor(model$t / 10), plot.pkg = "auto") {
   if (plot.pkg == "auto") {
     plot.pkg <- if (requireNamespace("plotly", quietly = TRUE) & requireNamespace("ggplot2", quietly = TRUE)) {
       "plotly"
@@ -56,6 +56,7 @@ show_fit <- function(model, pred.cred = 0.95, lag = 1,cutoff=floor(model$t / 10)
   fills <- rainbow(n.series, s = 0.4)
   series.names <- unique(eval$Serie)
   names(colors) <- series.names
+  names(fills) <- series.names
   colors[["Detected changes"]] <- "black"
   linetypes <- c(
     "Detected changes" = "dashed",
@@ -102,7 +103,7 @@ show_fit <- function(model, pred.cred = 0.95, lag = 1,cutoff=floor(model$t / 10)
 
 
     par(mar = c(4.1, 4.1, 4.1, 2.1), cex = 1)
-    plot(0, 0, type = "n", xlim = c(cutoff+1, t_last), ylim = c(min.value, max.value), ylab = expression(Y[t]), xlab = "Time", main = title)
+    plot(0, 0, type = "n", xlim = c(cutoff + 1, t_last), ylim = c(min.value, max.value), ylab = expression(Y[t]), xlab = "Time", main = title)
     for (serie in series.names) {
       plot.serie <- eval[eval$Serie == serie, ]
       points(plot.serie$Time, plot.serie$Observation,
@@ -117,7 +118,7 @@ show_fit <- function(model, pred.cred = 0.95, lag = 1,cutoff=floor(model$t / 10)
     for (name_i in names(model$outcomes)) {
       outcome_i <- model$outcomes[[name_i]]
       if (any(outcome_i$alt.flags == 1)) {
-        for (t in (1:(t_last-cutoff))[outcome_i$alt.flags == 1]) {
+        for (t in (1:(t_last - cutoff))[outcome_i$alt.flags == 1]) {
           lines(x = c(t, t), c(min.value - 1, max.value + 1), lty = 2)
         }
       }
@@ -126,12 +127,12 @@ show_fit <- function(model, pred.cred = 0.95, lag = 1,cutoff=floor(model$t / 10)
     par(mar = c(0, 0, 0, 0), cex = 1)
     plot(0, type = "n", axes = FALSE, xlab = "", ylab = "", xlim = c(0, 1), ylim = c(0, 1))
     legend(
-      legend = c("Fit", "Obs.",'Detected changes'),
+      legend = c("Fit", "Obs.", "Detected changes"),
       col = c("black", "black", "black"),
       lty = c(1, 0, 2),
       seg.len = 0.8,
-      pch = c(0, 16,0),
-      pt.cex = c(0, 1,0),
+      pch = c(0, 16, 0),
+      pt.cex = c(0, 1, 0),
       fill = c("#00000033", "#ffffff00", "#ffffff00"),
       border = "#ffffff00",
       cex = 0.75,
@@ -179,18 +180,18 @@ show_fit <- function(model, pred.cred = 0.95, lag = 1,cutoff=floor(model$t / 10)
       if (!requireNamespace("plotly", quietly = TRUE)) {
         warning("The plotly package is required for plotly plots.")
       } else {
-        plt <- plotly::ggplotly(plt+ggplot2::scale_y_continuous(plotly::TeX('Y_t'))) |>plotly::config(mathjax = 'cdn')
+        plt <- plotly::ggplotly(plt + ggplot2::scale_y_continuous(plotly::TeX("Y_t"))) |> plotly::config(mathjax = "cdn")
 
         for (i in (1:n.series) - 1) {
           plt$x$data[[i + 1]]$legendgroup <-
             plt$x$data[[i + 1 + n.series]]$legendgroup <-
             plt$x$data[[i + 1]]$name <-
-            plt$x$data[[i + 1 + n.series]]$name <- paste0(series.names[i + 1], ": fitted values")
+            plt$x$data[[i + 1 + n.series]]$name <- paste0(sort(series.names)[i + 1], ": fitted values")
 
           plt$x$data[[i + 1]]$showlegend <- FALSE
 
           plt$x$data[[i + 1 + 2 * n.series]]$legendgroup <-
-            plt$x$data[[i + 1 + 2 * n.series]]$name <- paste0(series.names[i + 1], ": observations")
+            plt$x$data[[i + 1 + 2 * n.series]]$name <- paste0(sort(series.names)[i + 1], ": observations")
         }
         n <- length(plt$x$data)
         if (n %% 3 == 1) {
@@ -198,8 +199,8 @@ show_fit <- function(model, pred.cred = 0.95, lag = 1,cutoff=floor(model$t / 10)
             plt$x$data[[n]]$name <- "Detected changes"
         }
       }
-    }else{
-      plt=plt+ggplot2::scale_y_continuous(expression(Y[t]))
+    } else {
+      plt <- plt + ggplot2::scale_y_continuous(expression(Y[t]))
     }
   }
   return(list(data = eval, plot = plt))
@@ -265,7 +266,7 @@ plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10)
 
   size <- length(indice)
   t <- model$t
-  seq.time=(cutoff + 1):t
+  seq.time <- (cutoff + 1):t
 
   param.distr <- eval_past(model, lag = lag, pred.cred = pred.cred, eval.pred = FALSE)
 
@@ -477,7 +478,7 @@ plot_lin_pred <- function(model, pred = "", lag = -1, cutoff = floor(model$t / 1
 
   size <- length(indice)
   t <- model$t
-  seq.time=(cutoff + 1):t
+  seq.time <- (cutoff + 1):t
 
   param.distr <- eval_past(model, lag = lag, pred.cred = pred.cred, eval.pred = FALSE)
 

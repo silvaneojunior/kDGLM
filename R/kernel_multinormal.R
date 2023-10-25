@@ -116,7 +116,7 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
   upper.index <- parms$upper.index
   lower.index <- parms$lower.index
   alt.method <- parms$alt.method
-  r.index=mu.index
+  r.index <- mu.index
 
   r <- length(y)
   k <- r + r * (r + 1) / 2
@@ -163,7 +163,7 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
         # Sigma=crossprod(transpose(rho))
         # print(eigen(Sigma))
 
-        i.seq=seq_len(i-1)
+        i.seq <- seq_len(i - 1)
 
         Sigma.rho <- Sigma[i, i.seq]
         Sigma.part <- Sigma[i.seq, i.seq]
@@ -310,18 +310,18 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
 #' @references
 #'    \insertAllCited{}
 update_multi_NG_chol <- function(conj.param, ft, Qt, y, parms) {
-  parms=outcome$parms
+  parms <- outcome$parms
   k <- r + r * (r + 1) / 2
-  ft=matrix(rnorm(k,0,10),k,1)
-  Qt=MCMCpack::riwish(3*k,3*k*diag(k))
-  ft_star=array(NA,c(k,k))
-  Qt_star=array(NA,c(k,k,k))
-  i=5
+  ft <- matrix(rnorm(k, 0, 10), k, 1)
+  Qt <- MCMCpack::riwish(3 * k, 3 * k * diag(k))
+  ft_star <- array(NA, c(k, k))
+  Qt_star <- array(NA, c(k, k, k))
+  i <- 5
   #
   # for(index in 1:5){
   #   ft=ft.up
   #   Qt=Qt.up
-  y=outcome$data[index,]
+  y <- outcome$data[index, ]
 
   mu.index <- parms$mu.index
   var.index <- parms$var.index
@@ -329,7 +329,7 @@ update_multi_NG_chol <- function(conj.param, ft, Qt, y, parms) {
   upper.index <- parms$upper.index
   lower.index <- parms$lower.index
   alt.method <- parms$alt.method
-  r.index=mu.index
+  r.index <- mu.index
 
   r <- length(y)
   k <- r + r * (r + 1) / 2
@@ -338,27 +338,25 @@ update_multi_NG_chol <- function(conj.param, ft, Qt, y, parms) {
   ft.up <- ft
   Qt.up <- Qt
 
-    for (i in 1:r) {
-
-      {
-        x <- c(ft.up)
+  for (i in 1:r) {
+    {        x <- c(ft.up)
       rho <- matrix(0, r, r)
       # rho <- lower_tri.assign(rho, x[cor.index], diag = FALSE)
       rho <- upper_tri.assign(rho, x[cor.index], diag = FALSE)
       # diag(rho) <- x[var.index]
       # eigen.decomp=eigen(rho)
       # Sigma <- eigen.decomp$vectors %*% diag(exp(-eigen.decomp$values)) %*% t(eigen.decomp$vectors)
-      diag(rho) <- exp(-x[var.index]/2)
-      sd=diag(exp(-x[var.index]/2))
-      Sigma <- t(rho)%*%rho
+      diag(rho) <- exp(-x[var.index] / 2)
+      sd <- diag(exp(-x[var.index] / 2))
+      Sigma <- t(rho) %*% rho
 
-      i.seq=seq_len(i-1)
+      i.seq <- seq_len(i - 1)
 
       Sigma.rho <- Sigma[i, i.seq]
       Sigma.part <- Sigma[i.seq, i.seq]
 
       if (all(Sigma.part == 0)) {
-        A=diag(k)[,c(i, i + r)]
+        A <- diag(k)[, c(i, i + r)]
         ft.now <- x[c(i, i + r)]
         Qt.now <- Qt.up[c(i, i + r), c(i, i + r)]
       } else {
@@ -409,11 +407,11 @@ update_multi_NG_chol <- function(conj.param, ft, Qt, y, parms) {
         ft.now <- c(mu_bar, -log(S_bar))
         Qt.now <- t(A) %*% Qt.up %*% A
       }
-      }
+    }
 
-      ###################################
-      {
-        f=function(x){
+    ###################################
+    {
+      f <- function(x) {
         mu <- x
         rho <- matrix(0, r, r)
         # rho <- lower_tri.assign(rho, x[cor.index], diag = FALSE)
@@ -421,52 +419,51 @@ update_multi_NG_chol <- function(conj.param, ft, Qt, y, parms) {
         # diag(rho) <- x[var.index]
         # eigen.decomp=eigen(rho)
         # Sigma <- eigen.decomp$vectors %*% diag(exp(-eigen.decomp$values)) %*% t(eigen.decomp$vectors)
-        diag(rho) <- exp(-x[var.index]/2)
-        Sigma <- t(rho)%*%rho
+        diag(rho) <- exp(-x[var.index] / 2)
+        Sigma <- t(rho) %*% rho
 
-        if(i==1){
-          mu_bar=mu[i]
-          S_bar=Sigma[i,i]
-        }else{
-          S=ginv(Sigma[1:(i-1),1:(i-1)])
-          mu_bar=mu[i]+Sigma[i,1:(i-1)]%*%S%*%(y[1:(i-1)]-mu[1:(i-1)])
-          S_bar=Sigma[i,i]-Sigma[i,1:(i-1)]%*%S%*%Sigma[1:(i-1),i]
+        if (i == 1) {
+          mu_bar <- mu[i]
+          S_bar <- Sigma[i, i]
+        } else {
+          S <- ginv(Sigma[1:(i - 1), 1:(i - 1)])
+          mu_bar <- mu[i] + Sigma[i, 1:(i - 1)] %*% S %*% (y[1:(i - 1)] - mu[1:(i - 1)])
+          S_bar <- Sigma[i, i] - Sigma[i, 1:(i - 1)] %*% S %*% Sigma[1:(i - 1), i]
         }
-        return(c(mu_bar,-log(S_bar)))
+        return(c(mu_bar, -log(S_bar)))
         # return(c(Sigma))
       }
 
-      A_test=t(calculus::derivative(f,var=ft.up))
+      A_test <- t(calculus::derivative(f, var = ft.up))
       # ft.now=f(ft.up)
       # Qt.now=t(A)%*%Qt.up%*%A
-      print(max(abs(A-A_test)))
-
-      }
-      ####################################
-
-      if (parms$alt.method) {
-        post <- update_NG_alt(param, ft.now, Qt.now, y[i])
-      } else {
-        param <- convert_NG_Normal(ft.now, Qt.now)
-        up.param <- update_NG(param, ft.now, Qt.now, y[i])
-        post <- convert_Normal_NG(up.param)
-      }
-
-      ft.post <- post$ft
-      Qt.post <- post$Qt
-      # print('\n#################### second #######################')
-      # print(Qt.now)
-      # print(Qt.post)
-      # print(Qt.up)
-
-      At <- Qt.up %*% A %*% ginv(Qt.now)
-      At.t <- t(At)
-
-      ft.up <- ft.up + At %*% (ft.post - ft.now)
-      Qt.up <- Qt.up + At %*% (Qt.post - Qt.now) %*% At.t
+      print(max(abs(A - A_test)))
     }
-    # ft_star[,index]=ft.up
-    # Qt_star[,,index]=Qt.up
+    ####################################
+
+    if (parms$alt.method) {
+      post <- update_NG_alt(param, ft.now, Qt.now, y[i])
+    } else {
+      param <- convert_NG_Normal(ft.now, Qt.now)
+      up.param <- update_NG(param, ft.now, Qt.now, y[i])
+      post <- convert_Normal_NG(up.param)
+    }
+
+    ft.post <- post$ft
+    Qt.post <- post$Qt
+    # print('\n#################### second #######################')
+    # print(Qt.now)
+    # print(Qt.post)
+    # print(Qt.up)
+
+    At <- Qt.up %*% A %*% ginv(Qt.now)
+    At.t <- t(At)
+
+    ft.up <- ft.up + At %*% (ft.post - ft.now)
+    Qt.up <- Qt.up + At %*% (Qt.post - Qt.now) %*% At.t
+  }
+  # ft_star[,index]=ft.up
+  # Qt_star[,,index]=Qt.up
   # }
 
 
