@@ -34,8 +34,6 @@ Normal(
 \item{delta}{Numeric: The discount factor for the observational variance. This option is meant only for didactic reasons, we discourage its usage.}
 
 \item{data}{vector: Values of the observed data.}
-
-\item{offset}{vector: The offset at each observation. Must have the same shape as data.}
 }
 \value{
 A object of the class dlm_distr
@@ -85,7 +83,6 @@ Other {auxiliary functions for a creating outcomes}:
 \code{\link{Gamma}()},
 \code{\link{Multinom}()},
 \code{\link{Poisson}()},
-\code{\link{report_distr}()},
 \code{\link{summary.dlm_distr}()}
 }
 \concept{{auxiliary functions for a creating outcomes}}

@@ -7,6 +7,7 @@
 #' @param p character: a vector with the name of the linear predictor associated with the probability of each category (except the base one, which is assumed to be the last).
 #' @param data vector: Values of the observed data.
 #' @param offset vector: The offset at each observation. Must have the same shape as data.
+#' @param base.class character or integer: The name or index of the base class. Default is to use the last column of data.
 #'
 #' @return A object of the class dlm_distr
 #'
@@ -25,7 +26,7 @@
 #'   polynomial_block(p = 1, order = 2, D = 0.95) +
 #'     harmonic_block(p = 1, period = 12, D = 0.975) +
 #'     noise_block(p = 1, R1 = 0.1) +
-#'     regression_block(p = as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
+#'     regression_block(p = chickenPox$date >= as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
 #' ) * 4
 #'
 #' outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
@@ -38,13 +39,26 @@
 #'
 #' @references
 #'    \insertAllCited{}
-Multinom <- function(p, data, offset = as.matrix(data)**0) {
-  if(any(ceiling(data)!=floor(data))){
-    stop('Error: data must be an intenger matrix.')
+Multinom <- function(p, data, offset = as.matrix(data)**0, base.class = NULL) {
+  if (any(ceiling(data) != floor(data))) {
+    stop("Error: data must be an intenger matrix.")
   }
   alt.method <- FALSE
   data <- as.matrix(data)
   offset <- as.matrix(offset)
+  if (!is.null(base.class)) {
+    if (is.character(base.class)) {
+      if (is.null(colnames(data))) {
+        stop("Error: the base.class is a string, but data argument has no column names.")
+      } else {
+        base.index <- min(which(colnames(data) == base.class))
+      }
+    } else {
+      base.index <- base.class
+    }
+    data <- cbind(data[, -base.index], data[, base.index, drop = FALSE])
+    offset <- cbind(offset[, -base.index], offset[, base.index, drop = FALSE])
+  }
 
   # p=deparse(substitute(p))[[1]] |> check.expr()
 
@@ -103,6 +117,20 @@ Multinom <- function(p, data, offset = as.matrix(data)**0) {
   if (alt.method) {
     distr$update <- update_Multinom_alt
   }
+  if (is.null(colnames(data))) {
+    distr$sufix <- paste0(".", formatC(1:r, flag = "0", width = ceiling(log10(r))))
+  } else {
+    if (any(table(colnames(data)) > 1)) {
+      stop("Error: Cannot have repeated names in data argument.")
+    }
+    if (!is.null(colnames(offset))) {
+      if (any(colnames(data) != colnames(offset))) {
+        stop("Error: Column names of offset argument do not match column names of data argument.")
+      }
+    }
+    distr$sufix <- paste0(".", colnames(data))
+  }
+
 
   return(distr)
 }
@@ -131,13 +159,40 @@ convert_Multinom_Normal <- function(ft, Qt, parms = list()) {
   media.log <-
     -log(calc.helper) + sum(diag(0.5 * (H %*% Qt)))
 
+  # system_multinom <- function(x) {
+  #   x <- exp(x)
+  #   digamma_last <- digamma(x[r] - sum(x[-r]))
+  #   digamma_vec <- digamma(x)
+  #
+  #   f.all <- ft - digamma_vec[-r] + digamma_last
+  #   last.guy <- media.log - digamma_last + digamma_vec[r]
+  #
+  #   f.all <- c(f.all, last.guy)
+  #
+  #   return(f.all)
+  # }
+
+  # jacob_multinom <- function(x) {
+  #   x <- exp(x)
+  #   trigamma_last <- trigamma(x[r] - sum(x[-r]))
+  #   trigamma_vec <- trigamma(x)
+  #
+  #   jacob <- diag(trigamma_vec)
+  #   jacob[-r, -r] <- -jacob[-r, -r] - trigamma_last
+  #   jacob[r, -r] <- trigamma_last
+  #   jacob[-r, r] <- trigamma_last
+  #   jacob[r, r] <- jacob[r, r] - trigamma_last
+  #
+  #   transpose(jacob * x)
+  # }
+
   system_multinom <- function(x) {
     x <- exp(x)
-    digamma_last <- digamma(x[r] - sum(x[-r]))
+    digamma_total <- digamma(sum(x))
     digamma_vec <- digamma(x)
 
-    f.all <- ft - digamma_vec[-r] + digamma_last
-    last.guy <- media.log - digamma_last + digamma_vec[r]
+    f.all <- ft - digamma_vec[-r] + digamma_vec[r]
+    last.guy <- media.log - digamma_vec[r] + digamma_total
 
     f.all <- c(f.all, last.guy)
 
@@ -146,14 +201,14 @@ convert_Multinom_Normal <- function(ft, Qt, parms = list()) {
 
   jacob_multinom <- function(x) {
     x <- exp(x)
-    trigamma_last <- trigamma(x[r] - sum(x[-r]))
+    trigamma_total <- trigamma(sum(x))
     trigamma_vec <- trigamma(x)
 
     jacob <- diag(trigamma_vec)
-    jacob[-r, -r] <- -jacob[-r, -r] - trigamma_last
-    jacob[r, -r] <- trigamma_last
-    jacob[-r, r] <- trigamma_last
-    jacob[r, r] <- jacob[r, r] - trigamma_last
+    jacob[-r, -r] <- -jacob[-r, -r]
+    jacob[r, -r] <- trigamma_vec[r]
+    jacob[-r, r] <- trigamma_total
+    jacob[r, r] <- -jacob[r, r] + trigamma_total
 
     transpose(jacob * x)
   }
@@ -171,14 +226,16 @@ convert_Multinom_Normal <- function(ft, Qt, parms = list()) {
 
   ss1 <- f_root(system_multinom,
     jacob_multinom,
-    start = log(c(rep(0.01, r - 1), 0.01 * r))
+    # start = log(c(rep(0.01, r - 1), 0.01 * r))
+    start = log(rep(0.1, r))
     # start = log(p * sum(alpha))
   )
 
   tau <- exp(as.numeric(ss1$root))
 
   alpha <- tau
-  alpha[r] <- tau[r] - sum(tau[-r])
+  # alpha[r] <- tau[r] - sum(tau[-r])
+  # print(digamma(alpha[r]))
   return(alpha)
 }
 

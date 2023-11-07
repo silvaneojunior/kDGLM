@@ -96,7 +96,7 @@ ginv <- function(S) {
     Q.l <- svd.decomp$u
     Q.r <- svd.decomp$v
     D <- svd.decomp$d
-    D <- ifelse(D > 1e-6, 1 / D, 0)
+    D <- ifelse(D > 1e-12, 1 / D, 0)
     D.mat <- diag(length(D))
     diag(D.mat) <- D
     return(Q.l %*% D.mat %*% transpose(Q.r))
@@ -119,12 +119,12 @@ dmvnorm <- function(x, mu, Sigma) {
   # inv.chol.Sigma=var_decomp(inv.Sigma)
 
   Chol.decomp <- cholesky(Sigma)
-  if (prod(diag(Chol.decomp), na.rm = TRUE) < 1e-6 || any(is.na(Chol.decomp))) {
+  if (prod(diag(Chol.decomp), na.rm = TRUE) < 1e-12 || any(is.na(Chol.decomp))) {
     svd.decomp <- svd(Sigma)
     Q.l <- svd.decomp$u
     Q.r <- svd.decomp$v
     D <- svd.decomp$d
-    D <- ifelse(D > 1e-6, 1 / sqrt(D), 0)
+    D <- ifelse(D > 1e-12, 1 / sqrt(D), 0)
     D.mat <- diag(length(D))
     diag(D.mat) <- D
     inv.chol.Sigma <- (Q.l %*% D.mat %*% transpose(Q.r))
@@ -173,7 +173,7 @@ create_G <- function(S0, S1) {
   svd.decomp1 <- svd(S1)
   d0 <- sqrt(svd.decomp0$d)
   d1 <- sqrt(svd.decomp1$d)
-  d <- ifelse(d0 > 1e-6, d1 / d0, 0)
+  d <- ifelse(d0 > 1e-12, d1 / d0, 0)
 
   u0 <- transpose(svd.decomp0$u)
   u1 <- svd.decomp1$u
@@ -365,13 +365,13 @@ f_joint_root <- function(f, start, tol = 1e-8, n.max = 1000) {
 #' @keywords internal
 check.block.status <- function(block) {
   status <- "defined"
-  for (param in c("G", "D", "H", "a1", "R1")) {
+  for (param in c("G", "D", "H", "a1", "R1", "scale")) {
     if (any(is.character(if.na(block[[param]], 0)))) {
       status <- "undefined"
       break
     }
   }
-  if (!all(block$FF.labs %in% c("const", block$pred.names))) {
+  if (!all(block$FF.labs %in% c("const", "Covariate", block$pred.names))) {
     status <- "undefined"
   }
   return(status)

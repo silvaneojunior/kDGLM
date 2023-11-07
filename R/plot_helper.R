@@ -3,16 +3,14 @@
 #' Calculate the predictive mean and some quantile for the observed data and show a plot.
 #'
 #' @param model fitted_dlm: A fitted DGLM.
+#' @param outcomes String: The name of the outcomes to plot.
 #' @param pred.cred Numeric: The credibility value for the credibility interval.
 #' @param lag Integer: The number of steps ahead to be used for prediction. If lag<0, the smoothed distribution is used and, if lag==0, the filtered interval.score is used.
 #' @param cutoff Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the predictions are not reliable.
 #' @param plot.pkg String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.
 #'
-#' @return A list containing:
-#' \itemize{
-#'    \item data tibble object: A data frame containing the observations, predictions and credibility intervals at each time.
-#'    \item plot ggplot or plotly object: A plot showing the predictive mean and credibility interval with the observed data.
-#' }
+#' @return ggplot or plotly object: A plot showing the predictive mean and credibility interval with the observed data.
+#'
 #' @export
 #' @importFrom grDevices rainbow
 #' @import graphics
@@ -33,7 +31,7 @@
 #' plot(fitted.data, plot.pkg = "base")
 #'
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-show_fit <- function(model, pred.cred = 0.95, lag = 1, cutoff = floor(model$t / 10), plot.pkg = "auto") {
+plot.fitted_dlm <- function(model, outcomes = names(model$outcomes), pred.cred = 0.95, lag = 1, cutoff = floor(model$t / 10), plot.pkg = "auto") {
   if (plot.pkg == "auto") {
     plot.pkg <- if (requireNamespace("plotly", quietly = TRUE) & requireNamespace("ggplot2", quietly = TRUE)) {
       "plotly"
@@ -43,9 +41,21 @@ show_fit <- function(model, pred.cred = 0.95, lag = 1, cutoff = floor(model$t / 
       "base"
     }
   }
-
   t_last <- model$t
-  eval <- eval_past(model, eval_t = cutoff:t_last, lag = lag, pred.cred = pred.cred, eval.pred = TRUE)$data
+  eval <- coef(model, eval_t = cutoff:t_last, lag = lag, pred.cred = pred.cred, eval.pred = TRUE)$data
+  outcome.names <- unique(eval$Serie)
+
+  flags.outcomes <- (sapply(outcomes, function(x) {
+    grepl(x, outcome.names)
+  }) |> matrix(length(outcome.names), length(outcomes)) |> rowSums()) > 0
+
+  if (!any(flags.outcomes)) {
+    stop(paste0("Error: Invalid outcome selection. Got '", outcomes, "', expected one of the following:\n", paste0(outcome.names, collapse = "\n")))
+  }
+
+  outcomes.labels <- outcome.names[flags.outcomes]
+
+  eval <- eval[eval$Serie %in% outcomes.labels, ]
 
   obs.na.rm <- eval$Observation[!is.na(eval$Observation)]
   max.value <- evaluate_max(obs.na.rm - min(obs.na.rm))[[3]] + min(obs.na.rm)
@@ -115,12 +125,9 @@ show_fit <- function(model, pred.cred = 0.95, lag = 1, cutoff = floor(model$t / 
         col = fills[[serie]], lty = 0
       )
     }
-    for (name_i in names(model$outcomes)) {
-      outcome_i <- model$outcomes[[name_i]]
-      if (any(outcome_i$alt.flags == 1)) {
-        for (t in (1:(t_last - cutoff))[outcome_i$alt.flags == 1]) {
-          lines(x = c(t, t), c(min.value - 1, max.value + 1), lty = 2)
-        }
+    if (any(model$alt.flags == 1)) {
+      for (t in (1:(t_last - cutoff))[model$alt.flags == 1]) {
+        lines(x = c(t, t), c(min.value - 1, max.value + 1), lty = 2)
       }
     }
 
@@ -166,15 +173,12 @@ show_fit <- function(model, pred.cred = 0.95, lag = 1, cutoff = floor(model$t / 
       ggplot2::ggtitle(title) +
       ggplot2::theme_bw() +
       ggplot2::coord_cartesian(ylim = c(min.value, max.value))
-    for (name_i in names(model$outcomes)) {
-      outcome_i <- model$outcomes[[name_i]]
-      if (any(outcome_i$alt.flags == 1)) {
-        plt <- plt +
-          ggplot2::geom_vline(
-            data = data.frame(xintercept = (1:t_last)[outcome_i$alt.flags == 1], linetype = "Detected changes", serie = name_i),
-            ggplot2::aes_string(xintercept = "xintercept", linetype = "linetype")
-          )
-      }
+    if (any(model$alt.flags == 1)) {
+      plt <- plt +
+        ggplot2::geom_vline(
+          data = data.frame(xintercept = (1:t_last)[model$alt.flags == 1], linetype = "Detected changes"),
+          ggplot2::aes_string(xintercept = "xintercept", linetype = "linetype")
+        )
     }
     if (plot.pkg == "plotly") {
       if (!requireNamespace("plotly", quietly = TRUE)) {
@@ -203,23 +207,19 @@ show_fit <- function(model, pred.cred = 0.95, lag = 1, cutoff = floor(model$t / 
       plt <- plt + ggplot2::scale_y_continuous(expression(Y[t]))
     }
   }
-  return(list(data = eval, plot = plt))
+  return(plt)
 }
 
 #' Visualizing latent states in a fitted kDGLM model
 #'
-#' @param model fitted_dlm: A fitted DGLM model.
+#' @param dlm.coef dlm_coef object: The coefficients of a fitted DGLM model.
 #' @param var Character: The name of the variables to plot (same value passed while creating the structure). Any variable whose name partially match this variable will be plotted.
-#' @param lag Integer:  The number of steps ahead to be used for evaluating the latent variables. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribution is used.
 #' @param cutoff Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.
 #' @param pred.cred Numeric: The credibility value for the credibility interval.
 #' @param plot.pkg String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.
 #'
-#' @return A list containing:
-#' \itemize{
-#'    \item plot ggplot or plotly object: A plot showing the predictive mean and credibility interval with the observed data.
-#'    \item data data.frame: A data frame containing the data used in the plot.
-#' }
+#' @return ggplot or plotly object: A plot showing the predictive mean and credibility interval with the observed data.
+#'
 #' @export
 #'
 #' @importFrom grDevices rainbow
@@ -240,10 +240,12 @@ show_fit <- function(model, pred.cred = 0.95, lag = 1, cutoff = floor(model$t / 
 #'   AirPassengers = outcome
 #' )
 #'
-#' plot_lat_var(fitted.data)$plot
+#' model.coef <- coef(fitted.data)
+#'
+#' plot(model.coef)$plot
 #'
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10), pred.cred = 0.95, plot.pkg = "auto") {
+plot.dlm_coef <- function(dlm.coef, var = rownames(dlm.coef$mt), cutoff = floor(t / 10), pred.cred = 0.95, plot.pkg = "auto") {
   if (plot.pkg == "auto") {
     plot.pkg <- if (requireNamespace("plotly", quietly = TRUE) & requireNamespace("ggplot2", quietly = TRUE)) {
       "plotly"
@@ -254,29 +256,43 @@ plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10)
     }
   }
 
-  if (!any(grepl(var, model$var.labels))) {
-    stop(paste0("Error: Invalid variable selection. Got '", var, "', expected one of the following:\n", paste0(names(model$var.names), collapse = "\n")))
-  }
-  if (pred.cred >= 1 | pred.cred <= 0) {
-    stop(paste0("Error: Invalid value for I.C. width. Must be between 0 and 1, got ", pred.cred))
+  t <- dim(dlm.coef$mt)[2]
+  var.labels <- rownames(dlm.coef$mt)
+  pred.names <- rownames(dlm.coef$ft)
+
+  flags.var <- (sapply(var, function(x) {
+    grepl(x, var.labels)
+  }) |> matrix(length(var.labels), length(var)) |> rowSums()) > 0
+  flags.pred <- (sapply(var, function(x) {
+    grepl(x, pred.names)
+  }) |> matrix(length(pred.names), length(var)) |> rowSums()) > 0
+
+  if (!any(flags.var) & !any(flags.pred)) {
+    stop(paste0("Error: Invalid variable selection. Got '", var, "', expected one of the following:\n", paste0(c(var.labels, pred.names), collapse = "\n")))
   }
 
-  indice <- seq_len(model$n)[grepl(var, model$var.labels)]
-  var.names <- model$var.labels[grepl(var, model$var.labels)]
+  var.labels <- var.labels[flags.var]
+  pred.names <- pred.names[flags.pred]
 
-  size <- length(indice)
-  t <- model$t
+  size <- sum(flags.var) + sum(flags.pred)
   seq.time <- (cutoff + 1):t
 
-  param.distr <- eval_past(model, lag = lag, pred.cred = pred.cred, eval.pred = FALSE)
-
-  m1 <- param.distr$mt[indice, seq.time, drop = FALSE] |>
+  m1 <- rbind(
+    dlm.coef$mt[flags.var, seq.time, drop = FALSE],
+    dlm.coef$ft[flags.pred, seq.time, drop = FALSE]
+  ) |>
     t()
-  std.mat <- param.distr$Ct[indice, indice, seq.time, drop = FALSE] |>
+  std.mat.var <- dlm.coef$Ct[flags.var, flags.var, seq.time, drop = FALSE] |>
     apply(3, diag) |>
     sqrt() |>
-    matrix(size, t - cutoff) |>
+    matrix(sum(flags.var), t - cutoff) |>
     t()
+  std.mat.pred <- dlm.coef$Qt[flags.pred, flags.pred, seq.time, drop = FALSE] |>
+    apply(3, diag) |>
+    sqrt() |>
+    matrix(sum(flags.pred), t - cutoff) |>
+    t()
+  std.mat <- cbind(std.mat.var, std.mat.pred)
 
   lim.i <- m1 + qnorm((1 - pred.cred) / 2) * std.mat
   lim.s <- m1 + qnorm(1 - (1 - pred.cred) / 2) * std.mat
@@ -292,7 +308,7 @@ plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10)
 
   plot.data <- data.frame(
     Time = seq.time,
-    Label = as.factor(c(sapply(var.names, function(x) {
+    Label = as.factor(c(sapply(c(var.labels, pred.names), function(x) {
       rep(x, t - cutoff)
     }))),
     Mean = c(m1),
@@ -312,14 +328,14 @@ plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10)
   plot.data$fill.name <- plot.data$Label
   plot.data$color.name <- plot.data$Label
 
-  title <- if (lag < 0) {
+  title <- if (dlm.coef$lag < 0) {
     "Smoothed estimation of latent variables"
-  } else if (lag == 0) {
+  } else if (dlm.coef$lag == 0) {
     "Filtered estimation of latent variables"
-  } else if (lag == 1) {
+  } else if (dlm.coef$lag == 1) {
     "One-step-ahead prediction for latent variables"
   } else {
-    paste0(lag, "-steps-ahead prediction for latent variables")
+    paste0(dlm.coef$lag, "-steps-ahead prediction for latent variables")
   }
 
   if (plot.pkg == "base" | !requireNamespace("ggplot2", quietly = TRUE)) {
@@ -416,218 +432,5 @@ plot_lat_var <- function(model, var = "", lag = -1, cutoff = floor(model$t / 10)
       }
     }
   }
-  return(list(data = plot.data[, 1:5], plot = plt))
-}
-
-#' Visualizing linear predictors in a fitted kDGLM model
-#'
-#' @param model fitted_dlm: A fitted DGLM model.
-#' @param pred Character: The name of the linear predictors to plot (same value passed while creating the structure). Any predictors whose name partially match this variable will be plotted.
-#' @param lag Integer:  The number of steps ahead to be used for evaluating the linear predictors. If lag<0, the smoothed distribution is used and, if lag==0, the filtered distribution is used.
-#' @param cutoff Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.
-#' @param pred.cred Numeric: The credibility value for the credibility interval.
-#' @param plot.pkg String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.
-#'
-#' @return A list containing:
-#' \itemize{
-#'    \item plot ggplot or plotly object: A plot showing the predictive mean and credibility interval with the observed data.
-#'    \item data tibble: A data frame containing the data used in the plot.
-#' }
-#' @export
-#' @importFrom grDevices rainbow
-#' @importFrom stats qnorm
-#' @import graphics
-#' @import grDevices
-#'
-#' @examples
-#'
-#' data <- c(AirPassengers)
-#'
-#' level <- polynomial_block(rate = 1, order = 2, D = 0.95)
-#' season <- harmonic_block(rate = 1, order = 2, period = 12, D = 0.975)
-#'
-#' outcome <- Poisson(lambda = "rate", data)
-#'
-#' fitted.data <- fit_model(level, season,
-#'   AirPassengers = outcome
-#' )
-#'
-#' plot_lin_pred(fitted.data)$plot
-#'
-#' @family {auxiliary visualization functions for the fitted_dlm class}
-plot_lin_pred <- function(model, pred = "", lag = -1, cutoff = floor(model$t / 10), pred.cred = 0.95, plot.pkg = "auto") {
-  if (plot.pkg == "auto") {
-    plot.pkg <- if (requireNamespace("plotly", quietly = TRUE) & requireNamespace("ggplot2", quietly = TRUE)) {
-      "plotly"
-    } else if (requireNamespace("ggplot2", quietly = TRUE)) {
-      "ggplot2"
-    } else {
-      "base"
-    }
-  }
-
-  if (!any(grepl(pred, model$pred.names))) {
-    stop(paste0("Error: Invalid selected variable. Got ", pred, ", expected one of the following:\n", paste0(names(model$pred.names), collapse = "\n")))
-  }
-  if (pred.cred >= 1 | pred.cred <= 0) {
-    stop(paste0("Error: Invalid value for I.C. width. Must be between 0 and 1, got ", pred.cred))
-  }
-
-  indice <- seq_len(model$k)[grepl(pred, model$pred.names)]
-  var.names <- model$pred.names[grepl(pred, model$pred.names)]
-
-  size <- length(indice)
-  t <- model$t
-  seq.time <- (cutoff + 1):t
-
-  param.distr <- eval_past(model, lag = lag, pred.cred = pred.cred, eval.pred = FALSE)
-
-  f1 <- param.distr$ft[indice, seq.time, drop = FALSE] |>
-    t()
-  std.mat <- param.distr$Qt[indice, indice, seq.time, drop = FALSE] |>
-    apply(3, diag) |>
-    sqrt() |>
-    matrix(size, t - cutoff) |>
-    t()
-
-  lim.i <- f1 + qnorm((1 - pred.cred) / 2) * std.mat
-  lim.s <- f1 + qnorm(1 - (1 - pred.cred) / 2) * std.mat
-
-  max.value <- evaluate_max(f1 - min(f1))[[3]] + min(f1)
-  min.value <- -evaluate_max(-(f1 - max(f1)))[[3]] + max(f1)
-
-  if (max.value - min.value < 1e-2) {
-    center <- (max.value + min.value) / 2
-    max.value <- center + 0.01
-    max.value <- center - 0.01
-  }
-
-  plot.data <- data.frame(
-    Time = seq.time,
-    Label = as.factor(c(sapply(var.names, function(x) {
-      rep(x, t - cutoff)
-    }))),
-    Mean = c(f1),
-    C.I.lower = c(lim.i),
-    C.I.upper = c(lim.s)
-  )
-
-  label <- paste0("C.I. (", pred.cred * 100 |> round(), "%)")
-
-  n.var <- length(unique(plot.data$Label))
-  color.list <- rainbow(n.var, s = 0.8)
-  names(color.list) <- unique(plot.data$Label)
-
-  fill.list <- rainbow(n.var, s = 0.4)
-  names(fill.list) <- unique(plot.data$Label)
-  plot.data$fill.name <- plot.data$Label
-  plot.data$color.name <- plot.data$Label
-  plot.data$IC.name <- plot.data$Label
-
-  title <- if (lag < 0) {
-    "Smoothed estimation of linear predictors"
-  } else if (lag == 0) {
-    "Filtered estimation of linear predictors"
-  } else if (lag == 1) {
-    "One-step-ahead prediction for linear predictors"
-  } else {
-    paste0(lag, "-steps-ahead prediction for linear predictors")
-  }
-
-  if (plot.pkg == "base" | !requireNamespace("ggplot2", quietly = TRUE)) {
-    points <- paste0(color.list, "55")
-    fills <- paste0(color.list, "33")
-    names(color.list) <- names(points) <- names(fills) <- var.names
-
-    if (plot.pkg != "base") {
-      warning("The ggplot2 package is required for ggplot2 and plotly plots and was not found. Falling back to R base plot functions.")
-    }
-
-    cur.height <- dev.size("cm")[2]
-    count.spaces <- ceiling(n.var / 4)
-    font.cm <- 0.35
-
-    config <- par()
-    layout(
-      mat = matrix(c(1, 2, 3), 3, 1),
-      heights = c(
-        cur.height - font.cm * count.spaces - 1 - 0.75,
-        0.75,
-        font.cm * count.spaces + 1
-      )
-    )
-
-    par(mar = c(4.1, 4.1, 4.1, 2.1), cex = 1)
-    plot(0, 0, type = "n", xlim = c(cutoff, t), ylim = c(min.value, max.value), ylab = "Predictor value", xlab = "Time", main = title)
-    for (var.name in var.names) {
-      plot.serie <- plot.data[plot.data$Label == var.name, ]
-      points(plot.serie$Time, plot.serie$Observation,
-        col = points[[var.name]],
-        pch = 16
-      )
-      lines(plot.serie$Time, plot.serie$Mean, col = color.list[[var.name]])
-      base_ribbon(plot.serie$Time, plot.serie$C.I.lower, plot.serie$C.I.upper,
-        col = fills[[var.name]], lty = 0
-      )
-    }
-    lines(c(-1, t + 2), c(0, 0), lty = 2)
-
-    par(mar = c(0, 0, 0, 0), cex = 1)
-    plot(0, type = "n", axes = FALSE, xlab = "", ylab = "", xlim = c(0, 1), ylim = c(0, 1))
-    legend(
-      legend = c("Mean", label),
-      col = c("black", "black"),
-      lty = c(1, 0),
-      seg.len = 0.6,
-      pch = c(0, 22),
-      pt.cex = c(0, 2),
-      pt.bg = c("#00000000", "#00000033"),
-      border = "#ffffff00",
-      x = 0.5, xjust = 0.5, y = 1, bty = "n", cex = 0.75, ncol = 2
-    )
-    par(mar = c(0, 0, 0, 0), cex = 1)
-    plot(0, type = "n", axes = FALSE, xlab = "", ylab = "", xlim = c(0, 1), ylim = c(0, 1))
-    legend(
-      legend = var.names,
-      col = color.list,
-      lty = rep(0, n.var),
-      pch = rep(22, n.var),
-      pt.cex = rep(2, n.var),
-      pt.bg = color.list,
-      x = 0.5, xjust = 0.5, y = 1, inset = 0, cex = 0.75, bty = "n",
-      ncol = min(4, ceiling(n.var / count.spaces))
-    )
-    par(mar = config$mar)
-    plt <- NULL
-  } else {
-    plt <- ggplot2::ggplot(plot.data, ggplot2::aes_string(x = "Time", fill = "Label", color = "color.name")) +
-      ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
-      ggplot2::scale_x_continuous("Time") +
-      ggplot2::scale_color_manual("", values = color.list, na.value = NA) +
-      ggplot2::scale_fill_manual("", values = fill.list, na.value = NA) +
-      ggplot2::labs(title = title) +
-      ggplot2::scale_y_continuous("Predictor value") +
-      ggplot2::theme_bw() +
-      ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
-      ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25, color = NA) +
-      ggplot2::geom_line(ggplot2::aes_string(y = "Mean")) +
-      ggplot2::coord_cartesian(ylim = c(min.value, max.value))
-    if (plot.pkg == "plotly") {
-      if (!requireNamespace("plotly", quietly = TRUE)) {
-        warning("The plotly package is required for plotly plots.")
-      } else {
-        plt <- plotly::ggplotly(plt)
-
-        for (i in (1:size) - 1) {
-          plt$x$data[[i + 1 + 1]]$legendgroup <-
-            plt$x$data[[i + 1 + size + 1]]$legendgroup <-
-            plt$x$data[[i + 1 + 1]]$name <-
-            plt$x$data[[i + 1 + size + 1]]$name <- plt$x$data[[i + 1 + size + 1]]$name
-
-          plt$x$data[[i + 1 + 1]]$showlegend <- FALSE
-        }
-      }
-    }
-  }
-  return(list(data = plot.data[, seq_len(5)], plot = plt))
+  return(plt)
 }

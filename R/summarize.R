@@ -24,23 +24,31 @@
 #' fitted.data <- fit_model(level, season,
 #'   AirPassengers = outcome
 #' )
-#' # summary(fitted.data)
-#' # or
-#' report_dlm(fitted.data)
+#' summary(fitted.data)
 #'
 #' @family {auxiliary visualization functions for the fitted.dlm class}
-report_dlm <- function(fitted.dlm, t = fitted.dlm$t, lag = -1, metric.lag = 1, metric.cutoff = floor(fitted.dlm$t / 10), pred.cred = 0.95) {
-  o <- length(fitted.dlm$outcomes)
+summary.fitted_dlm <- function(fitted.dlm, t = fitted.dlm$t, lag = -1, metric.lag = 1, metric.cutoff = floor(fitted.dlm$t / 10), pred.cred = 0.95) {
   k <- fitted.dlm$k
   T_len <- fitted.dlm$t
-  predictions <- eval_past(fitted.dlm, eval_t = (metric.cutoff + 1):T_len, lag = metric.lag, pred.cred = pred.cred, eval.pred = TRUE)
-  distr.like <- sum(predictions$log.like)
-  distr.rae <- mean(predictions$rae)
-  distr.mae <- mean(predictions$mae)
-  distr.mse <- mean(predictions$mse)
-  distr.mase <- mean(predictions$mase)
-  distr.interval.score <- mean(predictions$interval.score)
-  predictions <- eval_past(fitted.dlm, eval_t = seq_len(T_len), lag = min(lag, 0), pred.cred = pred.cred, eval.pred = FALSE)
+  predictions <- coef(fitted.dlm, eval_t = (metric.cutoff + 1):T_len, lag = metric.lag, pred.cred = pred.cred, eval.pred = TRUE)
+  metric.vals <- c(
+    sum(predictions$log.like),
+    mean(predictions$interval.score),
+    mean(predictions$mase),
+    mean(predictions$rae),
+    mean(predictions$mae),
+    mean(predictions$mse)
+  )
+  metric.names <- c(
+    "Log-likelihood",
+    "Interval Score",
+    "Mean Abs. Scaled Error",
+    "Relative abs. Error",
+    "Mean Abs. Error",
+    "Mean Squared Error"
+  )
+  metric.len <- 22
+  predictions <- coef(fitted.dlm, eval_t = seq_len(T_len), lag = min(lag, 0), pred.cred = pred.cred, eval.pred = FALSE)
 
   distr.names <- lapply(fitted.dlm$outcomes, function(x) {
     x$name
@@ -66,21 +74,11 @@ report_dlm <- function(fitted.dlm, t = fitted.dlm$t, lag = -1, metric.lag = 1, m
   } else {
     paste0(metric.lag, "-steps-ahead prediction")
   }
-  coef.names <- rep(NA, k)
-  for (name in names(fitted.dlm$var.names)) {
-    name.len <- length(fitted.dlm$var.names[[name]])
-    name_i <- name
-    if (name.len > 1) {
-      len.var <- length(fitted.dlm$var.names[[name]])
-      len.char <- floor(log10(len.var)) + 1
-      name_i <- paste0(name, ".", formatC(names(fitted.dlm$var.names[[name]]), width = len.char, flag = "0"))
-    }
-    coef.names[fitted.dlm$var.names[[name]]] <- name_i
-  }
-  len.names <- max(sapply(as.character(coef.names), function(x) {
+  len.names <- max(sapply(as.character(fitted.dlm$var.labels), function(x) {
     nchar(x)
   }))
-  coef.names <- format(coef.names, width = len.names, justify = "r")
+  var.labels <- format(fitted.dlm$var.labels, width = len.names, justify = "l")
+
 
   mean.coef <- predictions$mt[, t]
   var.mat <- predictions$Ct[, , t]
@@ -91,7 +89,7 @@ report_dlm <- function(fitted.dlm, t = fitted.dlm$t, lag = -1, metric.lag = 1, m
   }
   t.coef <- mean.coef / std.coef
   p.val <- 2 * (1 - pnorm(abs(mean.coef) / std.coef))
-  status <- rep(" ", length(coef.names))
+  status <- rep(" ", length(var.labels))
   status[p.val <= 0.01] <- "."
   status[p.val <= 0.05] <- "*"
   status[p.val <= 0.01] <- "**"
@@ -108,30 +106,11 @@ report_dlm <- function(fitted.dlm, t = fitted.dlm$t, lag = -1, metric.lag = 1, m
     p.val.str
   )
 
-  distr.like <- ifelse(abs(distr.like) < 0.00001 | abs(distr.like) > 1e5,
-    format(distr.like, digits = 4, width = 14, justify = "l", scientific = TRUE),
-    format(round(distr.like, 5), width = 14, justify = "l", scientific = FALSE)
+  metric.vals <- ifelse(abs(metric.vals) < 0.00001 | abs(metric.vals) > 1e5,
+    format(metric.vals, digits = 4, justify = "l", scientific = TRUE),
+    format(round(metric.vals, 5), justify = "l", scientific = FALSE)
   )
-  distr.rae <- ifelse(abs(distr.rae) < 0.00001 | abs(distr.rae) > 1e5,
-    format(distr.rae, digits = 4, width = 21, justify = "l", scientific = TRUE),
-    format(round(distr.rae, 5), width = 21, justify = "l", scientific = FALSE)
-  )
-  distr.mae <- ifelse(abs(distr.mae) < 0.00001 | abs(distr.mae) > 1e5,
-    format(distr.mae, digits = 4, width = 17, justify = "l", scientific = TRUE),
-    format(round(distr.mae, 5), width = 17, justify = "l", scientific = FALSE)
-  )
-  distr.mse <- ifelse(abs(distr.mse) < 0.00001 | abs(distr.mse) > 1e5,
-    format(distr.mse, digits = 4, width = 20, justify = "l", scientific = TRUE),
-    format(round(distr.mse, 5), width = 20, justify = "l", scientific = FALSE)
-  )
-  distr.mase <- ifelse(abs(distr.mase) < 0.00001 | abs(distr.mase) > 1e5,
-    format(distr.mase, digits = 4, width = 24, justify = "l", scientific = TRUE),
-    format(round(distr.mase, 5), width = 24, justify = "l", scientific = FALSE)
-  )
-  distr.interval.score <- ifelse(abs(distr.interval.score) < 0.00001 | abs(distr.interval.score) > 1e5,
-    format(distr.interval.score, digits = 4, width = 16, justify = "l", scientific = TRUE),
-    format(round(distr.interval.score, 5), width = 16, justify = "l", scientific = FALSE)
-  )
+  metric.names <- format(metric.names, width = metric.len, justify = "l")
 
   cat(paste0(
     "Fitted DGLM with ", length(fitted.dlm$outcomes), " outcomes.\n\n",
@@ -139,13 +118,12 @@ report_dlm <- function(fitted.dlm, t = fitted.dlm$t, lag = -1, metric.lag = 1, m
     paste0("    ", names(distr.names), ": ", distr.names, "\n", collapse = ""), "\n",
     "Coeficients (", coef.label, ") at time ", t, ":\n",
     paste(format(" ", width = len.names, justify = "l"), "Estimate", "Std. Error", "  t value", "Pr(>|t|)"), "\n",
-    paste(coef.names, mean.coef, std.coef, t.coef, p.val.str, status, "\n", collapse = ""),
+    paste(var.labels, mean.coef, std.coef, t.coef, p.val.str, status, "\n", collapse = ""),
     "---\n",
     "Signif. codes:  0 \xe2\x80\x98***\xe2\x80\x99 0.001 \xe2\x80\x98**\xe2\x80\x99 0.01 \xe2\x80\x98*\xe2\x80\x99 0.05 \xe2\x80\x98.\xe2\x80\x99 0.1 \xe2\x80\x98 \xe2\x80\x99 1\n\n",
     "---\n",
     metric.label, "\n",
-    format(" ", width = distr.names.len, justify = "l"), "  Pred. log-like  Mean Abs. Error  Mean Abs. Scaled Error  Relative abs. Error  Mean Squared Error  Interval Score\n",
-    paste0(format(names(distr.names), width = distr.names.len, justify = "l"), ": ", distr.like, distr.mae, distr.mase, distr.rae, distr.mse, distr.interval.score, "\n", collapse = ""),
+    paste0(paste0(metric.names, ": ", metric.vals), collapse = "\n"), "\n",
     "---"
   ))
 }
@@ -161,7 +139,7 @@ report_dlm <- function(fitted.dlm, t = fitted.dlm$t, lag = -1, metric.lag = 1, m
 #' @keywords internal
 #' @family {auxiliary functions for a creating outcomes}
 #' @family {Reports for dlm_distr objects.}
-report_distr <- function(dlm.distr) {
+summary.dlm_distr <- function(dlm.distr) {
   cat(paste0(
     dlm.distr$name, " distribution.\n\nUnknown parameters: \n",
     paste0("    ", names(dlm.distr$pred.names), " - ", dlm.distr$pred.names, collapse = "\n"), "\n",
@@ -186,7 +164,7 @@ report_distr <- function(dlm.distr) {
 #' @export
 #' @keywords internal
 #' @family {auxiliary functions for structural blocks}
-report_block <- function(dlm.block) {
+summary.dlm_block <- function(dlm.block) {
   block.names <- names(dlm.block$var.names)
 
   for (name in unique(block.names)) {
@@ -234,7 +212,7 @@ report_block <- function(dlm.block) {
 #' @export
 #' @keywords internal
 #' @family {auxiliary visualization functions for the fitted.dlm class}
-report_searched_dlm <- function(searched.dlm) {
+summary.searched_dlm <- function(searched.dlm) {
   print(searched.dlm$search.data[1:5, ])
-  report_dlm(searched.dlm$model)
+  summary(searched.dlm$model)
 }

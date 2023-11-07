@@ -109,6 +109,7 @@ base_block <- function(..., order, name,
 
   FF <- array(0, c(order, k, t), dimnames = list(NULL, vars, NULL))
   FF.labs <- matrix("const", order, k, dimnames = list(NULL, vars))
+  count.regr <- 0
   for (i in 1:k) {
     name.var <- vars[i]
     if (typeof(values[[name.var]]) == "character") {
@@ -119,6 +120,10 @@ base_block <- function(..., order, name,
       }
     } else {
       FF[1, i, ] <- values[[name.var]]
+      if (any(values[[name.var]] != max(values[[name.var]]))) {
+        count.regr <- count.regr + 1
+        FF.labs[1, i] <- "Covariate"
+      }
     }
   }
 
@@ -172,7 +177,8 @@ base_block <- function(..., order, name,
     "pred.names" = vars,
     "monitoring" = monitoring,
     "interventions" = list(),
-    "type" = "Basic"
+    "type" = "Basic",
+    "scale" = rep(1, order)
   )
   class(block) <- "dlm_block"
   block$status <- check.block.status(block)
@@ -679,11 +685,12 @@ AR_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
         dummy.var
       )
 
-    names(block.pulse$var.names[[paste0(name, ".Pulse")]]) <- paste0("Pulse.", 1:k)
+    names(block.pulse$var.names[[paste0(name, ".Pulse")]]) <- paste0(1:k)
 
     block.pulse$G <- diag(k)
     block <- block + block.pulse
     block$G[1, (2 * order + 1):(2 * order + k), ] <- t(matrix(pulse, block$t, k))
+    block$G.labs[1, (2 * order + 1):(2 * order + k)] <- "Pulse"
   }
   return(block)
 }
@@ -726,16 +733,7 @@ AR_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
 #'
 #' @details
 #'
-#' For the ..., noise.var, noise.disc, D, H, a1, R1, a1, R1, a1.pulse, R1.pulse, D.pulse, h.pulse, H.pulse arguments, the user may set one or more of its values as a string.
-#' By doing so, the user will leave the block partially undefined and it can no longer be used in the \code{\link{fit_model}} function.
-#' Instead, the user must use the \code{\link{search_model}} function to search the best hyper parameters among a defined range of possible values.
-#' See the \code{\link{search_model}} function for details on its usage.
-#'
 #' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
-#'
-#' For the details about Auto regressive models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapter 9.
-#'
-#' For the details about the linearization of non-linear evolution equations in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapter 13.
 #'
 #' For the details about dynamic regression models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
 #'
@@ -771,107 +769,6 @@ noise_block <- function(..., name = "Noise",
   block$var.names <- list()
   block$var.names[[name]] <- var.labs
   block$type <- "Noise"
-  return(block)
-}
-
-#' PCAR_block
-#'
-#' Creates the structure for a random effect with Proper Conditional Autoregressive (PCAR) prior. This block represents an independent random noise that should be added to the linear predictor.
-#'
-#' @param ... Named values for the planning matrix.
-#' @param adj.matrix Matrix: The adjacency matrix.
-#' @param tau Numeric: The tau parameter for the PCAR model (see references).
-#' @param rho Numeric: The rho parameter for the PCAR model (see references).
-#' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
-#' @param D Array, Matrix, vector or scalar: The values for the discount factors associated with the latent variables at each time. If D is an array, its dimensions should be n x n x t, where n is the order of the polynomial block and t is the length of the outcomes. If D is a matrix, its dimensions should be n x n and the same discount matrix will be used in all observations. If D is a vector, it should have size t and it is interpreted as the discount factor at each observed time (same discount for all variable). If D is a scalar, the same discount will be used for all latent variables at all times.
-#' @param h Matrix, vector or scalar: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, its dimension should be n x t, where n is the number of latent variables (i.e., the order) and t is the length of the series. If a vector, it should have size t, and each value will be applied to the first latent variable (the one which affects the linear predictors) in their respective time. If a scalar, the passed value will be used for the first latent variable at each time.
-#' @param H Array, Matrix, vector or scalar: The values for the covariance matrix for the noise factor at each time. If H is an array, its dimensions should be n x n x t, where n is the order of the polynomial block and t is the length of the series. If H is a matrix, its dimensions should be n x n and its values will be used for each time. If H is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of H in the diagonal.
-#' @param a1 Vector or scalar: The prior mean for the latent variables associated with this block at time 1. If a1 is a vector, its dimension should be equal to the order of the polynomial block. If a1 is a scalar, its value will be used for all latent variables.
-#' @param R1 Matrix, vector or scalar: The prior covariance matrix for the latent variables associated with this block at time 1. If R1 is a matrix, its dimensions should be n x n. If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal. If not null, tau and rho are ignored.
-#' @param monitoring Vector: A vector of flags indicating which variables should be monitored (if automated monitoring is used). Its size should be n. The default is that only the first order component of this structure should be monitored.
-#'
-#' @return A dlm_block object containing the following values:
-#' \itemize{
-#'    \item FF Array: A 3D-array containing the regression matrix for each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model and t is the time series length.
-#'    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
-#'    \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
-#'    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
-#'    \item D Array: A 3D-array containing the discount factor matrix for each time. It's dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
-#'    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. It's dimension should be the same as D.
-#'    \item a1 Vector: The prior mean for the latent vector.
-#'    \item R1 Matrix: The prior covariance matrix for the latent vector.
-#'    \item var.names list: A list containing the variables indexes by their name.
-#'    \item order Positive integer: Same as argument.
-#'    \item n Positive integer: The number of latent variables associated with this block (2).
-#'    \item t Positive integer: The number of time steps associated with this block. If 1, the block is compatible with blocks of any time length, but if t is greater than 1, this block can only be used with blocks of the same time length.
-#'    \item k Positive integer: The number of outcomes associated with this block. This block can only be used with blocks with the same outcome length.
-#'    \item pred.names Vector: The name of the linear predictors associated with this block.
-#'    \item monitoring Vector: The combination of monitoring, monitoring and monitoring.pulse.
-#'    \item type Character: The type of block (Noise).
-#' }
-#'
-#' @export
-#' @examples
-#'
-#' noise_block(mu = 1, D = 0.99, R1 = 1e-2)
-#'
-#' @details
-#'
-#' For a revision of the CAR prior, see \insertCite{AlexCar;textual}{kDGLM}
-#'
-#' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
-#'
-#' For the details about Auto regressive models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapter 9.
-#'
-#' For the details about the linearization of non-linear evolution equations in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapter 13.
-#'
-#' For the details about dynamic regression models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
-#'
-#' @seealso \code{\link{fit_model}}
-#' @family {auxiliary functions for structural blocks}
-#'
-#' @references
-#'    \insertAllCited{}
-PCAR_block <- function(..., adj.matrix, tau, rho, name = "CAR",
-                       D = 1, h = 0, H = 0,
-                       a1 = 0, R1 = NULL,
-                       monitoring = rep(FALSE, length(args))) {
-  args <- list(...)
-  if (is.null(R1)) {
-    k <- dim(adj.matrix)[1]
-    D.mat <- diag(rowSums(adj.matrix[-k, -k]))
-    R1 <- ginv(tau * (D.mat - rho * adj.matrix[-k, -k]))
-    A <- cbind(diag(k - 1), -1)
-    R1 <- crossprod(A, R1) %*% A
-    # R1=ginv(tau*(D.mat-adj.matrix))
-    # R1=(1-rho)*diag(dim(adj.matrix)[1])+rho*R1
-    # R1=matrix(-tau,dim(adj.matrix)[1],dim(adj.matrix)[1])
-    # diag(R1)=tau*(rowSums(adj.matrix)+rho)
-    # R1=ginv(R1)
-  } else {
-    warning("R1 is not null. tau and rho will be ignored.")
-  }
-  if (length(args) != dim(adj.matrix)[1]) {
-    stop("Error: The number of linear predictor must be equal to number of regions in adj.matrix.")
-  }
-  if (is.null(colnames(adj.matrix))) {
-    len.char <- floor(log10(length(args))) + 1
-    reg.names <- paste0("Region.", formatC(1:length(args), width = len.char, flag = "0"))
-  } else {
-    reg.names <- colnames(adj.matrix)
-  }
-
-  block <- base_block(..., order = length(args), name = name, H = H, D = D, h = h, a1 = a1, R1 = R1, monitoring = monitoring)
-  for (i in 1:block$t) {
-    block$FF[, , i] <- diag(block$FF[1, , i])
-  }
-  labs <- block$FF.labs[1, ]
-  block$FF.labs[, ] <- "const"
-  diag(block$FF.labs) <- labs
-  block$type <- "PCAR"
-  block$var.names <- list()
-  block$var.names[[name]] <- 1:length(args)
-  names(block$var.names[[name]]) <- reg.names
   return(block)
 }
 
@@ -958,6 +855,7 @@ block_superpos <- function(...) {
   period <- 1
   position <- 1
   monitoring <- c()
+  scale <- c()
   interventions <- list()
   status <- "defined"
   for (block in blocks) {
@@ -974,6 +872,7 @@ block_superpos <- function(...) {
     a1 <- c(a1, block$a1)
     R1[current.range, current.range] <- block$R1
     monitoring <- append(monitoring, block$monitoring)
+    scale <- append(scale, block$scale)
     if (length(block$interventions) > 0) {
       for (i in 1:length(block$interventions)) {
         block$interventions[[i]]$var.index <- block$interventions[[i]]$var.index + position - 1
@@ -1003,7 +902,8 @@ block_superpos <- function(...) {
     "pred.names" = pred.names,
     "monitoring" = monitoring,
     "interventions" = interventions,
-    "type" = "Mixed"
+    "type" = "Mixed",
+    "scale" = scale
   )
   class(block) <- "dlm_block"
   block$status <- check.block.status(block)
@@ -1114,7 +1014,7 @@ block_rename <- function(block, pred.names) {
 #' # Comment the line above to see the fit without the intervention
 #'
 #' outcome <- Poisson(lambda = "rate", data = data)
-#' #
+#'
 #' fitted.data <- fit_model(level, season,
 #'   AirPassengers = outcome
 #' )
@@ -1146,20 +1046,31 @@ set.block.value <- function(block, ...) {
   var.value <- list(...)
   for (name in names(var.value)) {
     block$FF[array(block$FF.labs == name, c(block$n, block$k, block$t))] <- var.value[[name]]
-    block$FF.labs[block$FF.labs == name] <- "const"
+    block$FF.labs[block$FF.labs == name] <- "Covariate"
     block$D[block$D == name] <- var.value[[name]]
     block$H[block$H == name] <- var.value[[name]]
     block$a1[block$a1 == name] <- var.value[[name]]
     block$R1[block$R1 == name] <- var.value[[name]]
     block$G[block$G == name] <- var.value[[name]]
+    block$scale[block$scale == name] <- var.value[[name]]
   }
 
-  block$FF <- array(as.numeric(block$FF), c(block$n, block$k, block$t), dimnames = list(NULL, block$pred.names, NULL))
-  block$D <- array(as.numeric(block$D), c(block$n, block$n, block$t))
-  block$H <- array(as.numeric(block$H), c(block$n, block$n, block$t))
-  block$a1 <- as.numeric(block$a1)
-  block$R1 <- matrix(as.numeric(block$R1), block$n, block$n)
-  block$G <- array(as.numeric(block$G), c(block$n, block$n, block$t))
-  block$status <- check.block.status(block)
+  FF <- array(as.numeric(block$FF), c(block$n, block$k, block$t), dimnames = list(NULL, block$pred.names, NULL))
+  D <- array(as.numeric(block$D), c(block$n, block$n, block$t))
+  H <- array(as.numeric(block$H), c(block$n, block$n, block$t))
+  a1 <- as.numeric(block$a1)
+  R1 <- matrix(as.numeric(block$R1), block$n, block$n)
+  G <- array(as.numeric(block$G), c(block$n, block$n, block$t))
+  scale <- as.numeric(block$scale)
+  if (all(!is.na(FF)) | all(!is.na(D)) | all(!is.na(H)) |
+    all(!is.na(a1)) | all(!is.na(R1)) | all(!is.na(G)) | all(!is.na(scale))) {
+    block$FF <- FF
+    block$D <- D
+    block$H <- H
+    block$a1 <- a1
+    block$R1 <- diag(sqrt(scale)) %*% R1 %*% diag(sqrt(scale))
+    block$G <- G
+    block$status <- check.block.status(block)
+  }
   return(block)
 }

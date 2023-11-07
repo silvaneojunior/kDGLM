@@ -116,6 +116,9 @@ analytic_filter <- function(outcomes,
   k <- dim(FF)[2]
 
   pred.names <- colnames(FF)
+  if (length(monitoring) == 1) {
+    monitoring <- rep(monitoring, n)
+  }
   D.flags <- (D == 0) | array(crossprod(t(monitoring), t(monitoring)) == 0, c(n, n, T_len))
   D <- ifelse(D == 0, 1, D)
   D.inv <- 1 / D
@@ -140,28 +143,17 @@ analytic_filter <- function(outcomes,
   last.m <- a1
   last.C <- R1
   models <- list()
-  D.mult <- list("null.model" = 1, "alt.model" = 100)
-  H.add <- list("null.model" = diag(n) * 0, "alt.model" = diag(n) * 0.001)
+  D.mult <- list("null.model" = 0, "alt.model" = 100)
+  H.add <- list("null.model" = diag(n) * 0, "alt.model" = diag(n) * 0)
   monit.win <- 1
+  log.like.null <- rep(NA, T_len)
+  log.like.alt <- rep(-Inf, T_len)
+  alt.flags <- rep(0, T_len)
 
   for (outcome.name in names(outcomes)) {
     if (!inherits(outcomes[[outcome.name]], "dlm_distr")) {
       stop(paste0("Error: Outcome contains is not of the right class Expected a dlm_distr object, got a ", class(outcomes[[outcome.name]]), " object."))
     }
-    param.names <- outcomes[[outcome.name]]$param.names
-    # outcomes[[outcome.name]]$conj.prior.param <- matrix(NA, T_len, length(param.names)) |> as.data.frame()
-    # names(outcomes[[outcome.name]]$conj.prior.param) <- param.names
-
-    outcomes[[outcome.name]]$log.like.null <- rep(NA, T_len)
-    outcomes[[outcome.name]]$log.like.alt <- rep(-Inf, T_len)
-    outcomes[[outcome.name]]$alt.flags <- rep(0, T_len)
-
-
-    pred.index <- match(outcomes[[outcome.name]]$pred.names, pred.names)
-    k_i <- length(pred.index)
-
-    outcomes[[outcome.name]]$ft <- matrix(NA, nrow = k_i, ncol = T_len)
-    outcomes[[outcome.name]]$Qt <- array(NA, dim = c(k_i, k_i, T_len))
   }
 
   c <- c.monit
@@ -179,11 +171,13 @@ analytic_filter <- function(outcomes,
       models[[model]] <- list()
       D.p.inv <- D.inv[, , t]
       D.p <- D[, , t]
-      D.p.inv[!D.flags[, , t]] <- D.p.inv[!D.flags[, , t]] * D.mult[[model]]
+      # D.p.inv[!D.flags[, , t]] <- D.p.inv[!D.flags[, , t]] * D.mult[[model]]
 
       H.prev <- H.now
       G.now <- G[, , t] |> matrix(n, n)
       H.now <- H[, , t] |> matrix(n, n)
+      # H.now[!D.flags[, , t]] <- H.now[!D.flags[, , t]] + H.add[[model]]
+      H.now[which(monitoring), which(monitoring)] <- H.now[which(monitoring), which(monitoring)] + last.C[which(monitoring), which(monitoring)] * D.mult[[model]]
 
       if (any(null.rows.flag)) {
         weight <- ((t - 1) / t) * diag(D.p)
@@ -195,12 +189,13 @@ analytic_filter <- function(outcomes,
       next.step <- one_step_evolve(
         last.m, last.C,
         G.now, G.labs,
-        D.p.inv, h[, t], H.now + H.add[[model]]
+        D.p.inv, h[, t], H.now
       )
 
       models[[model]]$at <- at.step <- next.step$at
       models[[model]]$Rt <- Rt.step <- next.step$Rt
       models[[model]]$W <- next.step$W
+      models[[model]]$H.now <- H.now
 
       lin.pred <- calc_lin_pred(at.step, Rt.step, FF.step, FF.labs, pred.names, 1:k)
       models[[model]]$ft <- ft.step <- lin.pred$ft
@@ -208,38 +203,40 @@ analytic_filter <- function(outcomes,
       models[[model]]$FF <- lin.pred$FF
 
 
-      log.like <- 0
-      for (outcome.name in names(outcomes)) {
-        outcome <- outcomes[[outcome.name]]
+      if (!is.na(p.monit)) {
+        log.like <- 0
+        for (outcome.name in names(outcomes)) {
+          outcome <- outcomes[[outcome.name]]
 
-        offset.step <- outcome$offset[t, ]
-        na.flag <- any(is.null(offset.step) | any(offset.step == 0) | any(is.na(offset.step)) | any(is.na(outcome$data[t, ])))
+          offset.step <- outcome$offset[t, ]
+          na.flag <- any(is.null(offset.step) | any(offset.step == 0) | any(is.na(offset.step)) | any(is.na(outcome$data[t, ])))
 
-        if (!na.flag) {
-          pred.index <- match(outcome$pred.names, pred.names)
-          ft.canom <- ft.step[pred.index, , drop = FALSE]
-          Qt.canom <- Qt.step[pred.index, pred.index, drop = FALSE]
-          if (outcome$convert.canom.flag) {
-            ft.canom <- outcome$convert.mat.canom %*% ft.canom
-            Qt.canom <- outcome$convert.mat.canom %*% Qt.canom %*% transpose(outcome$convert.mat.canom)
+          if (!na.flag) {
+            pred.index <- match(outcome$pred.names, pred.names)
+            ft.canom <- ft.step[pred.index, , drop = FALSE]
+            Qt.canom <- Qt.step[pred.index, pred.index, drop = FALSE]
+            if (outcome$convert.canom.flag) {
+              ft.canom <- outcome$convert.mat.canom %*% ft.canom
+              Qt.canom <- outcome$convert.mat.canom %*% Qt.canom %*% transpose(outcome$convert.mat.canom)
+            }
+            offset.pred <- outcome$apply_offset(ft.canom, Qt.canom, offset.step)
+            ft.canom <- offset.pred$ft
+            Qt.canom <- offset.pred$Qt
+            conj.prior <- outcome$conj_distr(ft.canom, Qt.canom, parms = outcome$parms)
+            log.like <- log.like + outcome$calc_pred(conj.prior, outcome$data[t, ], parms = outcome$parms, pred.cred = NA)$log.like
           }
-          offset.pred <- outcome$apply_offset(ft.canom, Qt.canom, offset.step)
-          ft.canom <- offset.pred$ft
-          Qt.canom <- offset.pred$Qt
-          conj.prior <- outcome$conj_distr(ft.canom, Qt.canom, parms = outcome$parms)
-          log.like <- log.like + outcome$calc_pred(conj.prior, outcome$data[t, ], parms = outcome$parms, pred.cred = NA)$log.like
         }
-      }
 
-      models[[model]]$log.like <- log.like
+        models[[model]]$log.like <- ifelse(is.nan(log.like), -Inf, log.like)
+      }
     }
 
     model <- models$null.model
     if (!is.na(p.monit)) {
-      outcomes[[outcome.name]]$log.like.null[t] <- models$null.model$log.like
-      outcomes[[outcome.name]]$log.like.alt[t] <- models$alt.model$log.like
-      bayes.factor <- sum(outcomes[[outcome.name]]$log.like.null[t:(t - monit.win + 1)] +
-        -outcomes[[outcome.name]]$log.like.alt[t:(t - monit.win + 1)]) |>
+      log.like.null[t] <- models$null.model$log.like
+      log.like.alt[t] <- models$alt.model$log.like
+      bayes.factor <- sum(log.like.null[t:(t - monit.win + 1)] +
+        -log.like.alt[t:(t - monit.win + 1)]) |>
         if.nan(0)
 
       if (monit.win > 0) {
@@ -249,7 +246,7 @@ analytic_filter <- function(outcomes,
           D.inv[, , t] <- D.inv[, , t] * D.mult$alt.model
           H[, , t] <- H[, , t] * H.add$alt.model
           monit.win <- -6
-          outcomes[[outcome.name]]$alt.flags[t] <- 1
+          alt.flags[t] <- 1
         } else if (bayes.factor > 0) {
           monit.win <- 0
         }
@@ -258,6 +255,7 @@ analytic_filter <- function(outcomes,
     }
     ft.step <- model$ft
     Qt.step <- model$Qt
+    H.now <- model$H.now
 
     mt.step <- model$at
     Ct.step <- model$Rt
@@ -273,6 +271,7 @@ analytic_filter <- function(outcomes,
         lin.pred <- calc_lin_pred(mt.step, Ct.step, FF.step, FF.labs, pred.names, pred.index)
         ft.step.part <- lin.pred$ft
         Qt.step.part <- lin.pred$Qt
+        Qt.inv <- ginv(Qt.step.part)
         FF.cur.step <- lin.pred$FF
 
         if (outcome$convert.canom.flag) {
@@ -294,14 +293,14 @@ analytic_filter <- function(outcomes,
         }
         ft.star.part <- norm.post$ft
         Qt.star.part <- norm.post$Qt
-        if (outcome$convert.canom.flag) {
-          ft.star.part <- outcome$convert.mat.default %*% ft.star.part
-          Qt.star.part <- outcome$convert.mat.default %*% Qt.star.part %*% transpose(outcome$convert.mat.default)
-        }
         error.ft <- (ft.star.part - ft.step.part)
         error.Qt <- (Qt.star.part - Qt.step.part)
 
-        Qt.inv <- ginv(Qt.step.part)
+        if (outcome$convert.canom.flag) {
+          error.ft <- outcome$convert.mat.default %*% error.ft
+          error.Qt <- outcome$convert.mat.default %*% error.Qt %*% transpose(outcome$convert.mat.default)
+        }
+
         At <- Ct.step %*% FF.cur.step[, pred.index] %*% Qt.inv
         mt.step <- mt.step + At %*% error.ft
         Ct.step <- Ct.step + At %*% error.Qt %*% t(At)
@@ -329,11 +328,14 @@ analytic_filter <- function(outcomes,
   result <- list(
     mt = mt, Ct = Ct,
     at = at, Rt = Rt,
-    ft = ft, ft = Qt,
+    ft = ft, Qt = Qt,
     ft.star = ft.star, Qt.star = Qt.star,
     FF = FF, FF.labs = FF.labs,
     G = G, G.labs = G.labs,
     D = D, h = h, H = H, W = W,
+    log.like.null = log.like.null,
+    log.like.alt = log.like.alt,
+    alt.flags = alt.flags,
     monitoring = monitoring, smooth = FALSE,
     outcomes = outcomes, pred.names = pred.names
   )
@@ -453,7 +455,7 @@ calc_current_F <- function(at, Rt, FF, FF.labs, pred.names) {
   at.mod <- c(at)
   Rt.mod <- Rt
   count.na <- sum(is.na(FF))
-  if (any(is.na(FF) & FF.labs == "const")) {
+  if (any(is.na(FF) & (FF.labs == "const" | FF.labs == "Covariate"))) {
     stop("Error: Unexpected NA values in the FF matrix.")
   }
   while (count.na > 0) {

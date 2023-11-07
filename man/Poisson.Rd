@@ -51,7 +51,6 @@ Other {auxiliary functions for a creating outcomes}:
 \code{\link{Gamma}()},
 \code{\link{Multinom}()},
 \code{\link{Normal}()},
-\code{\link{report_distr}()},
 \code{\link{summary.dlm_distr}()}
 }
 \concept{{auxiliary functions for a creating outcomes}}

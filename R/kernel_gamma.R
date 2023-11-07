@@ -37,8 +37,8 @@
 #' @references
 #'    \insertAllCited{}
 Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, offset = as.matrix(data)**0) {
-  if(any(data<=0)){
-    stop('Error: data must be a positive vector/matrix.')
+  if (any(data < 0)) {
+    stop("Error: data must be a positive vector/matrix.")
   }
   alt.method <- FALSE
   data <- as.matrix(data)
@@ -146,6 +146,7 @@ Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, of
   distr$convert.mat.default <- convert.mat.default
   distr$parms <- parms
   distr$name <- "Gamma"
+  distr$sufix <- ""
 
   class(distr) <- "dlm_distr"
   distr$alt.method <- alt.method

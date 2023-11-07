@@ -243,9 +243,12 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
       #   return(c(mu_bar,-log(S_bar)))
       # }
       #
-      # A_test=t(calculus::derivative(f,sd=ft.up))
+      # A_test=t(calculus::derivative(f,ft.up))
       # # ft.now=f(ft.up)
       # # Qt.now=t(A)%*%Qt.up%*%A
+      # print('a')
+      # print(A)
+      # print(A_test)
       # print(max(abs(A-A_test)))
       # }
       ####################################
@@ -265,6 +268,8 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
       # print(Qt.post)
       # print(Qt.up)
 
+      # print(A)
+      # print(Qt.now)
       At <- Qt.up %*% A %*% ginv(Qt.now)
       At.t <- t(At)
 
@@ -410,35 +415,35 @@ update_multi_NG_chol <- function(conj.param, ft, Qt, y, parms) {
     }
 
     ###################################
-    {
-      f <- function(x) {
-        mu <- x
-        rho <- matrix(0, r, r)
-        # rho <- lower_tri.assign(rho, x[cor.index], diag = FALSE)
-        rho <- upper_tri.assign(rho, x[cor.index], diag = FALSE)
-        # diag(rho) <- x[var.index]
-        # eigen.decomp=eigen(rho)
-        # Sigma <- eigen.decomp$vectors %*% diag(exp(-eigen.decomp$values)) %*% t(eigen.decomp$vectors)
-        diag(rho) <- exp(-x[var.index] / 2)
-        Sigma <- t(rho) %*% rho
-
-        if (i == 1) {
-          mu_bar <- mu[i]
-          S_bar <- Sigma[i, i]
-        } else {
-          S <- ginv(Sigma[1:(i - 1), 1:(i - 1)])
-          mu_bar <- mu[i] + Sigma[i, 1:(i - 1)] %*% S %*% (y[1:(i - 1)] - mu[1:(i - 1)])
-          S_bar <- Sigma[i, i] - Sigma[i, 1:(i - 1)] %*% S %*% Sigma[1:(i - 1), i]
-        }
-        return(c(mu_bar, -log(S_bar)))
-        # return(c(Sigma))
-      }
-
-      A_test <- t(calculus::derivative(f, var = ft.up))
-      # ft.now=f(ft.up)
-      # Qt.now=t(A)%*%Qt.up%*%A
-      print(max(abs(A - A_test)))
-    }
+    # {
+    #   f <- function(x) {
+    #     mu <- x
+    #     rho <- matrix(0, r, r)
+    #     # rho <- lower_tri.assign(rho, x[cor.index], diag = FALSE)
+    #     rho <- upper_tri.assign(rho, x[cor.index], diag = FALSE)
+    #     # diag(rho) <- x[var.index]
+    #     # eigen.decomp=eigen(rho)
+    #     # Sigma <- eigen.decomp$vectors %*% diag(exp(-eigen.decomp$values)) %*% t(eigen.decomp$vectors)
+    #     diag(rho) <- exp(-x[var.index] / 2)
+    #     Sigma <- t(rho) %*% rho
+    #
+    #     if (i == 1) {
+    #       mu_bar <- mu[i]
+    #       S_bar <- Sigma[i, i]
+    #     } else {
+    #       S <- ginv(Sigma[1:(i - 1), 1:(i - 1)])
+    #       mu_bar <- mu[i] + Sigma[i, 1:(i - 1)] %*% S %*% (y[1:(i - 1)] - mu[1:(i - 1)])
+    #       S_bar <- Sigma[i, i] - Sigma[i, 1:(i - 1)] %*% S %*% Sigma[1:(i - 1), i]
+    #     }
+    #     return(c(mu_bar, -log(S_bar)))
+    #     # return(c(Sigma))
+    #   }
+    #
+    #   A_test <- t(calculus::derivative(f, var = ft.up))
+    #   # ft.now=f(ft.up)
+    #   # Qt.now=t(A)%*%Qt.up%*%A
+    #   print(max(abs(A - A_test)))
+    # }
     ####################################
 
     if (parms$alt.method) {

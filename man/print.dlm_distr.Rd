@@ -17,8 +17,6 @@ print.dlm_distr
 \seealso{
 Other {auxiliary visualization functions for the fitted.dlm class}: 
 \code{\link{print.searched_dlm}()},
-\code{\link{report_dlm}()},
-\code{\link{report_searched_dlm}()},
 \code{\link{summary.fitted_dlm}()},
 \code{\link{summary.searched_dlm}()}
 }

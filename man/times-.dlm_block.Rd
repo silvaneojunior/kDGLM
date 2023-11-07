@@ -18,7 +18,7 @@ Define product operator for class dlm_block
 Other {auxiliary functions for structural blocks}: 
 \code{\link{+.dlm_block}()},
 \code{\link{AR_block}()},
-\code{\link{PCAR_block}()},
+\code{\link{CAR_prior}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},
@@ -27,8 +27,8 @@ Other {auxiliary functions for structural blocks}:
 \code{\link{polynomial_block}()},
 \code{\link{print.dlm_block}()},
 \code{\link{regression_block}()},
-\code{\link{report_block}()},
-\code{\link{summary.dlm_block}()}
+\code{\link{summary.dlm_block}()},
+\code{\link{zero_sum_prior}()}
 }
 \concept{{auxiliary functions for structural blocks}}
 \keyword{internal}

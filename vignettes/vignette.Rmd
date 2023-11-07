@@ -185,7 +185,6 @@ mean_block <- polynomial_block(
 Bellow we present a plot of two models fitted to the same data: one with a static mean and another using a dynamic mean.
 
 ```{r echo=FALSE, results='hide'}
-
 # Normal case
 T <- 200
 mu <- rnorm(T, 0, 0.5)
@@ -283,11 +282,11 @@ fitted.data <- fit_model(regression, outcome)
 ```
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-plot(gamma_coef,type='l',lty=2,col='red',ylim=c(0.45,0.55),ylab=expression(theta[t]),xlab = 'Time',main=expression(paste('Estimation of ',theta[t])))
-lines(fitted.data$mts[1,])
-lines(fitted.data$mts[1,]-1.96*sqrt(fitted.data$Cts[1,1,]),lty=2)
-lines(fitted.data$mts[1,]+1.96*sqrt(fitted.data$Cts[1,1,]),lty=2)
-legend('topright',legend=c('True value','Mean','C.I. 95%'),lty=c(2,1,2),col=c('red','black','black'))
+plot(gamma_coef, type = "l", lty = 2, col = "red", ylim = c(0.45, 0.55), ylab = expression(theta[t]), xlab = "Time", main = expression(paste("Estimation of ", theta[t])))
+lines(fitted.data$mts[1, ])
+lines(fitted.data$mts[1, ] - 1.96 * sqrt(fitted.data$Cts[1, 1, ]), lty = 2)
+lines(fitted.data$mts[1, ] + 1.96 * sqrt(fitted.data$Cts[1, 1, ]), lty = 2)
+legend("topright", legend = c("True value", "Mean", "C.I. 95%"), lty = c(2, 1, 2), col = c("red", "black", "black"))
 ```
 
 The detailed theory behind the structure discussed in this section can be found in chapters 6 and 9 from @WestHarr-DLM.
@@ -347,7 +346,6 @@ data <- rpois(T, exp(1.5 * cos(w * 1:T)))
 
 
 ```{r echo=FALSE, results='hide'}
-
 season <- harmonic_block(rate = 1, period = 12, D = 0.975)
 
 outcome <- Poisson(lambda = "rate", data = data)
@@ -482,7 +480,7 @@ x <- seq(fitted.data$mts[2, T] - 4 * sqrt(fitted.data$Cts[2, 2, T]),
   l = 1000
 )
 fx <- dnorm(x, fitted.data$mts[2, T], sqrt(fitted.data$Cts[2, 2, T]))
-plot(x, fx, main = "Posterior distribuition for the AR coefficient", type = "l", xlab = 'phi', ylab = "Density")
+plot(x, fx, main = "Posterior distribuition for the AR coefficient", type = "l", xlab = "phi", ylab = "Density")
 lines(c(0.95, 0.95), c(0, max(fx) + 1), lty = 2)
 legend("topright", legend = c("True phi"), lty = c(2))
 
@@ -531,8 +529,8 @@ Here we present an example of the specification of an AR(k) using the `regressio
 
 ```{r eval=FALSE}
 regression_block(
-  mu=c(0,Y[-T]),
-  max.lag=k
+  mu = c(0, Y[-T]),
+  max.lag = k
 )
 ```
 
@@ -575,9 +573,9 @@ To exemplify the utility of this structural block, let us assume we want to mode
 
 ```{r echo=FALSE}
 set.seed(13031998)
-T=200
-mu=20*(1:T)*(T:1)/(T**2)
-data <- rpois(T, exp(mu+rnorm(T,0,sqrt(0.1))))
+T <- 200
+mu <- 20 * (1:T) * (T:1) / (T**2)
+data <- rpois(T, exp(mu + rnorm(T, 0, sqrt(0.1))))
 ts.plot(data)
 ```
 
@@ -595,15 +593,14 @@ $$
 Bellow we present that model fitted using the `kDGLM` package:
 
 ```{r, results='hide'}
-
 level <- polynomial_block(
   rate = 1,
-  order=3,
+  order = 3,
   D = 0.95
 )
 
 fitted.data <- fit_model(level,
-                         'Model 1'=Poisson(lambda="rate",data=data)
+  "Model 1" = Poisson(lambda = "rate", data = data)
 )
 
 plot(fitted.data, lag = 1, plot.pkg = "base")
@@ -612,10 +609,9 @@ plot(fitted.data, lag = 1, plot.pkg = "base")
 Notice that the data at the middle of the observed period is overdispersed, such that a Poisson model cannot properly address the uncertainty. One could proposed the usage of a Normal model which, indeed, could capture the uncertainty in the middle, but notice that the data at the beginning and at the end of the series has very low values, such that a Normal model would be inappropriate. In such scenario, a better approach would be to add an noise component to the linear predictor, such that it can capture the overdispersion:
 
 ```{r, results='hide'}
-
 level <- polynomial_block(
   mu = 1,
-  order=3,
+  order = 3,
   D = 0.95
 )
 noise <- noise_block(
@@ -623,7 +619,7 @@ noise <- noise_block(
 )
 
 fitted.data <- fit_model(level, noise,
-                         'Model 2'=Poisson(lambda="mu",data=data)
+  "Model 2" = Poisson(lambda = "mu", data = data)
 )
 
 plot(fitted.data, lag = 1, plot.pkg = "base")
@@ -737,7 +733,7 @@ final.block$pred.names
 As the user may have noticed, more then one argument can be passed in the  `...` argument, indeed, if the user does so, the package will create multiple linear predictors in the same block (one for each unique name), all of which are affected by the associated latent state. For instance, take the following code:
 
 ```{r eval=FALSE}
-polynomial_block(lambda1=1,lambda2=1,lambda3=1)
+polynomial_block(lambda1 = 1, lambda2 = 1, lambda3 = 1)
 ```
 
 The code above creates $3$ linear predictors, such that:
@@ -751,7 +747,7 @@ $$
 Naturally, in this simple case all linear predictors are identical, but it does not need to be so, for instance:
 
 ```{r eval=FALSE}
-polynomial_block(lambda1=1,lambda2=5,lambda3=X) # Assuming there is an variable X in the environment
+polynomial_block(lambda1 = 1, lambda2 = 5, lambda3 = X) # Assuming there is an variable X in the environment
 ```
 
 This code will create $3$ linear predictors, such that:
@@ -767,10 +763,10 @@ $$
 Also, one can use multiple blocks in the same structure to define linear predictors that share some (but not all) of their components:
 
 ```{r eval=FALSE}
-polynomial_block(lambda1=1)+ # theta_1
-  polynomial_block(lambda2=1)+ # theta_2
-  polynomial_block(lambda3=1)+ # theta_3
-  polynomial_block(lambda1=1,lambda2=1,lambda3=1) # theta_4
+polynomial_block(lambda1 = 1) + # theta_1
+  polynomial_block(lambda2 = 1) + # theta_2
+  polynomial_block(lambda3 = 1) + # theta_3
+  polynomial_block(lambda1 = 1, lambda2 = 1, lambda3 = 1) # theta_4
 ```
 
 Such that:
@@ -786,9 +782,9 @@ $$
 And also, the user may specify unknown components in the matrix $F_t$, such as to estimate the impact of some of the shared components:
 
 ```{r eval=FALSE}
-polynomial_block(lambda1=1,lambda3='lambda2')+ # theta_1
-  polynomial_block(lambda2=1)+ # theta_2
-  polynomial_block(lambda3=1) # theta_3
+polynomial_block(lambda1 = 1, lambda3 = "lambda2") + # theta_1
+  polynomial_block(lambda2 = 1) + # theta_2
+  polynomial_block(lambda3 = 1) # theta_3
 ```
 
 $$
@@ -813,10 +809,10 @@ $$
 $$
 in other words, it may be the case that the planning matrix $F_t$ contains one or more unknown components. This idea may be foreign when working with only one linear predictor, but if our observational model has several parameters it could make sense to have shared effects between parameters. Beside that, this construction is also natural when modeling multiple time series simultaneously, such as when dealing with correlated outcomes or when working with a compound regression. All those cases will be explored in the Advanced Examples section. For now, we will focus on **how** to specify such models, whatever they use may be.
 
-For simplicity, let us assume that we want to create a linear preditor $\lambda_t$ such that $\lambda_{t}=\phi_t\theta_t$. Then the first step would be to create a linear predictor associated with $\phi_t$ (which we will call `phi`, altough the user may call it whatever it pleases him):
+For simplicity, let us assume that we want to create a linear preditor $\lambda_t$ such that $\lambda_{t}=\phi_t\theta_t$. Then the first step would be to create a linear predictor associated with $\phi_t$ (which we will call `phi`, although the user may call it whatever it pleases him):
 
 ```{r}
-phi_block=polynomial_block(phi=1)
+phi_block <- polynomial_block(phi = 1)
 ```
 
 Notice that we are creating a linear predictor $\phi_t$ and a latent variable $\tilde{\theta}_t$ such that $\phi_t=1\times \tilde{\theta}_t$. Also, it is important to note that the structure for $\phi_t$ could be any of the other structural blocks (harmonic, regression, autoregression, etc.).
@@ -824,7 +820,7 @@ Notice that we are creating a linear predictor $\phi_t$ and a latent variable $\
 Now we can create a structural block for $\theta_t$:
 
 ```{r}
-theta_block=polynomial_block(lambda='phi')
+theta_block <- polynomial_block(lambda = "phi")
 ```
 
 
@@ -833,9 +829,9 @@ The code above creates a linear predictor $\lambda_t$ and a latent state $\theta
 Lastly, as one could guess, it is possible to create a chain of components in $F_t$ such as to create an even more complex structure. For instance, take the code bellow:
 
 ```{r eval=FALSE}
-polynomial_block(eta1=1)+
-  polynomial_block(eta2='eta1')+
-  polynomial_block(eta3='eta2')
+polynomial_block(eta1 = 1) +
+  polynomial_block(eta2 = "eta1") +
+  polynomial_block(eta3 = "eta2")
 ```
 
 In the first line we create a linear predictor $\eta_{1,t}$ such that $\eta_{1,t}=1 \times \theta_{1,t}$. In second line we create another linear predictor $\eta_{2,t}$ such that $\eta_{2,t}=\eta_{1,t} \times \theta_{2,t}=\theta_{1,t} \times \theta_{2,t}$. Then we create a linear predictor $\eta_{3,t}$ such that $\eta_{3,t}=\eta_{2,t} \times \theta_{3,t}=\theta_{1,t} \times \theta_{2,t} \times \theta_{3,t}$.
@@ -909,7 +905,7 @@ level <- polynomial_block(mu = 1, D = 0.95, order = 2)
 season <- harmonic_block(mu = 1, period = 12, D = 0.975)
 
 outcome <- Normal(mu = "mu", V = 6e-3, data = data)
-fitted.data <- fit_model(level,season, outcome)
+fitted.data <- fit_model(level, season, outcome)
 plot(fitted.data, plot.pkg = "base")
 ```
 
@@ -1002,7 +998,7 @@ plot(fitted.data, plot.pkg = "base")
 ##### Correlation
 
 ```{r, results='hide'}
-plot_lin_pred(fitted.data,'atanh.rho', plot.pkg = "base")
+plot(coef(fitted.data), "atanh.rho", plot.pkg = "base")
 ```
 
 </div>
@@ -1051,7 +1047,7 @@ Bellow we present an example of the usage of this outcome. We use some functions
 data <- c(AirPassengers)
 
 level <- polynomial_block(rate = 1, order = 2, D = 0.95)
-season <- harmonic_block(rate = 1, period = 12, order=2, D = 0.975)
+season <- harmonic_block(rate = 1, period = 12, order = 2, D = 0.975)
 
 outcome <- Poisson(lambda = "rate", data = data)
 
@@ -1130,13 +1126,11 @@ $$
 The arguments `phi`, `mu`, `alpha`, `beta` and `sigma` should be character strings indicating the name of the linear predictor associated with their respective linear predictor. The user may opt to pass `phi` as a positive numerical value, it that case, the shape parameter $\phi_t$ is considered known and equal to `phi` for all $t$.
 
 ```{r, results='hide'}
-
 structure <- polynomial_block(mu = 1, D = 0.95)
 
 outcome <- Gamma(phi = 0.5, mu = "mu", data = cornWheat$corn.log.return[1:500]**2)
 fitted.data <- fit_model(structure, outcome)
 plot(fitted.data, plot.pkg = "base")
-
 ```
 
 ## Multinomial case
@@ -1185,8 +1179,8 @@ Again, we present a brief example for the usage of this outcome:
 structure <- (
   polynomial_block(p = 1, order = 2, D = 0.95) +
     harmonic_block(p = 1, period = 12, D = 0.975) +
-    noise_block(p=1)+
-    regression_block(p = chickenPox$date >= as.Date('2013-09-1')) # Vaccine was introduced in September of 2013
+    noise_block(p = 1) +
+    regression_block(p = chickenPox$date >= as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
 ) * 4
 
 outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
@@ -1263,19 +1257,20 @@ and $Y_{1,t}, ...,Y_{r,t}$ are mutually independent given $\eta_{1,t}, ...,\eta_
 To fit such model, one must only pass the multiple outcomes to the `fit_model` function. As an example, we present the code for fitting two Poisson series:
 
 ```{r, results='hide'}
-structure=polynomial_block(mu.1=1,mu.2=1,order=2,D=0.95)+
-  harmonic_block(mu.2=1,period=12,order=2,D=0.975)+
-  polynomial_block(mu.2=1,order=1,D=0.95)+
-  noise_block(mu=1)*2
+structure <- polynomial_block(mu.1 = 1, mu.2 = 1, order = 2, D = 0.95) +
+  harmonic_block(mu.2 = 1, period = 12, order = 2, D = 0.975) +
+  polynomial_block(mu.2 = 1, order = 1, D = 0.95) +
+  noise_block(mu = 1) * 2
 
-outcome1=Poisson(lambda='mu.1',data=chickenPox[,5])
-outcome2=Poisson(lambda='mu.2',data=chickenPox[,2])
+outcome1 <- Poisson(lambda = "mu.1", data = chickenPox[, 5])
+outcome2 <- Poisson(lambda = "mu.2", data = chickenPox[, 2])
 
-fitted.data=fit_model(structure,
-                      Adults=outcome1,
-                      Infants=outcome2)
+fitted.data <- fit_model(structure,
+  Adults = outcome1,
+  Infants = outcome2
+)
 
-plot(fitted.data,plot.pkg='base')
+plot(fitted.data, plot.pkg = "base")
 ```
 
 It is important to note that in our package the Multivariate Normal and the Multinomial models are **not** considered models with multiple outcomes, but instead, they are considered be one outcome each, such that the outcome itself is a vector (note that we made no restrictions on the dimension of each $Y_{i,t}$).
@@ -1289,19 +1284,20 @@ There is a special type of specification for a model with multiple outcomes that
 For instance, lets say that there are three time series $Y_{1,t},Y_{2,t}$ and $Y_{3,t}$, such that each series follows a Poisson distribution with parameter $\eta_{i,t}, i=1,2,3$. Then, $Z_t=Y_{1,t}+Y_{2,t}+Y_{3,t}$ follows a Poisson distribution with parameter $\eta_{1,t}+\eta_{2,t}+\eta_{3,t}$ and $Y_{1,t},Y_{2,t},Y_{3,t}|Z_t$ jointly follows a Multinomial distribution with parameters $N_t=Z_t$ and $\vec{p}_t=\left(\frac{\eta_{1,t}}{\eta_{1,t}+\eta_{2,t}+\eta_{3,t}},\frac{\eta_{2,t}}{\eta_{1,t}+\eta_{2,t}+\eta_{3,t}},\frac{\eta_{3,t}}{\eta_{1,t}+\eta_{2,t}+\eta_{3,t}}\right)'$. Then the user may model $Z_t$ and  $Y_{1,t},Y_{2,t},Y_{3,t}|Z_t$:
 
 ```{r, results='hide'}
-structure=polynomial_block(mu=1,order=2,D=0.95)+
-  harmonic_block(mu=1,period=12,order=2,D=0.975)+
-  noise_block(mu=1)+
-  polynomial_block(p=1,D=0.95)*2
+structure <- polynomial_block(mu = 1, order = 2, D = 0.95) +
+  harmonic_block(mu = 1, period = 12, order = 2, D = 0.975) +
+  noise_block(mu = 1) +
+  polynomial_block(p = 1, D = 0.95) * 2
 
-outcome1=Poisson(lambda='mu',data=rowSums(chickenPox[,c(2,3,5)]))
-outcome2=Multinom(p=c('p.1','p.2'),data=chickenPox[,c(2,3,5)])
+outcome1 <- Poisson(lambda = "mu", data = rowSums(chickenPox[, c(2, 3, 5)]))
+outcome2 <- Multinom(p = c("p.1", "p.2"), data = chickenPox[, c(2, 3, 5)])
 
-fitted.data=fit_model(structure,
-                      Total=outcome1,
-                      Proportions=outcome2)
+fitted.data <- fit_model(structure,
+  Total = outcome1,
+  Proportions = outcome2
+)
 
-plot(fitted.data,plot.pkg='base')
+plot(fitted.data, plot.pkg = "base")
 ```
 
 More applications will be presented in the advanced examples section.
@@ -1329,12 +1325,12 @@ Bellow we present the code for a Poisson model:
 
 ```{r}
 level <- polynomial_block(rate = 1, order = 2, D = 0.95)
-season <- harmonic_block(rate = 1, period = 12, order=2, D = 0.975)
+season <- harmonic_block(rate = 1, period = 12, order = 2, D = 0.975)
 
 outcome <- Poisson(lambda = "rate", data = c(AirPassengers))
 
 fitted.data <- fit_model(
-  level, season,          # Strucuture
+  level, season, # Strucuture
   AirPassengers = outcome # oucome
 )
 ```
@@ -1345,11 +1341,11 @@ The first two lines create structural blocks representing a random walk on $\mu_
 The user can see how the model fits the data using the `plot` method, which is a wrapper for the `show_fit` function, whose syntax is as follows:
 
 ```{r echo=TRUE, eval=FALSE}
-show_fit(
+plot.fitted_dlm(
   model,
   pred.cred = 0.95,
   lag = 1,
-  cutoff = floor(model$t/10),
+  cutoff = floor(model$t / 10),
   plot.pkg = "auto"
 )
 ```
@@ -1366,8 +1362,6 @@ Lastly `plot.pkg` must be a string specifing the plot engine to be used. Should 
 
 
 ```{r, results='hide'}
-# show_fit(fitted.data)
-# or
 plot(fitted.data, plot.pkg = "base")
 ```
 
@@ -1377,8 +1371,6 @@ To see a summary of the fitted model, one can use the `report_dlm` function (whi
 
 
 ```{r}
-# report_dlm(fitted.data)
-# or
 summary(fitted.data)
 ```
 
@@ -1393,22 +1385,22 @@ For more details about the usage of the `report_dlm` function, see the associate
 The user may also want to plot the latent variables, for which `plot_lat_var` function can be used:
 
 ```{r, results='hide'}
-plot_lat_var(fitted.data, plot.pkg = "base")$plot
+plot(coef(fitted.data), plot.pkg = "base")$plot
 ```
 
 If the user wants to see only a restricted set of latent variables, the extra argument `var` can be used to specify the name of the variable to plot:
 
 ```{r, results='hide'}
-plot_lat_var(fitted.data,'Var.Poly.Level', plot.pkg = "base")$plot
+plot(coef(fitted.data), "Var.Poly.Level", plot.pkg = "base")$plot
 ```
 
 The user may also plot the linear predictors, for which `plot_lin_pred` function can be used:
 
 ```{r, results='hide'}
-plot_lin_pred(fitted.data, plot.pkg = "base")$plot
+plot(coef(fitted.data), plot.pkg = "base")$plot
 ```
 
-Similar to the `plot_lat_var` function, the user can also specify the name of the linear predictor to be plotted by the `plot_lin_pred` function (altough, in this example, there is only one linear predictor).
+Similar to the `plot_lat_var` function, the user can also specify the name of the linear predictor to be plotted by the `plot_lin_pred` function (although, in this example, there is only one linear predictor).
 
 Notice that, in all cases, estimation is restricted to the period where the model was fitted. If the user wishes make predictions for future observations, the `forecast` method (which is a wrapper for the `dlm_forecast` function) can be used:
 
@@ -1449,7 +1441,7 @@ Additionally, the `dlm_forecast` function also provides a similar set of attribu
 
 Also, each function presented in the previous subsection for visualization provides the data frame used to create the associated plot.
 
-Lastly, altough we do not recommend it, the user may also extract some of these information directly from the `fitted_dlm` object.
+Lastly, although we do not recommend it, the user may also extract some of these information directly from the `fitted_dlm` object.
 
 We strongly recommend every user to consult the documentation of each of these functions to see the full set of features provided by the package.
 
@@ -1498,7 +1490,7 @@ outcome <- Poisson(lambda = "rate", data = data)
 
 fitted.data <- fit_model(level, season,
   AirPassengers = outcome,
-  p.monit=0.05
+  p.monit = 0.05
 )
 
 plot(fitted.data, plot.pkg = "base")
@@ -1513,7 +1505,7 @@ In some situations, the user may not be sure about which value to use for some h
 As an motivational example, let us assume that we are unsure about which value to choose for the discount factor in a polynomial trend block of a Poisson model. First, when defining the model structure, we must set the discount factor as a string, which will be used as the label for the unspecified parameter:
 
 ```{r}
-level <- polynomial_block(rate = 1, order = 2, D = 'D1')
+level <- polynomial_block(rate = 1, order = 2, D = "D1")
 ```
 
 By setting the discount factor as a string, the structural block becomes partially **undefined**:
@@ -1562,34 +1554,34 @@ The remaining options provide some control over the comparative metrics. The `me
 After evaluating all valid combinations of hyper parameters, the `search_model` function returns the best model by the chosen metric, along with a data frame containing the metrics for each model evaluated.
 
 ```{r , results='hide'}
-level <- polynomial_block(rate = 1, order = 2, D = 'D.level')
-season <- harmonic_block(rate = 'sazo.effect', order = 2, period = 12, D = "D.sazo")
+level <- polynomial_block(rate = 1, order = 2, D = "D.level")
+season <- harmonic_block(rate = "sazo.effect", order = 2, period = 12, D = "D.sazo")
 
 outcome <- Poisson(lambda = "rate", data = c(AirPassengers))
 
-search_model(level, season,outcome,
+search_model(level, season, outcome,
   search.grid = list(
     sazo.effect = c(0, 1),
     D.level = c(seq.int(0.8, 1, l = 11)),
     D.sazo = c(seq.int(0.95, 1, l = 11))
   ),
   condition = "sazo.effect==1 | D.sazo==1"
-)$search.data[1:5,] |> print()
+)$search.data |> head()
 ```
 
 It is important to note that not all hyper parameters can be tested directly by the search model function, indeed, only the components associated with $F_t$, $D_t$, $h_t$, $H_t$, $a_1$ and $R_1$ can be treated as undefined. Still, if the user wants to test some other hyper parameter that cannot be tested directly (such as the order of a polynomial block or the period of a harmonic block), he can create one block for each option and perform a sensibility analysis for the inclusion/exclusion of each block:
 
 ```{r , results='hide'}
 # Creating a block for each order
-level <- polynomial_block(rate = 'pol.ord.1', order = 1, D = 0.95)+
-         polynomial_block(rate = 'pol.ord.2', order = 2, D = 0.95)+
-         polynomial_block(rate = 'pol.ord.3', order = 3, D = 0.95)+
-         polynomial_block(rate = 'pol.ord.4', order = 4, D = 0.95)
+level <- polynomial_block(rate = "pol.ord.1", order = 1, D = 0.95) +
+  polynomial_block(rate = "pol.ord.2", order = 2, D = 0.95) +
+  polynomial_block(rate = "pol.ord.3", order = 3, D = 0.95) +
+  polynomial_block(rate = "pol.ord.4", order = 4, D = 0.95)
 season <- harmonic_block(rate = 1, order = 2, period = 12, D = 0.975)
 
 outcome <- Poisson(lambda = "rate", data = c(AirPassengers))
 
-search_model(level, season,outcome,
+search_model(level, season, outcome,
   search.grid = list(
     # Each block can be present (1) or absent (0).
     pol.ord.1 = c(0, 1),
@@ -1598,7 +1590,7 @@ search_model(level, season,outcome,
     pol.ord.4 = c(0, 1)
   ),
   condition = "pol.ord.1+pol.ord.2+pol.ord.3+pol.ord.4==1" # Only test combinations with exactly one polynomial block.
-)$search.data[1:5,] |> print()
+)$search.data
 ```
 
 ## Sampling and hyperparameter estimation
@@ -1619,217 +1611,409 @@ Another useful feature of our package is that it provides an approximate value f
 To compare diferent models, $\mathcal{M_1},...,\mathcal{M_k}$ , one can note that $f(\mathcal{M_i}|y) \propto f(y|\mathcal{M_i})f(\mathcal{M_i})$, where $f(y|\mathcal{M_i})= \int_{\mathbb{R^{n}}}f(y|\theta,\mathcal{M_i})f(\theta|\mathcal{M_i})d\theta$ is the likelihood of model $\mathcal{M_i}$ and $f(\mathcal{M_i})$ is the prior for model $\mathcal{M_i}$. To evaluate the $f(y|\mathcal{M_i})$, one can make use of the `eval_past` (`coef` method) or `search_model` functions by setting `lag` to a negative number, since, in that case, the log likelihood metric will be $\ln f(y|\mathcal{M_i})$. Similarly, if the user wants to obtain the marginal posterior distribution of an hyper parameter $\tau$, it can observe that $f(\tau|y) \propto f(y|\tau)f(\tau)$, from which $f(y|\tau)$ can be evaluated using the `eval_past` (`coef` method) or `search_model` functions.
 
 ```{r}
-H.range=seq.int(0,1,l=100)
-log.like.H=seq_along(H.range)
-log.prior.H=dlnorm(H.range,0,1,log=TRUE)
-for(i in seq_along(H.range)){
-  level <- polynomial_block(rate = 1, order = 2, H=H.range[i])
+H.range <- seq.int(0, 1, l = 100)
+log.like.H <- seq_along(H.range)
+log.prior.H <- dlnorm(H.range, 0, 1, log = TRUE)
+for (i in seq_along(H.range)) {
+  level <- polynomial_block(rate = 1, order = 2, H = H.range[i])
   season <- harmonic_block(rate = 1, order = 2, period = 12, D = 0.975)
-  
+
   # Using only 10 observations, for the sake of a pretty plot. For this particular application, the posterior density of H rapidly becomes highly consentrated in a single value.
-  outcome <- Poisson(lambda = "rate", data = c(AirPassengers)[1:10]) 
-  fitted.data <- fit_model(level,season,outcome)
-  
-  log.like.H[i]=coef(fitted.data,lag=-1)$log.like
-  
+  outcome <- Poisson(lambda = "rate", data = c(AirPassengers)[1:10])
+  fitted.data <- fit_model(level, season, outcome)
+
+  log.like.H[i] <- coef(fitted.data, lag = -1)$log.like
 }
 
-log.post.H=log.prior.H+log.like.H
+log.post.H <- log.prior.H + log.like.H
 
-plot(H.range,exp(log.post.H-max(log.post.H)),type='l',xlab='H',ylab='f(H|y)')
+plot(H.range, exp(log.post.H - max(log.post.H)), type = "l", xlab = "H", ylab = "f(H|y)")
 ```
 
 # Advanced examples
 
-## Dealing with overdispersion: The Noisy Poisson model <font color='red'> Em construção</font>
+## Space-time model hospital admissions from gastroenteritis
 
-For this example, we will take a look in a time series consisting of monthly hospital admissions of infants (less than $5$ years old) by chicken pox in Brazil from 2008 to 2019 (see the documentation for `chickenPox`).
+In this example we model number of hospital admissions from gastroenteritis in Brazil from 2010 to 2022. Our package provides the `gatroBR` dataset with the pertinent data for our models, which includes:
+
+
+ - UF: The abbriviated state name.
+ - Date: The date of the observation. Note that the day is only a placeholder and is just a placeholder.
+ - Admissions: The number hospital admissions that were reported in that combination of state and date.
+ - Population: The estimated population of that of state and date (to be used as a offset).
+
+Supplementary infomations can be found in the documentation (see `help(gastroBR)`).
+
+### Initial model: Total hospital admissions
+
+We will start with a model for the total number of hospital admissions over time in Brazil, i.e., a temporal model that does not considers the effects of each state.
+
+```{r echo=FALSE}
+data.year <- data.frame(
+  Date = unique(gastroBR$Date),
+  Admissions = NA,
+  Population = NA
+)
+for (i in seq_along(data.year$Date)) {
+  index <- gastroBR$Date == data.year$Date[i]
+  data.year$Admissions[i] <- sum(gastroBR$Admissions[index])
+  data.year$Population[i] <- sum(gastroBR$Population[index])
+}
+
+plot(data.year$Date, log10(data.year$Admissions / data.year$Population),
+  type = "l", ylab = "log Admissions rate", xlab = "Date"
+)
+```
+
+Notice that theres a consistent trend of (log) linear decay of the rate of hosptial admissions over time, until April of 2020, when there a abrubt reduction of hospital admission duo to the pandemic of COVID-19, which is then followed by what seems to be a return to the previous level (more observations would be necessary to be sure). We can also note that the data has a clear seasonal pattern, which have a period of 12 months (1 year).
+
+We begin with a very simply model. Let $Y_t$ be the total number of hospital admissions on Brazil at time $t$. Assume that:
+
+$$
+\begin{aligned}
+Y_t|\eta_t &\sim Poisson(\eta_t)\\
+\ln{\eta_t}&=\lambda_t=\theta_{1,t}\\
+\theta_{1,t}&=\theta_{1,t-1}+\theta_{2,t-1}+\omega_{1,t}\\
+\theta_{2,t}&=\theta_{2,t-1}+\omega_{2,t}.\\
+\end{aligned}
+$$
+
+First we define the model structure:
+
+```{r echo=TRUE}
+structure <- polynomial_block(rate = 1, order = 2, D = c(0.95, 0.975))
+```
+
+
+Then we define the outcome:
+
+```{r echo=TRUE}
+outcome <- Poisson(
+  lambda = "rate",
+  data = data.year$Admissions,
+  offset = data.year$Population
+)
+```
+
+Then we fit the model:
+
+```{r echo=TRUE}
+fitted.model <- fit_model(structure, outcome)
+summary(fitted.model)
+plot(fitted.model, plot.pkg = "base") |> save.fig(file = "vignettes/plot17.pdf")
+```
+
+Clearly the model described above is too simply to explain the data, in particular, it does not take into account any form of seasonal pattern. Let us proceed then by adding a harmonic block:
+
+```{r echo=TRUE}
+structure <- polynomial_block(rate = 1, order = 2, D = c(0.95, 0.975)) +
+  harmonic_block(rate = 1, period = 12, D = 0.98)
+```
+
+
+Then we fit the model:
+
+```{r echo=TRUE}
+fitted.model <- fit_model(structure, outcome)
+summary(fitted.model)
+plot(fitted.model, plot.pkg = "base")
+```
+
+Notice that this change significantly improves all metrics provided by the model summary, which indicates that we are going in the right direction. We leave as an exercise for the user to test diffent order for the harmonic block.
+
+The previous model could capture the mean behavior of the series reasonably well, still, two deficiencies of that model standout: First, the overconfidence in the predictions, evidenced by the particularly thin credibility interval; And second, the difficulty the model has to adapt to the pandemic period.
+
+The first problem comes from the fact that we are using a Poisson model, which implies that $Var[Y_t|\eta_t]=\mathbb{E}[Y_t|\eta_t]$, which means that $Var[Y_t]=\mathbb{E}[Var[Y_t|\eta_t]]+Var[\mathbb{E}[Y_t|\eta_t]]=\mathbb{E}[\eta_t]+Var[\eta_t]$, but we expect that $Var[\eta_t]$ would be relatively small for latter observations, as such, the variance of $Y_t$ should be very close to its mean after a reasonable amount of observations. In this scenario, the coefficient of variation, defined as $\frac{\sqrt{Var[Y_t]}}{\mathbb{E}[Y_t]}$ goes to $0$ as $\mathbb{E}[Y_t]$ grows, in particular, for data in the scale we are dealing in this particular problem, we would expect a very low coefficient of variation if the Poisson model were adequate, but that is not what we observe. This phenomena is called *overdipersion* and is a well known problem in literature. To solve it, we can add an additional block representing a white noise that is added to the linear predictor at each time, but does not affect previous or future observation, so as to capture the overdipersion:
+
+```{r echo=TRUE}
+structure <- polynomial_block(rate = 1, order = 2, D = c(0.95, 0.975)) +
+  harmonic_block(rate = 1, period = 12, D = 0.98) +
+  noise_block(rate = 1)
+```
+
+For the second problem, that of slow adaptation after the start of the pandemic, the ideal approach would be to make an intervation, increasing the uncertainty about the latent states at the beggining of the pandemic period and allowing our model to quickly adapt to the new scenario. This approach is ideal because we expect a change of behavior during the pandemic even before observing the data. Still, for didactic purposes, we will first present how the automated monitoring can also be used to solve this same problem, this approach is ideal for problems were we **do not** known **when** or if a change of behavior happened.
+
+```{r echo=TRUE}
+structure <- polynomial_block(
+  rate = 1, order = 2, D = c(0.95, 0.975),
+  monitoring = c(TRUE, TRUE)
+) +
+  harmonic_block(rate = 1, period = 12, D = 0.98) +
+  noise_block(rate = 1)
+```
+
+Notice that we set the `monitoring` of the `polynomial_block` to `c(TRUE,TRUE)`. By default, the `polynomial_block` function only enable the monitoring of its first component (the level), but, by the previous plot, it is very clear that the pandemic affected both the level and the slope of the average number of hospital admissions, as such, we would like to monitor both parameters.
+
+```{r echo=TRUE}
+# To activate the automated monitoring it is enough to set the p.monit argument to a valid value
+fitted.model <- fit_model(structure, outcome, p.monit = 0.05)
+summary(fitted.model)
+plot(fitted.model, plot.pkg = "base")$plot
+plot(fitted.model, lag = -1, plot.pkg = "base")$plot
+```
+
+The summary presented above shows a massive improvement in the comparison metrics with the new changes introduced, moreover, the automated monitoring detected the exact moment where the series $Y_t$ changed behavior, which allowed the model to immediately adapt to the pandemic period.
+
+One aspect of the model that may bother the reader is the excendently high uncertanty at the first observations. This behavior is duo to our approach to the estimation of the variance of the white noise introduced by the `noise_block` function (see the associated documentation for details), specifically, the initial steps can be a bit too sensitive to bad prior for the white noise. As such, we highly recommend the user to do a sensibility analys to choose this parameter:
+
+```{r, results='hide'}
+structure <- polynomial_block(rate = 1, order = 2, D = c(0.95, 0.975)) +
+  harmonic_block(rate = 1, period = 12, D = 0.98) +
+  noise_block(rate = 1, R1 = "H") # Setting the initial variance as a unknown parameter
+
+structure <- structure |>
+  intervention(time = 124, var.index = c(1:2), D = 0.005)
+
+search.model <- search_model(
+  structure, outcome,
+  lag = -1, # Using the model likelihood (f(y|M)) as the comparisson metric.
+  search.grid = list(H = seq.int(0, 0.1, l = 101))
+)
+fitted.model <- search.model$model
+summary(fitted.model)
+plot(fitted.model, plot.pkg = "base")$plot
+plot(fitted.model, lag = -1, plot.pkg = "base")$plot
+```
+
+Notice that, this time around, we chose to  make an intervention at the begining of the pandemic, instead of an automated approach. As mentioned before, this approach is preferable in this scenario, since we were aware that the pandemic would affect our outcome.
+
+Again, the new changes improve the comparison metrics even further, leading to the conclusion that our last model is the best among those presented until now. We highly encourage the reader to run this example and experiment with some of the options our package offers, but that were not explored, such as changing the discount factors used in each block, the order of the block, adding/removing structural components, etc..
+
+As a last side note, the user may not like the approach of chosing a specific value for the initial variance of the white noise introduced by the `noise_block`. Indeed, one may wish to define a prior distribution for this parameter and estimate it along with the other parameters. While we will not detail this approach for the sake of brevity, we would like to point out that or package does offers tools to facilitate this procedure:
 
 ```{r}
-plot(chickenPox$date,chickenPox$`< 5 year`,type='l',
-     xlab='Year',ylab='Hospital admissions',
-     main='Hospital admissions of infants by chicken pox in Brazil')
-points(chickenPox$date,chickenPox$`< 5 year`,pch=0)
-t=length(chickenPox$date)
-vac.index=min(seq_len(t)[chickenPox$date>=as.Date('2013-09-01')])
-lines(c(chickenPox$date[vac.index],chickenPox$date[vac.index]),c(-100,10000),lty=2)
+search.result <- search.model$search.data[order(search.model$search.data$H), ]
+
+H.vals <- search.result$H
+log.prior <- dgamma(H.vals, 1, 1, log = TRUE)
+log.like <- search.result$log.like
+l.fx <- log.prior + log.like
+pre.fx <- exp(l.fx - max(l.fx))
+fx <- pre.fx / sum(pre.fx * (H.vals[2] - H.vals[1]))
+plot(H.vals, fx,
+  type = "l", xlab = "H", ylab = "Density",
+  main = "Posterior density for the unknown hyperparameter H"
+)
 ```
 
 
-Notice that the series above has a decaying pattern (it is **not** stationary), along with a irregular seasonal pattern (which cannot be explained by a deterministic seasonal component). Notice also that the series has very low values in recent years (duo majorly to the inclusion of a vaccine for chicken pox to the National Program of Immunization), such that a Normal model would not be appropriate for the whole series.
 
-We will start our analysis with a very simple model and will add structure to it as we proceed with the analysis.
+### Advanced model: Hospital admissions by state
 
-### Initial model: polynomial trend + harmonic trend
+First, for this model, we need the geographic information about Brazil, as such, we will use some auxiliary packages, namely \code{geobr}, \code{tidyverse}, \code{sf} and \code{spdep}, although the \code{kDGLM} package does not depend on them:
+  
+```{r message=FALSE, warning=FALSE}
+require(geobr)
+require(tidyverse)
+require(sf)
+require(spdep)
 
-Let us start with a very simple model containing only a first order polynomial trend and a first order harmonic:
+br.base <- read_state(
+  year = 2019,
+  showProgress = FALSE
+)
 
-<div>
-#### {.tabset}
+plot.data <- br.base |>
+  left_join(
+    gastroBR |>
+      filter(format(Date, "%Y") == "2019") |>
+      select(UF, Population, Admissions) |>
+      group_by(UF) |>
+      summarize(
+        Population = max(Population),
+        Admissions = sum(Admissions)
+      ) |>
+      rename(abbrev_state = UF),
+    by = "abbrev_state"
+  )
+
+ggplot() +
+  geom_sf(data = plot.data, aes(fill = log10(Admissions / Population))) +
+  scale_fill_continuous("") +
+  theme_void()
+```
 
 ```{r}
-level=polynomial_block(rate=1,
-                       D=0.95,
-                       name='Trend')+
-harmonic_block(rate=1,
-               period=12,
-               D=0.975,
-               name='Season')
+for (ano in 2010:2022) {
+  ref.br <- br.base |>
+    left_join(
+      gastroBR |>
+        filter(format(Date, "%Y") == as.character(ano)) |>
+        select(UF, Population, Admissions) |>
+        group_by(UF) |>
+        summarize(
+          Population = mean(Population),
+          Admissions = sum(Admissions)
+        ) |>
+        rename(abbrev_state = UF),
+      by = "abbrev_state"
+    )
 
-outcome=Poisson(lambda='rate',data=chickenPox$`< 5 year`)
+  moran.test <- moran.test(
+    log10(ref.br$Admissions / ref.br$Population),
+    ref.br |> poly2nb() |> nb2listw()
+  )$p.value
 
-model=fit_model(level,
-                outcome)
+  print(paste0(ano, " - ", round(moran.test, 4)))
+}
+
+ref.br <- br.base |>
+  left_join(
+    gastroBR |>
+      select(UF, Population, Admissions) |>
+      group_by(UF) |>
+      summarize(
+        Population = mean(Population),
+        Admissions = sum(Admissions)
+      ) |>
+      rename(abbrev_state = UF),
+    by = "abbrev_state"
+  )
+
+moran.test <- moran.test(
+  log10(ref.br$Admissions / ref.br$Population),
+  ref.br |> poly2nb() |> nb2listw()
+)$p.value
+
+print(paste0("Total", " - ", round(moran.test, 4)))
+```
+```{r}
+adj.matrix <- ref.br |>
+  poly2nb() |>
+  nb2mat(style = "B")
+
+CAR.structure <- polynomial_block(rate = 1, D = 0.95, name = "CAR") |>
+  block_mult(27) |>
+  block_rename(levels(gastroBR$UF)) |>
+  CAR_prior(scale = 100, rho = 1, adj.matrix = adj.matrix)
+
+shared.structure <- polynomial_block(
+  RO = 1, AC = 1, AM = 1, RR = 1, PA = 1, AP = 1,
+  TO = 1, MA = 1, PI = 1, CE = 1, RN = 1, PB = 1,
+  PE = 1, AL = 1, SE = 1, BA = 1, MG = 1, ES = 1,
+  RJ = 1, SP = 1, PR = 1, SC = 1, RS = 1, MS = 1,
+  MT = 1, GO = 1, DF = 1,
+  order = 2, D = c(0.95, 0.975),
+  name = "Common"
+) |>
+  intervention(time = 124, var.index = c(1:2), D = 0.005)
+
+base.structure <- (harmonic_block(rate = 1, order = 1, period = 12, D = 0.98, name = "Season") +
+  noise_block(rate = 1, R1 = 0.007, name = "Noise")) |>
+  block_mult(27) |>
+  block_rename(levels(gastroBR$UF))
+
+inputs <- list(shared.structure, CAR.structure, base.structure)
+for (uf in levels(gastroBR$UF)) {
+  reg.data <- gastroBR %>% filter(UF == uf)
+  inputs[[uf]] <- Poisson(lambda = uf, data = reg.data$Admissions, offset = reg.data$Population)
+}
+fitted.data <- do.call(fit_model, inputs)
 ```
 
 
-##### Predictions
-
-```{r , results='hide'}
-plot(model,plot.pkg='base')
-
-```
-
-##### Trend
-
-```{r , results='hide'}
-plot_lat_var(model,'Trend',plot.pkg='base')$plot
-
-```
-
-##### Seasonality
-
-```{r , results='hide'}
-plot_lat_var(model,'Season',plot.pkg='base')$plot
-
+```{r fig.height=18, fig.width=8}
+plot(fitted.data, lag = -1, plot.pkg = "ggplot2") +
+  facet_wrap(~Serie, ncol = 3, scale = "free_y") +
+  coord_cartesian(ylim = c(NA, NA)) +
+  guides(color = "none", fill = "none") +
+  theme(legend.position = "top")
 ```
 
 
-##### Summary
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, echo=TRUE}
+CAR.var.index <- which(grepl("CAR", fitted.data$var.labels))
+get_map <- function(index) {
+  plot.data <-
+    cbind(
+      Date = gastroBR$Date[index],
+      Effect = fitted.data$mts[1, index] + fitted.data$mts[CAR.var.index, index],
+      br.base
+    )
+
+  (ggplot() +
+    geom_sf(data = plot.data, aes(fill = Effect)) +
+    ggtitle(format(gastroBR$Date[index], "%m, %Y")) +
+    scale_fill_distiller("", limits = c(-2, 2), palette = "RdYlBu") +
+    theme_void())
+}
+
+for (i in 1:fitted.data$t) {
+  get_map(year = i)
+}
+```
+
+```{r eval=FALSE, include=FALSE}
+CAR.var.index <- which(grepl("CAR", fitted.data$var.labels))
+get_map <- function(index) {
+  plot.data <-
+    cbind(
+      Date = gastroBR$Date[index],
+      Effect = fitted.data$mts[1, index] + fitted.data$mts[CAR.var.index, index],
+      br.base
+    )
+
+  (ggplot() +
+    geom_sf(data = plot.data, aes(fill = Effect)) +
+    ggtitle(format(gastroBR$Date[index], "%Y")) +
+    scale_fill_distiller("log rate of admissions\nper habitant",
+      limits = c(-12.7, -7.7),
+      palette = "RdYlBu",
+      labels = ~ round(., 2)
+    ) +
+    theme_void() +
+    theme(legend.position = "bottom"))
+}
+
+
+my_maps <- paste0("~/temp/m_", formatC(1:fitted.data$t, width = 3, flag = "0"), ".png")
+for (i in seq.int(1, fitted.data$t, 6)) {
+  get_map(index = i)
+  ggsave(my_maps[i], width = 4, height = 4)
+}
+```
+
+
+```{r eval=FALSE, include=FALSE}
+max <- -Inf
+min <- Inf
+for (i in 1:fitted.data$t) {
+  cur <- fitted.data$mts[1, i] + fitted.data$mts[CAR.var.index, i]
+  max <- max(max, cur)
+  min <- min(min, cur)
+}
+max
+min
+```
 
 ```{r}
-summary(model)
+CAR.var.index <- which(grepl("CAR", fitted.data$var.labels))
+plot.data <- data.frame()
+for (date in c("2010-01-01", "2020-03-01", "2020-04-01", "2022-12-01")) {
+  index <- min(which(gastroBR$Date == date))
+  plot.data <- rbind(
+    plot.data,
+    cbind(
+      Date = date,
+      Effect = fitted.data$mts[1, index] + fitted.data$mts[CAR.var.index, index],
+      br.base
+    )
+  )
+}
+
+(ggplot() +
+  geom_sf(data = plot.data, aes(fill = Effect)) +
+  facet_wrap(~Date) +
+  scale_fill_distiller("log rate of admissions\nper habitant",
+    limits = c(-12.7, -7.7),
+    palette = "RdYlBu",
+    labels = ~ round(., 2)
+  ) +
+  theme_void() +
+  theme(legend.position = "bottom"))
 ```
 
-</div>
-
-
-Notice that the trend seems to decayed almost constantly over time, having an almost linear pattern in several intervals. As such, it seem reasonable to use a second order polynomial with temporal dynamic for both the level and the slope:
-
-<div>
-#### {.tabset}
-
-```{r}
-level=polynomial_block(rate=1,
-                       order=2,
-                       D=c(0.95,0.975),
-                       name='Trend')+
-harmonic_block(rate=1,
-               period=12,
-               D=0.975,
-               name='Season')
-
-outcome=Poisson(lambda='rate',data=chickenPox$`< 5 year`)
-
-model=fit_model(level,
-                outcome)
-```
-
-
-##### Predictions
-
-```{r , results='hide'}
-plot(model,plot.pkg='base')
-
-```
-
-##### Trend
-
-```{r , results='hide'}
-plot_lat_var(model,'Trend.Level',plot.pkg='base')$plot
-plot_lat_var(model,'Trend.Slope',plot.pkg='base')$plot
-
-```
-
-##### Seasonality
-
-```{r , results='hide'}
-plot_lat_var(model,'Season',plot.pkg='base')$plot
-
-```
-
-
-##### Summary
-
-```{r}
-summary(model)
-```
-
-</div>
-
-Notice that we have a considerable improvement in our comparison metrics with this change, especially for the predictive log likelihood (see the summary in both fits). We leave to the reader to test higher order polynomial trends.
-
-Is also interesting to test if higher order for the harmonic block yields a better model: 
-
-<div>
-
-#### {.tabset}
-
-```{r}
-level=polynomial_block(rate=1,
-                       order=2,
-                       D=c(0.95,0.975),
-                       name='Trend')+
-harmonic_block(rate=1,
-               order=2,
-               period=12,
-               D=0.975,
-               name='Season')
-
-outcome=Poisson(lambda='rate',data=chickenPox$`< 5 year`)
-
-model=fit_model(level,
-                outcome)
-```
-
-
-##### Predictions
-
-```{r , results='hide'}
-plot(model,plot.pkg='base')
-
-```
-
-##### Trend
-
-```{r , results='hide'}
-plot_lat_var(model,'Trend.Level',plot.pkg='base')$plot
-plot_lat_var(model,'Trend.Slope',plot.pkg='base')$plot
-
-```
-
-##### Seasonality
-
-```{r , results='hide'}
-plot_lat_var(model,'Season.Main',plot.pkg='base')$plot
-
-```
-
-
-##### Summary
-
-```{r}
-summary(model)
-```
-
-</div>
-
-Again, we had a reasonable improvement with an higher order harmonic block. We leave to the reader to test even higher orders.
-
-
-
-
-## Multivariate Normal distribuition: A bivariate stochastic volatility model <font color='red'> Em construção</font>
+![](gif.gif)
 
 # References
 

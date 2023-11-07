@@ -9,7 +9,7 @@
 \arguments{
 \item{object}{A fitted_dlm object.}
 
-\item{...}{Arguments passed to eval_past.}
+\item{...}{Arguments passed to coef.}
 }
 \description{
 coefficients method for class fitted_dlm
@@ -18,9 +18,8 @@ coefficients method for class fitted_dlm
 Other {auxiliary functions for fitted_dlm objects}: 
 \code{\link{coef.fitted_dlm}()},
 \code{\link{dlm_sampling}()},
-\code{\link{eval_past}()},
 \code{\link{forecast.fitted_dlm}()},
-\code{\link{forecast_dlm}()}
+\code{\link{update.fitted_dlm}()}
 }
 \concept{{auxiliary functions for fitted_dlm objects}}
 \keyword{internal}

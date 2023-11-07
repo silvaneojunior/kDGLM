@@ -1,76 +1,3 @@
-#' summary.dlm_distr
-#'
-#' summary method for class dlm_distr.
-#'
-#' @param object A fitted_dlm object.
-#' @param ... Not used.
-#'
-#' @export
-#' @keywords internal
-#'
-#' @family {auxiliary functions for a creating outcomes}
-#' @family {Reports for dlm_distr objects.}
-summary.dlm_distr <- function(object, ...) {
-  report_distr(object)
-}
-
-#' summary.fitted_dlm
-#'
-#' summary method for class fitted_dlm.
-#'
-#' @param object A fitted_dlm object.
-#' @param ... Arguments passed to report_dlm
-#'
-#' @export
-#' @keywords internal
-#'
-#' @family {auxiliary visualization functions for the fitted.dlm class}
-summary.fitted_dlm <- function(object, ...) {
-  report_dlm(object, ...)
-}
-
-#' summary.dlm_block
-#'
-#' summary method for class dlm_block
-#'
-#' @param object A dlm_block object.
-#' @param ... Arguments passed to report_dlm
-#'
-#' @export
-#' @keywords internal
-#' @family {auxiliary functions for structural blocks}
-summary.dlm_block <- function(object, ...) {
-  report_block(object, ...)
-}
-
-#' summary.searched_dlm
-#'
-#' summary method for class searched_dlm
-#'
-#' @param object A searched_dlm object.
-#' @param ... Arguments passed to report_searched_dlm
-#'
-#' @export
-#' @keywords internal
-#' @family {auxiliary visualization functions for the fitted.dlm class}
-summary.searched_dlm <- function(object, ...) {
-  report_searched_dlm(object, ...)
-}
-
-#' plot.fitted_dlm
-#'
-#' plot method for class fitted_dlm
-#'
-#' @param x A fitted_dlm object.
-#' @param ... Arguments passed to show_fit.
-#'
-#' @export
-#' @keywords internal
-#' @family {auxiliary visualization functions for the fitted_dlm class}
-plot.fitted_dlm <- function(x, ...) {
-  show_fit(x, ...)$plot
-}
-
 #' print.fitted_dlm
 #'
 #' @param x A fitted_dlm object.
@@ -119,28 +46,12 @@ print.searched_dlm <- function(x, ...) {
   summary.searched_dlm(x, ...)
 }
 
-#' coef.fitted_dlm
-#'
-#' coef method for class fitted_dlm
-#'
-#' @param object A fitted_dlm object.
-#' @param ... Arguments passed to eval_past.
-#'
-#' @importFrom stats coef
-#'
-#' @export
-#' @keywords internal
-#' @family {auxiliary functions for fitted_dlm objects}
-coef.fitted_dlm <- function(object, ...) {
-  eval_past(object, ...)
-}
-
 #' coefficients.fitted_dlm
 #'
 #' coefficients method for class fitted_dlm
 #'
 #' @param object A fitted_dlm object.
-#' @param ... Arguments passed to eval_past.
+#' @param ... Arguments passed to coef.
 #'
 #' @importFrom stats coefficients
 #'
@@ -148,21 +59,7 @@ coef.fitted_dlm <- function(object, ...) {
 #' @keywords internal
 #' @family {auxiliary functions for fitted_dlm objects}
 coefficients.fitted_dlm <- function(object, ...) {
-  eval_past(object, ...)
-}
-
-#' forecast.fitted_dlm
-#'
-#' forecast method for class fitted_dlm.
-#'
-#' @param object A fitted_dlm object.
-#' @param ... Arguments passed to forecast_dlm
-#'
-#' @export
-#' @keywords internal
-#' @family {auxiliary functions for fitted_dlm objects}
-forecast.fitted_dlm <- function(object, ...) {
-  forecast_dlm(object, ...)
+  coef(object, ...)
 }
 
 #' +.fitted_dlm

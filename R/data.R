@@ -26,3 +26,18 @@
 #' }
 #' @source \url{https://opendatasus.saude.gov.br/}
 "noticeSARI"
+
+#' Hospital admissions from gastroenteritis in Brazil
+#'
+#' A dataset containing the number of Hospital admissions from gastroenteritis in Brazil, per state, from 2010 to 2022 by month.
+#'
+#' @format A data frame with 4212 rows and 4 variables:
+#' \describe{
+#'   \item{UF}{The abbriviated state name.}
+#'   \item{Date}{The date of the observation. Note that the day is only a placeholder and is just a placeholder.}
+#'   \item{Admissions}{The number hospital admissions.}
+#'   \item{Population}{The estimated population.}
+#' }
+#' @source Admissions: \url{https://opendatasus.saude.gov.br/}
+#' @source Population: \url{https://www.ibge.gov.br/estatisticas/sociais/populacao.html}
+"gastroBR"

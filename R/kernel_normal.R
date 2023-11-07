@@ -13,7 +13,6 @@
 #' @param d0 Numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify d0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.
 #' @param delta Numeric: The discount factor for the observational variance. This option is meant only for didactic reasons, we discourage its usage.
 #' @param data vector: Values of the observed data.
-#' @param offset vector: The offset at each observation. Must have the same shape as data.
 #'
 #' @return A object of the class dlm_distr
 #' @importFrom Rfast upper_tri.assign lower_tri.assign is.symmetric
@@ -232,6 +231,8 @@ Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, n0 = NA, d0 = NA, 
       } else {
         if (alt.method) {
           update_NG_alt
+        } else if (alt.var) {
+          update_NG2
         } else {
           update_NG
         }
@@ -356,6 +357,21 @@ Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, n0 = NA, d0 = NA, 
   distr$convert.canom.flag <- convert.canom.flag
   distr$parms <- parms
   distr$name <- "Normal"
+  if (r > 1) {
+    if (is.null(colnames(data))) {
+      distr$sufix <- paste0(".", formatC(1:r, flag = "0", width = ceiling(log10(r))))
+    } else {
+      if (any(table(colnames(data)) > 1)) {
+        stop("Error: Cannot have repeated names in data argument.")
+      }
+      if (!is.null(colnames(offset))) {
+        if (any(colnames(data) != colnames(offset))) {
+          stop("Error: Column names of offset argument do not match column names of data argument.")
+        }
+      }
+      distr$sufix <- paste0(".", colnames(data))
+    }
+  }
 
   class(distr) <- "dlm_distr"
 
@@ -493,19 +509,21 @@ convert_Normal_Gamma_Normal <- function(ft, Qt, parms = list()) {
 
   helper <- -3 + 3 * sqrt(1 + 2 * Qt[2, 2] / 3)
   alpha <- 1 / helper
-  alpha <- f_root(
-    function(x) {
-      trigamma(x) - Qt[2, 2]
-    },
-    function(x) {
-      psigamma(x, 2)
-    },
-    alpha,
-    tol = 1e-15
-  )$root
+  # alpha <- f_root(
+  #   function(x) {
+  #     trigamma(x) - Qt[2, 2]
+  #   },
+  #   function(x) {
+  #     psigamma(x, 2)
+  #   },
+  #   alpha,
+  #   tol = 1e-15
+  # )$root
   beta <- exp(digamma(alpha) - ft[2, ])
 
   c0 <- beta / (Qt[1, 1] * alpha)
+  # c0 <- 1 / Qt[1, 1]
+  # c0 <- Qt[1, 1]
   return(list("mu0" = mu0, "c0" = c0, "alpha" = alpha, "beta" = beta))
 }
 
@@ -514,10 +532,12 @@ convert_Normal_Normal_Gamma <- function(conj.param, parms = list()) {
   # f2 <- conj.param$alpha/conj.param$beta
   f2 <- digamma(conj.param$alpha) - log(conj.param$beta)
   q1 <- conj.param$beta / (conj.param$c * conj.param$alpha)
+  # q1 <- 1 / conj.param$c
+  # q1 <- conj.param$c
   # q2 <- conj.param$alpha/(conj.param$beta**2)
-  q2 <- trigamma(conj.param$alpha)
-  # helper=1/conj.param$alpha
-  # q2 <- 3*((helper/3+1)**2-1)/2
+  # q2 <- trigamma(conj.param$alpha)
+  helper <- 1 / conj.param$alpha
+  q2 <- 3 * ((helper / 3 + 1)**2 - 1) / 2
 
   q12 <- 0
 
@@ -571,6 +591,41 @@ update_NG <- function(conj.param, ft, Qt, y, parms = list()) {
   c <- conj.param$c + 1
   alpha <- conj.param$alpha + 0.5
   beta <- conj.param$beta + 0.5 * conj.param$c * ((conj.param$mu - y)**2) / (conj.param$c + 1)
+  return(list("mu" = mu, "c" = c, "alpha" = alpha, "beta" = beta))
+}
+
+#' update_NG
+#'
+#' Calculate posterior parameter for the Normal-Gamma, assuming that the observed values came from a Normal model from which the prior distribution for the mean and the precision have joint distribution Normal-Gamma
+#'
+#' @param conj.param list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta).
+#' @param ft vector: A vector representing the means from the normal distribution. Not used in the default method.
+#' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution. Not used in the default method.
+#' @param y vector: A vector containing the observations.
+#' @param parms list: A list of extra known parameters of the distribution. Not used in this kernel.
+#'
+#' @return The parameters of the posterior distribution.
+#' @keywords internal
+update_NG2 <- function(conj.param, ft, Qt, y, parms = list()) {
+  mu0 <- conj.param$mu
+  alpha0 <- conj.param$alpha
+  beta0 <- conj.param$beta
+  S0 <- beta0 / alpha0
+  Rt <- S0 / conj.param$c
+  # Rt=conj.param$c
+
+  error <- y - mu0
+  Q <- Rt + S0
+  A <- Rt / Q
+
+  alpha <- alpha0 + 0.5
+  beta <- beta0 + 0.5 * S0 * (error**2) / Q
+  S <- beta / alpha
+
+  mu <- mu0 + A * error
+  Ct <- A * S
+  c <- beta / (Ct * alpha)
+  # c <- Ct
   return(list("mu" = mu, "c" = c, "alpha" = alpha, "beta" = beta))
 }
 

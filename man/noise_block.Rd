@@ -43,16 +43,7 @@ Creates the structure for a Noise block. This block represents an independent ra
 The variance of the noise cannot be formally estimated, as such we use a discount strategy similar to that of \insertCite{WestHarr-DLM;textual}{kDGLM} to specify it.
 }
 \details{
-For the ..., noise.var, noise.disc, D, H, a1, R1, a1, R1, a1.pulse, R1.pulse, D.pulse, h.pulse, H.pulse arguments, the user may set one or more of its values as a string.
-By doing so, the user will leave the block partially undefined and it can no longer be used in the \code{\link{fit_model}} function.
-Instead, the user must use the \code{\link{search_model}} function to search the best hyper parameters among a defined range of possible values.
-See the \code{\link{search_model}} function for details on its usage.
-
 For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
-
-For the details about Auto regressive models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapter 9.
-
-For the details about the linearization of non-linear evolution equations in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapter 13.
 
 For the details about dynamic regression models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
 }
@@ -71,7 +62,7 @@ Other {auxiliary functions for structural blocks}:
 \code{\link{*.dlm_block}()},
 \code{\link{+.dlm_block}()},
 \code{\link{AR_block}()},
-\code{\link{PCAR_block}()},
+\code{\link{CAR_prior}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},
@@ -79,7 +70,7 @@ Other {auxiliary functions for structural blocks}:
 \code{\link{polynomial_block}()},
 \code{\link{print.dlm_block}()},
 \code{\link{regression_block}()},
-\code{\link{report_block}()},
-\code{\link{summary.dlm_block}()}
+\code{\link{summary.dlm_block}()},
+\code{\link{zero_sum_prior}()}
 }
 \concept{{auxiliary functions for structural blocks}}

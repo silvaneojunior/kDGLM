@@ -53,7 +53,7 @@ level <- level |> intervention(time = 60, H = 1, var.index = 1)
 # Comment the line above to see the fit without the intervention
 
 outcome <- Poisson(lambda = "rate", data = data)
-#
+
 fitted.data <- fit_model(level, season,
   AirPassengers = outcome
 )

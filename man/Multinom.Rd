@@ -4,7 +4,7 @@
 \alias{Multinom}
 \title{Multinom outcome for kDGLM models}
 \usage{
-Multinom(p, data, offset = as.matrix(data)^0)
+Multinom(p, data, offset = as.matrix(data)^0, base.class = NULL)
 }
 \arguments{
 \item{p}{character: a vector with the name of the linear predictor associated with the probability of each category (except the base one, which is assumed to be the last).}
@@ -12,6 +12,8 @@ Multinom(p, data, offset = as.matrix(data)^0)
 \item{data}{vector: Values of the observed data.}
 
 \item{offset}{vector: The offset at each observation. Must have the same shape as data.}
+
+\item{base.class}{character or integer: The name or index of the base class. Default is to use the last column of data.}
 }
 \value{
 A object of the class dlm_distr
@@ -30,7 +32,7 @@ structure <- (
   polynomial_block(p = 1, order = 2, D = 0.95) +
     harmonic_block(p = 1, period = 12, D = 0.975) +
     noise_block(p = 1, R1 = 0.1) +
-    regression_block(p = as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
+    regression_block(p = chickenPox$date >= as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
 ) * 4
 
 outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
@@ -49,7 +51,6 @@ Other {auxiliary functions for a creating outcomes}:
 \code{\link{Gamma}()},
 \code{\link{Normal}()},
 \code{\link{Poisson}()},
-\code{\link{report_distr}()},
 \code{\link{summary.dlm_distr}()}
 }
 \concept{{auxiliary functions for a creating outcomes}}

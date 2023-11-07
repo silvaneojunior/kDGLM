@@ -41,8 +41,8 @@
 #' @references
 #'    \insertAllCited{}
 Poisson <- function(lambda, data, offset = as.matrix(data)**0) {
-  if(any(ceiling(data)!=floor(data))){
-    stop('Error: data must be an intenger vector/matrix.')
+  if (any(ceiling(data) != floor(data))) {
+    stop("Error: data must be an intenger vector/matrix.")
   }
   alt.method <- FALSE
   data <- as.matrix(data)
@@ -110,7 +110,7 @@ convert_Poisson_Normal <- function(ft, Qt, parms) {
     ft <- c(ft)
   }
   h <- -3 + 3 * sqrt(1 + 2 * Qt / 3)
-  alpha <- (1 / h)
+  alpha <- abs(1 / h)
   beta <- alpha * exp(-ft - 0.5 * Qt)
   # beta <- alpha * exp(-ft + 0.5 * Qt) # Linear Bayes
   return(list("alpha" = alpha, "beta" = beta))
@@ -221,7 +221,14 @@ poisson_pred <- function(conj.param, outcome = NULL, parms = list(), pred.cred =
 
   N <- 5000
   for (i in seq_len(t)[!flags]) {
-    sample.lambda <- rgamma(N, a[i], b[i])
+    h <- 1 / a[i]
+    Qt <- 3 * ((((h + 3) / 3)**2) - 1) / 2
+    ft <- -log(b[i]) + log(a[i]) - 0.5 * Qt
+    # Qt <- trigamma(a[i])
+    # ft <- digamma(a[i]) - log(b[i] + 1e-50)
+
+    # sample.lambda <- rgamma(N, a[i], b[i])
+    sample.lambda <- exp(rnorm(N) * sqrt(Qt) + ft)
     sample.y <- rpois(N, sample.lambda)
 
     if (pred.flag) {

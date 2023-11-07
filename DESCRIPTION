@@ -1,7 +1,7 @@
 Package: kDGLM
 Type: Package
 Title: kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models
-Version: 1.1.1
+Version: 1.1.2
 Authors@R: person("Silvaneo", "dos Santos", email = "silvaneo@dme.ufrj.br", role = c("aut", "cre","cph"))
 Description: Provide routines for Kalman filtering and smoothing, forecasting, sampling and Bayesian analysis of Dynamic Generalized Linear Models.
 License: GPL (>= 3)

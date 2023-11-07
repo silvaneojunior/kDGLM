@@ -39,8 +39,7 @@ sample <- dlm_sampling(fitted.data, 5000)
 Other {auxiliary functions for fitted_dlm objects}: 
 \code{\link{coef.fitted_dlm}()},
 \code{\link{coefficients.fitted_dlm}()},
-\code{\link{eval_past}()},
 \code{\link{forecast.fitted_dlm}()},
-\code{\link{forecast_dlm}()}
+\code{\link{update.fitted_dlm}()}
 }
 \concept{{auxiliary functions for fitted_dlm objects}}

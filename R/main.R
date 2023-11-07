@@ -169,7 +169,7 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, c.monit = 1) {
         d0 <- outcomes[[name]]$parms$d0
         delta <- outcomes[[name]]$parms$delta
 
-        arg <- list(a1 = digamma(0.5 * n0) - log(0.5 * d0), R1 = trigamma(0.5 * n0), D = delta)
+        arg <- list(a1 = digamma(0.5 * n0) - log(0.5 * d0), R1 = 3 * ((1 / (3 * (0.5 * n0)) + 1)**2 - 1) / 2, D = delta)
         arg[[pred.name]] <- 1
         arg$name <- pred.name
         structure <- structure +
@@ -224,16 +224,16 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, c.monit = 1) {
   }
 
   pred.names.out <- unique(structure$FF.labs)
-  pred.names.out <- pred.names.out[pred.names.out != "const"]
+  pred.names.out <- pred.names.out[pred.names.out != "const" & pred.names.out != "Covariate"]
   for (outcome in outcomes) {
     pred.names.out <- c(pred.names.out, outcome$pred.names)
   }
   pred.names.out <- unique(pred.names.out)
   if (any(!(pred.names.out %in% structure$pred.names))) {
-    stop("Error: One or more linear predictor in outcomes are not present in the model structure.")
+    stop("Error: Some linear predictors are being used in the outcomes, but are not defined in the model structure.")
   }
   if (any(!(structure$pred.names %in% pred.names.out))) {
-    warning("One or more linear predictor in the model structure are not used in the outcomes.")
+    warning("Some linear predictors in the model structure were not used in the outcomes.")
   }
 
   for (intervention in structure$interventions) {
@@ -306,6 +306,9 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, c.monit = 1) {
   model$k <- structure$k
   model$l <- structure$l
   model$r <- r
+  model$p.monit <- p.monit
+  model$c.monit <- c.monit
+  model$monitoring <- structure$monitoring
   model$structure <- structure
   model$period <- structure$period
   class(model) <- "fitted_dlm"
@@ -338,15 +341,9 @@ smoothing <- function(model) {
 #'
 #' @param model fitted_dlm: The fitted model to be use for predictions.
 #' @param t Numeric: Time window for prediction.
-#' @param outcome List (optional): A named list containing the observed values in the prediction window. Note that the names in the list must be the same as the names passed during the fitting process.
-#' @param offset Matrix or scalar (optional): offset for predictions. Should have dimensions r x t, where r is the number of outcomes of the model. If offset is not specified, the last value observed by the model will be used.
-#' @param FF Array (optional): A 3D-array containing the regression matrix for each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model. If not specified, the last value given to the model will be used.
-#' @param G Array (optional): A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables. If not specified, the last value given to the model will be used.
-#' @param D Array (optional): A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length. If not specified, the last value given to the model will be used in the first step, and 1 will be use thereafter.
-#' @param h Matrix (optional): A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.
-#' @param H Array (optional): A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length. If not specified, 0 will be used.
 #' @param plot Bool or String: A flag indicating if a plot should be produced. Should be one of FALSE, TRUE, 'base', 'ggplot2' or 'plotly'.
 #' @param pred.cred Numeric: The credibility level for the I.C. intervals.
+#' @param ... Extra variables necessary for prediction (covariates, etc.).
 #'
 #' @return A list containing:
 #' \itemize{
@@ -376,17 +373,13 @@ smoothing <- function(model) {
 #'   AirPassengers = outcome
 #' )
 #'
-#' # forecast(fitted.data, 20)$plot
-#' # Or
-#' forecast_dlm(fitted.data, 20)$plot
+#' forecast(fitted.data, 20)$plot
 #'
 #' @family {auxiliary functions for fitted_dlm objects}
-forecast_dlm <- function(model, t = 1,
-                         outcome = NULL, offset = NULL,
-                         FF = NULL, G = NULL,
-                         D = NULL, h = NULL, H = NULL,
-                         plot = ifelse(requireNamespace("plotly", quietly = TRUE), "plotly", ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot2", "base")),
-                         pred.cred = 0.95) {
+forecast.fitted_dlm <- function(model, t = 1,
+                                plot = ifelse(requireNamespace("plotly", quietly = TRUE), "plotly", ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot2", "base")),
+                                pred.cred = 0.95,
+                                ...) {
   if (plot == TRUE) {
     plot <- ifelse(requireNamespace("plotly", quietly = TRUE), "plotly", ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot2", "base"))
   }
@@ -404,15 +397,24 @@ forecast_dlm <- function(model, t = 1,
   time.index <- seq_len(t_last)
   time.index.foward <- (t_last + 1):(t_last + t)
 
+  extra.args <- list(...)
+  D <- h <- H <- NULL
+  if (!is.null(extra.args$D)) {
+    D <- extra.args$D
+  }
+  if (!is.null(extra.args$h)) {
+    h <- extra.args$h
+  }
+  if (!is.null(extra.args$H)) {
+    H <- extra.args$H
+  }
+
   #### Consistency check ####
-  if (length(dim(FF)) > 3) {
-    stop(paste0("Error: FF should have at most 3 dimensions. Got ", length(dim(FF)), "."))
-  }
-  if (length(dim(G)) > 3) {
-    stop(paste0("Error: G should have at most 3 dimensions. Got ", length(dim(G)), "."))
-  }
   if (length(dim(D)) > 3) {
     stop(paste0("Error: D should have at most 3 dimensions. Got ", length(dim(D)), "."))
+  }
+  if (length(dim(h)) > 2) {
+    stop(paste0("Error: H should have at most 2 dimensions. Got ", length(dim(h)), "."))
   }
   if (length(dim(H)) > 3) {
     stop(paste0("Error: H should have at most 3 dimensions. Got ", length(dim(H)), "."))
@@ -422,15 +424,50 @@ forecast_dlm <- function(model, t = 1,
   }
 
   G.labs <- model$G.labs
-  if (is.null(G)) {
-    G <- array(model$G[, , t_last], c(n, n, t))
+  G <- array(model$G[, , t_last], c(n, n, t))
+  G.flags <- G.labs == "Pulse"
+  if (any(G.flags)) {
+    for (i in seq_len(n)[rowSums(G.flags) > 0]) {
+      for (j in seq_len(n)[G.flags[i, ]]) {
+        label <- paste0(model$var.labels[j])
+        if (label %in% names(extra.args)) {
+          G[i, j, ] <- extra.args[[label]]
+        } else {
+          stop(paste0("Error: Missing extra argument: ", label))
+        }
+      }
+    }
   }
+
+  FF.labs <- model$FF.labs
+  FF <- array(model$FF[, , t_last], c(n, k, t))
+  FF.flags <- FF.labs == "Covariate"
+  if (any(FF.flags)) {
+    coef.names <- rep(NA, model$n)
+    for (name in names(model$var.names)) {
+      coef.names[model$var.names[[name]]] <- name
+    }
+    for (j in seq_len(k)[colSums(FF.flags) > 0]) {
+      for (i in seq_len(n)[FF.flags[, j]]) {
+        if (sum(FF.flags[i, ]) == 1) {
+          label <- coef.names[i] |>
+            paste(FF.labs[i, j], sep = ".")
+        } else {
+          label <- coef.names[i] |>
+            paste(FF.labs[i, j], cumsum(FF.flags[i, ])[j], sep = ".")
+        }
+        if (label %in% names(extra.args)) {
+          FF[i, j, ] <- extra.args[[label]]
+        } else {
+          stop(paste0("Error: Missing extra argument: ", label))
+        }
+      }
+    }
+  }
+
+
   if (is.null(h)) {
     h <- matrix(model$h[, t_last], n, t)
-  }
-  FF.labs <- model$FF.labs
-  if (is.null(FF)) {
-    FF <- array(model$FF[, , t_last], c(n, k, t))
   }
   dim.D <- dim(D)
   if (is.null(D)) {
@@ -446,7 +483,7 @@ forecast_dlm <- function(model, t = 1,
   }
   dim.H <- dim(H)
   if (is.null(H)) {
-    H <- array(model$H[, , t_last], c(n, n, t))
+    H <- array(model$W[, , t_last], c(n, n, t))
     # H[, , -1] <- 0
   } else {
     if (all(dim.H == 1)) {
@@ -457,13 +494,6 @@ forecast_dlm <- function(model, t = 1,
         H[, , -1] <- 0
       }
     }
-  }
-
-  if (any(dim(G) != c(n, n, t))) {
-    stop(paste0("Error: G has wrong dimesions. Expected ", paste(n, n, t, sep = "x"), ". Got ", paste(dim(G), colapse = "x")))
-  }
-  if (any(dim(FF) != c(n, k, t))) {
-    stop(paste0("Error: FF has wrong dimesions. Expected ", paste(n, k, t, sep = "x"), ". Got ", paste(dim(FF), colapse = "x")))
   }
   if (any(dim(D) != c(n, n, t))) {
     stop(paste0("Error: D has wrong dimesions. Expected ", paste(n, n, t, sep = "x"), ". Got ", paste(dim(D), colapse = "x")))
@@ -501,15 +531,22 @@ forecast_dlm <- function(model, t = 1,
     outcome.forecast[[outcome.name]]$ft <- matrix(NA, model$outcomes[[outcome.name]]$k, t)
     outcome.forecast[[outcome.name]]$Qt <- array(NA, c(model$outcomes[[outcome.name]]$k, model$outcomes[[outcome.name]]$k, t))
 
+    outcome.forecast$show <- !is.null(extra.args[[outcome.name]]$data)
     outcome.forecast[[outcome.name]]$data <-
-      if (!is.null(outcome)) {
-        outcome[[outcome.name]] |> matrix(t, r_i)
+      if (!is.null(extra.args[[outcome.name]]$data)) {
+        extra.args[[outcome.name]]$data |>
+          as.matrix() |>
+          matrix(t, r_i)
+      } else if (model$outcomes[[outcome.name]]$name == "Multinomial" & !is.null(extra.args[[outcome.name]]$total)) {
+        (extra.args[[outcome.name]]$total / r_i) |> matrix(t, r_i, byrow = FALSE)
       } else {
         model$outcomes[[outcome.name]]$data[t_last, ] |> matrix(t, r_i, byrow = TRUE)
       }
     outcome.forecast[[outcome.name]]$offset <-
-      if (!is.null(offset)) {
-        offset[[outcome.name]] |> matrix(t, r_i)
+      if (!is.null(extra.args[[outcome.name]]$offset)) {
+        extra.args[[outcome.name]]$offset |>
+          as.matrix() |>
+          matrix(t, r_i)
       } else {
         model$outcomes[[outcome.name]]$offset[t_last, ] |> matrix(t, r_i, byrow = TRUE)
       }
@@ -556,10 +593,6 @@ forecast_dlm <- function(model, t = 1,
       outcome.forecast[[outcome.name]]$Qt[, , t_i] <- lin.pred.offset$Qt
     }
   }
-  # if (is.null(outcome)) {
-  #   outcome.forecast[[outcome.name]]$data <- matrix(model$outcomes[[outcome.name]]$data[1,],t,,byrow=TRUE)
-  #   outcome.forecast[[outcome.name]]$offset <- NULL
-  # }
 
   r.acum <- 0
   out.names <- rep(NA, r)
@@ -588,13 +621,8 @@ forecast_dlm <- function(model, t = 1,
 
 
 
-    if (r.cur > 1) {
-      char.len <- floor(log10(r.cur)) + 1
-      out.names[r.seq] <- paste0(outcome.name, ".", formatC(seq_len(r.cur), width = char.len, flag = "0"))
-    } else {
-      out.names[r.seq] <- outcome.name
-    }
-    if (!is.null(outcome)) {
+    out.names[r.seq] <- paste0(outcome.name, model$outcomes[[outcome.name]]$sufix)
+    if (outcome.forecast$show) {
       output[, r.seq] <- outcome.forecast[[outcome.name]]$data
     }
 
@@ -612,7 +640,7 @@ forecast_dlm <- function(model, t = 1,
     C.I.upper = c(t(icu.pred))
   )
 
-  data.past <- eval_past(model, lag = -1, pred.cred = pred.cred)$data
+  data.past <- coef(model, lag = -1, pred.cred = pred.cred)$data
   plot.data <- rbind(
     cbind(data.past, type = "Fit"),
     cbind(data, type = "Forecast")
@@ -621,7 +649,16 @@ forecast_dlm <- function(model, t = 1,
   return.list <- list(data = plot.data, forecast = data, outcomes = outcome.forecast, mt = m1, Ct = C1, ft = f1, Qt = Q1)
 
   if (plot != FALSE) {
-    obs.na.rm <- data.past$Observation[!is.na(data.past$Observation)]
+    obs.na.rm <- c(
+      data.past$Observation[!is.na(data.past$Observation)],
+      data$Observation[!is.na(data$Observation)]
+    )
+    if (outcome.forecast$show) {
+      obs.na.rm <- c(
+        obs.na.rm,
+        data$Prediction[!is.na(data$Prediction)]
+      )
+    }
     max.value <- evaluate_max(obs.na.rm - min(obs.na.rm))[[3]] + min(obs.na.rm)
     min.value <- -evaluate_max(-(obs.na.rm - max(obs.na.rm)))[[3]] + max(obs.na.rm)
     plot.data$shape.point <- ifelse(plot.data$type == "Forecast", "Future", "Obs.")
@@ -716,7 +753,6 @@ forecast_dlm <- function(model, t = 1,
           n.series <- length(series.names)
           plt.obj <- plotly::ggplotly(plt.obj + ggplot2::scale_y_continuous(plotly::TeX("Y_t"))) |> plotly::config(mathjax = "cdn")
 
-          print(lapply(plt.obj$x$data,function(x){x$name}))
           for (i in (1:n.series) - 1) {
             plt.obj$x$data[[2 * i + 1]]$legendgroup <-
               plt.obj$x$data[[2 * i + 1]]$name <-
@@ -744,7 +780,255 @@ forecast_dlm <- function(model, t = 1,
   return(return.list)
 }
 
-#' eval_past
+#' update.fitted_dlm
+#'
+#' Updates a fitted model.
+#'
+#' @param model fitted_dlm: The fitted model to be updated.
+#' @param ... Extra variables necessary for updating (covariates, observed values, etc.).
+#'
+#' @return A fitted_dlm object.
+#' @export
+#'
+#' @examples
+#'
+#' level <- polynomial_block(rate = 1, order = 2, D = 0.95)
+#' season <- harmonic_block(rate = 1, order = 2, period = 12, D = 0.975)
+#'
+#' # Only first 100 observations (for the sake of the example)
+#' outcome <- Poisson(lambda = "rate", data = c(AirPassager)[1:100])
+#'
+#' fitted.data <- fit_model(level, season,
+#'   AirPassengers = outcome
+#' )
+#'
+#' updated.fit <- update(fitted.data, AirPassager = list(data = c(AirPassager)[101:144]))
+#' # If a offset was present, the user should pass its value when updating
+#' # updated.fit=update(fitted.data,
+#' #                     AirPassager=list(
+#' #                      data=c(AirPassager)[101:144],
+#' #                      offset= ... ))
+#'
+#' @family {auxiliary functions for fitted_dlm objects}
+update.fitted_dlm <- function(model, ...) {
+  args <- list(...)
+  n <- model$n
+  t_last <- model$t
+  k <- model$k
+  r <- model$r
+  outcomes.old <- model$outcomes
+  outcomes.new <- list()
+  for (name in names(outcomes.old)) {
+    if (name %in% names(args)) {
+      outcomes.new[[name]] <- outcomes.old[[name]]
+      if (is.null(dim(args[[name]]$data))) {
+        t <- length(args[[name]]$data)
+      } else {
+        t <- dim(args[[name]]$data)[1]
+      }
+
+      outcomes.new[[name]]$t <- t
+      outcomes.new[[name]]$data <- args[[name]]$data |>
+        as.matrix() |>
+        matrix(t, r)
+      if (!is.null(args[[name]]$offset)) {
+        outcomes.new[[name]]$offset <- args[[name]]$offset |>
+          as.matrix() |>
+          matrix(t, r)
+      } else {
+        outcomes.new[[name]]$offset <- outcomes.new[[name]]$data**0
+      }
+    }
+  }
+  t.max <- max(sapply(outcomes.new, function(x) {
+    x$t
+  }))
+  for (name in names(outcomes.old)) {
+    outcomes.old[[name]]$t <- t.max + t_last
+    if (name %in% names(outcomes.new)) {
+      if (outcomes.new[[name]]$t < t.max) {
+        outcomes.new[[name]]$data <- rbind(
+          outcomes.new[[name]]$data,
+          matrix(NA, t.max - outcomes.new[[name]]$t, outcomes.new[[name]]$r)
+        )
+        outcomes.new[[name]]$offset <- rbind(
+          outcomes.new[[name]]$offset,
+          matrix(NA, t.max - outcomes.new[[name]]$t, outcomes.new[[name]]$r)
+        )
+        outcomes.new[[name]]$t <- t.max
+      }
+      outcomes.old[[name]]$data <- rbind(outcomes.old[[name]]$data, outcomes.new[[name]]$data)
+      outcomes.old[[name]]$offset <- rbind(outcomes.old[[name]]$offset, outcomes.new[[name]]$offset)
+    } else {
+      outcomes.old[[name]]$data <- rbind(
+        outcomes.old[[name]]$data,
+        matrix(NA, t.max - t_last, outcomes.old[[name]]$r)
+      )
+      outcomes.old[[name]]$offset <- rbind(
+        outcomes.old[[name]]$offset,
+        matrix(NA, t.max - t_last, outcomes.old[[name]]$r)
+      )
+    }
+  }
+
+  D <- h <- H <- NULL
+  if (!is.null(args$D)) {
+    D <- args$D
+  }
+  if (!is.null(args$h)) {
+    h <- args$h
+  }
+  if (!is.null(args$H)) {
+    H <- args$H
+  }
+
+  #### Consistency check ####
+  if (length(dim(D)) > 3) {
+    stop(paste0("Error: D should have at most 3 dimensions. Got ", length(dim(D)), "."))
+  }
+  if (length(dim(h)) > 2) {
+    stop(paste0("Error: H should have at most 2 dimensions. Got ", length(dim(h)), "."))
+  }
+  if (length(dim(H)) > 3) {
+    stop(paste0("Error: H should have at most 3 dimensions. Got ", length(dim(H)), "."))
+  }
+  if (length(dim(offset)) > 2) {
+    stop(paste0("Error: D should have at most 2 dimensions. Got ", length(dim(offset)), "."))
+  }
+
+  G.labs <- model$G.labs
+  G <- array(model$G[, , t_last], c(n, n, t.max))
+  G.flags <- G.labs == "Pulse"
+  if (any(G.flags)) {
+    for (i in seq_len(n)[rowSums(G.flags) > 0]) {
+      for (j in seq_len(n)[G.flags[i, ]]) {
+        label <- paste0(model$var.labels[j])
+        if (label %in% names(args)) {
+          if (length(args[[label]]) != t.max) {
+            stop(paste0("Error: ", label, " and outcomes have different size. Expected, ", t.max, ", got ", length(args[[label]]), "."))
+          }
+          G[i, j, ] <- args[[label]]
+        } else {
+          stop(paste0("Error: Missing extra argument: ", label))
+        }
+      }
+    }
+  }
+
+  FF.labs <- model$FF.labs
+  FF <- array(model$FF[, , t_last], c(n, k, t.max), dimnames = dimnames(model$FF))
+  FF.flags <- FF.labs == "Covariate"
+  if (any(FF.flags)) {
+    coef.names <- rep(NA, model$n)
+    for (name in names(model$var.names)) {
+      coef.names[model$var.names[[name]]] <- name
+    }
+    for (j in seq_len(k)[colSums(FF.flags) > 0]) {
+      for (i in seq_len(n)[FF.flags[, j]]) {
+        if (sum(FF.flags[i, ]) == 1) {
+          label <- coef.names[i] |>
+            paste(FF.labs[i, j], sep = ".")
+        } else {
+          label <- coef.names[i] |>
+            paste(FF.labs[i, j], cumsum(FF.flags[i, ])[j], sep = ".")
+        }
+        if (label %in% names(args)) {
+          if (length(args[[label]]) != t.max) {
+            stop(paste0("Error: ", label, " and outcomes have different size. Expected, ", t.max, ", got ", length(args[[label]]), "."))
+          }
+          FF[i, j, ] <- args[[label]]
+        } else {
+          stop(paste0("Error: Missing extra argument: ", label))
+        }
+      }
+    }
+  }
+
+  if (is.null(h)) {
+    h <- matrix(model$h[, t_last], n, t.max)
+  }
+  dim.D <- dim(D)
+  if (is.null(D)) {
+    D <- array(model$D[, , t_last], c(n, n, t.max))
+  } else {
+    if (all(dim.D == 1)) {
+      D <- array(D, c(n, n, t.max))
+    } else {
+      if (length(dim.D) == 2 || (length(dim.D) == 3 && dim.D[3] == 1)) {
+        D <- array(D, c(n, n, t.max))
+      }
+    }
+  }
+  dim.H <- dim(H)
+  if (is.null(H)) {
+    H <- array(model$H[, , t_last], c(n, n, t.max))
+  } else {
+    if (all(dim.H == 1)) {
+      H <- array(diag(n) * H, c(n, n, t.max))
+    } else {
+      if (length(dim.H) == 2 || (length(dim.H) == 3 && dim.H[3] == 1)) {
+        H <- array(H, c(n, n, t.max))
+        H[, , -1] <- 0
+      }
+    }
+  }
+  if (any(dim(D) != c(n, n, t.max))) {
+    stop(paste0("Error: D has wrong dimesions. Expected ", paste(n, n, t.max, sep = "x"), ". Got ", paste(dim(D), colapse = "x")))
+  }
+  if (any(dim(H) != c(n, n, t.max))) {
+    stop(paste0("Error: H has wrong dimesions. Expected ", paste(n, n, t.max, sep = "x"), ". Got ", paste(dim(H), colapse = "x")))
+  }
+  #####
+  D <- ifelse(D == 0, 1, D)
+
+  a1 <- model$mt[, t_last, drop = FALSE]
+  R1 <- model$Ct[, , t_last]
+
+  new.data <- analytic_filter(
+    outcomes = outcomes.new,
+    a1 = a1,
+    R1 = R1,
+    FF = FF,
+    FF.labs = FF.labs,
+    G = G,
+    G.labs = G.labs,
+    D = D,
+    h = h,
+    H = H,
+    p.monit = model$p.monit,
+    c.monit = model$c.monit,
+    monitoring = model$monitoring
+  )
+
+  model$mt <- cbind(model$mt, new.data$mt)
+  model$Ct <- array(c(model$Ct, new.data$Ct), c(n, n, t.max + t_last), dimnames = dimnames(model$Ct))
+  model$at <- cbind(model$at, new.data$at)
+  model$Rt <- array(c(model$Rt, new.data$Rt), c(n, n, t.max + t_last), dimnames = dimnames(model$Rt))
+  model$ft <- cbind(model$ft, new.data$ft)
+  model$Qt <- array(c(model$Qt, new.data$Qt), c(k, k, t.max + t_last), dimnames = dimnames(model$Qt))
+  model$ft.star <- cbind(model$ft.star, new.data$ft.star)
+  model$Qt.star <- array(c(model$Qt.star, new.data$Qt.star), c(k, k, t.max + t_last), dimnames = dimnames(model$Qt.star))
+  model$D <- array(c(model$D, new.data$D), c(n, n, t.max + t_last), dimnames = dimnames(model$D))
+  model$H <- array(c(model$H, new.data$H), c(n, n, t.max + t_last), dimnames = dimnames(model$H))
+  model$h <- cbind(model$h, h)
+  model$W <- array(c(model$W, new.data$W), c(n, n, t.max + t_last), dimnames = dimnames(model$W))
+  model$FF <- array(c(model$FF, new.data$FF), c(n, k, t.max + t_last), dimnames = dimnames(model$FF))
+  model$G <- array(c(model$G, new.data$G), c(n, n, t.max + t_last), dimnames = dimnames(model$G))
+  model$t <- t_last + t.max
+  model$log.like.null <- c(model$log.like.null, new.data$log.like.null)
+  model$log.like.alt <- c(model$log.like.alt, new.data$log.like.alt)
+  model$alt.flags <- c(model$alt.flags, new.data$alt.flags)
+  model$outcomes <- outcomes.old
+
+  if (model$smooth) {
+    model$smooth <- FALSE
+    model <- smoothing(model)
+  }
+
+  return(model)
+}
+
+#' coef.fitted_dlm
 #'
 #' Evaluates the predictive values for the observed values used to fit the model and its latent variables.
 #' Predictions can be made with smoothed values or with filtered values with a time offset.
@@ -781,14 +1065,12 @@ forecast_dlm <- function(model, t = 1,
 #'   AirPassengers = outcome
 #' )
 #'
-#' # var.vals <- coef(fitted.data)
-#' # Or
 #' # var.vals <- coefficients(fitted.data)
 #' # Or
-#' var.vals <- eval_past(fitted.data)
+# var.vals <- coef(fitted.data)
 #'
 #' @family {auxiliary functions for fitted_dlm objects}
-eval_past <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cred = 0.95, eval.pred = TRUE) {
+coef.fitted_dlm <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cred = 0.95, eval.pred = TRUE) {
   if (round(lag) != lag) {
     stop(paste0("Error: lag should be a integer. Got ", lag, "."))
   }
@@ -799,6 +1081,7 @@ eval_past <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cred = 0.
   r <- model$r
 
   smoothed.log.like <- FALSE
+  true.lag <- lag
   if (lag < 0) {
     if (!model$smooth) {
       model <- smoothing(model)
@@ -819,6 +1102,8 @@ eval_past <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cred = 0.
       # var.W=matrix(var.W[,model$t],n,model$t)
       ref.mt[null.rows.flags] <- 0
       for (i in (1:model$t)) {
+        ref.Ct[null.rows.flags, , i] <- 0
+        ref.Ct[, null.rows.flags, i] <- 0
         diag(ref.Ct[, , i])[null.rows.flags] <- var.W[null.rows.flags, i]
       }
     }
@@ -924,7 +1209,6 @@ eval_past <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cred = 0.
           Qt.canom <- cur.step$Qt
         }
 
-
         conj.param <- outcome$conj_distr(ft.canom, Qt.canom, parms = outcome$parms)
         conj.param.list[[outcome.name]][t.index, ] <- conj.param
         prediction <- outcome$calc_pred(conj.param,
@@ -972,11 +1256,7 @@ eval_past <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cred = 0.
     r.cur <- model$outcomes[[outcome.name]]$r
     r.seq <- (r.acum + 1):(r.acum + r.cur)
     char.len <- floor(log10(r.cur)) + 1
-    if (r.cur > 1) {
-      out.names[r.seq] <- paste0(outcome.name, ".", formatC(seq_len(r.cur), width = char.len, flag = "0"))
-    } else {
-      out.names[r.seq] <- outcome.name
-    }
+    out.names[r.seq] <- paste0(outcome.name, model$outcomes[[outcome.name]]$sufix)
 
     1:min(final.t - init.t + 1, t_last - init.t + 1)
     output[seq_len(min(final.t - init.t + 1, t_last - init.t + 1)), r.seq] <- model$outcomes[[outcome.name]]$data[init.t:min(final.t, t_last), ]
@@ -999,7 +1279,10 @@ eval_past <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cred = 0.
     C.I.upper = c(t(icu.pred))
   )
 
-  return(list(
+  rownames(mt.pred) <- rownames(Ct.pred) <- colnames(Ct.pred) <- model$var.labels
+  rownames(ft.pred) <- rownames(Qt.pred) <- colnames(Qt.pred) <- model$pred.names
+
+  output <- list(
     data = data[data$Time %in% eval_t, ],
     mt = mt.pred[, time.flags, drop = FALSE],
     Ct = Ct.pred[, , time.flags, drop = FALSE],
@@ -1017,8 +1300,13 @@ eval_past <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cred = 0.
     rae = rae[time.flags, drop = FALSE],
     mse = mse[time.flags, drop = FALSE],
     interval.score = interval.score[time.flags, drop = FALSE],
-    conj.param = conj.param.list
-  ))
+    conj.param = conj.param.list,
+    lag = true.lag
+  )
+
+  class(output) <- "dlm_coef"
+
+  return(output)
 }
 
 #' dlm_sampling
@@ -1368,7 +1656,7 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
 
     r <- length(fitted.model$outcomes)
     metric <- tolower(metric)
-    predictions <- eval_past(fitted.model, eval_t = (metric.cutoff + 1):T_len, lag = lag, pred.cred = pred.cred, eval.pred = TRUE)
+    predictions <- coef(fitted.model, eval_t = (metric.cutoff + 1):T_len, lag = lag, pred.cred = pred.cred, eval.pred = TRUE)
 
     search.data$log.like[i] <- sum(predictions$log.like)
     search.data$mae[i] <- mean(predictions$mae)
@@ -1390,6 +1678,7 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
   }
   cat("\n")
   search.data <- search.data[order(-search.data[[metric]], decreasing = (metric != "log.like")), ]
+
   if (smooth & !save.models) {
     best.model <- smoothing(best.model)
   }
