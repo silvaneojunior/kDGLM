@@ -7,28 +7,15 @@
 \method{*}{dlm_block}(e1, e2)
 }
 \arguments{
-\item{e1}{A dlm_block (if e2 is an Integer) or an Integer (if e2 is a dlm_block).}
+\item{e1}{A dlm_block (if e2 is an integer) or an integer (if e2 is a dlm_block).}
 
-\item{e2}{An Integer (if e1 is an dlm_block) or a dlm_block (if e1 is an Integer).}
+\item{e2}{An integer (if e1 is an dlm_block) or a dlm_block (if e1 is an integer).}
 }
 \description{
-Define product operator for class dlm_block
+Define product operator for class dlm_block.
+This method is wrapper for the block_mult function.
 }
 \seealso{
-Other {auxiliary functions for structural blocks}: 
-\code{\link{+.dlm_block}()},
-\code{\link{AR_block}()},
-\code{\link{CAR_prior}()},
-\code{\link{block_mult}()},
-\code{\link{block_rename}()},
-\code{\link{block_superpos}()},
-\code{\link{harmonic_block}()},
-\code{\link{noise_block}()},
-\code{\link{polynomial_block}()},
-\code{\link{print.dlm_block}()},
-\code{\link{regression_block}()},
-\code{\link{summary.dlm_block}()},
-\code{\link{zero_sum_prior}()}
+\code{\link{block_mult}}
 }
-\concept{{auxiliary functions for structural blocks}}
 \keyword{internal}

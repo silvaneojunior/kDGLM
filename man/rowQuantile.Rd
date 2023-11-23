@@ -7,12 +7,12 @@
 rowQuantile(X, q)
 }
 \arguments{
-\item{X}{Matrix.}
+\item{X}{matrix.}
 
-\item{q}{Numeric: A number between 0 and 1.}
+\item{q}{numeric: A number between 0 and 1.}
 }
 \value{
-Vector: The chosen quantile for each row of X.
+numeric: The chosen quantile for each row of X.
 }
 \description{
 A function that calculates the row-wise quantile of a matrix.

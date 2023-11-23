@@ -7,22 +7,22 @@
 gamma_pred(conj.param, outcome = NULL, parms = list(), pred.cred = 0.95)
 }
 \arguments{
-\item{conj.param}{List or data.frame: The parameters of the conjugated distributions of the linear predictor.}
+\item{conj.param}{list or data.frame: The parameters of the conjugated distributions of the linear predictor.}
 
-\item{outcome}{Vector or matrix (optional): The observed values at the current time. Not used in this function.}
+\item{outcome}{numeric or matrix (optional): The observed values at the current time. Not used in this function.}
 
-\item{parms}{List: A list of extra parameters for the model. For this function, it must contain the shape parameter phi of the observational model.}
+\item{parms}{list: A list of extra parameters for the model. For this function, it must contain the shape parameter phi of the observational model.}
 
-\item{pred.cred}{Numeric: the desired credibility for the credibility interval.}
+\item{pred.cred}{numeric: the desired credibility for the credibility interval.}
 }
 \value{
 A list containing the following values:
 \itemize{
-   \item pred vector/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-   \item var.pred vector/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-   \item icl.pred vector/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-   \item icu.pred vector/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-   \item log.like vector: the The log likelihood for the outcome given the conjugated parameters.
+   \item pred numeric/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+   \item var.pred numeric/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+   \item icl.pred numeric/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+   \item icu.pred numeric/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+   \item log.like numeric: the The log likelihood for the outcome given the conjugated parameters.
 }
 }
 \description{

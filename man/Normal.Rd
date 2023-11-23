@@ -27,13 +27,13 @@ Normal(
 
 \item{Sd}{character or numeric: If Sd is a character, it is interpreted as the names of the linear predictors associated with the standard deviation parameter of the Normal distribution. If Sd is numeric, the standard deviation is considered known and equal to the value of Sd, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed by in Sd. If the outcome is a Multivariate Normal, then Tau must be a matrix and the elements outside its main diagonal are treated as the correlation (or the name of the linear predictor associated) between each coordinate of the outcome. The user cannot specify Sd with V, Tau, Sigma, n0 or d0.}
 
-\item{n0}{Numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify n0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.}
+\item{n0}{numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify n0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.}
 
-\item{d0}{Numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify d0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.}
+\item{d0}{numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify d0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.}
 
-\item{delta}{Numeric: The discount factor for the observational variance. This option is meant only for didactic reasons, we discourage its usage.}
+\item{delta}{numeric: The discount factor for the observational variance. This option is meant only for didactic reasons, we discourage its usage.}
 
-\item{data}{vector: Values of the observed data.}
+\item{data}{numeric: Values of the observed data.}
 }
 \value{
 A object of the class dlm_distr
@@ -54,7 +54,7 @@ structure <- polynomial_block(mu = 1, D = 0.95) +
   polynomial_block(V = 1, D = 0.95)
 
 outcome <- Normal(mu = "mu", V = "V", data = cornWheat$corn.log.return[1:500])
-fitted.data <- fit_model(structure, outcome)
+fitted.data <- fit_model(structure, corn = outcome)
 summary(fitted.data)
 plot(fitted.data, plot.pkg = "base")
 
@@ -68,7 +68,7 @@ outcome <- Normal(
   V = matrix(c("V.1", "rho", "rho", "V.2"), 2, 2),
   data = cornWheat[1:500, c(4, 5)]
 )
-fitted.data <- fit_model(structure, outcome)
+fitted.data <- fit_model(structure, cornWheat = outcome)
 summary(fitted.data)
 plot(fitted.data, plot.pkg = "base")
 

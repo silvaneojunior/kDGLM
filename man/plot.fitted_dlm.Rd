@@ -5,26 +5,29 @@
 \title{Visualizing a fitted kDGLM model}
 \usage{
 \method{plot}{fitted_dlm}(
-  model,
-  outcomes = names(model$outcomes),
+  x,
+  outcomes = names(x$outcomes),
   pred.cred = 0.95,
   lag = 1,
-  cutoff = floor(model$t/10),
-  plot.pkg = "auto"
+  cutoff = floor(x$t/10),
+  plot.pkg = "auto",
+  ...
 )
 }
 \arguments{
-\item{model}{fitted_dlm: A fitted DGLM.}
+\item{x}{fitted_dlm object: A fitted DGLM.}
 
-\item{outcomes}{String: The name of the outcomes to plot.}
+\item{outcomes}{character: The name of the outcomes to plot.}
 
-\item{pred.cred}{Numeric: The credibility value for the credibility interval.}
+\item{pred.cred}{numeric: The credibility value for the credibility interval.}
 
-\item{lag}{Integer: The number of steps ahead to be used for prediction. If lag<0, the smoothed distribution is used and, if lag==0, the filtered interval.score is used.}
+\item{lag}{integer: The number of steps ahead to be used for prediction. If lag<0, the smoothed distribution is used and, if lag==0, the filtered interval.score is used.}
 
-\item{cutoff}{Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the predictions are not reliable.}
+\item{cutoff}{integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the predictions are not reliable.}
 
-\item{plot.pkg}{String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.}
+\item{plot.pkg}{character: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.}
+
+\item{...}{Extra arguments passed to the plot method.}
 }
 \value{
 ggplot or plotly object: A plot showing the predictive mean and credibility interval with the observed data.
@@ -48,8 +51,9 @@ plot(fitted.data, plot.pkg = "base")
 
 }
 \seealso{
+\code{\link{fit_model}}
+
 Other {auxiliary visualization functions for the fitted_dlm class}: 
-\code{\link{plot.dlm_coef}()},
-\code{\link{print.fitted_dlm}()}
+\code{\link{plot.dlm_coef}()}
 }
 \concept{{auxiliary visualization functions for the fitted_dlm class}}

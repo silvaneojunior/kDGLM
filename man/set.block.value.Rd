@@ -22,3 +22,17 @@ Sets the values of undefined parameters in a block to those passed by the user.
 season <- harmonic_block(rate = 1, period = 12, D = "D.sazo") |>
   set.block.value(D.sazo = 0.975)
 }
+\seealso{
+Other {auxiliary functions for structural blocks}: 
+\code{\link{AR_block}()},
+\code{\link{block_mult}()},
+\code{\link{block_rename}()},
+\code{\link{block_superpos}()},
+\code{\link{harmonic_block}()},
+\code{\link{intervention}()},
+\code{\link{noise_block}()},
+\code{\link{polynomial_block}()},
+\code{\link{regression_block}()},
+\code{\link{summary.dlm_block}()}
+}
+\concept{{auxiliary functions for structural blocks}}

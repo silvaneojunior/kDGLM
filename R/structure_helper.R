@@ -3,14 +3,14 @@
 #' Creates the basic structure for a dlm block with desired order.
 #'
 #' @param ... Named values for the planning matrix.
-#' @param order Positive integer: The order of the structure.
-#' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
-#' @param D Array, Matrix, vector or scalar: The values for the discount factors associated with the latent variables at each time. If D is an array, its dimensions should be n x n x t, where n is the order of the polynomial block and t is the length of the outcomes. If D is a matrix, its dimensions should be n x n and the same discount matrix will be used in all observations. If D is a vector, it should have size t and it is interpreted as the discount factor at each observed time (same discount for all variable). If D is a scalar, the same discount will be used for all latent variables at all times.
-#' @param h Matrix, vector or scalar: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, its dimension should be n x t, where n is the number of latent variables (i.e., the order) and t is the length of the series. If a vector, it should have size t, and each value will be applied to the first latent variable (the one which affects the linear predictors) in their respective time. If a scalar, the passed value will be used for the first latent variable at each time.
-#' @param H Array, Matrix, vector or scalar: The values for the covariance matrix for the noise factor at each time. If H is an array, its dimensions should be n x n x t, where n is the order of the polynomial block and t is the length of the series. If H is a matrix, its dimensions should be n x n and its values will be used for each time. If H is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of H in the diagonal.
-#' @param a1 Vector or scalar: The prior mean for the latent variables associated with this block at time 1. If a1 is a vector, its dimension should be equal to the order of the polynomial block. If a1 is a scalar, its value will be used for all latent variables.
-#' @param R1 Matrix, vector or scalar: The prior covariance matrix for the latent variables associated with this block at time 1. If R1 is a matrix, its dimensions should be n x n. If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.
-#' @param monitoring Vector: A vector of flags indicating which variables should be monitored (if automated monitoring is used). Its size should be n. The default is that only the first order component of this structure should be monitored.
+#' @param order integer: The order of the structure. Must be positive
+#' @param name character: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
+#' @param D array, matrix, vector or scalar: The values for the discount factors associated with the latent variables at each time. If D is an array, its dimensions should be n x n x t, where n is the order of the polynomial block and t is the length of the outcomes. If D is a matrix, its dimensions should be n x n and the same discount matrix will be used in all observations. If D is a vector, it should have size t and it is interpreted as the discount factor at each observed time (same discount for all variable). If D is a scalar, the same discount will be used for all latent variables at all times.
+#' @param h matrix, vector or scalar: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, its dimension should be n x t, where n is the number of latent variables (i.e., the order) and t is the length of the series. If a vector, it should have size t, and each value will be applied to the first latent variable (the one which affects the linear predictors) in their respective time. If a scalar, the passed value will be used for the first latent variable at each time.
+#' @param H array, matrix, vector or scalar: The values for the covariance matrix for the noise factor at each time. If H is an array, its dimensions should be n x n x t, where n is the order of the polynomial block and t is the length of the series. If H is a matrix, its dimensions should be n x n and its values will be used for each time. If H is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of H in the diagonal.
+#' @param a1 vector or scalar: The prior mean for the latent variables associated with this block at time 1. If a1 is a vector, its dimension should be equal to the order of the polynomial block. If a1 is a scalar, its value will be used for all latent variables.
+#' @param R1 matrix, vector or scalar: The prior covariance matrix for the latent variables associated with this block at time 1. If R1 is a matrix, its dimensions should be n x n. If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.
+#' @param monitoring vector: A vector of flags indicating which variables should be monitored (if automated monitoring is used). Its size should be n. The default is that only the first order component of this structure should be monitored.
 #'
 #' @keywords internal
 base_block <- function(..., order, name,
@@ -247,7 +247,6 @@ base_block <- function(..., order, name,
 #' For the details about dynamic regression models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
 #'
 #' @seealso \code{\link{fit_model}}
-#' @seealso \code{\link{search_model}}
 #' @family {auxiliary functions for structural blocks}
 #'
 #'
@@ -258,7 +257,7 @@ polynomial_block <- function(..., order = 1, name = "Var.Poly",
                              a1 = 0, R1 = c(9, rep(1, order - 1)),
                              monitoring = c(TRUE, rep(FALSE, order - 1))) {
   if (length(D) == 1) {
-    D <- c(D, rep(1, order - 1))
+    D <- rep(D, order)
   }
   if (length(H) == 1) {
     H <- c(H, rep(0, order - 1))
@@ -362,7 +361,6 @@ polynomial_block <- function(..., order = 1, name = "Var.Poly",
 #' For the details about dynamic regression models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
 #'
 #' @seealso \code{\link{fit_model}}
-#' @seealso \code{\link{search_model}}
 #' @family {auxiliary functions for structural blocks}
 #'
 #'
@@ -412,7 +410,7 @@ harmonic_block <- function(..., period, order = 1, name = "Var.Sazo",
 #'
 #' @param ... Named values for the planning matrix.
 #' @param max.lag Non-negative integer: An optional argument providing the maximum lag for the explanatory variables. If a positive value is provided, this block will create additional latent variables to measure the lagged effect of X_t up until the given value. See \insertCite{WestHarr-DLM;textual}{kDGLM}, subsection 9.2.2 item (3).
-#' @param zero.fill Bool: A Boolean indicating if the block should fill the initial delay values with 0's. If TRUE and max.lag is positive, the block assumes that X_t=0 for all t<1. If FALSE, the block assumes the user will provide X_t for all t, such that X_t will have size t+propagation_size
+#' @param zero.fill boolean: A Boolean indicating if the block should fill the initial delay values with 0's. If TRUE and max.lag is positive, the block assumes that X_t=0 for all t<1. If FALSE, the block assumes the user will provide X_t for all t, such that X_t will have size t+propagation_size
 #' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
 #' @param D Array, Matrix, vector or scalar: The values for the discount factors at each time. If D is a array, its dimensions should be n x n x t, where n is the order of the polynomial block and t is the length of the outcomes. If D is a matrix, its dimensions should be n x n and its values will be used for each time. If D is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of D in the diagonal.
 #' @param h Matrix, vector or scalar: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, its dimension should be 2 x t, where t is the length of the series. If a vector, it should have size t, and each value will be applied to the first latent variable (the one which affects the linear predictors) in their respective time. If a scalar, the passed value will be used for the first latent variable at each time.
@@ -448,13 +446,14 @@ harmonic_block <- function(..., period, order = 1, name = "Var.Sazo",
 #' structure <- (
 #'   polynomial_block(p = 1, order = 2, D = 0.95) +
 #'     harmonic_block(p = 1, period = 12, D = 0.95) +
-#'     regression_block(p = as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
+#'     regression_block(p = chickenPox$date >= as.Date("2013-09-01"))
+#'   # Vaccine was introduced in September of 2013
 #' ) * 4
 #'
 #' outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
-#' fitted.data <- fit_model(structure, outcome)
+#' fitted.data <- fit_model(structure, chickenPox = outcome)
 #' summary(fitted.data)
-#' plot_lat_var(fitted.data, plot.pkg = "base")
+#' plot(coef(fitted.data), plot.pkg = "base")
 #'
 #' @details
 #'
@@ -468,7 +467,6 @@ harmonic_block <- function(..., period, order = 1, name = "Var.Sazo",
 #' For the details about dynamic regression models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
 #'
 #' @seealso \code{\link{fit_model}}
-#' @seealso \code{\link{search_model}}
 #' @family {auxiliary functions for structural blocks}
 #'
 #'
@@ -544,8 +542,8 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #'    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
 #'    \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
 #'    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
-#'    \item D Array: A 3D-array containing the discount factor matrix for each time. It's dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
-#'    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. It's dimension should be the same as D.
+#'    \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
+#'    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.
 #'    \item a1 Vector: The prior mean for the latent vector.
 #'    \item R1 Matrix: The prior covariance matrix for the latent vector.
 #'    \item var.names list: A list containing the variables indexes by their name.
@@ -566,7 +564,7 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #' AR_block(mu = 1, order = 2, noise.disc = 0.9)
 #'
 #' #### Transfer function ####
-#' AR_block(mu = 1, pulse = beaver1$activ, order = 1)
+#' AR_block(mu = 1, pulse = beaver1$activ, order = 1, noise.disc = 0.9)
 #'
 #' @details
 #'
@@ -712,8 +710,8 @@ AR_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
 #'    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
 #'    \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
 #'    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
-#'    \item D Array: A 3D-array containing the discount factor matrix for each time. It's dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
-#'    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. It's dimension should be the same as D.
+#'    \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
+#'    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.
 #'    \item a1 Vector: The prior mean for the latent vector.
 #'    \item R1 Matrix: The prior covariance matrix for the latent vector.
 #'    \item var.names list: A list containing the variables indexes by their name.
@@ -735,7 +733,7 @@ AR_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
 #'
 #' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
 #'
-#' For the details about dynamic regression models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
+#' For the details about dynamic regression models in the context of DLMs, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
 #'
 #' @seealso \code{\link{fit_model}}
 #' @family {auxiliary functions for structural blocks}
@@ -929,7 +927,6 @@ block_superpos <- function(...) {
 #' # Short way
 #' final.block <- 5 * polynomial_block(alpha = 1, order = 1)
 #'
-#' @seealso \code{\link{block_rename}}
 #' @family {auxiliary functions for structural blocks}
 block_mult <- function(block, k) {
   block.list <- list()
@@ -1020,6 +1017,7 @@ block_rename <- function(block, pred.names) {
 #' )
 #'
 #' plot(fitted.data, plot.pkg = "base")
+#' @family {auxiliary functions for structural blocks}
 intervention <- function(block, time, var.index = 1:block$n, FF = NULL, D = NULL, h = NULL, H = NULL, G = NULL) {
   block$interventions <- append(
     block$interventions,
@@ -1042,6 +1040,7 @@ intervention <- function(block, time, var.index = 1:block$n, FF = NULL, D = NULL
 #'
 #' season <- harmonic_block(rate = 1, period = 12, D = "D.sazo") |>
 #'   set.block.value(D.sazo = 0.975)
+#' @family {auxiliary functions for structural blocks}
 set.block.value <- function(block, ...) {
   var.value <- list(...)
   for (name in names(var.value)) {

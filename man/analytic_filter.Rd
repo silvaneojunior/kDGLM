@@ -16,62 +16,59 @@ analytic_filter(
   h,
   H,
   p.monit = NA,
-  c.monit = 1,
   monitoring = FALSE
 )
 }
 \arguments{
-\item{outcomes}{List: The observed data. It should contain objects of the class dlm_distr.}
+\item{outcomes}{list: The observed data. It should contain objects of the class dlm_distr.}
 
-\item{a1}{Vector: The prior mean for the latent vector.}
+\item{a1}{numeric: The prior mean at the latent vector.}
 
-\item{R1}{Matrix: The prior covariance matrix for the latent vector.}
+\item{R1}{matrix: The prior covariance matrix at the latent vector.}
 
-\item{FF}{Array: A 3D-array containing the regression matrix for each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model and t is the time series length.}
+\item{FF}{array: A 3D-array containing the planning matrix at each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model and t is the time series length.}
 
-\item{FF.labs}{Matrix: A character matrix containing the type associated with each value in FF.}
+\item{FF.labs}{matrix: A character matrix containing the label associated with each value in FF.}
 
-\item{G}{Array: A 3D-array containing the state evolution matrix at each time.}
+\item{G}{array: A 3D-array containing the evolution matrix at each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.}
 
-\item{G.labs}{Matrix: A character matrix containing the type associated with each value in G.}
+\item{G.labs}{matrix: A character matrix containing the label associated with each value in G.}
 
-\item{D}{Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.}
+\item{D}{array: A 3D-array containing the discount factor matrix at each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.}
 
-\item{h}{Matrix: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.}
+\item{h}{matrix: A drift to be added after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.}
 
-\item{H}{Array: A 3D-array containing the covariance matrix of the noise for each time. It's dimension should be the same as D.}
+\item{H}{array: A 3D-array containing the covariance matrix of the noise at each time. Its dimension should be the same as D.}
 
 \item{p.monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.}
 
-\item{c.monit}{numeric (optional, if p.monit is not specified): The relative cost of false alarm in the monitoring compared to the cost of not detecting abnormalities.}
-
-\item{monitoring}{Vector: A vector of flags indicating which latent variables should be monitored.}
+\item{monitoring}{numeric: A vector of flags indicating which latent variables should be monitored.}
 }
 \value{
 A list containing the following values:
 \itemize{
-   \item mt Matrix: The filtered mean of the latent variables for each time. Dimensions are n x t.
-   \item Ct Array: A 3D-array containing the filtered covariance matrix of the latent variable for each time. Dimensions are n x n x t.
-   \item at Matrix: The one-step-ahead mean of the latent variables at each time. Dimensions are n x t.
-   \item Rt Array: A 3D-array containing the one-step-ahead covariance matrix for latent variables at each time. Dimensions are n x n x t.
-   \item ft Matrix: The one-step-ahead mean of the linear predictors at each time. Dimensions are k x t.
-   \item Qt Array: A 3D-array containing the one-step-ahead covariance matrix for linear predictors at each time. Dimensions are k x k x t.
-   \item ft.star Matrix: The filtered mean of the linear predictors for each time. Dimensions are k x t.
-   \item Qt.star Array: A 3D-array containing the linear predictors matrix of the latent variable for each time. Dimensions are k x k x t.
-   \item FF Array: The same as the argument (same values).
-   \item G Matrix: The same as the argument (same values).
-   \item G.labs Matrix: The same as the argument (same values).
-   \item D Array: The same as the argument (same values) when there is no monitoring. When monitoring for abnormalities, the value in times where abnormalities were detected is increased.
-   \item h Array: The same as the argument (same values).
-   \item H Array: The same as the argument (same values).
-   \item W Array: A 3D-array containing the effective covariance matrix of the noise for each time, i.e., considering both H and D. Its dimension are the same as H and D.
-   \item monitoring Vector: The same as the argument (same values).
-   \item outcomes List: The same as the argument outcomes (same values).
-   \item pred.names Vector: The names of the linear predictors.
+   \item mt matrix: The filtered mean of the latent variables for each time. Dimensions are n x t.
+   \item Ct array: A 3D-array containing the filtered covariance matrix of the latent variable for each time. Dimensions are n x n x t.
+   \item at matrix: The one-step-ahead mean of the latent variables at each time. Dimensions are n x t.
+   \item Rt array: A 3D-array containing the one-step-ahead covariance matrix for latent variables at each time. Dimensions are n x n x t.
+   \item ft matrix: The one-step-ahead mean of the linear predictors at each time. Dimensions are k x t.
+   \item Qt array: A 3D-array containing the one-step-ahead covariance matrix for linear predictors at each time. Dimensions are k x k x t.
+   \item ft.star matrix: The filtered mean of the linear predictors for each time. Dimensions are k x t.
+   \item Qt.star array: A 3D-array containing the linear predictors matrix of the latent variable for each time. Dimensions are k x k x t.
+   \item FF array: The same as the argument (same values).
+   \item G matrix: The same as the argument (same values).
+   \item G.labs matrix: The same as the argument (same values).
+   \item D array: The same as the argument (same values).
+   \item h array: The same as the argument (same values).
+   \item H array: The same as the argument (same values).
+   \item W array: A 3D-array containing the effective covariance matrix of the noise for each time, i.e., considering both H and D. Its dimension are the same as H and D.
+   \item monitoring numeric: The same as the argument (same values).
+   \item outcomes list: The same as the argument outcomes (same values).
+   \item pred.names numeric: The names of the linear predictors.
 }
 }
 \description{
-Fit the model given the observed value and the model parameters.
+Fit a model given the observed value and the model parameters.
 }
 \details{
 For the models covered in this package, we always use the approach described in \insertCite{ArtigokParametrico;textual}{kDGLM}, including, in particular, the filtering algorithm presented in that work.

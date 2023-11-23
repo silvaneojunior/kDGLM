@@ -25,12 +25,12 @@ Gamma(
 
 \item{sigma}{character: Name of the linear predictor associated with the scale parameter of the gamma distribution. The parameter is treated as unknown and equal to the exponential of the associated linear predictor. It cannot be specified with beta.}
 
-\item{data}{vector: Values of the observed data.}
+\item{data}{numeric: Values of the observed data.}
 
-\item{offset}{vector: The offset at each observation. Must have the same shape as data.}
+\item{offset}{numeric: The offset at each observation. Must have the same shape as data.}
 }
 \value{
-A object of the class dlm_distr
+An object of the class dlm_distr
 }
 \description{
 Creates an outcome with gamma distribution with the chosen parameters (can only specify 2).
@@ -45,7 +45,7 @@ For the details about the implementation see  \insertCite{ArtigoPacote;textual}{
 structure <- polynomial_block(mu = 1, D = 0.95)
 
 outcome <- Gamma(phi = 0.5, mu = "mu", data = cornWheat$corn.log.return[1:500]**2)
-fitted.data <- fit_model(structure, outcome)
+fitted.data <- fit_model(structure, corn = outcome)
 summary(fitted.data)
 plot(fitted.data, plot.pkg = "base")
 

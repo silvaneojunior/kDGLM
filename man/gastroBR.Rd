@@ -7,7 +7,7 @@
 \format{
 A data frame with 4212 rows and 4 variables:
 \describe{
-  \item{UF}{The abbriviated state name.}
+  \item{UF}{The abbreviated state name.}
   \item{Date}{The date of the observation. Note that the day is only a placeholder and is just a placeholder.}
   \item{Admissions}{The number hospital admissions.}
   \item{Population}{The estimated population.}

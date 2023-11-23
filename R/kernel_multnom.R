@@ -26,11 +26,12 @@
 #'   polynomial_block(p = 1, order = 2, D = 0.95) +
 #'     harmonic_block(p = 1, period = 12, D = 0.975) +
 #'     noise_block(p = 1, R1 = 0.1) +
-#'     regression_block(p = chickenPox$date >= as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
+#'     regression_block(p = chickenPox$date >= as.Date("2013-09-01"))
+#'   # Vaccine was introduced in September of 2013
 #' ) * 4
 #'
 #' outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
-#' fitted.data <- fit_model(structure, outcome)
+#' fitted.data <- fit_model(structure, chickenPox = outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -308,15 +309,15 @@ multnom_pred <- function(conj.param, outcome, parms = list(), pred.cred = 0.95) 
     return(list())
   }
 
+
   if (is.null(dim(conj.param))) {
     conj.param <- conj.param |>
-      data.frame.to_matrix() |>
-      t()
+      matrix(1, length(conj.param))
   }
 
-  t <- nrow(conj.param)
-  k <- ncol(conj.param) - 1
-  r <- ncol(conj.param)
+  t <- dim(conj.param)[1]
+  r <- dim(conj.param)[2]
+  k <- r - 1
 
   pred <- NULL
   var.pred <- NULL

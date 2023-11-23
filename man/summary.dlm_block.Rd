@@ -4,29 +4,26 @@
 \alias{summary.dlm_block}
 \title{Summary for a kDGLM structure}
 \usage{
-\method{summary}{dlm_block}(dlm.block)
+\method{summary}{dlm_block}(object, ...)
 }
 \arguments{
-\item{dlm.block}{A dlm_block object.}
+\item{object}{A dlm_block object.}
 }
 \description{
 Prints a report for a dlm_block object.
 }
 \seealso{
 Other {auxiliary functions for structural blocks}: 
-\code{\link{*.dlm_block}()},
-\code{\link{+.dlm_block}()},
 \code{\link{AR_block}()},
-\code{\link{CAR_prior}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},
 \code{\link{harmonic_block}()},
+\code{\link{intervention}()},
 \code{\link{noise_block}()},
 \code{\link{polynomial_block}()},
-\code{\link{print.dlm_block}()},
 \code{\link{regression_block}()},
-\code{\link{zero_sum_prior}()}
+\code{\link{set.block.value}()}
 }
 \concept{{auxiliary functions for structural blocks}}
 \keyword{internal}

@@ -12,13 +12,9 @@
 \item{...}{Arguments passed to summary.searched_dlm}
 }
 \description{
-print.searched_dlm
+This method is wrapper for the block_superpos function.
 }
 \seealso{
-Other {auxiliary visualization functions for the fitted.dlm class}: 
-\code{\link{print.dlm_distr}()},
-\code{\link{summary.fitted_dlm}()},
-\code{\link{summary.searched_dlm}()}
+\code{\link{summary.searched_dlm}}
 }
-\concept{{auxiliary visualization functions for the fitted.dlm class}}
 \keyword{internal}

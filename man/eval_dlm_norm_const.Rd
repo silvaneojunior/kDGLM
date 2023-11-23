@@ -9,7 +9,7 @@ eval_dlm_norm_const(model, lin.pred = model$n > 2 * model$k)
 \arguments{
 \item{model}{fitted_dlm: A fitted_dlm object.}
 
-\item{lin.pred}{Bool: A flag indicating if the normalizing constant should be calculated using the linear predictors.}
+\item{lin.pred}{boolean: A flag indicating if the normalizing constant should be calculated using the linear predictors.}
 }
 \value{
 A scalar representing the normalizing constant for the posterior of a fitted DLM.
@@ -31,4 +31,15 @@ fitted.data <- fit_model(level, season,
 )
 eval_dlm_norm_const(fitted.data)
 }
+\seealso{
+Other {auxiliary functions for fitted_dlm objects}: 
+\code{\link{coef.fitted_dlm}()},
+\code{\link{dlm_sampling}()},
+\code{\link{fit_model}()},
+\code{\link{forecast.fitted_dlm}()},
+\code{\link{search_model}()},
+\code{\link{smoothing}()},
+\code{\link{update.fitted_dlm}()}
+}
+\concept{{auxiliary functions for fitted_dlm objects}}
 \keyword{internal}

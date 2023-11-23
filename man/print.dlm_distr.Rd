@@ -12,13 +12,9 @@
 \item{...}{Arguments passed to summary.dlm_distr}
 }
 \description{
-print.dlm_distr
+This method is wrapper for the summary.dlm_distr function.
 }
 \seealso{
-Other {auxiliary visualization functions for the fitted.dlm class}: 
-\code{\link{print.searched_dlm}()},
-\code{\link{summary.fitted_dlm}()},
-\code{\link{summary.searched_dlm}()}
+\code{\link{summary.dlm_distr}}
 }
-\concept{{auxiliary visualization functions for the fitted.dlm class}}
 \keyword{internal}

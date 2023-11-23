@@ -60,3 +60,17 @@ fitted.data <- fit_model(level, season,
 
 plot(fitted.data, plot.pkg = "base")
 }
+\seealso{
+Other {auxiliary functions for structural blocks}: 
+\code{\link{AR_block}()},
+\code{\link{block_mult}()},
+\code{\link{block_rename}()},
+\code{\link{block_superpos}()},
+\code{\link{harmonic_block}()},
+\code{\link{noise_block}()},
+\code{\link{polynomial_block}()},
+\code{\link{regression_block}()},
+\code{\link{set.block.value}()},
+\code{\link{summary.dlm_block}()}
+}
+\concept{{auxiliary functions for structural blocks}}

@@ -9,10 +9,10 @@
 #' @param alpha character: Name of the linear predictor associated with the shape parameter of the gamma distribution. The parameter is treated as unknown and equal to the exponential of the associated linear predictor. It cannot be specified with phi.
 #' @param beta character: Name of the linear predictor associated with the rate parameter of the gamma distribution. The parameter is treated as unknown and equal to the exponential of the associated linear predictor. It cannot be specified with sigma.
 #' @param sigma character: Name of the linear predictor associated with the scale parameter of the gamma distribution. The parameter is treated as unknown and equal to the exponential of the associated linear predictor. It cannot be specified with beta.
-#' @param data vector: Values of the observed data.
-#' @param offset vector: The offset at each observation. Must have the same shape as data.
+#' @param data numeric: Values of the observed data.
+#' @param offset numeric: The offset at each observation. Must have the same shape as data.
 #'
-#' @return A object of the class dlm_distr
+#' @return An object of the class dlm_distr
 #' @importFrom stats dgamma
 #' @export
 #'
@@ -30,7 +30,7 @@
 #' structure <- polynomial_block(mu = 1, D = 0.95)
 #'
 #' outcome <- Gamma(phi = 0.5, mu = "mu", data = cornWheat$corn.log.return[1:500]**2)
-#' fitted.data <- fit_model(structure, outcome)
+#' fitted.data <- fit_model(structure, corn = outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -175,7 +175,7 @@ convert_Gamma_Normal <- function(ft, Qt, parms) {
 
 #' convert_Normal_Gamma
 #'
-#' Calculate the parameters of the log-Normal that best approximates the given Inverse-Gamma distribution.
+#' Calculates the parameters of the log-Normal that best approximates the given Inverse-Gamma distribution.
 #' The approximation is the best in the sense that it minimizes the KL divergence from the Inverse-Gamma to the log-Normal
 #'
 #' @param conj.param list: A vector containing the parameters of the Inverse-Gamma (alpha,beta).
@@ -195,10 +195,10 @@ convert_Normal_Gamma <- function(conj.param, parms) {
 #' Calculate posterior parameter for the Inverse-Gamma, assuming that the observed values came from a Gamma model from which the shape parameter (phi) is known and the mean (mu) have prior distribution Inverse-Gamma.
 #'
 #' @param conj.param list: A vector containing the parameters of the Inverse-Gamma (alpha,beta).
-#' @param ft vector: A vector representing the means from the normal distribution. Not used in the default method.
+#' @param ft numeric: A vector representing the means from the normal distribution. Not used in the default method.
 #' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution. Not used in the default method.
-#' @param y vector: A vector containing the observations.
-#' @param parms list: A list of extra known parameters of the distribution. For this kernel, parms should containg the shape parameter (phi) for the observational gamma model.
+#' @param y numeric: A vector containing the observations.
+#' @param parms list: A list of extra known parameters of the distribution. For this kernel, parms should containing the shape parameter (phi) for the observational gamma model.
 #'
 #' @return The parameters of the posterior distribution.
 #' @keywords internal
@@ -215,18 +215,18 @@ update_Gamma <- function(conj.param, ft, Qt, y, parms) {
 #' The data is assumed to have Gamma distribution with known shape parameter phi and its mean having distribution Inverse-Gamma with shape parameter a e rate parameter b.
 #' In this scenario, the marginal distribution of the data is Beta prime with parameters phi, alpha, beta / phi.
 #'
-#' @param conj.param List or data.frame: The parameters of the conjugated distributions of the linear predictor.
-#' @param outcome Vector or matrix (optional): The observed values at the current time. Not used in this function.
-#' @param parms List: A list of extra parameters for the model. For this function, it must contain the shape parameter phi of the observational model.
-#' @param pred.cred Numeric: the desired credibility for the credibility interval.
+#' @param conj.param list or data.frame: The parameters of the conjugated distributions of the linear predictor.
+#' @param outcome numeric or matrix (optional): The observed values at the current time. Not used in this function.
+#' @param parms list: A list of extra parameters for the model. For this function, it must contain the shape parameter phi of the observational model.
+#' @param pred.cred numeric: the desired credibility for the credibility interval.
 #'
 #' @return A list containing the following values:
 #' \itemize{
-#'    \item pred vector/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item var.pred vector/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item icl.pred vector/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item icu.pred vector/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item log.like vector: the The log likelihood for the outcome given the conjugated parameters.
+#'    \item pred numeric/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item var.pred numeric/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item icl.pred numeric/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item icu.pred numeric/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item log.like numeric: the The log likelihood for the outcome given the conjugated parameters.
 #' }
 #'
 #' @importFrom extraDistr qbetapr dbetapr
@@ -284,9 +284,9 @@ gamma_pred <- function(conj.param, outcome = NULL, parms = list(), pred.cred = 0
 #' Calculate the (approximated) posterior parameter for the linear predictors, assuming that the observed values came from a Gamma model from which the shape and mean parameters have prior distribution in the log-Normal family.
 #'
 #' @param conj.param list: A vector containing the parameters of the Inverse-Gamma (alpha,beta). Not used in the alternative method.
-#' @param ft vector: A vector representing the means from the normal distribution.
+#' @param ft numeric: A vector representing the means from the normal distribution.
 #' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution.
-#' @param y vector: A vector containing the observations.
+#' @param y numeric: A vector containing the observations.
 #' @param parms list: A list of extra known parameters of the distribution. For this kernel, parms should containg the shape parameter (phi) for the observational gamma model.
 #'
 #' @return The parameters of the posterior distribution.
@@ -404,17 +404,17 @@ update_FGamma_alt <- function(conj.param, ft, Qt, y, parms) {
 #' The data is assumed to have Gamma distribution with unknown shape and mean parameters having log-Normal distribution.
 #' In this scenario, the marginal distribution of the data is obtained via Monte Carlo.
 #'
-#' @param conj.param List or data.frame: The parameters of the distribution of the linear predictor.
-#' @param outcome Vector or matrix (optional): The observed values at the current time. Not used in this function.
-#' @param parms List: A list of extra parameters for the model. For this function, it must contain the shape parameter phi of the observational model.
-#' @param pred.cred Numeric: the desired credibility for the credibility interval.
+#' @param conj.param list or data.frame: The parameters of the distribution of the linear predictor.
+#' @param outcome numeric or matrix (optional): The observed values at the current time. Not used in this function.
+#' @param parms list: A list of extra parameters for the model. For this function, it must contain the shape parameter phi of the observational model.
+#' @param pred.cred numeric: the desired credibility for the credibility interval.
 #'
 #' @return A list containing the following values:
 #' \itemize{
-#'    \item pred vector/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item var.pred vector/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item icl.pred vector/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item icu.pred vector/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item pred numeric/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item var.pred numeric/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item icl.pred numeric/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item icu.pred numeric/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
 #' }
 #'
 #'
@@ -496,9 +496,9 @@ Fgamma_pred_alt <- function(conj.param, outcome = NULL, parms = list(), pred.cre
 #' Calculate the (approximated) posterior parameter for the linear predictors, assuming that the observed values came from a Gamma model from which the shape parameter is known and mean parameter have prior distribution in the log-Normal family.
 #'
 #' @param conj.param list: A vector containing the parameters of the Inverse-Gamma (alpha,beta). Not used in the alternative method.
-#' @param ft vector: A vector representing the means from the normal distribution.
+#' @param ft numeric: A vector representing the means from the normal distribution.
 #' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution.
-#' @param y vector: A vector containing the observations.
+#' @param y numeric: A vector containing the observations.
 #' @param parms list: A list of extra known parameters of the distribution. For this kernel, parms should containg the shape parameter (phi) for the observational gamma model.
 #'
 #' @importFrom cubature cubintegrate

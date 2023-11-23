@@ -9,13 +9,13 @@ update_Gamma(conj.param, ft, Qt, y, parms)
 \arguments{
 \item{conj.param}{list: A vector containing the parameters of the Inverse-Gamma (alpha,beta).}
 
-\item{ft}{vector: A vector representing the means from the normal distribution. Not used in the default method.}
+\item{ft}{numeric: A vector representing the means from the normal distribution. Not used in the default method.}
 
 \item{Qt}{matrix: A matrix representing the covariance matrix of the normal distribution. Not used in the default method.}
 
-\item{y}{vector: A vector containing the observations.}
+\item{y}{numeric: A vector containing the observations.}
 
-\item{parms}{list: A list of extra known parameters of the distribution. For this kernel, parms should containg the shape parameter (phi) for the observational gamma model.}
+\item{parms}{list: A list of extra known parameters of the distribution. For this kernel, parms should containing the shape parameter (phi) for the observational gamma model.}
 }
 \value{
 The parameters of the posterior distribution.

@@ -38,18 +38,15 @@ final.block <- polynomial_block(alpha1 = 1, order = 1) +
 }
 \seealso{
 Other {auxiliary functions for structural blocks}: 
-\code{\link{*.dlm_block}()},
-\code{\link{+.dlm_block}()},
 \code{\link{AR_block}()},
-\code{\link{CAR_prior}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{harmonic_block}()},
+\code{\link{intervention}()},
 \code{\link{noise_block}()},
 \code{\link{polynomial_block}()},
-\code{\link{print.dlm_block}()},
 \code{\link{regression_block}()},
-\code{\link{summary.dlm_block}()},
-\code{\link{zero_sum_prior}()}
+\code{\link{set.block.value}()},
+\code{\link{summary.dlm_block}()}
 }
 \concept{{auxiliary functions for structural blocks}}

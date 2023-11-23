@@ -10,7 +10,7 @@ check.block.status(block)
 \item{block}{A dlm_block object.}
 }
 \value{
-A string ("defined" or "undefined") indicating if all parameters in the block are defined.
+A character ("defined" or "undefined") indicating if all parameters in the block are defined.
 }
 \description{
 Checks if a block is defined.

@@ -1,62 +1,91 @@
 #' Zero sum prior
 #'
-#' Set the prior of a structural block to be such that the latent variables sum zero.
-#' The covariance matrix of the evolution and the drift parameter are also altered to guarantee that the zero sum condition will always hold.
+#' Defines the prior of a structural block to be such that the latent variables sum zero with probability one.
 #'
-#' @param block dlm_block: The structural block.
-#' @param var.index Integer: The index of the variables from which to set the prior.
+#' @param block dlm_block object: The structural block.
+#' @param var.index integer: The index of the variables from which to set the prior.
 #'
 #' @return A dlm_block object with the desired prior.
 #'
 #' @export
 #' @examples
-#' @details
 #'
+#' polynomial_block(mu = 1, D = 0.95) |>
+#'   block_mult(5) |>
+#'   zero_sum_prior()
+#'
+#' @details
+#' The covariance matrix of the evolution and the drift parameter are also altered to guarantee that the zero sum condition will always hold.
+#' The discount factor must be the same for all variables whose prior is being modified.
 #' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
 #'
-#' @family {auxiliary functions for structural blocks}
+#' @family {auxiliary functions for defining priors}.
 #'
 #' @references
 #'    \insertAllCited{}
 zero_sum_prior <- function(block, var.index = 1:block$n) {
   transf <- matrix(-1 / block$n, block$n, block$n)
   diag(transf) <- 1 + diag(transf)
-  block$a1 <- block$a1 - mean(block$a1)
-  block$R1 <- transf %*% block$R1 %*% transf
+  block$a1[var.index] <- block$a1[var.index] - mean(block$a1[var.index])
+  block$R1[var.index, var.index] <- transf %*% block$R1[var.index, var.index] %*% transf
   for (i in 1:block$t) {
-    d <- min(block$D[, , i])
-    if (min(block$D[, , i]) > 0 & min(block$D[, , i]) != max(block$D[, , i])) {
-      d <- block$D[, , i]
-      d <- mean(d[d != 0])
+    D <- block$D[var.index, var.index, i]
+    d <- D[D != 0]
+    if (min(d) != max(d)) {
       warning("Not all latent states have the same discount factor. All values will be set to the average value.")
     }
-    block$D[, , i] <- d
-    block$h[, i] <- block$h[, i] - mean(block$h[, i])
-    block$H[, , i] <- transf %*% block$H[, , i] %*% transf
+    block$D[var.index, var.index, i] <- mean(d)
+    block$D[-var.index, var.index, i] <- block$D[var.index, -var.index, i] <- 0
+    block$h[var.index, i] <- block$h[, i] - mean(block$h[var.index, i])
+    block$H[var.index, var.index, i] <- transf %*% block$H[var.index, var.index, i] %*% transf
+    block$H[-var.index, var.index, i] <- block$H[var.index, -var.index, i] <- 0
   }
   return(block)
 }
 
 #' CAR prior
 #'
-#' Set the prior of a structural block as a Conditional Autoregressive (CAR) prior.
+#' Defines the prior of a structural block as a Conditional Autoregressive (CAR) prior.
 #'
-#' @param block dlm_block: The structural block.
-#' @param adj.matrix Matrix: The adjacency matrix.
-#' @param tau Numeric: The tau parameter for the CAR model (see references).
-#' @param rho Numeric: The rho parameter for the CAR model (see references).
+#' @param block dlm_block object: The structural block.
+#' @param adj.matrix matrix: The adjacency matrix.
+#' @param scale numeric: The tau parameter for the CAR model (see references).
+#' @param rho numeric: The rho parameter for the CAR model (see references).
+#' @param var.index integer: The index of the variables from which to set the prior.
 #' @return A dlm_block object with the desired prior.
 #'
 #' @importFrom Rfast is.symmetric
 #' @export
 #' @examples
+#'
+#' # Creating an arbitrary adjacency matrix
+#' adj.matrix <- matrix(
+#'   c(
+#'     0, 1, 1, 0, 0,
+#'     1, 0, 1, 0, 0,
+#'     1, 1, 0, 0, 0,
+#'     0, 0, 0, 0, 1,
+#'     0, 0, 0, 1, 0
+#'   ),
+#'   5, 5,
+#'   byrow = TRUE
+#' )
+#'
+#' polynomial_block(mu = 1, D = 0.95) |>
+#'   block_mult(5) |>
+#'   CAR_prior(scale = 9, rho = 1, adj.matrix = adj.matrix)
+#'
 #' @details
+#'
+#' The filtering algorithm used in this package requires a proper prior for the latent space. As such, this implementation of the CAR prior imposes a zero-sum constraint in the regional effects.
+#' The discount factor must be the same for all variables whose prior is being modified.
 #'
 #' For a revision of the CAR prior, see \insertCite{AlexCar;textual}{kDGLM}.
 #'
 #' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
 #'
-#' @family {auxiliary functions for structural blocks}
+#' @seealso auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{AR_block}}
+#' @family {auxiliary functions for defining priors}.
 #'
 #' @references
 #'    \insertAllCited{}
@@ -71,13 +100,85 @@ CAR_prior <- function(block, adj.matrix, scale, rho, var.index = 1:block$n) {
   }
   D.mat <- diag(rowSums(adj.matrix))
   R <- (D.mat - adj.matrix)
-  R1 <- ginv(((1 - rho) * diag(k) + rho * R))
+  R1 <- ((1 - rho) * diag(k) + rho * R)
+
+  R1_decomp <- eigen(R1)
+
+  R1_decomp$values <- ifelse(R1_decomp$values < 1e-6, 0, 1 / R1_decomp$values)
+  R1 <- R1_decomp$vector %*% diag(R1_decomp$values) %*% t(R1_decomp$vector)
+
   if (is.character(scale)) {
     block$scale <- scale
   } else {
     R1 <- R1 * scale
   }
-  block$R1 <- R1
+  block$a1[var.index] <- block$a1[var.index] - mean(block$a1[var.index])
+  block$R1[var.index, var.index] <- R1[var.index, var.index]
+  transf <- matrix(-1 / k, k, k)
+  diag(transf) <- 1 + diag(transf)
+  for (i in 1:block$t) {
+    D <- block$D[var.index, var.index, i]
+    d <- D[D != 0]
+    if (min(d) != max(d)) {
+      warning("Not all latent states have the same discount factor. All values will be set to the average value.")
+    }
+    block$D[var.index, var.index, i] <- mean(D[D != 0])
+    block$D[-var.index, var.index, ] <- block$D[var.index, -var.index, ] <- 0
+    block$h[var.index, i] <- block$h[var.index, i] - mean(block$h[var.index, i])
+    block$H[var.index, var.index, i] <- transf %*% block$H[var.index, var.index, i] %*% transf
+    block$H[-var.index, var.index, i] <- block$H[var.index, -var.index, i] <- 0
+  }
 
+  return(block)
+}
+
+#' Joint prior
+#'
+#' Defines the joint prior of a structural block.
+#'
+#' @param var.index Integer: The index of the variables from which to set the prior.
+#' @param a1 Numeric: The prior mean.
+#' @param R1 Matrix: The prior covariance matrix.
+#' @param block dlm_block object: The structural block.
+#'
+#' @return A dlm_block object with the desired prior.
+#'
+#' @export
+#' @examples
+#'
+#' polynomial_block(mu = 1, D = 0.95) |>
+#'   block_mult(5) |>
+#'   joint_prior(var.index = 1:2, R1 = matrix(c(1, 0.5, 0.5, 1), 2, 2))
+#'
+#' @details
+#' The discount factor must be the same for all variables whose prior is being modified.
+#' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
+#'
+#' @family {auxiliary functions for defining priors}.
+#'
+#' @importFrom Rfast colAny
+#'
+#' @references
+#'    \insertAllCited{}
+joint_prior <- function(block, var.index = 1:block$n, a1 = block$a1[var.index], R1 = block$R1[var.index, var.index]) {
+  if (length(a1) != length(var.index) | any(dim(R1) != length(var.index))) {
+    stop("Error: The number of indexes does not match the dimension of a1 and/or R1.")
+  }
+  block$a1[var.index] <- a1
+  block$R1[var.index, var.index] <- R1
+  D <- block$D[var.index, var.index, , drop = FALSE]
+  for (i in 1:block$t) {
+    D.i <- D[, , i]
+    if (min(D.i[D.i != 0]) != max(D.i[D.i != 0])) {
+      warning("D has more than one distict non-zero value. All values will be set to the average value at that time.")
+    }
+    D[, , i] <- mean(D.i[D.i != 0])
+  }
+  block$D[var.index, var.index, ] <- D
+  block$D[-var.index, var.index, ] <- block$D[var.index, -var.index, ] <- 0
+  flags <- block$G.labs == "noise.disc"
+  if (any(flags)) {
+    block$G.labs[colAny(flags), colAny(flags)] <- "noise.disc"
+  }
   return(block)
 }

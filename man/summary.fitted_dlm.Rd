@@ -5,16 +5,17 @@
 \title{Summary for a fitted kDGLM model}
 \usage{
 \method{summary}{fitted_dlm}(
-  fitted.dlm,
-  t = fitted.dlm$t,
+  object,
+  t = object$t,
   lag = -1,
   metric.lag = 1,
-  metric.cutoff = floor(fitted.dlm$t/10),
-  pred.cred = 0.95
+  metric.cutoff = floor(object$t/10),
+  pred.cred = 0.95,
+  ...
 )
 }
 \arguments{
-\item{fitted.dlm}{A fitted.dlm object.}
+\item{object}{A fitted_dlm object.}
 
 \item{t}{Integer: The time index for the latent states.}
 
@@ -25,9 +26,11 @@
 \item{metric.cutoff}{Integer: The cutoff time index for the metric calculation. Values before that time will be ignored.}
 
 \item{pred.cred}{numeric: The credibility interval to be used for the interval score.}
+
+\item{...}{Extra arguments passed to the summary method.}
 }
 \description{
-Prints a report for a fitted.dlm object.
+Prints a report for a fitted_dlm object.
 }
 \examples{
 
@@ -46,8 +49,6 @@ summary(fitted.data)
 }
 \seealso{
 Other {auxiliary visualization functions for the fitted.dlm class}: 
-\code{\link{print.dlm_distr}()},
-\code{\link{print.searched_dlm}()},
 \code{\link{summary.searched_dlm}()}
 }
 \concept{{auxiliary visualization functions for the fitted.dlm class}}

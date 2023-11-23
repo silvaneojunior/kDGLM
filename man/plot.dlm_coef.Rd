@@ -5,23 +5,26 @@
 \title{Visualizing latent states in a fitted kDGLM model}
 \usage{
 \method{plot}{dlm_coef}(
-  dlm.coef,
-  var = rownames(dlm.coef$mt),
+  x,
+  var = rownames(x$mt),
   cutoff = floor(t/10),
   pred.cred = 0.95,
-  plot.pkg = "auto"
+  plot.pkg = "auto",
+  ...
 )
 }
 \arguments{
-\item{dlm.coef}{dlm_coef object: The coefficients of a fitted DGLM model.}
+\item{x}{dlm_coef object: The coefficients of a fitted DGLM model.}
 
-\item{var}{Character: The name of the variables to plot (same value passed while creating the structure). Any variable whose name partially match this variable will be plotted.}
+\item{var}{character: The name of the variables to plot (same value passed while creating the structure). Any variable whose name partially match this variable will be plotted.}
 
-\item{cutoff}{Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.}
+\item{cutoff}{integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.}
 
-\item{pred.cred}{Numeric: The credibility value for the credibility interval.}
+\item{pred.cred}{numeric: The credibility value for the credibility interval.}
 
-\item{plot.pkg}{String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.}
+\item{plot.pkg}{character: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.}
+
+\item{...}{Extra arguments passed to the plot method.}
 }
 \value{
 ggplot or plotly object: A plot showing the predictive mean and credibility interval with the observed data.
@@ -48,8 +51,9 @@ plot(model.coef)$plot
 
 }
 \seealso{
+\code{\link{fit_model}},\code{\link{coef}}
+
 Other {auxiliary visualization functions for the fitted_dlm class}: 
-\code{\link{plot.fitted_dlm}()},
-\code{\link{print.fitted_dlm}()}
+\code{\link{plot.fitted_dlm}()}
 }
 \concept{{auxiliary visualization functions for the fitted_dlm class}}

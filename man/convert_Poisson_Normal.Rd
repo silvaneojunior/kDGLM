@@ -7,7 +7,7 @@
 convert_Poisson_Normal(ft, Qt, parms)
 }
 \arguments{
-\item{ft}{vector: A vector representing the means from the normal distribution.}
+\item{ft}{numeric: A vector representing the means from the normal distribution.}
 
 \item{Qt}{matrix: A matrix representing the covariance matrix of the normal distribution.}
 

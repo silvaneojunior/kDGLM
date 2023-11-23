@@ -9,11 +9,11 @@ update_NG(conj.param, ft, Qt, y, parms = list())
 \arguments{
 \item{conj.param}{list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta).}
 
-\item{ft}{vector: A vector representing the means from the normal distribution. Not used in the default method.}
+\item{ft}{numeric: A vector representing the means from the normal distribution. Not used in the default method.}
 
 \item{Qt}{matrix: A matrix representing the covariance matrix of the normal distribution. Not used in the default method.}
 
-\item{y}{vector: A vector containing the observations.}
+\item{y}{numeric: A vector containing the observations.}
 
 \item{parms}{list: A list of extra known parameters of the distribution. Not used in this kernel.}
 }

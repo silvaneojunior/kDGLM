@@ -38,48 +38,69 @@ if.nan <- function(vec, val) {
   ifelse(is.nan(vec), val, vec)
 }
 
-#' check.expr
-#'
-#' Checks if a string is expression and, if it is, evaluates it.
-#'
-#' @param expr A string or expression.
-#'
-#' @keywords internal
-check.expr <- function(expr) {
-  val <- tryCatch(
-    {
-      expr |>
-        str2expression() |>
-        eval()
-    },
-    error = function(e) {
-      (expr |>
-        gsub(pattern = "c(", replacement = "", x = _, fixed = TRUE) |>
-        gsub(pattern = ")", replacement = "", x = _, fixed = TRUE) |>
-        strsplit(", "))[[1]]
-    }
-  )
-}
-
 #' var_decomp
 #'
 #' This function receives a covariance matrix S and creates a matrix Q, so that t(Q) %*% Q=S.
 #'
 #' @param S A covariance matrix
 #'
-#' @importFrom Rfast cholesky transpose
+#' @importFrom Rfast cholesky transpose rowAny
 #' @keywords internal
 var_decomp <- function(S) {
   Chol.decomp <- cholesky(S)
-  if (prod(diag(Chol.decomp), na.rm = TRUE) == 0 || any(is.na(Chol.decomp))) {
-    svd.decomp <- svd(S)
-    d <- sqrt(svd.decomp$d)
-    u.t <- transpose(svd.decomp$u)
-    return(diag(d, nrow = length(d)) %*% u.t)
-  } else {
-    return(Chol.decomp)
+  flags.index=is.nan(Chol.decomp) | is.infinite(Chol.decomp)
+  flags <- rowAny(flags.index)
+  while (any(flags)) {
+    sub.chol <- Chol.decomp[!flags, flags, drop = FALSE]
+    placeholder <- S[flags, flags, drop = FALSE] - t(sub.chol) %*% sub.chol
+    flags2 <- diag(placeholder) > 0
+    sub.flags <- flags
+    sub.flags[flags] <- flags2
+    if (any(sub.flags)) {
+      Chol.decomp[sub.flags, sub.flags] <- cholesky(placeholder[flags2, flags2])
+    }
+    flags.index=is.nan(Chol.decomp) | is.infinite(Chol.decomp)
+    Chol.decomp[flags.index] <- 0
+    flags <- rowAny(flags.index)
   }
+  return(Chol.decomp)
 }
+
+# var_decomp <- function(S) {
+#   Chol.decomp <- cholesky(S)
+#   if (prod(diag(Chol.decomp), na.rm = TRUE) == 0 || any(is.na(Chol.decomp))) {
+#     svd.decomp <- svd(S)
+#     d <- sqrt(svd.decomp$d)
+#     u.t <- transpose(svd.decomp$u)
+#     return(diag(d, nrow = length(d)) %*% u.t)
+#   } else {
+#     return(Chol.decomp)
+#   }
+# }
+
+
+# var_decomp3 <- function(S) {
+#   Chol.decomp <- cholesky(S)
+#   flags=is.nan(diag(Chol.decomp))
+#   while(any(flags)){
+#     Chol.decomp[flags,flags]=cholesky(S[flags,flags])
+#     Chol.decomp[which(flags)[1]-1,]=0
+#     flags=is.nan(diag(Chol.decomp))
+#   }
+#   return(Chol.decomp)
+# }
+
+# var_decomp2 <- function(S) {
+#   Chol.decomp <- cholesky(S)
+#   if (prod(diag(Chol.decomp), na.rm = TRUE) == 0 || any(is.na(Chol.decomp))) {
+#     svd.decomp <- svd(S)
+#     d <- sqrt(svd.decomp$d)
+#     u.t <- transpose(svd.decomp$u)
+#     return(diag(d, nrow = length(d)) %*% u.t)
+#   } else {
+#     return(Chol.decomp)
+#   }
+# }
 
 #' ginv
 #'
@@ -90,20 +111,34 @@ var_decomp <- function(S) {
 #' @importFrom Rfast cholesky
 #' @keywords internal
 ginv <- function(S) {
-  Chol.decomp <- cholesky(S)
-  if (prod(diag(Chol.decomp), na.rm = TRUE) < 1e-12 || any(is.na(Chol.decomp))) {
-    svd.decomp <- svd(S)
-    Q.l <- svd.decomp$u
-    Q.r <- svd.decomp$v
-    D <- svd.decomp$d
-    D <- ifelse(D > 1e-12, 1 / D, 0)
-    D.mat <- diag(length(D))
-    diag(D.mat) <- D
-    return(Q.l %*% D.mat %*% transpose(Q.r))
+  S <- as.matrix(S)
+  Chol.decomp <- var_decomp(S)
+  flags <- diag(Chol.decomp) > 1e-5
+  if (!all(flags)) {
+    inv <- S * 0
+    inv[flags, flags] <- chol2inv(Chol.decomp[flags, flags])
   } else {
-    return(chol2inv(Chol.decomp))
+    inv <- chol2inv(Chol.decomp)
   }
+  return(inv)
 }
+# ginv <- function(S) {
+#   Chol.decomp <- cholesky(S)
+#   if (prod(diag(Chol.decomp), na.rm = TRUE) < 1e-12 || any(is.na(Chol.decomp))) {
+#     svd.decomp <- svd(S)
+#     Q.l <- svd.decomp$u
+#     Q.r <- svd.decomp$v
+#     D <- svd.decomp$d
+#     D <- ifelse(D > 1e-12, 1 / D, 0)
+#     D.mat <- diag(length(D))
+#     diag(D.mat) <- D
+#     return(Q.l %*% D.mat %*% transpose(Q.r))
+#   } else {
+#     return(chol2inv(Chol.decomp))
+#   }
+# }
+
+
 
 #' dmvnorm
 #'
@@ -147,8 +182,8 @@ dmvnorm <- function(x, mu, Sigma) {
 #' Obtains a sample from a multivariate normal distribution.
 #'
 #' @param n integer: The sample size.
-#' @param mu Vector: The mean vector
-#' @param Sigma Matrix: The Covariance matrix.
+#' @param mu numeric: The mean vector
+#' @param Sigma matrix: The Covariance matrix.
 #'
 #' @importFrom Rfast matrnorm
 #'
@@ -209,7 +244,7 @@ bdiag <- function(...) {
 #'
 #' Auxiliary function to calculate the axis limits and gradation for plots.
 #'
-#' @param pre.max Numeric: A vector/matrix from which to calculate the axis limits and gradation.
+#' @param pre.max numeric: A vector/matrix from which to calculate the axis limits and gradation.
 #'
 #' @return A list containing the gradation for the axis, the number of ticks in the axis and the maximum value.
 #' @keywords internal
@@ -239,13 +274,13 @@ evaluate_max <- function(pre.max) {
 #'
 #' A function that calculates the column-wise quantile of a matrix.
 #'
-#' @param X Matrix.
-#' @param q Numeric: A number between 0 and 1.
+#' @param X matrix.
+#' @param q numeric: A number between 0 and 1.
 #'
 #' @importFrom Rfast colnth
 #'
 #' @export
-#' @return Vector: The chosen quantile for each column of X.
+#' @return numeric: The chosen quantile for each column of X.
 #' @keywords internal
 colQuantile <- function(X, q) {
   n <- dim(X)[1]
@@ -259,13 +294,13 @@ colQuantile <- function(X, q) {
 #'
 #' A function that calculates the row-wise quantile of a matrix.
 #'
-#' @param X Matrix.
-#' @param q Numeric: A number between 0 and 1.
+#' @param X matrix.
+#' @param q numeric: A number between 0 and 1.
 #'
 #' @importFrom Rfast rownth
 #'
 #' @export
-#' @return Vector: The chosen quantile for each row of X.
+#' @return numeric: The chosen quantile for each row of X.
 #' @keywords internal
 rowQuantile <- function(X, q) {
   n <- dim(X)[1]
@@ -358,7 +393,7 @@ f_joint_root <- function(f, start, tol = 1e-8, n.max = 1000) {
 #'
 #' @param block A dlm_block object.
 #'
-#' @return A string ("defined" or "undefined") indicating if all parameters in the block are defined.
+#' @return A character ("defined" or "undefined") indicating if all parameters in the block are defined.
 #'
 #' @import graphics
 #'
@@ -381,9 +416,9 @@ check.block.status <- function(block) {
 #'
 #' Makes a ribbon plot using R base functions.
 #'
-#' @param x Vector: A sequence of values for the x-axis.
-#' @param ymin Vector: A sequence of values for lower bound of the ribbon.
-#' @param ymax Vector: A sequence of values for upper bound of the ribbon.
+#' @param x numeric: A sequence of values for the x-axis.
+#' @param ymin numeric: A sequence of values for lower bound of the ribbon.
+#' @param ymax numeric: A sequence of values for upper bound of the ribbon.
 #' @param ... Extra arguments for the polygon function.
 #'
 #' @keywords internal
@@ -400,7 +435,7 @@ base_ribbon <- function(x, ymin, ymax, ...) {
 #'
 #' Calculates the least common multiple of a set of integer. Internal use only.
 #'
-#' @param x Vector: A sequence of integers.
+#' @param x numeric: A sequence of integers.
 #'
 #' @return The least common multiple.
 #'

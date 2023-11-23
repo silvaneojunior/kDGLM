@@ -15,3 +15,14 @@ A fitted_dlm object with smoothed means (mts) and covariance matrix (Cts) for ea
 \description{
 Auxiliary function for model smoothing
 }
+\seealso{
+Other {auxiliary functions for fitted_dlm objects}: 
+\code{\link{coef.fitted_dlm}()},
+\code{\link{dlm_sampling}()},
+\code{\link{eval_dlm_norm_const}()},
+\code{\link{fit_model}()},
+\code{\link{forecast.fitted_dlm}()},
+\code{\link{search_model}()},
+\code{\link{update.fitted_dlm}()}
+}
+\concept{{auxiliary functions for fitted_dlm objects}}

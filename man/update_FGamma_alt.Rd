@@ -9,11 +9,11 @@ update_FGamma_alt(conj.param, ft, Qt, y, parms)
 \arguments{
 \item{conj.param}{list: A vector containing the parameters of the Inverse-Gamma (alpha,beta). Not used in the alternative method.}
 
-\item{ft}{vector: A vector representing the means from the normal distribution.}
+\item{ft}{numeric: A vector representing the means from the normal distribution.}
 
 \item{Qt}{matrix: A matrix representing the covariance matrix of the normal distribution.}
 
-\item{y}{vector: A vector containing the observations.}
+\item{y}{numeric: A vector containing the observations.}
 
 \item{parms}{list: A list of extra known parameters of the distribution. For this kernel, parms should containg the shape parameter (phi) for the observational gamma model.}
 }

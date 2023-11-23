@@ -7,42 +7,58 @@
 CAR_prior(block, adj.matrix, scale, rho, var.index = 1:block$n)
 }
 \arguments{
-\item{block}{dlm_block: The structural block.}
+\item{block}{dlm_block object: The structural block.}
 
-\item{adj.matrix}{Matrix: The adjacency matrix.}
+\item{adj.matrix}{matrix: The adjacency matrix.}
 
-\item{rho}{Numeric: The rho parameter for the CAR model (see references).}
+\item{scale}{numeric: The tau parameter for the CAR model (see references).}
 
-\item{tau}{Numeric: The tau parameter for the CAR model (see references).}
+\item{rho}{numeric: The rho parameter for the CAR model (see references).}
+
+\item{var.index}{integer: The index of the variables from which to set the prior.}
 }
 \value{
 A dlm_block object with the desired prior.
 }
 \description{
-Set the prior of a structural block as a Conditional Autoregressive (CAR) prior.
+Defines the prior of a structural block as a Conditional Autoregressive (CAR) prior.
 }
 \details{
+The filtering algorithm used in this package requires a proper prior for the latent space. As such, this implementation of the CAR prior imposes a zero-sum constraint in the regional effects.
+The discount factor must be the same for all variables whose prior is being modified.
+
 For a revision of the CAR prior, see \insertCite{AlexCar;textual}{kDGLM}.
 
 For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
+}
+\examples{
+
+# Creating an arbitrary adjacency matrix
+adj.matrix <- matrix(
+  c(
+    0, 1, 1, 0, 0,
+    1, 0, 1, 0, 0,
+    1, 1, 0, 0, 0,
+    0, 0, 0, 0, 1,
+    0, 0, 0, 1, 0
+  ),
+  5, 5,
+  byrow = TRUE
+)
+
+polynomial_block(mu = 1, D = 0.95) |>
+  block_mult(5) |>
+  CAR_prior(scale = 9, rho = 1, adj.matrix = adj.matrix)
+
 }
 \references{
 \insertAllCited{}
 }
 \seealso{
-Other {auxiliary functions for structural blocks}: 
-\code{\link{*.dlm_block}()},
-\code{\link{+.dlm_block}()},
-\code{\link{AR_block}()},
-\code{\link{block_mult}()},
-\code{\link{block_rename}()},
-\code{\link{block_superpos}()},
-\code{\link{harmonic_block}()},
-\code{\link{noise_block}()},
-\code{\link{polynomial_block}()},
-\code{\link{print.dlm_block}()},
-\code{\link{regression_block}()},
-\code{\link{summary.dlm_block}()},
+auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{AR_block}}
+
+Other {auxiliary functions for defining priors}.: 
+\code{\link{joint_prior}()},
 \code{\link{zero_sum_prior}()}
 }
-\concept{{auxiliary functions for structural blocks}}
+\concept{{auxiliary functions for defining priors}.}

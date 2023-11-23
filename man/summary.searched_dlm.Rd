@@ -4,18 +4,16 @@
 \alias{summary.searched_dlm}
 \title{Summary for a searched_dlm object}
 \usage{
-\method{summary}{searched_dlm}(searched.dlm)
+\method{summary}{searched_dlm}(object, ...)
 }
 \arguments{
-\item{searched.dlm}{A searched_dlm object.}
+\item{object}{A searched_dlm object.}
 }
 \description{
 Prints a report for a searched_dlm object.
 }
 \seealso{
 Other {auxiliary visualization functions for the fitted.dlm class}: 
-\code{\link{print.dlm_distr}()},
-\code{\link{print.searched_dlm}()},
 \code{\link{summary.fitted_dlm}()}
 }
 \concept{{auxiliary visualization functions for the fitted.dlm class}}
