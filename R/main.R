@@ -3,38 +3,10 @@
 #' Fit a model given its structure and the observed data. This function can be used for any supported family (see vignette).
 #'
 #' @param ... dlm_block or dlm_distr objects: The structural blocks of the model (dlm_block objects), alongside the model outcomes (dlm_distr object). All block must be completely defined.
-#' @param pred.cred Numeric: A number between 0 and 1 (not included) indicating the credibility interval for predictions. If not within the valid range of values, predictions are not made.
-#' @param smooth Bool: A flag indicating if the smoothed distribution for the latent variables should be calculated.
+#' @param smooth boolean: A flag indicating if the smoothed distribution for the latent states should be calculated.
 #' @param p.monit numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.
-#' @param c.monit numeric (optional, if p.monit is not specified): The relative cost of false alarm in the monitoring compared to the cost of not detecting abnormalities.
 #'
-#' @return A fitted_dlm object. Contains:
-#' \itemize{
-#'    \item mt Matrix: The filtered mean of the latent variables for each time. Dimensions are n x t.
-#'    \item Ct Array: A 3D-array containing the filtered covariance matrix of the latent variable for each time. Dimensions are n x n x t.
-#'    \item mts Matrix: The smoothed mean of the latent variables for each time. Dimensions are n x t. Only available if smooth=TRUE.
-#'    \item Cts Array: A 3D-array containing the smoothed covariance matrix of the latent variable for each time. Dimensions are n x n x t. Only available if smooth=TRUE.
-#'    \item FF Array: The same as the argument (same values).
-#'    \item G Matrix: The same as the argument (same values).
-#'    \item G.labs Matrix: The same as the argument (same values).
-#'    \item D Array: The same as the argument (same values) when there is no monitoring. When monitoring for abnormalities, the value in times where abnormalities were detected is increased.
-#'    \item h Matrix: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.
-#'    \item H Array: The same as the argument (same values).
-#'    \item W Array: A 3D-array containing the effective covariance matrix of the noise for each time, i.e., considering both H and D. Its dimension should be the same as H and D.
-#'    \item outcomes List: A list containing the outcomes of the model passed in the ... argument.
-#'    \item pred.names Vector: The names of the linear predictors.
-#'    \item var.names List: A list containing names and indexes for latent variables.
-#'    \item a1 Matrix: The prior mean for time 1. Dimensions are n x 1.
-#'    \item R1 Matrix: The prior covariance matrix for time 1. Dimensions are n x n.
-#'    \item smooth Bool: The same as the argument (same value).
-#'    \item pred.cred Numeric: The same as the argument (same value).
-#'    \item t Numeric: The time range for which the model has been fitted.
-#'    \item n Numeric: The number of latent variables in the model.
-#'    \item k Numeric: The number of linear predictors in the model.
-#'    \item l Numeric: The total number of parameters for the observational model.
-#'    \item r Numeric: The total number number of outcomes of the model.
-#'    \item structure dlm_block: The structure of the model. It's equivalent to block_superpos(...), but also taking into consideration the outcome length.
-#' }
+#' @return A fitted_dlm object.
 #' @export
 #'
 #' @examples
@@ -61,11 +33,12 @@
 #'   polynomial_block(p = 1, order = 2, D = 0.95) +
 #'     harmonic_block(p = 1, period = 12, D = 0.975) +
 #'     noise_block(p = 1, R1 = 0.1) +
-#'     regression_block(p = as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
+#'     regression_block(p = chickenPox$date>=as.Date("2013-09-01"))
+#'     # Vaccine was introduced in September of 2013
 #' ) * 4
 #'
 #' outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
-#' fitted.data <- fit_model(structure, outcome)
+#' fitted.data <- fit_model(structure, chickenPox=outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -76,7 +49,7 @@
 #'   polynomial_block(V = 1, D = 0.95)
 #'
 #' outcome <- Normal(mu = "mu", V = "V", data = cornWheat$corn.log.return[1:500])
-#' fitted.data <- fit_model(structure, outcome)
+#' fitted.data <- fit_model(structure, corn=outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -92,7 +65,7 @@
 #'   V = matrix(c("V.1", "rho", "rho", "V.2"), 2, 2),
 #'   data = cornWheat[1:500, c(4, 5)]
 #' )
-#' fitted.data <- fit_model(structure, outcome)
+#' fitted.data <- fit_model(structure, cornWheat=outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -102,7 +75,7 @@
 #' structure <- polynomial_block(mu = 1, D = 0.95)
 #'
 #' outcome <- Gamma(phi = 0.5, mu = "mu", data = cornWheat$corn.log.return[1:500]**2)
-#' fitted.data <- fit_model(structure, outcome)
+#' fitted.data <- fit_model(structure, corn=outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -118,9 +91,10 @@
 #'
 #' @seealso auxiliary functions for creating outcomes \code{\link{Poisson}}, \code{\link{Multinom}}, \code{\link{Normal}}, \code{\link{Gamma}}, \code{\link{Dirichlet}}
 #' @seealso auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{AR_block}}
+#' @seealso auxiliary functions for defining priors \code{\link{zero_sum_prior}}, \code{\link{CAR_prior}}
 #' @seealso auxiliary function for choosing hyper parameters \code{\link{search_model}}.
-#' @family {auxiliary functions for fitted_dlm objects}.
-fit_model <- function(..., smooth = TRUE, p.monit = NA, c.monit = 1) {
+#' @family {auxiliary functions for fitted_dlm objects}
+fit_model <- function(..., smooth = TRUE, p.monit = NA) {
   extra.args <- list(...)
   structure <- list()
   outcomes <- list()
@@ -202,7 +176,11 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, c.monit = 1) {
 
   coef.names <- rep(NA, structure$n)
   for (name in names(structure$var.names)) {
-    coef.names[structure$var.names[[name]]] <- paste0(name, ".", names(structure$var.names[[name]]))
+    if(length(names(structure$var.names[[name]]))>1){
+      coef.names[structure$var.names[[name]]] <- paste0(name, ".", names(structure$var.names[[name]]))
+    }else{
+      coef.names[structure$var.names[[name]]] <- name
+    }
   }
   structure$var.labels <- coef.names
 
@@ -287,7 +265,6 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, c.monit = 1) {
     h = structure$h,
     H = structure$H,
     p.monit = p.monit,
-    c.monit = c.monit,
     monitoring = structure$monitoring
   )
   if (smooth) {
@@ -307,7 +284,6 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, c.monit = 1) {
   model$l <- structure$l
   model$r <- r
   model$p.monit <- p.monit
-  model$c.monit <- c.monit
   model$monitoring <- structure$monitoring
   model$structure <- structure
   model$period <- structure$period
@@ -320,6 +296,7 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, c.monit = 1) {
 #'
 #' @param model A fitted_dlm object.
 #'
+#' @family {auxiliary functions for fitted_dlm objects}
 #' @return A fitted_dlm object with smoothed means (mts) and covariance matrix (Cts) for each observation.
 #' @export
 smoothing <- function(model) {
@@ -335,48 +312,63 @@ smoothing <- function(model) {
   return(model)
 }
 
-#' forecast
+#' Auxiliary function for forecasting
 #'
-#' Makes predictions for t times ahead using the fitted model.
-#'
-#' @param model fitted_dlm: The fitted model to be use for predictions.
-#' @param t Numeric: Time window for prediction.
-#' @param plot Bool or String: A flag indicating if a plot should be produced. Should be one of FALSE, TRUE, 'base', 'ggplot2' or 'plotly'.
-#' @param pred.cred Numeric: The credibility level for the I.C. intervals.
+#' @param object fitted_dlm object: The fitted model to be use for predictions.
+#' @param t numeric: Time window for prediction.
+#' @param plot boolean or character: A flag indicating if a plot should be produced. Should be one of FALSE, TRUE, 'base', 'ggplot2' or 'plotly'.
+#' @param pred.cred numeric: The credibility level for the C.I..
 #' @param ... Extra variables necessary for prediction (covariates, etc.).
 #'
 #' @return A list containing:
 #' \itemize{
-#'    \item data Data.frame: A data frame contain the mean, variance and credibility intervals for the outcomes, including both the observed data and the predictions for future observations.
-#'    \item forecast Data.frame: Same as data, but restricted to predictions for future observations.
-#'    \item outcomes List: A named list containing predictions for each outcome. Each element of this list is a list containing predictions (mean, variance and credibility intervals), the distribution of the linear predictor for the parameter of the observational model and the parameters of the predictive distribution (if available).
-#'    \item mt Matrix: A matrix with the values for the latent states at each time. Dimensions are n x t, where n is the number of latent states
-#'    \item Ct Array: A 3D-array with the covariance of the latent states at each time. Dimensions are n x n x t, where n is the number of linear predictors.
-#'    \item ft Matrix: A matrix with the values for the linear predictors at each time. Dimensions are n x t, where n is the number of linear predictors
-#'    \item Qt Array: A 3D-array with the covariance of the linear predictors at each time. Dimensions are n x n x t, where n is the number of linear predictors.
+#'    \item data data.frame: A data frame contain the mean, variance and credibility intervals for the outcomes, including both the observed data and the predictions for future observations.
+#'    \item forecast data.frame: Same as data, but restricted to predictions for future observations.
+#'    \item outcomes list: A named list containing predictions for each outcome. Each element of this list is a list containing predictions (mean, variance and credibility intervals), the distribution of the linear predictor for the parameter of the observational model and the parameters of the predictive distribution (if available).
+#'    \item mt matrix: A matrix with the values for the latent states at each time. Dimensions are n x t, where n is the number of latent states
+#'    \item Ct array: A 3D-array with the covariance of the latent states at each time. Dimensions are n x n x t, where n is the number of latent predictors.
+#'    \item ft matrix: A matrix with the values for the linear predictors at each time. Dimensions are k x t, where k is the number of linear predictors
+#'    \item Qt array: A 3D-array with the covariance of the linear predictors at each time. Dimensions are k x k x t, where k is the number of linear predictors.
 #'    \item plot (if so chosen): A plotly or ggplot object.
 #' }
 #' @importFrom Rfast transpose data.frame.to_matrix
 #' @import graphics
 #' @import grDevices
+#' @rdname forecast.fitted_dlm
 #' @export
 #'
+#' @details
+#' If an a covariate is necessary for forecasting, it should be passed as a named argument. Its name must follow this structure: <block name>.Covariate<.index>. If there is only one covariate in the associated block the index is omitted.
+#' If an a pulse is necessary for forecasting, it should be passed as a named argument. Its name must follow this structure: <block name>.Pulse<.index>. If there is only one pulse in the associated block the index is omitted.
+#' The user may pass the observed values at the prediction windows (optional). See example.
+#' As an special case, if the model has an Multinomial outcome, the user may pass the N parameter instead of the observations.
+#' If an offset is necessary for forecasting, it should be passed with the same syntax as the observed data. See example.
+#'
 #' @examples
-#' data <- c(AirPassengers)
 #'
-#' level <- polynomial_block(rate = 1, order = 2, D = 0.95)
-#' season <- harmonic_block(rate = 1, order = 2, period = 12, D = 0.975)
+#' structure <-
+#'   polynomial_block(p = 1, order = 2, D = 0.95) +
+#'   harmonic_block(p = 1, period = 12, D = 0.975) +
+#'   noise_block(p = 1, R1 = 0.1) +
+#'   regression_block(
+#'     p = chickenPox$date >= as.Date("2013-09-1"),
+#'     # Vaccine was introduced in September of 2013
+#'     name = "Vaccine"
+#'   )
 #'
-#' outcome <- Poisson(lambda = "rate", data)
-#'
-#' fitted.data <- fit_model(level, season,
-#'   AirPassengers = outcome
+#' outcome <- Multinom(p = c("p.1", "p.2"), data = chickenPox[, c(2, 3, 5)])
+#' fitted.data <- fit_model(structure * 2,
+#'   chickenPox = outcome
 #' )
 #'
-#' forecast(fitted.data, 20)$plot
+#' forecast(fitted.data, 24,
+#'   chickenPox = list(Total = rep(175, 24)), # Optional
+#'   Vaccine.1.Covariate = rep(TRUE, 24),
+#'   Vaccine.2.Covariate = rep(TRUE, 24)
+#' )
 #'
 #' @family {auxiliary functions for fitted_dlm objects}
-forecast.fitted_dlm <- function(model, t = 1,
+forecast.fitted_dlm <- function(object, t = 1,
                                 plot = ifelse(requireNamespace("plotly", quietly = TRUE), "plotly", ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot2", "base")),
                                 pred.cred = 0.95,
                                 ...) {
@@ -384,11 +376,11 @@ forecast.fitted_dlm <- function(model, t = 1,
     plot <- ifelse(requireNamespace("plotly", quietly = TRUE), "plotly", ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot2", "base"))
   }
 
-  n <- model$n
-  t_last <- model$t
-  k <- model$k
-  r <- model$r
-  pred.names <- model$pred.names
+  n <- object$n
+  t_last <- object$t
+  k <- object$k
+  r <- object$r
+  pred.names <- object$pred.names
   pred <- matrix(NA, r, t)
   var.pred <- array(NA, c(r, r, t))
   icl.pred <- matrix(NA, r, t)
@@ -398,38 +390,29 @@ forecast.fitted_dlm <- function(model, t = 1,
   time.index.foward <- (t_last + 1):(t_last + t)
 
   extra.args <- list(...)
-  D <- h <- H <- NULL
-  if (!is.null(extra.args$D)) {
-    D <- extra.args$D
+  h <- H <- NULL
+  if (!is.null(extra.args[["h"]])) {
+    h <- extra.args[["h"]]
   }
-  if (!is.null(extra.args$h)) {
-    h <- extra.args$h
-  }
-  if (!is.null(extra.args$H)) {
-    H <- extra.args$H
+  if (!is.null(extra.args[["H"]])) {
+    H <- extra.args[["H"]]
   }
 
   #### Consistency check ####
-  if (length(dim(D)) > 3) {
-    stop(paste0("Error: D should have at most 3 dimensions. Got ", length(dim(D)), "."))
-  }
   if (length(dim(h)) > 2) {
     stop(paste0("Error: H should have at most 2 dimensions. Got ", length(dim(h)), "."))
   }
   if (length(dim(H)) > 3) {
     stop(paste0("Error: H should have at most 3 dimensions. Got ", length(dim(H)), "."))
   }
-  if (length(dim(offset)) > 2) {
-    stop(paste0("Error: D should have at most 2 dimensions. Got ", length(dim(offset)), "."))
-  }
 
-  G.labs <- model$G.labs
-  G <- array(model$G[, , t_last], c(n, n, t))
+  G.labs <- object$G.labs
+  G <- array(object$G[, , t_last], c(n, n, t))
   G.flags <- G.labs == "Pulse"
   if (any(G.flags)) {
     for (i in seq_len(n)[rowSums(G.flags) > 0]) {
       for (j in seq_len(n)[G.flags[i, ]]) {
-        label <- paste0(model$var.labels[j])
+        label <- paste0(object$var.labels[j])
         if (label %in% names(extra.args)) {
           G[i, j, ] <- extra.args[[label]]
         } else {
@@ -439,13 +422,13 @@ forecast.fitted_dlm <- function(model, t = 1,
     }
   }
 
-  FF.labs <- model$FF.labs
-  FF <- array(model$FF[, , t_last], c(n, k, t))
+  FF.labs <- object$FF.labs
+  FF <- array(object$FF[, , t_last], c(n, k, t))
   FF.flags <- FF.labs == "Covariate"
   if (any(FF.flags)) {
-    coef.names <- rep(NA, model$n)
-    for (name in names(model$var.names)) {
-      coef.names[model$var.names[[name]]] <- name
+    coef.names <- rep(NA, object$n)
+    for (name in names(object$var.names)) {
+      coef.names[object$var.names[[name]]] <- name
     }
     for (j in seq_len(k)[colSums(FF.flags) > 0]) {
       for (i in seq_len(n)[FF.flags[, j]]) {
@@ -467,23 +450,11 @@ forecast.fitted_dlm <- function(model, t = 1,
 
 
   if (is.null(h)) {
-    h <- matrix(model$h[, t_last], n, t)
-  }
-  dim.D <- dim(D)
-  if (is.null(D)) {
-    D <- array(1, c(n, n, t))
-  } else {
-    if (all(dim.D == 1)) {
-      D <- array(D, c(n, n, t))
-    } else {
-      if (length(dim.D) == 2 || (length(dim.D) == 3 && dim.D[3] == 1)) {
-        D <- array(D, c(n, n, t))
-      }
-    }
+    h <- matrix(object$h[, t_last], n, t)
   }
   dim.H <- dim(H)
   if (is.null(H)) {
-    H <- array(model$W[, , t_last], c(n, n, t))
+    H <- array(object$W[, , t_last], c(n, n, t))
     # H[, , -1] <- 0
   } else {
     if (all(dim.H == 1)) {
@@ -495,41 +466,33 @@ forecast.fitted_dlm <- function(model, t = 1,
       }
     }
   }
-  if (any(dim(D) != c(n, n, t))) {
-    stop(paste0("Error: D has wrong dimesions. Expected ", paste(n, n, t, sep = "x"), ". Got ", paste(dim(D), colapse = "x")))
-  }
   if (any(dim(H) != c(n, n, t))) {
     stop(paste0("Error: H has wrong dimesions. Expected ", paste(n, n, t, sep = "x"), ". Got ", paste(dim(H), colapse = "x")))
   }
   #####
-  D <- ifelse(D == 0, 1, D)
 
-  a1 <- model$mt[, t_last]
-  R1 <- model$Ct[, , t_last]
+  a1 <- object$mt[, t_last]
+  R1 <- object$Ct[, , t_last]
+  D <- object$W[, , t_last] - object$H[, , t_last]
 
   m1 <- matrix(NA, n, t)
   C1 <- array(NA, c(n, n, t))
   f1 <- matrix(NA, k, t)
   Q1 <- array(NA, c(k, k, t))
+  D.placeholder <- R1**0
 
   last.m <- a1
   last.C <- R1
 
-  R0 <- one_step_evolve(
-    last.m, last.C,
-    G[, , 1] |> matrix(n, n), G.labs,
-    D[, , 1]**0, h[, 1], H[, , 1] * 0
-  )$Rt
-
   outcome.forecast <- list()
-  for (outcome.name in names(model$outcomes)) {
-    r_i <- model$outcomes[[outcome.name]]$r
-    outcome.forecast[[outcome.name]]$conj.param <- matrix(NA, t, length(model$outcomes[[outcome.name]]$param.names)) |> as.data.frame()
-    names(outcome.forecast[[outcome.name]]$conj.param) <- model$outcomes[[outcome.name]]$param.names
+  for (outcome.name in names(object$outcomes)) {
+    r_i <- object$outcomes[[outcome.name]]$r
+    outcome.forecast[[outcome.name]]$conj.param <- matrix(NA, t, length(object$outcomes[[outcome.name]]$param.names)) |> as.data.frame()
+    names(outcome.forecast[[outcome.name]]$conj.param) <- object$outcomes[[outcome.name]]$param.names
     row.names(outcome.forecast[[outcome.name]]$conj.param) <- time.index.foward
 
-    outcome.forecast[[outcome.name]]$ft <- matrix(NA, model$outcomes[[outcome.name]]$k, t)
-    outcome.forecast[[outcome.name]]$Qt <- array(NA, c(model$outcomes[[outcome.name]]$k, model$outcomes[[outcome.name]]$k, t))
+    outcome.forecast[[outcome.name]]$ft <- matrix(NA, object$outcomes[[outcome.name]]$k, t)
+    outcome.forecast[[outcome.name]]$Qt <- array(NA, c(object$outcomes[[outcome.name]]$k, object$outcomes[[outcome.name]]$k, t))
 
     outcome.forecast$show <- !is.null(extra.args[[outcome.name]]$data)
     outcome.forecast[[outcome.name]]$data <-
@@ -537,10 +500,10 @@ forecast.fitted_dlm <- function(model, t = 1,
         extra.args[[outcome.name]]$data |>
           as.matrix() |>
           matrix(t, r_i)
-      } else if (model$outcomes[[outcome.name]]$name == "Multinomial" & !is.null(extra.args[[outcome.name]]$total)) {
+      } else if (object$outcomes[[outcome.name]]$name == "Multinomial" & !is.null(extra.args[[outcome.name]]$total)) {
         (extra.args[[outcome.name]]$total / r_i) |> matrix(t, r_i, byrow = FALSE)
       } else {
-        model$outcomes[[outcome.name]]$data[t_last, ] |> matrix(t, r_i, byrow = TRUE)
+        object$outcomes[[outcome.name]]$data[t_last, ] |> matrix(t, r_i, byrow = TRUE)
       }
     outcome.forecast[[outcome.name]]$offset <-
       if (!is.null(extra.args[[outcome.name]]$offset)) {
@@ -548,15 +511,13 @@ forecast.fitted_dlm <- function(model, t = 1,
           as.matrix() |>
           matrix(t, r_i)
       } else {
-        model$outcomes[[outcome.name]]$offset[t_last, ] |> matrix(t, r_i, byrow = TRUE)
+        object$outcomes[[outcome.name]]$offset[t_last, ] |> matrix(t, r_i, byrow = TRUE)
       }
   }
 
 
   for (t_i in seq_len(t)) {
-    W_i <- matrix((1 - D[, , t_i]) * R0 / D[, , t_i], n, n)
-
-    next.step <- one_step_evolve(last.m, last.C, G[, , t_i] |> matrix(n, n), G.labs, D[, , t_i]**0, h[, t_i], H[, , t_i] + W_i)
+    next.step <- one_step_evolve(last.m, last.C, G[, , t_i] |> matrix(n, n), G.labs, D.placeholder, h[, t_i], H[, , t_i] + D)
     last.m <- next.step$at
     last.C <- next.step$Rt
 
@@ -570,9 +531,9 @@ forecast.fitted_dlm <- function(model, t = 1,
     )
     f1[, t_i] <- lin.pred$ft
     Q1[, , t_i] <- lin.pred$Qt
-    for (outcome.name in names(model$outcomes)) {
-      model_i <- model$outcomes[[outcome.name]]
-      pred.index <- match(model_i$pred.names, model$pred.names)
+    for (outcome.name in names(object$outcomes)) {
+      model_i <- object$outcomes[[outcome.name]]
+      pred.index <- match(model_i$pred.names, object$pred.names)
       lin.pred.offset <- model_i$apply_offset(
         lin.pred$ft[pred.index, , drop = FALSE],
         lin.pred$Qt[pred.index, pred.index, drop = FALSE],
@@ -597,13 +558,13 @@ forecast.fitted_dlm <- function(model, t = 1,
   r.acum <- 0
   out.names <- rep(NA, r)
   output <- matrix(NA, t, r)
-  for (outcome.name in names(model$outcomes)) {
-    model_i <- model$outcomes[[outcome.name]]
+  for (outcome.name in names(object$outcomes)) {
+    model_i <- object$outcomes[[outcome.name]]
     r.cur <- model_i$r
     prediction <- model_i$calc_pred(outcome.forecast[[outcome.name]]$conj.param,
-      outcome.forecast[[outcome.name]]$data,
-      pred.cred = pred.cred,
-      parms = model_i$parms
+                                    outcome.forecast[[outcome.name]]$data,
+                                    pred.cred = pred.cred,
+                                    parms = model_i$parms
     )
 
 
@@ -621,7 +582,7 @@ forecast.fitted_dlm <- function(model, t = 1,
 
 
 
-    out.names[r.seq] <- paste0(outcome.name, model$outcomes[[outcome.name]]$sufix)
+    out.names[r.seq] <- paste0(outcome.name, object$outcomes[[outcome.name]]$sufix)
     if (outcome.forecast$show) {
       output[, r.seq] <- outcome.forecast[[outcome.name]]$data
     }
@@ -640,7 +601,7 @@ forecast.fitted_dlm <- function(model, t = 1,
     C.I.upper = c(t(icu.pred))
   )
 
-  data.past <- coef(model, lag = -1, pred.cred = pred.cred)$data
+  data.past <- coef.fitted_dlm(object, lag = -1, pred.cred = pred.cred, eval.metric = FALSE, eval.pred = TRUE)$data
   plot.data <- rbind(
     cbind(data.past, type = "Fit"),
     cbind(data, type = "Forecast")
@@ -653,7 +614,7 @@ forecast.fitted_dlm <- function(model, t = 1,
       data.past$Observation[!is.na(data.past$Observation)],
       data$Observation[!is.na(data$Observation)]
     )
-    if (outcome.forecast$show) {
+    if (!outcome.forecast$show | TRUE) {
       obs.na.rm <- c(
         obs.na.rm,
         data$Prediction[!is.na(data$Prediction)]
@@ -665,15 +626,15 @@ forecast.fitted_dlm <- function(model, t = 1,
     plot.data$group.ribbon <- paste0(plot.data$Serie, plot.data$type)
     series.names <- levels(plot.data$Serie)
     n.series <- length(series.names)
-    colors <- rainbow(n.series, s = 0.8)
-    fills <- rainbow(n.series, s = 0.4)
-    points <- paste0(colors, "55")
-    fills <- paste0(fills, "33")
-    names(colors) <- names(points) <- names(fills) <- series.names
+    colors <- rainbow(n.series, s = 0.8,v=0.9)
+    fills <- rainbow(n.series, s = 0.4,v=0.9)
     if (plot == "base" || !requireNamespace("ggplot2", quietly = TRUE)) {
       if (plot != "base") {
         warning("The ggplot2 package is required for ggplot2 and plotly plots and was not found. Falling back to R base plot functions.")
       }
+      fills <- paste0(fills, "33")
+      points <- paste0(colors, "55")
+      names(colors) <- names(points) <- names(fills) <- series.names
       cur.height <- dev.size("cm")[2]
       count.spaces <- ceiling(n.series / 4)
       font.cm <- 0.35
@@ -695,14 +656,14 @@ forecast.fitted_dlm <- function(model, t = 1,
       for (serie in series.names) {
         plot.serie <- plot.data[plot.data$Serie == serie, ]
         points(plot.serie$Time, plot.serie$Observation,
-          col = points[[serie]],
-          pch = 16 + (seq_len(t + t_last) > t_last)
+               col = points[[serie]],
+               pch = 16 + (seq_len(t + t_last) > t_last)
         )
 
         lines(plot.serie$Time[time.index], plot.serie$Prediction[time.index], col = colors[[serie]], lty = 1)
         lines(plot.serie$Time[time.index.foward], plot.serie$Prediction[time.index.foward], col = colors[[serie]], lty = 2)
         base_ribbon(plot.serie$Time, plot.serie$C.I.lower, plot.serie$C.I.upper,
-          col = fills[[serie]], lty = 0
+                    col = fills[[serie]], lty = 0
         )
       }
 
@@ -733,12 +694,13 @@ forecast.fitted_dlm <- function(model, t = 1,
       )
       par(mar = config$mar)
     } else {
+      names(colors) <- names(fills) <- series.names
       plt.obj <- ggplot2::ggplot(plot.data, ggplot2::aes_string(x = "Time")) +
         ggplot2::geom_line(ggplot2::aes_string(y = "Prediction", linetype = "type", color = "Serie")) +
-        ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper", fill = "Serie", group = "group.ribbon"), alpha = 0.25, color = NA) +
-        ggplot2::geom_point(ggplot2::aes_string(y = "Observation", shape = "shape.point", color = "Serie")) +
-        ggplot2::scale_fill_hue("", na.value = NA) +
-        ggplot2::scale_color_hue("", na.value = NA) +
+        ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper", fill = "Serie", group = "group.ribbon"),alpha=0.25, color = NA) +
+        ggplot2::geom_point(ggplot2::aes_string(y = "Observation", shape = "shape.point", color = "Serie"), alpha = 0.5) +
+        ggplot2::scale_fill_manual("", values=fills,na.value = NA) +
+        ggplot2::scale_color_manual("",values=colors, na.value = NA) +
         ggplot2::scale_linetype_manual("", values = c("solid", "dashed")) +
         ggplot2::scale_shape_manual("", values = c(17, 16)) +
         ggplot2::scale_x_continuous("Time") +
@@ -782,13 +744,17 @@ forecast.fitted_dlm <- function(model, t = 1,
 
 #' update.fitted_dlm
 #'
-#' Updates a fitted model.
-#'
-#' @param model fitted_dlm: The fitted model to be updated.
+#' @param object fitted_dlm: The fitted model to be updated.
 #' @param ... Extra variables necessary for updating (covariates, observed values, etc.).
 #'
 #' @return A fitted_dlm object.
+#' @rdname update.fitted_dlm
 #' @export
+#'
+#' @details
+#' If an a covariate is necessary for updating, it should be passed as a named argument. Its name must follow this structure: <block name>.Covariate<.index>. If there is only one pulse in the associated block the index is omitted.
+#' If an a pulse is necessary for updating, it should be passed as a named argument. Its name must follow this structure: <block name>.Pulse<.index>. If there is only one pulse in the associated block the index is omitted.
+#' If an offset is necessary for updating, it should be passed along with the observed data. See example.
 #'
 #' @examples
 #'
@@ -810,13 +776,13 @@ forecast.fitted_dlm <- function(model, t = 1,
 #' #                      offset= ... ))
 #'
 #' @family {auxiliary functions for fitted_dlm objects}
-update.fitted_dlm <- function(model, ...) {
+update.fitted_dlm <- function(object, ...) {
   args <- list(...)
-  n <- model$n
-  t_last <- model$t
-  k <- model$k
-  r <- model$r
-  outcomes.old <- model$outcomes
+  n <- object$n
+  t_last <- object$t
+  k <- object$k
+  r <- object$r
+  outcomes.old <- object$outcomes
   outcomes.new <- list()
   for (name in names(outcomes.old)) {
     if (name %in% names(args)) {
@@ -892,17 +858,14 @@ update.fitted_dlm <- function(model, ...) {
   if (length(dim(H)) > 3) {
     stop(paste0("Error: H should have at most 3 dimensions. Got ", length(dim(H)), "."))
   }
-  if (length(dim(offset)) > 2) {
-    stop(paste0("Error: D should have at most 2 dimensions. Got ", length(dim(offset)), "."))
-  }
 
-  G.labs <- model$G.labs
-  G <- array(model$G[, , t_last], c(n, n, t.max))
+  G.labs <- object$G.labs
+  G <- array(object$G[, , t_last], c(n, n, t.max))
   G.flags <- G.labs == "Pulse"
   if (any(G.flags)) {
     for (i in seq_len(n)[rowSums(G.flags) > 0]) {
       for (j in seq_len(n)[G.flags[i, ]]) {
-        label <- paste0(model$var.labels[j])
+        label <- paste0(object$var.labels[j])
         if (label %in% names(args)) {
           if (length(args[[label]]) != t.max) {
             stop(paste0("Error: ", label, " and outcomes have different size. Expected, ", t.max, ", got ", length(args[[label]]), "."))
@@ -915,13 +878,13 @@ update.fitted_dlm <- function(model, ...) {
     }
   }
 
-  FF.labs <- model$FF.labs
-  FF <- array(model$FF[, , t_last], c(n, k, t.max), dimnames = dimnames(model$FF))
+  FF.labs <- object$FF.labs
+  FF <- array(object$FF[, , t_last], c(n, k, t.max), dimnames = dimnames(object$FF))
   FF.flags <- FF.labs == "Covariate"
   if (any(FF.flags)) {
-    coef.names <- rep(NA, model$n)
-    for (name in names(model$var.names)) {
-      coef.names[model$var.names[[name]]] <- name
+    coef.names <- rep(NA, object$n)
+    for (name in names(object$var.names)) {
+      coef.names[object$var.names[[name]]] <- name
     }
     for (j in seq_len(k)[colSums(FF.flags) > 0]) {
       for (i in seq_len(n)[FF.flags[, j]]) {
@@ -945,11 +908,11 @@ update.fitted_dlm <- function(model, ...) {
   }
 
   if (is.null(h)) {
-    h <- matrix(model$h[, t_last], n, t.max)
+    h <- matrix(object$h[, t_last], n, t.max)
   }
   dim.D <- dim(D)
   if (is.null(D)) {
-    D <- array(model$D[, , t_last], c(n, n, t.max))
+    D <- array(object$D[, , t_last], c(n, n, t.max))
   } else {
     if (all(dim.D == 1)) {
       D <- array(D, c(n, n, t.max))
@@ -961,7 +924,7 @@ update.fitted_dlm <- function(model, ...) {
   }
   dim.H <- dim(H)
   if (is.null(H)) {
-    H <- array(model$H[, , t_last], c(n, n, t.max))
+    H <- array(object$H[, , t_last], c(n, n, t.max))
   } else {
     if (all(dim.H == 1)) {
       H <- array(diag(n) * H, c(n, n, t.max))
@@ -981,8 +944,8 @@ update.fitted_dlm <- function(model, ...) {
   #####
   D <- ifelse(D == 0, 1, D)
 
-  a1 <- model$mt[, t_last, drop = FALSE]
-  R1 <- model$Ct[, , t_last]
+  a1 <- object$mt[, t_last, drop = FALSE]
+  R1 <- object$Ct[, , t_last]
 
   new.data <- analytic_filter(
     outcomes = outcomes.new,
@@ -995,61 +958,63 @@ update.fitted_dlm <- function(model, ...) {
     D = D,
     h = h,
     H = H,
-    p.monit = model$p.monit,
-    c.monit = model$c.monit,
-    monitoring = model$monitoring
+    p.monit = object$p.monit,
+    monitoring = object$monitoring
   )
 
-  model$mt <- cbind(model$mt, new.data$mt)
-  model$Ct <- array(c(model$Ct, new.data$Ct), c(n, n, t.max + t_last), dimnames = dimnames(model$Ct))
-  model$at <- cbind(model$at, new.data$at)
-  model$Rt <- array(c(model$Rt, new.data$Rt), c(n, n, t.max + t_last), dimnames = dimnames(model$Rt))
-  model$ft <- cbind(model$ft, new.data$ft)
-  model$Qt <- array(c(model$Qt, new.data$Qt), c(k, k, t.max + t_last), dimnames = dimnames(model$Qt))
-  model$ft.star <- cbind(model$ft.star, new.data$ft.star)
-  model$Qt.star <- array(c(model$Qt.star, new.data$Qt.star), c(k, k, t.max + t_last), dimnames = dimnames(model$Qt.star))
-  model$D <- array(c(model$D, new.data$D), c(n, n, t.max + t_last), dimnames = dimnames(model$D))
-  model$H <- array(c(model$H, new.data$H), c(n, n, t.max + t_last), dimnames = dimnames(model$H))
-  model$h <- cbind(model$h, h)
-  model$W <- array(c(model$W, new.data$W), c(n, n, t.max + t_last), dimnames = dimnames(model$W))
-  model$FF <- array(c(model$FF, new.data$FF), c(n, k, t.max + t_last), dimnames = dimnames(model$FF))
-  model$G <- array(c(model$G, new.data$G), c(n, n, t.max + t_last), dimnames = dimnames(model$G))
-  model$t <- t_last + t.max
-  model$log.like.null <- c(model$log.like.null, new.data$log.like.null)
-  model$log.like.alt <- c(model$log.like.alt, new.data$log.like.alt)
-  model$alt.flags <- c(model$alt.flags, new.data$alt.flags)
-  model$outcomes <- outcomes.old
+  object$mt <- cbind(object$mt, new.data$mt)
+  object$Ct <- array(c(object$Ct, new.data$Ct), c(n, n, t.max + t_last), dimnames = dimnames(object$Ct))
+  object$at <- cbind(object$at, new.data$at)
+  object$Rt <- array(c(object$Rt, new.data$Rt), c(n, n, t.max + t_last), dimnames = dimnames(object$Rt))
+  object$ft <- cbind(object$ft, new.data$ft)
+  object$Qt <- array(c(object$Qt, new.data$Qt), c(k, k, t.max + t_last), dimnames = dimnames(object$Qt))
+  object$ft.star <- cbind(object$ft.star, new.data$ft.star)
+  object$Qt.star <- array(c(object$Qt.star, new.data$Qt.star), c(k, k, t.max + t_last), dimnames = dimnames(object$Qt.star))
+  object$D <- array(c(object$D, new.data$D), c(n, n, t.max + t_last), dimnames = dimnames(object$D))
+  object$H <- array(c(object$H, new.data$H), c(n, n, t.max + t_last), dimnames = dimnames(object$H))
+  object$h <- cbind(object$h, h)
+  object$W <- array(c(object$W, new.data$W), c(n, n, t.max + t_last), dimnames = dimnames(object$W))
+  object$FF <- array(c(object$FF, new.data$FF), c(n, k, t.max + t_last), dimnames = dimnames(object$FF))
+  object$G <- array(c(object$G, new.data$G), c(n, n, t.max + t_last), dimnames = dimnames(object$G))
+  object$t <- t_last + t.max
+  object$log.like.null <- c(object$log.like.null, new.data$log.like.null)
+  object$log.like.alt <- c(object$log.like.alt, new.data$log.like.alt)
+  object$alt.flags <- c(object$alt.flags, new.data$alt.flags)
+  object$outcomes <- outcomes.old
 
-  if (model$smooth) {
-    model$smooth <- FALSE
-    model <- smoothing(model)
+  if (object$smooth) {
+    object$smooth <- FALSE
+    object <- smoothing(object)
   }
 
-  return(model)
+  return(object)
 }
 
 #' coef.fitted_dlm
 #'
-#' Evaluates the predictive values for the observed values used to fit the model and its latent variables.
-#' Predictions can be made with smoothed values or with filtered values with a time offset.
+#' Evaluates the predictive values for the observed values used to fit the model and its latent states.
+#' Predictions can be made with smoothed values, with filtered values or h-steps ahead.
 #'
-#' @param model fitted_dlm: The fitted model to be use for evaluation.
-#' @param eval_t vector: A vector of positive integers indicating the time index from which to extract predictions. Default is to extract all observed times in model.
-#' @param lag positive integer: The relative offset for forecast. Values for time t will be calculated based on the filtered values of time t-h. If lag is negative, then the smoothed distribution will be used.
-#' @param pred.cred Numeric: The credibility level for the I.C. intervals.
-#' @param eval.pred Bool: A flag indicating if the predictions should be calculated.
+#' @param object fitted_dlm: The fitted model to be use for evaluation.
+#' @param eval_t numeric: A vector of positive integers indicating the time index from which to extract predictions. The default is to extract to evaluate the model at all observed times.
+#' @param lag integer: The relative offset for forecast. Values for time t will be calculated based on the filtered values of time t-h. If lag is negative, then the smoothed distribution for the latent states will be used.
+#' @param pred.cred numeric: The credibility level for the C.I..
+#' @param eval.pred boolean: A flag indicating if the predictions should be calculated.
+#' @param eval.metric boolean: A flag indicating if the model density (f(M|y)) should be calculated. Only used when lag<0.
+#' @param ... Extra arguments passed to the coef method.
 #'
 #' @return A list containing:
 #' \itemize{
 #'    \item data data.frame: A table with the model evaluated at each observed time.
-#'    \item mt Matrix: The mean of the latent variables at each time. Dimensions are n x t, where t is the size of eval_t.
-#'    \item Ct Array: A 3D-array containing the covariance matrix of the latent variable at each time. Dimensions are n x n x t.
-#'    \item ft Matrix: The mean of the linear predictor at each time. Dimensions are k x t.
-#'    \item Qt Array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t.
+#'    \item mt matrix: The mean of the latent states at each time. Dimensions are n x t, where t is the size of eval_t and n is the number of latent states.
+#'    \item Ct array: A 3D-array containing the covariance matrix of the latent states at each time. Dimensions are n x n x t, where t is the size of eval_t and n is the number of latent states.
+#'    \item ft matrix: The mean of the linear predictor at each time. Dimensions are k x t, where t is the size of eval_t and k is the number of linear predictors.
+#'    \item Qt array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t, where t is the size of eval_t and k is the number of linear predictors.
 #'    \item log.like, mae, mase, rae, mse, interval.score: The metric value at each time.
 #'    \item conj.param list: A list containing, for each outcome, a data.frame with the parameter of the conjugated distribution at each time.
 #' }
 #' @importFrom Rfast transpose data.frame.to_matrix
+#' @rdname coef.fitted_dlm
 #' @export
 #'
 #' @examples
@@ -1067,41 +1032,41 @@ update.fitted_dlm <- function(model, ...) {
 #'
 #' # var.vals <- coefficients(fitted.data)
 #' # Or
-# var.vals <- coef(fitted.data)
+#' var.vals <- coef(fitted.data)
 #'
 #' @family {auxiliary functions for fitted_dlm objects}
-coef.fitted_dlm <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cred = 0.95, eval.pred = TRUE) {
+coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.cred = 0.95, eval.pred = FALSE, eval.metric = FALSE, ...) {
   if (round(lag) != lag) {
     stop(paste0("Error: lag should be a integer. Got ", lag, "."))
   }
-  pred.names <- model$pred.names
-  n <- model$n
-  t_last <- model$t
-  k <- model$k
-  r <- model$r
+  pred.names <- object$pred.names
+  n <- object$n
+  t_last <- object$t
+  k <- object$k
+  r <- object$r
 
   smoothed.log.like <- FALSE
   true.lag <- lag
   if (lag < 0) {
-    if (!model$smooth) {
-      model <- smoothing(model)
+    if (!object$smooth) {
+      object <- smoothing(object)
     }
     smoothed.log.like <- TRUE
     lag <- 0
-    ref.mt <- model$mts
-    ref.Ct <- model$Cts
+    ref.mt <- object$mts
+    ref.Ct <- object$Cts
   } else {
-    ref.mt <- model$mt
-    ref.Ct <- model$Ct
+    ref.mt <- object$mt
+    ref.Ct <- object$Ct
   }
   if (lag <= 0) {
-    null.rows.flags <- diag(model$G.labs) %in% c("noise", "noise.disc")
+    null.rows.flags <- diag(object$G.labs) %in% c("noise", "noise.disc")
     if (any(null.rows.flags)) {
       # time_index=colSums(null.rows.flags)>0
-      var.W <- apply(model$W, 3, diag)
-      # var.W=matrix(var.W[,model$t],n,model$t)
+      var.W <- apply(object$W, 3, diag)
+      # var.W=matrix(var.W[,object$t],n,object$t)
       ref.mt[null.rows.flags] <- 0
-      for (i in (1:model$t)) {
+      for (i in (1:object$t)) {
         ref.Ct[null.rows.flags, , i] <- 0
         ref.Ct[, null.rows.flags, i] <- 0
         diag(ref.Ct[, , i])[null.rows.flags] <- var.W[null.rows.flags, i]
@@ -1121,8 +1086,8 @@ coef.fitted_dlm <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cre
   final.t <- max(eval_t)
   len.t <- final.t - init.t + 1
 
-  FF <- model$FF
-  FF.labs <- model$FF.labs
+  FF <- object$FF
+  FF.labs <- object$FF.labs
 
   mt.pred <- matrix(NA, n, len.t)
   Ct.pred <- array(NA, c(n, n, len.t))
@@ -1143,24 +1108,24 @@ coef.fitted_dlm <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cre
 
 
   conj.param.list <- list()
-  for (outcome.name in names(model$outcomes)) {
-    conj.param.list[[outcome.name]] <- matrix(NA, len.t, length(model$outcomes[[outcome.name]]$param.names)) |> as.data.frame()
-    names(conj.param.list[[outcome.name]]) <- model$outcomes[[outcome.name]]$param.names
+  for (outcome.name in names(object$outcomes)) {
+    conj.param.list[[outcome.name]] <- matrix(NA, len.t, length(object$outcomes[[outcome.name]]$param.names)) |> as.data.frame()
+    names(conj.param.list[[outcome.name]]) <- object$outcomes[[outcome.name]]$param.names
     row.names(conj.param.list[[outcome.name]]) <- init.t:final.t
   }
 
-  D <- model$D
+  D <- object$D
   D.inv <- 1 / D
-  D.holder <- model$D[, , 1]
-  h <- model$h
-  W <- model$W
-  G <- model$G
-  G.labs <- model$G.labs
+  D.holder <- object$D[, , 1]
+  h <- object$h
+  W <- object$W
+  G <- object$G
+  G.labs <- object$G.labs
 
   for (i in c(init.t:final.t)) {
     if (i <= lag) {
-      mt <- model$a1
-      Ct <- model$R1
+      mt <- object$a1
+      Ct <- object$R1
       lag_i <- i - 1
     } else if (i <= t_last) {
       mt <- ref.mt[, (i - lag):(i - lag)]
@@ -1190,13 +1155,13 @@ coef.fitted_dlm <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cre
 
     r.acum <- 0
     if (eval.pred) {
-      for (outcome in model$outcomes) {
+      for (outcome in object$outcomes) {
         r.cur <- outcome$r
 
         r.seq <- (r.acum + 1):(r.acum + r.cur)
         t.index <- i - init.t + 1
 
-        pred.index <- match(outcome$pred.names, model$pred.names)
+        pred.index <- match(outcome$pred.names, object$pred.names)
         r_i <- length(pred.index)
 
         cur.step <- outcome$apply_offset(lin.pred$ft[pred.index, , drop = FALSE], lin.pred$Qt[pred.index, pred.index, drop = FALSE], outcome$offset[i, ])
@@ -1212,18 +1177,18 @@ coef.fitted_dlm <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cre
         conj.param <- outcome$conj_distr(ft.canom, Qt.canom, parms = outcome$parms)
         conj.param.list[[outcome.name]][t.index, ] <- conj.param
         prediction <- outcome$calc_pred(conj.param,
-          if (i > t_last) {
-            NULL
-          } else {
-            outcome$data[i, , drop = FALSE]
-          },
-          pred.cred,
-          parms = outcome$parms
+                                        if (i > t_last) {
+                                          NULL
+                                        } else {
+                                          outcome$data[i, , drop = FALSE]
+                                        },
+                                        pred.cred,
+                                        parms = outcome$parms
         )
         out.ref <- t(outcome$data)[, i, drop = FALSE]
-        if (model$period < model$t) {
-          mase.coef <- colMeans(abs(diff(outcome$data, model$period)))
-        } else if (model$t > 1) {
+        if (object$period < object$t) {
+          mase.coef <- colMeans(abs(diff(outcome$data, object$period)))
+        } else if (object$t > 1) {
           mase.coef <- colMeans(abs(diff(outcome$data, 1)))
         } else {
           mase.coef <- outcome$data[1, ]
@@ -1240,8 +1205,8 @@ coef.fitted_dlm <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cre
         mse[t.index] <- mse[t.index] + sum((out.ref - prediction$pred)**2)
         interval.score[t.index] <- interval.score[t.index] +
           sum((prediction$icu.pred - prediction$icl.pred) +
-            2 / (1 - pred.cred) * (prediction$icl.pred - out.ref) * (out.ref < prediction$icl.pred) +
-            2 / (1 - pred.cred) * (out.ref - prediction$icu.pred) * (out.ref > prediction$icu.pred))
+                2 / (1 - pred.cred) * (prediction$icl.pred - out.ref) * (out.ref < prediction$icl.pred) +
+                2 / (1 - pred.cred) * (out.ref - prediction$icu.pred) * (out.ref > prediction$icu.pred))
         r.acum <- r.acum + r.cur
 
         mase[t.index] <- mase[t.index] + mean(abs(out.ref - prediction$pred) / mase.coef) / r
@@ -1252,14 +1217,14 @@ coef.fitted_dlm <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cre
   r.acum <- 0
   out.names <- rep(NA, r)
   output <- matrix(NA, len.t, r)
-  for (outcome.name in names(model$outcomes)) {
-    r.cur <- model$outcomes[[outcome.name]]$r
+  for (outcome.name in names(object$outcomes)) {
+    r.cur <- object$outcomes[[outcome.name]]$r
     r.seq <- (r.acum + 1):(r.acum + r.cur)
     char.len <- floor(log10(r.cur)) + 1
-    out.names[r.seq] <- paste0(outcome.name, model$outcomes[[outcome.name]]$sufix)
+    out.names[r.seq] <- paste0(outcome.name, object$outcomes[[outcome.name]]$sufix)
 
     1:min(final.t - init.t + 1, t_last - init.t + 1)
-    output[seq_len(min(final.t - init.t + 1, t_last - init.t + 1)), r.seq] <- model$outcomes[[outcome.name]]$data[init.t:min(final.t, t_last), ]
+    output[seq_len(min(final.t - init.t + 1, t_last - init.t + 1)), r.seq] <- object$outcomes[[outcome.name]]$data[init.t:min(final.t, t_last), ]
 
 
     r.acum <- r.acum + r.cur
@@ -1268,19 +1233,22 @@ coef.fitted_dlm <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cre
   time.index.final <- init.t:final.t
   time.flags <- time.index.final %in% eval_t
 
+
+  serie.names <- as.factor(c(sapply(out.names, function(x) {
+    rep(x, final.t - init.t + 1)
+  })))
+
   data <- data.frame(
     Time = time.index.final,
-    Serie = as.factor(c(sapply(out.names, function(x) {
-      rep(x, final.t - init.t + 1)
-    }))),
+    Serie = serie.names,
     Observation = c(output),
     Prediction = c(t(pred)),
     C.I.lower = c(t(icl.pred)),
     C.I.upper = c(t(icu.pred))
   )
 
-  rownames(mt.pred) <- rownames(Ct.pred) <- colnames(Ct.pred) <- model$var.labels
-  rownames(ft.pred) <- rownames(Qt.pred) <- colnames(Qt.pred) <- model$pred.names
+  rownames(mt.pred) <- rownames(Ct.pred) <- colnames(Ct.pred) <- object$var.labels
+  rownames(ft.pred) <- rownames(Qt.pred) <- colnames(Qt.pred) <- object$pred.names
 
   output <- list(
     data = data[data$Time %in% eval_t, ],
@@ -1288,10 +1256,10 @@ coef.fitted_dlm <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cre
     Ct = Ct.pred[, , time.flags, drop = FALSE],
     ft = ft.pred[, time.flags, drop = FALSE],
     Qt = Qt.pred[, , time.flags, drop = FALSE],
-    log.like = if (smoothed.log.like) {
-      # model$mts[,]=ref.mt
-      # model$Cts[,,]=ref.Ct
-      eval_dlm_norm_const(model)
+    log.like = if (smoothed.log.like & eval.metric) {
+      # object$mts[,]=ref.mt
+      # object$Cts[,,]=ref.Ct
+      eval_dlm_norm_const(object)
     } else {
       log.like[time.flags, drop = FALSE]
     },
@@ -1315,13 +1283,13 @@ coef.fitted_dlm <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cre
 #'
 #' @param model fitted_dlm: A fitted model from which to sample.
 #' @param sample.size integer: The number of samples to draw.
-#' @param filt.distr bool: A flag indicating if the samples should be dawned from the filtered (if TRUE) or smoothed distribution. The default is FALSE.
+#' @param filt.distr boolean: A flag indicating if the samples should be dawned from the filtered (if TRUE) or smoothed distribution. The default is FALSE.
 #'
 #' @return A list containing the following values:
 #' \itemize{
-#'    \item mt Array: An array containing the samples of latent states. Dimensions are n x t x sample.size, where n is the number of latent variables in the model and t is the number of observed values.
-#'    \item ft Array: An array containing the samples of linear predictors. Dimensions are k x t x sample.size, where k is the number of linear predictors in the model and t is the number of observed values.
-#'    \item param List: A named list containing, for each model outcome, an array with the samples of the parameters of the observational model. Each array will have dimensions l x t x sample.size, where l is the number of parameters in the observational model and t is the number of observed values.
+#'    \item mt array: An array containing a sample of the latent states. Dimensions are n x t x sample.size, where n is the number of latent states in the model and t is the number of observed values.
+#'    \item ft array: An array containing a sample of the linear predictors. Dimensions are k x t x sample.size, where k is the number of linear predictors in the model and t is the number of observed values.
+#'    \item param list: A named list containing, for each model outcome, an array with the samples of the parameters of the observational model. Each array will have dimensions l x t x sample.size, where l is the number of parameters in the observational model and t is the number of observed values.
 #' }
 #'
 #' @importFrom Rfast transpose
@@ -1333,7 +1301,7 @@ coef.fitted_dlm <- function(model, eval_t = seq_len(model$t), lag = -1, pred.cre
 #'   polynomial_block(V = 1, D = 0.95)
 #'
 #' outcome <- Normal(mu = "mu", V = "V", data = cornWheat$corn.log.return[1:500])
-#' fitted.data <- fit_model(structure, outcome)
+#' fitted.data <- fit_model(structure, corn=outcome)
 #'
 #' sample <- dlm_sampling(fitted.data, 5000)
 #'
@@ -1373,10 +1341,10 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
   FF.step <- FF[, , t.len]
   if (any(is.na(FF.step))) {
     ft.sample_i <- sapply(seq_len(sample.size),
-      function(j) {
-        calc_lin_pred(mt.sample_i[, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
-      },
-      simplify = "matrix"
+                          function(j) {
+                            calc_lin_pred(mt.sample_i[, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
+                          },
+                          simplify = "matrix"
     )
   } else {
     ft.sample_i <- crossprod(FF.step, mt.sample_i)
@@ -1437,10 +1405,10 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
       FF.step <- FF[, , t]
       if (any(is.na(FF.step))) {
         ft.sample_i <- sapply(seq_len(sample.size),
-          function(j) {
-            calc_lin_pred(mt.sample_i[, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
-          },
-          simplify = "matrix"
+                              function(j) {
+                                calc_lin_pred(mt.sample_i[, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
+                              },
+                              simplify = "matrix"
         )
       } else {
         ft.sample_i <- crossprod(FF.step, mt.sample_i)
@@ -1481,22 +1449,23 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
 
 #' Search the best hyper parameters fo a kDGLM model
 #'
-#' @param ... dlm_block or dlm_distr objects: The structural blocks of the model (dlm_block objects), alongside the model outcomes (dlm_distr object). All block must be completely defined.
-#' @param search.grid List: A named list containing the possible values of each undefined hyper parameter.
-#' @param condition Character: A character defining which combinations of undefined hyper parameter should be tested. See example for details.
-#' @param metric String: The name of the metric to use for model selection. One of log-likelihood for the one-step-ahead prediction ("log.like"), Mean Absolute Error ("mae"), Mean Absolute Scaled Error ("mase") \insertCite{mase}{kDGLM}, Relative Absolute Error ("rae"), Mean Squared Error ("mse") or Interval Score ("interval.score") \insertCite{interval_score}{kDGLM}.
-#' @param smooth Bool: A flag indicating if the smoothed distribution for the latent variables should be calculated.
-#' @param lag Integer: The number of steps ahead used for the prediction when calculating the metrics. If lag<0, predictions are made using the smoothed distribution of the latent variables.
-#' @param pred.cred Numeric: A number between 0 and 1 (not included) indicating the credibility interval for predictions. If not within the valid range of values, 0.95 will be used.
-#' @param metric.cutoff Integer: The number of observations to ignore when calculating the metrics. Default is 1/10 of the number of observations (rounded down).
+#' @param ... dlm_block or dlm_distr objects: The structural blocks of the model (dlm_block objects), alongside the model outcomes (dlm_distr object). At least one block must be undefined.
+#' @param search.grid list: A named list containing the possible values of each undefined hyper parameter.
+#' @param condition character: A character defining which combinations of undefined hyper parameter should be tested. See example for details.
+#' @param metric character: The name of the metric to use for model selection. One of log-likelihood for the one-step-ahead prediction ("log.like"), Mean Absolute Error ("mae"), Mean Absolute Scaled Error ("mase") \insertCite{mase}{kDGLM}, Relative Absolute Error ("rae"), Mean Squared Error ("mse") or Interval Score ("interval.score") \insertCite{interval_score}{kDGLM}.
+#' @param smooth boolean: A flag indicating if the smoothed distribution for the latent states should be calculated.
+#' @param lag integer: The number of steps ahead used for the prediction when calculating the metrics. If lag<0, predictions are made using the smoothed distribution of the latent states.
+#' @param pred.cred numeric: A number between 0 and 1 (not included) indicating the credibility interval for predictions. If not within the valid range of values, 0.95 will be used.
+#' @param metric.cutoff integer: The number of observations to ignore when calculating the metrics. Default is 1/10 of the number of observations (rounded down).
 #' @param p.monit numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.
-#' @param c.monit numeric (optional, if p.monit is not specified): The relative cost of false alarm in the monitoring compared to the cost of not detecting abnormalities.
+#' @param save.models boolean: A flag indicating if all evaluated models should be saved. If FALSE, only the best model (according to the chosen metric) will be saved;
+#' @param silent boolean: A flag indicating if a progress bar should be printed.
 #'
 #' @return A searched_dlm object containing the following values:
 #' \itemize{
-#'    \item search.data Data.frame: A table contain the metrics of each combination of hyper parameter tested and ordered from best combination to worst.
-#'    \item structure dlm_block: The initial structure passed by the user, by with the undefined hyper parameters set to the best values found.
-#'    \item model fitted_dlm: A model fitted with the best combination of hyper parameters.
+#'    \item search.data data.frame: A table contain the metrics of each combination of hyper parameter tested and ordered from best combination to worst.
+#'    \item structure dlm_block object: The initial structure passed by the user, by with the undefined hyper parameters set to the best values found.
+#'    \item model fitted_dlm object: A model fitted with the best combination of hyper parameters.
 #' }
 #'
 #' @export
@@ -1524,10 +1493,10 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
 #' This is an auxiliary function to search for the best combination of hyper parameters among the possible variations specified by the user.
 #' This function simple evaluates all possible combinations and chooses the one that results in the best fitting.
 #'
-#' @seealso \code{\link{fit_model}}
+#' @family {auxiliary functions for fitted_dlm objects}
 #' @references
 #'    \insertAllCited{}
-search_model <- function(..., search.grid, condition = "TRUE", metric = "log.like", smooth = TRUE, lag = 1, pred.cred = 0.95, metric.cutoff = NA, p.monit = NA, c.monit = 1, save.models = FALSE) {
+search_model <- function(..., search.grid, condition = "TRUE", metric = "log.like", smooth = TRUE, lag = 1, pred.cred = 0.95, metric.cutoff = NA, p.monit = NA, save.models = FALSE,silent=FALSE) {
   if (is.null(pred.cred) || is.na(pred.cred)) {
     pred.cred <- 0.95
   } else {
@@ -1615,18 +1584,20 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
     raw.perc <- i / vals.nums
     perc <- round(100 * raw.perc, 2)
     n.bar <- round(50 * raw.perc)
-    cat(paste0(
-      "\r[", paste0(rep("=", n.bar), collapse = ""),
-      paste0(rep(" ", 50 - n.bar), collapse = ""), "] - ",
-      perc,
-      "% - ETA - ",
-      round(as.numeric((1 - raw.perc) * time.past / raw.perc, units = "mins"), 2),
-      " minutes                 "
-    ))
+    if(!silent){
+      cat(paste0(
+        "\r[", paste0(rep("=", n.bar), collapse = ""),
+        paste0(rep(" ", 50 - n.bar), collapse = ""), "] - ",
+        perc,
+        "% - ETA - ",
+        round(as.numeric((1 - raw.perc) * time.past / raw.perc, units = "mins"), 2),
+        " minutes                 "
+      ))
+    }
 
     structure <- do.call(function(...) {
       set.block.value(ref.strucuture, ...)
-    }, search.data[i, ])
+    }, search.data[i, ,drop=FALSE])
 
     if (structure$status == "undefined") {
       stop("Error: not all unkown hiper parameter have values. Check the search grid to make sure every unkown hiper parameter has a range of values.")
@@ -1635,17 +1606,10 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
     if (any(if.na(structure$D, 0) < 0 | if.na(structure$D, 0) > 1)) {
       stop(paste0("Error: invalid value for D. Expected a real number between 0 and 1, got: ", paste(structure$D[if.na(structure$D, 0) < 0 | if.na(structure$D, 0) > 1], collapse = ", "), "."))
     }
-    if (any(if.na(structure$H, 0) < 0)) {
-      stop(paste0("Error: invalid value for H. Expected a non negative number, got: ", paste(structure$H[if.na(structure$H, 0) < 0], collapse = ", "), "."))
-    }
-    if (any(if.na(structure$R1, 0) < 0)) {
-      stop(paste0("Error: invalid value for R1. Expected a non negative number, got: ", paste(structure$R1[if.na(structure$R1, 0) < 0], collapse = ", "), "."))
-    }
     args <- outcomes
     args$structure <- structure
     args$smooth <- smooth & save.models
     args$p.monit <- p.monit
-    args$c.monit <- c.monit
 
     fitted.model <- do.call(fit_model, args)
 
@@ -1656,7 +1620,7 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
 
     r <- length(fitted.model$outcomes)
     metric <- tolower(metric)
-    predictions <- coef(fitted.model, eval_t = (metric.cutoff + 1):T_len, lag = lag, pred.cred = pred.cred, eval.pred = TRUE)
+    predictions <- coef.fitted_dlm(fitted.model, eval_t = (metric.cutoff + 1):T_len, lag = lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = TRUE)
 
     search.data$log.like[i] <- sum(predictions$log.like)
     search.data$mae[i] <- mean(predictions$mae)
@@ -1676,7 +1640,10 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
       best.metric <- cur.metric
     }
   }
-  cat("\n")
+
+  if(!silent){
+    cat("\n")
+  }
   search.data <- search.data[order(-search.data[[metric]], decreasing = (metric != "log.like")), ]
 
   if (smooth & !save.models) {
@@ -1702,7 +1669,7 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
 #'
 #' @param theta Matrix: A matrix representing the set of parameter for which to evaluate the density. Its size should be n x t, where n is the number of latent states and t is the length of the time series;
 #' @param model fitted_dlm: A fitted_dlm object.
-#' @param lin.pred Bool: A flag indicating if theta represents the linear predictors.
+#' @param lin.pred boolean: A flag indicating if theta represents the linear predictors.
 #' @return A scalar representing the log density evaluated at theta.
 #' @export
 #'
@@ -1719,8 +1686,8 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
 #' fitted.data <- fit_model(level, season,
 #'   AirPassengers = outcome
 #' )
-#' eval_dlm_post(fitted.data)
-eval_dlm_post <- function(theta, model, lin.pred = TRUE) {
+#' eval_dlm_post(fitted.data$mts, fitted.data)
+eval_dlm_post <- function(theta, model, lin.pred = FALSE) {
   t <- model$t
   n <- model$n
   k <- model$k
@@ -1809,9 +1776,9 @@ eval_dlm_post <- function(theta, model, lin.pred = TRUE) {
 #'
 #' Evaluates the prior density for a set of parameters theta in a DLM. The structure of the DLM is taken to be that of the fitted_dlm object passed as input.
 #'
-#' @param theta Matrix: A matrix representing the set of parameter for which to evaluate the density. Its size should be n x t, where n is the number of latent states and t is the length of the time series;
-#' @param model fitted_dlm: A fitted_dlm object.
-#' @param lin.pred Bool: A flag indicating if theta represents the linear predictors.
+#' @param theta matrix: A matrix representing the set of parameter for which to evaluate the density. Its size should be n x t, where n is the number of latent states and t is the length of the time series;
+#' @param model fitted_dlm object: A fitted_dlm object.
+#' @param lin.pred boolean: A flag indicating if theta represents the linear predictors.
 #'
 #' @return A scalar representing the log density evaluated at theta.
 #' @export
@@ -1829,8 +1796,8 @@ eval_dlm_post <- function(theta, model, lin.pred = TRUE) {
 #' fitted.data <- fit_model(level, season,
 #'   AirPassengers = outcome
 #' )
-#' eval_dlm_prior(fitted.data)
-eval_dlm_prior <- function(theta, model, lin.pred = TRUE) {
+#' eval_dlm_prior(fitted.data$mts, fitted.data)
+eval_dlm_prior <- function(theta, model, lin.pred = FALSE) {
   t <- model$t
   n <- model$n
   k <- model$k
@@ -1841,6 +1808,7 @@ eval_dlm_prior <- function(theta, model, lin.pred = TRUE) {
   G.labs <- model$G.labs
   FF <- model$FF
   FF.labs <- model$FF.labs
+  pred.names <- model$pred.names
   h <- model$h
   W <- model$W
 
@@ -1893,7 +1861,7 @@ eval_dlm_prior <- function(theta, model, lin.pred = TRUE) {
 #'
 #' @param theta Matrix: A matrix representing the set of parameter for which to evaluate the density. Its size should be n x t, where n is the number of latent states and t is the length of the time series;
 #' @param model fitted_dlm: A fitted_dlm object.
-#' @param lin.pred Bool: A flag indicating if theta represents the linear predictors.
+#' @param lin.pred boolean: A flag indicating if theta represents the linear predictors.
 #'
 #' @return A scalar representing the log likelihood evaluated at theta.
 #' @export
@@ -1911,8 +1879,8 @@ eval_dlm_prior <- function(theta, model, lin.pred = TRUE) {
 #' fitted.data <- fit_model(level, season,
 #'   AirPassengers = outcome
 #' )
-#' eval_dlm_log_like(fitted.data)
-eval_dlm_log_like <- function(theta, model, lin.pred = TRUE) {
+#' eval_dlm_log_like(fitted.data$mts, fitted.data)
+eval_dlm_log_like <- function(theta, model, lin.pred = FALSE) {
   t <- model$t
   n <- model$n
   k <- model$k
@@ -1976,7 +1944,7 @@ eval_dlm_log_like <- function(theta, model, lin.pred = TRUE) {
 #' Evaluates the normalizing constant for the posterior of a fitted DLM.
 #'
 #' @param model fitted_dlm: A fitted_dlm object.
-#' @param lin.pred Bool: A flag indicating if the normalizing constant should be calculated using the linear predictors.
+#' @param lin.pred boolean: A flag indicating if the normalizing constant should be calculated using the linear predictors.
 #'
 #' @return A scalar representing the normalizing constant for the posterior of a fitted DLM.
 #' @export
@@ -1995,6 +1963,7 @@ eval_dlm_log_like <- function(theta, model, lin.pred = TRUE) {
 #'   AirPassengers = outcome
 #' )
 #' eval_dlm_norm_const(fitted.data)
+#' @family {auxiliary functions for fitted_dlm objects}
 eval_dlm_norm_const <- function(model, lin.pred = model$n > 2 * model$k) {
   if (!model$smooth) {
     stop("Error: The model is not smoothed.")
@@ -2016,8 +1985,8 @@ eval_dlm_norm_const <- function(model, lin.pred = model$n > 2 * model$k) {
     }
 
     return(eval_dlm_prior(fts, model, lin.pred = lin.pred) +
-      eval_dlm_log_like(fts, model, lin.pred = lin.pred) +
-      -eval_dlm_post(fts, model, lin.pred = lin.pred))
+             eval_dlm_log_like(fts, model, lin.pred = lin.pred) +
+             -eval_dlm_post(fts, model, lin.pred = lin.pred))
   } else {
     eval_dlm_prior(model$mts, model, lin.pred = lin.pred) +
       eval_dlm_log_like(model$mts, model, lin.pred = lin.pred) +

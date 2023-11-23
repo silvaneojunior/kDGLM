@@ -7,7 +7,7 @@
 lcm(x)
 }
 \arguments{
-\item{x}{Vector: A sequence of integers.}
+\item{x}{numeric: A sequence of integers.}
 }
 \value{
 The least common multiple.

@@ -8,7 +8,12 @@
 A data frame with 65404 rows and 7 variables:
 \describe{
   \item{ref.week}{The reference week, counting since the monitoring begun.}
-  \item{reported.k.week}{The number of cases occurred in the period and reported until the k weeks after the reference week.}
+  \item{reported.1.week}{The number of cases occurred in the period and reported until the 1 week after the reference week.}
+  \item{reported.2.week}{The number of cases occurred in the period and reported until the 2 weeks after the reference week.}
+  \item{reported.4.week}{The number of cases occurred in the period and reported until the 4 weeks after the reference week.}
+  \item{reported.6.week}{The number of cases occurred in the period and reported until the 6 weeks after the reference week.}
+  \item{reported.8.week}{The number of cases occurred in the period and reported until the 8 weeks after the reference week.}
+  \item{reported.12.week}{The number of cases occurred in the period and reported until the 12 weeks after the reference week.}
   \item{occured}{The total number of cases reported (at any time).}
   ...
 }

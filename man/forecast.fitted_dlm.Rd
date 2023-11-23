@@ -2,10 +2,10 @@
 % Please edit documentation in R/main.R
 \name{forecast.fitted_dlm}
 \alias{forecast.fitted_dlm}
-\title{forecast}
+\title{Auxiliary function for forecasting}
 \usage{
 \method{forecast}{fitted_dlm}(
-  model,
+  object,
   t = 1,
   plot = ifelse(requireNamespace("plotly", quietly = TRUE), "plotly",
     ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot2", "base")),
@@ -14,52 +14,71 @@
 )
 }
 \arguments{
-\item{model}{fitted_dlm: The fitted model to be use for predictions.}
+\item{object}{fitted_dlm object: The fitted model to be use for predictions.}
 
-\item{t}{Numeric: Time window for prediction.}
+\item{t}{numeric: Time window for prediction.}
 
-\item{plot}{Bool or String: A flag indicating if a plot should be produced. Should be one of FALSE, TRUE, 'base', 'ggplot2' or 'plotly'.}
+\item{plot}{boolean or character: A flag indicating if a plot should be produced. Should be one of FALSE, TRUE, 'base', 'ggplot2' or 'plotly'.}
 
-\item{pred.cred}{Numeric: The credibility level for the I.C. intervals.}
+\item{pred.cred}{numeric: The credibility level for the C.I..}
 
 \item{...}{Extra variables necessary for prediction (covariates, etc.).}
 }
 \value{
 A list containing:
 \itemize{
-   \item data Data.frame: A data frame contain the mean, variance and credibility intervals for the outcomes, including both the observed data and the predictions for future observations.
-   \item forecast Data.frame: Same as data, but restricted to predictions for future observations.
-   \item outcomes List: A named list containing predictions for each outcome. Each element of this list is a list containing predictions (mean, variance and credibility intervals), the distribution of the linear predictor for the parameter of the observational model and the parameters of the predictive distribution (if available).
-   \item mt Matrix: A matrix with the values for the latent states at each time. Dimensions are n x t, where n is the number of latent states
-   \item Ct Array: A 3D-array with the covariance of the latent states at each time. Dimensions are n x n x t, where n is the number of linear predictors.
-   \item ft Matrix: A matrix with the values for the linear predictors at each time. Dimensions are n x t, where n is the number of linear predictors
-   \item Qt Array: A 3D-array with the covariance of the linear predictors at each time. Dimensions are n x n x t, where n is the number of linear predictors.
+   \item data data.frame: A data frame contain the mean, variance and credibility intervals for the outcomes, including both the observed data and the predictions for future observations.
+   \item forecast data.frame: Same as data, but restricted to predictions for future observations.
+   \item outcomes list: A named list containing predictions for each outcome. Each element of this list is a list containing predictions (mean, variance and credibility intervals), the distribution of the linear predictor for the parameter of the observational model and the parameters of the predictive distribution (if available).
+   \item mt matrix: A matrix with the values for the latent states at each time. Dimensions are n x t, where n is the number of latent states
+   \item Ct array: A 3D-array with the covariance of the latent states at each time. Dimensions are n x n x t, where n is the number of latent predictors.
+   \item ft matrix: A matrix with the values for the linear predictors at each time. Dimensions are k x t, where k is the number of linear predictors
+   \item Qt array: A 3D-array with the covariance of the linear predictors at each time. Dimensions are k x k x t, where k is the number of linear predictors.
    \item plot (if so chosen): A plotly or ggplot object.
 }
 }
 \description{
-Makes predictions for t times ahead using the fitted model.
+Auxiliary function for forecasting
+}
+\details{
+If an a covariate is necessary for forecasting, it should be passed as a named argument. Its name must follow this structure: <block name>.Covariate<.index>. If there is only one pulse in the associated block the index is omitted.
+If an a pulse is necessary for forecasting, it should be passed as a named argument. Its name must follow this structure: <block name>.Pulse<.index>. If there is only one pulse in the associated block the index is omitted.
+The user may pass the observed values at the prediction windows (optional). See example.
+As an special case, if the model has an Multinomial outcome, the user may pass the N parameter instead of the observations.
+If an offset is necessary for forecasting, it should be passed with the same syntax as the observed data. See example.
 }
 \examples{
-data <- c(AirPassengers)
 
-level <- polynomial_block(rate = 1, order = 2, D = 0.95)
-season <- harmonic_block(rate = 1, order = 2, period = 12, D = 0.975)
+structure <-
+  polynomial_block(p = 1, order = 2, D = 0.95) +
+  harmonic_block(p = 1, period = 12, D = 0.975) +
+  noise_block(p = 1, R1 = 0.1) +
+  regression_block(
+    p = chickenPox$date >= as.Date("2013-09-1"),
+    # Vaccine was introduced in September of 2013
+    name = "Vaccine"
+  )
 
-outcome <- Poisson(lambda = "rate", data)
-
-fitted.data <- fit_model(level, season,
-  AirPassengers = outcome
+outcome <- Multinom(p = c("p.1", "p.2"), data = chickenPox[, c(2, 3, 5)])
+fitted.data <- fit_model(structure * 2,
+  chickenPox = outcome
 )
 
-forecast(fitted.data, 20)$plot
+forecast(fitted.data, 24,
+  chickenPox = list(Total = rep(175, 24)), # Optional
+  Vaccine.1.Covariate = rep(TRUE, 24),
+  Vaccine.2.Covariate = rep(TRUE, 24)
+)
 
 }
 \seealso{
 Other {auxiliary functions for fitted_dlm objects}: 
 \code{\link{coef.fitted_dlm}()},
-\code{\link{coefficients.fitted_dlm}()},
 \code{\link{dlm_sampling}()},
+\code{\link{eval_dlm_norm_const}()},
+\code{\link{fit_model}()},
+\code{\link{search_model}()},
+\code{\link{smoothing}()},
 \code{\link{update.fitted_dlm}()}
 }
 \concept{{auxiliary functions for fitted_dlm objects}}

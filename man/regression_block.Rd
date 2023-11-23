@@ -22,7 +22,7 @@ regression_block(
 
 \item{max.lag}{Non-negative integer: An optional argument providing the maximum lag for the explanatory variables. If a positive value is provided, this block will create additional latent variables to measure the lagged effect of X_t up until the given value. See \insertCite{WestHarr-DLM;textual}{kDGLM}, subsection 9.2.2 item (3).}
 
-\item{zero.fill}{Bool: A Boolean indicating if the block should fill the initial delay values with 0's. If TRUE and max.lag is positive, the block assumes that X_t=0 for all t<1. If FALSE, the block assumes the user will provide X_t for all t, such that X_t will have size t+propagation_size}
+\item{zero.fill}{boolean: A Boolean indicating if the block should fill the initial delay values with 0's. If TRUE and max.lag is positive, the block assumes that X_t=0 for all t<1. If FALSE, the block assumes the user will provide X_t for all t, such that X_t will have size t+propagation_size}
 
 \item{name}{String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.}
 
@@ -78,13 +78,14 @@ For the details about dynamic regression models in the context of DLM's, see \in
 structure <- (
   polynomial_block(p = 1, order = 2, D = 0.95) +
     harmonic_block(p = 1, period = 12, D = 0.95) +
-    regression_block(p = as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
+    regression_block(p = chickenPox$date >= as.Date("2013-09-01"))
+  # Vaccine was introduced in September of 2013
 ) * 4
 
 outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
-fitted.data <- fit_model(structure, outcome)
+fitted.data <- fit_model(structure, chickenPox = outcome)
 summary(fitted.data)
-plot_lat_var(fitted.data, plot.pkg = "base")
+plot(coef(fitted.data), plot.pkg = "base")
 
 }
 \references{
@@ -93,21 +94,16 @@ plot_lat_var(fitted.data, plot.pkg = "base")
 \seealso{
 \code{\link{fit_model}}
 
-\code{\link{search_model}}
-
 Other {auxiliary functions for structural blocks}: 
-\code{\link{*.dlm_block}()},
-\code{\link{+.dlm_block}()},
 \code{\link{AR_block}()},
-\code{\link{CAR_prior}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},
 \code{\link{harmonic_block}()},
+\code{\link{intervention}()},
 \code{\link{noise_block}()},
 \code{\link{polynomial_block}()},
-\code{\link{print.dlm_block}()},
-\code{\link{summary.dlm_block}()},
-\code{\link{zero_sum_prior}()}
+\code{\link{set.block.value}()},
+\code{\link{summary.dlm_block}()}
 }
 \concept{{auxiliary functions for structural blocks}}

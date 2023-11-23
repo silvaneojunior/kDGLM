@@ -2,14 +2,14 @@
 #'
 #' Generic smoother for all models.
 #'
-#' @param mt Matrix: A matrix containing the filtered mean of the latent variables at each time. Each row should represent one variable.
-#' @param Ct Array: A 3D-array representing the filtered covariance matrix of the latent variables at each time. The third dimension should represent the time index.
-#' @param at Matrix: A matrix containing the one-step-ahead mean of the latent variables at each time based upon the filtered mean. Each row should represent one variable.
-#' @param Rt Array: A 3D-array representing the one-step-ahead covariance matrix of the latent variables at each time based upon the filtered covariance matrix. The third dimension should represent the time index.
-#' @param G Array: A 3D-array representing the transition matrix of the model at each time.
-#' @param G.labs Matrix: A character matrix containing the type associated with each value in G.
+#' @param mt matrix: A matrix containing the filtered mean of the latent states at each time. Each row should represent one variable.
+#' @param Ct array: A 3D-array representing the filtered covariance matrix of the latent states at each time. The third dimension should represent the time index.
+#' @param at matrix: A matrix containing the one-step-ahead mean of the latent states at each time based upon the filtered mean. Each row should represent one variable.
+#' @param Rt array: A 3D-array representing the one-step-ahead covariance matrix of the latent states at each time based upon the filtered covariance matrix. The third dimension should represent the time index.
+#' @param G array: A 3D-array representing the transition matrix of the model at each time.
+#' @param G.labs matrix: A character matrix containing the type associated with each value in G.
 #'
-#' @return List: The smoothed mean (mts) and covariance (Cts) of the latent variables at each time. Their dimension follows, respectively, the dimensions of mt and Ct.
+#' @return A list containing the smoothed mean (mts) and covariance (Cts) of the latent states at each time. Their dimension follows, respectively, the dimensions of mt and Ct.
 #'
 #' @importFrom Rfast transpose
 #' @keywords internal
@@ -50,44 +50,43 @@ generic_smoother <- function(mt, Ct, at, Rt, G, G.labs) {
 
 #' analytic_filter
 #'
-#' Fit the model given the observed value and the model parameters.
+#' Fit a model given the observed value and the model parameters.
 #'
-#' @param outcomes List: The observed data. It should contain objects of the class dlm_distr.
-#' @param a1 Vector: The prior mean for the latent vector.
-#' @param R1 Matrix: The prior covariance matrix for the latent vector.
-#' @param FF Array: A 3D-array containing the regression matrix for each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model and t is the time series length.
-#' @param FF.labs Matrix: A character matrix containing the type associated with each value in FF.
-#' @param G Array: A 3D-array containing the state evolution matrix at each time.
-#' @param G.labs Matrix: A character matrix containing the type associated with each value in G.
-#' @param D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
-#' @param h Matrix: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.
-#' @param H Array: A 3D-array containing the covariance matrix of the noise for each time. It's dimension should be the same as D.
+#' @param outcomes list: The observed data. It should contain objects of the class dlm_distr.
+#' @param a1 numeric: The prior mean at the latent vector.
+#' @param R1 matrix: The prior covariance matrix at the latent vector.
+#' @param FF array: A 3D-array containing the planning matrix at each time. Its dimension should be n x k x t, where n is the number of latent states, k is the number of linear predictors in the model and t is the time series length.
+#' @param FF.labs matrix: A character matrix containing the label associated with each value in FF.
+#' @param G array: A 3D-array containing the evolution matrix at each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
+#' @param G.labs matrix: A character matrix containing the label associated with each value in G.
+#' @param D array: A 3D-array containing the discount factor matrix at each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
+#' @param h matrix: A drift to be added after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.
+#' @param H array: A 3D-array containing the covariance matrix of the noise at each time. Its dimension should be the same as D.
 #' @param p.monit numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.
-#' @param c.monit numeric (optional, if p.monit is not specified): The relative cost of false alarm in the monitoring compared to the cost of not detecting abnormalities.
-#' @param monitoring Vector: A vector of flags indicating which latent variables should be monitored.
+#' @param monitoring numeric: A vector of flags indicating which latent states should be monitored.
 #'
 #' @importFrom Rfast transpose
 #'
 #' @return A list containing the following values:
 #' \itemize{
-#'    \item mt Matrix: The filtered mean of the latent variables for each time. Dimensions are n x t.
-#'    \item Ct Array: A 3D-array containing the filtered covariance matrix of the latent variable for each time. Dimensions are n x n x t.
-#'    \item at Matrix: The one-step-ahead mean of the latent variables at each time. Dimensions are n x t.
-#'    \item Rt Array: A 3D-array containing the one-step-ahead covariance matrix for latent variables at each time. Dimensions are n x n x t.
-#'    \item ft Matrix: The one-step-ahead mean of the linear predictors at each time. Dimensions are k x t.
-#'    \item Qt Array: A 3D-array containing the one-step-ahead covariance matrix for linear predictors at each time. Dimensions are k x k x t.
-#'    \item ft.star Matrix: The filtered mean of the linear predictors for each time. Dimensions are k x t.
-#'    \item Qt.star Array: A 3D-array containing the linear predictors matrix of the latent variable for each time. Dimensions are k x k x t.
-#'    \item FF Array: The same as the argument (same values).
-#'    \item G Matrix: The same as the argument (same values).
-#'    \item G.labs Matrix: The same as the argument (same values).
-#'    \item D Array: The same as the argument (same values) when there is no monitoring. When monitoring for abnormalities, the value in times where abnormalities were detected is increased.
-#'    \item h Array: The same as the argument (same values).
-#'    \item H Array: The same as the argument (same values).
-#'    \item W Array: A 3D-array containing the effective covariance matrix of the noise for each time, i.e., considering both H and D. Its dimension are the same as H and D.
-#'    \item monitoring Vector: The same as the argument (same values).
-#'    \item outcomes List: The same as the argument outcomes (same values).
-#'    \item pred.names Vector: The names of the linear predictors.
+#'    \item mt matrix: The filtered mean of the latent states for each time. Dimensions are n x t.
+#'    \item Ct array: A 3D-array containing the filtered covariance matrix of the latent states for each time. Dimensions are n x n x t.
+#'    \item at matrix: The one-step-ahead mean of the latent states at each time. Dimensions are n x t.
+#'    \item Rt array: A 3D-array containing the one-step-ahead covariance matrix for latent states at each time. Dimensions are n x n x t.
+#'    \item ft matrix: The one-step-ahead mean of the linear predictors at each time. Dimensions are k x t.
+#'    \item Qt array: A 3D-array containing the one-step-ahead covariance matrix for linear predictors at each time. Dimensions are k x k x t.
+#'    \item ft.star matrix: The filtered mean of the linear predictors for each time. Dimensions are k x t.
+#'    \item Qt.star array: A 3D-array containing the linear predictors matrix of the latent state for each time. Dimensions are k x k x t.
+#'    \item FF array: The same as the argument (same values).
+#'    \item G matrix: The same as the argument (same values).
+#'    \item G.labs matrix: The same as the argument (same values).
+#'    \item D array: The same as the argument (same values).
+#'    \item h array: The same as the argument (same values).
+#'    \item H array: The same as the argument (same values).
+#'    \item W array: A 3D-array containing the effective covariance matrix of the noise for each time, i.e., considering both H and D. Its dimension are the same as H and D.
+#'    \item monitoring numeric: The same as the argument (same values).
+#'    \item outcomes list: The same as the argument outcomes (same values).
+#'    \item pred.names numeric: The names of the linear predictors.
 #' }
 #'
 #' @keywords internal
@@ -103,17 +102,24 @@ generic_smoother <- function(mt, Ct, at, Rt, G, G.labs) {
 #' @seealso \code{\link{generic_smoother}}
 #' @references
 #'    \insertAllCited{}
-analytic_filter <- function(outcomes,
-                            a1 = 0, R1 = 1,
-                            FF, FF.labs,
-                            G, G.labs,
-                            D, h, H,
-                            p.monit = NA, c.monit = 1,
-                            monitoring = FALSE) {
+analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
+                            FF, FF.labs, G, G.labs, D, h, H,
+                            p.monit = NA, monitoring = FALSE) {
   # Defining quantities
   T_len <- dim(FF)[3]
   n <- dim(FF)[1]
   k <- dim(FF)[2]
+
+
+  na.flag <- rep(FALSE, T_len)
+  for (outcome in outcomes) {
+    data.i <- outcome$data
+    offset.i <- outcome$offset
+    na.flag.i <- rowSums(is.na(data.i) | is.na(offset.i) | (offset.i == 0))
+
+    na.flag <- na.flag | na.flag.i
+  }
+  D[, , na.flag] <- 0
 
   pred.names <- colnames(FF)
   if (length(monitoring) == 1) {
@@ -122,6 +128,7 @@ analytic_filter <- function(outcomes,
   D.flags <- (D == 0) | array(crossprod(t(monitoring), t(monitoring)) == 0, c(n, n, T_len))
   D <- ifelse(D == 0, 1, D)
   D.inv <- 1 / D
+
   a1 <- matrix(a1, n, 1)
   R1 <- R1
   W <- array(NA, dim = c(n, n, T_len))
@@ -137,8 +144,7 @@ analytic_filter <- function(outcomes,
   Qt.star <- array(NA, dim = c(k, k, T_len))
 
   monitoring <- array(monitoring, c(n))
-  null.rows.flag <- rowSums(G.labs == "noise.disc", na.rm = TRUE) > 0
-
+  null.flags <- G.labs == "noise.disc"
 
   last.m <- a1
   last.C <- R1
@@ -156,11 +162,12 @@ analytic_filter <- function(outcomes,
     }
   }
 
-  c <- c.monit
+  c <- c.monit <- 1
   p <- if.na(p.monit, 0)
   threshold <- log(c.monit) + log(p) - log(1 - p)
 
-  H.now <- R1
+  H.prev <- R1
+  D.prev <- R1 * 0
   for (t in seq_len(T_len)) {
     model.list <- c("null.model")
     if (!is.na(p.monit)) {
@@ -171,19 +178,25 @@ analytic_filter <- function(outcomes,
       models[[model]] <- list()
       D.p.inv <- D.inv[, , t]
       D.p <- D[, , t]
-      # D.p.inv[!D.flags[, , t]] <- D.p.inv[!D.flags[, , t]] * D.mult[[model]]
 
-      H.prev <- H.now
       G.now <- G[, , t] |> matrix(n, n)
       H.now <- H[, , t] |> matrix(n, n)
-      # H.now[!D.flags[, , t]] <- H.now[!D.flags[, , t]] + H.add[[model]]
       H.now[which(monitoring), which(monitoring)] <- H.now[which(monitoring), which(monitoring)] + last.C[which(monitoring), which(monitoring)] * D.mult[[model]]
 
-      if (any(null.rows.flag)) {
+      H.holder <- 0
+      if (na.flag[t]) {
+        H.holder <- H.now
+        H.now <- H.now + D.prev
+      }
+
+      if (any(null.flags)) {
         weight <- ((t - 1) / t) * diag(D.p)
-        D.p.inv[null.rows.flag, null.rows.flag] <- 1
-        diag(H.now)[null.rows.flag] <- ((weight * diag(H.prev)) +
-          ((1 - weight) * (diag(last.C) + last.m**2)))[null.rows.flag]
+        m2 <- last.m %*% t(last.m) + last.C
+        # m2=last.C*0
+        # diag(m2)=diag(last.C)+last.m**2
+        noise.est <- weight * H.prev + (1 - weight) * m2
+        D.p.inv[null.flags] <- 1
+        H.now[null.flags] <- noise.est[null.flags]
       }
 
       next.step <- one_step_evolve(
@@ -194,8 +207,9 @@ analytic_filter <- function(outcomes,
 
       models[[model]]$at <- at.step <- next.step$at
       models[[model]]$Rt <- Rt.step <- next.step$Rt
+      models[[model]]$D.prev <- (next.step$W - H.holder)
       models[[model]]$W <- next.step$W
-      models[[model]]$H.now <- H.now
+      models[[model]]$H <- H.now
 
       lin.pred <- calc_lin_pred(at.step, Rt.step, FF.step, FF.labs, pred.names, 1:k)
       models[[model]]$ft <- ft.step <- lin.pred$ft
@@ -209,9 +223,7 @@ analytic_filter <- function(outcomes,
           outcome <- outcomes[[outcome.name]]
 
           offset.step <- outcome$offset[t, ]
-          na.flag <- any(is.null(offset.step) | any(offset.step == 0) | any(is.na(offset.step)) | any(is.na(outcome$data[t, ])))
-
-          if (!na.flag) {
+          if (!na.flag[t]) {
             pred.index <- match(outcome$pred.names, pred.names)
             ft.canom <- ft.step[pred.index, , drop = FALSE]
             Qt.canom <- Qt.step[pred.index, pred.index, drop = FALSE]
@@ -243,8 +255,6 @@ analytic_filter <- function(outcomes,
         if (bayes.factor < threshold) {
           model <- models$alt.model
           conj.prior <- models$alt.model$conj.prior
-          D.inv[, , t] <- D.inv[, , t] * D.mult$alt.model
-          H[, , t] <- H[, , t] * H.add$alt.model
           monit.win <- -6
           alt.flags[t] <- 1
         } else if (bayes.factor > 0) {
@@ -255,7 +265,8 @@ analytic_filter <- function(outcomes,
     }
     ft.step <- model$ft
     Qt.step <- model$Qt
-    H.now <- model$H.now
+    H.prev <- model$H
+    D.prev <- model$D.prev
 
     mt.step <- model$at
     Ct.step <- model$Rt
@@ -265,9 +276,7 @@ analytic_filter <- function(outcomes,
       pred.index <- match(outcome$pred.names, pred.names)
 
       offset.step <- outcome$offset[t, ]
-      na.flag <- any(is.null(offset.step) | any(offset.step == 0) | any(is.na(offset.step)) | any(is.na(outcome$data[t, ])))
-
-      if (!na.flag) {
+      if (!na.flag[t]) {
         lin.pred <- calc_lin_pred(mt.step, Ct.step, FF.step, FF.labs, pred.names, pred.index)
         ft.step.part <- lin.pred$ft
         Qt.step.part <- lin.pred$Qt
@@ -296,6 +305,10 @@ analytic_filter <- function(outcomes,
         error.ft <- (ft.star.part - ft.step.part)
         error.Qt <- (Qt.star.part - Qt.step.part)
 
+        # print('#########################')
+        # print(Qt.step.part)
+        # print(Qt.star.part)
+
         if (outcome$convert.canom.flag) {
           error.ft <- outcome$convert.mat.default %*% error.ft
           error.Qt <- outcome$convert.mat.default %*% error.Qt %*% transpose(outcome$convert.mat.default)
@@ -304,6 +317,9 @@ analytic_filter <- function(outcomes,
         At <- Ct.step %*% FF.cur.step[, pred.index] %*% Qt.inv
         mt.step <- mt.step + At %*% error.ft
         Ct.step <- Ct.step + At %*% error.Qt %*% t(At)
+        if (max(Ct.step - transpose(Ct.step)) > 2e-6) {
+          Ct.step <- (Ct.step + transpose(Ct.step)) / 2
+        }
       }
     }
     lin.pred <- calc_lin_pred(mt.step, Ct.step, FF.step, FF.labs, pred.names, 1:k)
@@ -390,9 +406,12 @@ calc_current_G <- function(m0, C0, G, G.labs) {
             cov.vec %*% ginv(C0[i:(i + 1), i:(i + 1)]) %*% C0[i:(i + 1), -i]
           G.now[i, i] <- 1
         }
-        C1 <- G.now %*% C1 %*% transpose(G.now)
-        G.now <- create_G(C0, C1)
-        drift <- drift - G.now %*% m0 + m1
+        a1 <- G.now %*% m1
+        R1 <- G.now %*% C1 %*% transpose(G.now)
+        index.G=c(seq_len(n)[-index.kl],index.kl)
+        index.G.inv=order(index.G)
+        G.now <- create_G(C0[index.G,index.G], C1[index.G,index.G])[index.G.inv,index.G.inv]
+        drift <- drift + a1-G.now %*% m0
 
         # n_kl=sum(flags.kl)
         # m1[index.row]=0
@@ -425,10 +444,10 @@ calc_current_G <- function(m0, C0, G, G.labs) {
     }
   }
 
-  m1 <- G.now %*% m0 + drift
-  C1 <- G.now %*% C0 %*% transpose(G.now)
+  a1 <- G.now %*% m0 + drift
+  R1 <- G.now %*% C0 %*% transpose(G.now)
 
-  list("m1" = m1, "C1" = C1, "G" = G.now, "drift" = drift)
+  list("a1" = a1, "R1" = R1, "G" = G.now, "drift" = drift)
 }
 
 one_step_evolve <- function(m0, C0, G, G.labs, D.inv, h, H) {
@@ -439,8 +458,8 @@ one_step_evolve <- function(m0, C0, G, G.labs, D.inv, h, H) {
   # print(cbind(C0,G.vals$C1))
   G.now <- G.vals$G
   drift <- G.vals$drift
-  at <- G.vals$m1 + h
-  Pt <- G.vals$C1
+  at <- G.vals$a1 + h
+  Pt <- G.vals$R1
   W <- ((D.inv - 1) * Pt) + H
   Rt <- W + Pt
 
@@ -470,17 +489,17 @@ calc_current_F <- function(at, Rt, FF, FF.labs, pred.names) {
         if (any(is.na(effect.vals))) {
           break
         }
-        # FF[index.effect, index.pred] <- sum(effect.vals * at.mod)
-        # FF[, index.pred] <- FF[, index.pred] + effect.vals * at.mod[index.effect]
-        # charge[index.pred, 1] <- charge[index.pred, 1] - at.mod[index.effect] * sum(effect.vals * at.mod)
+        FF[index.effect, index.pred] <- sum(effect.vals * at.mod)
+        FF[, index.pred] <- FF[, index.pred] + effect.vals * at.mod[index.effect]
+        charge[index.pred, 1] <- charge[index.pred, 1] - at.mod[index.effect] * sum(effect.vals * at.mod)
 
         # FF[index.effect, index.pred] <- sum(effect.vals*exp(at.mod))
         # FF[, index.pred] <- FF[, index.pred] +  at.mod[index.effect]*effect.vals*exp(at.mod)
         # charge[index.pred, 1] <- charge[index.pred, 1] - sum(at.mod[index.effect]*at.mod*effect.vals*exp(at.mod))
 
-        FF[index.effect, index.pred] <- sum(effect.vals * log(exp(at.mod) + 1))
-        FF[, index.pred] <- FF[, index.pred] + at.mod[index.effect] * effect.vals / (1 + exp(-at.mod))
-        charge[index.pred, 1] <- charge[index.pred, 1] - sum(at.mod[index.effect] * at.mod * effect.vals / (1 + exp(-at.mod)))
+        # FF[index.effect, index.pred] <- sum(effect.vals * log(exp(at.mod) + 1))
+        # FF[, index.pred] <- FF[, index.pred] + at.mod[index.effect] * effect.vals / (1 + exp(-at.mod))
+        # charge[index.pred, 1] <- charge[index.pred, 1] - sum(at.mod[index.effect] * at.mod * effect.vals / (1 + exp(-at.mod)))
       }
     }
     new.count.na <- sum(is.na(FF))
@@ -501,13 +520,15 @@ calc_lin_pred <- function(at, Rt, FF, FF.labs, pred.names, pred.index) {
   # print('#########################')
   # print(FF)
   # print(at)
-  ft <- crossprod(FF.sep, at) + FF.diff[pred.index]
-  Qt <- crossprod(FF.sep, Rt) %*% FF.sep
+  # ft <- crossprod(FF.sep, at) + FF.diff[pred.index]
+  # Qt <- crossprod(FF.sep, Rt) %*% FF.sep
+  ft <- t(FF.sep) %*% at + FF.diff[pred.index]
+  Qt <- t(FF.sep) %*% Rt %*% FF.sep
   list("ft" = ft, "Qt" = Qt, "FF" = FF, "FF.diff" = FF.diff)
 }
 
 format_ft <- function(ft, Qt, parms) {
-  return(do.call(c, list(ft, Qt)))
+  return(c(ft, Qt))
 }
 
 format_param <- function(conj.param, parms) {

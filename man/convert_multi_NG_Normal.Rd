@@ -7,7 +7,7 @@
 convert_multi_NG_Normal(ft, Qt, parms)
 }
 \arguments{
-\item{ft}{vector: A vector representing the means from the normal distribution.}
+\item{ft}{numeric: A vector representing the means from the normal distribution.}
 
 \item{Qt}{matrix: A matrix representing the covariance matrix of the normal distribution.}
 
@@ -26,9 +26,7 @@ Other {auxiliary functions for a Normal outcome}:
 \code{\link{multi_normal_gamma_pred}()},
 \code{\link{normal_pred}()},
 \code{\link{update_NG_alt}()},
-\code{\link{update_Normal}()},
-\code{\link{update_multi_NG_chol}()},
-\code{\link{update_multi_NG_correl}()}
+\code{\link{update_Normal}()}
 }
 \concept{{auxiliary functions for a Normal outcome}}
 \keyword{internal}

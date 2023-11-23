@@ -13,7 +13,7 @@ A data frame with 7,253 rows and 5 columns:
 }
 }
 \source{
-\link{https://www.macrotrends.net/charts/commodities}
+\url{https://www.macrotrends.net/charts/commodities}
 }
 \usage{
 cornWheat

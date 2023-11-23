@@ -4,10 +4,10 @@
 \alias{summary.dlm_distr}
 \title{Summary for a kDGLM outcome}
 \usage{
-\method{summary}{dlm_distr}(dlm.distr)
+\method{summary}{dlm_distr}(object, ...)
 }
 \arguments{
-\item{dlm.distr}{A dlm_distr object.}
+\item{object}{A dlm_distr object.}
 }
 \description{
 Prints a report for a dlm_distr object.

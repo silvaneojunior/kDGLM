@@ -4,9 +4,9 @@
 #'
 #' Creates an outcome with Poisson distribution with the chosen parameter.
 #'
-#' @param lambda character: Name of the linear predictor associated with the rate (mean) parameter of the Poisson distribution. The parameter is treated as unknown and equal to the exponential of the associated linear predictor.
-#' @param data vector: Values of the observed data.
-#' @param offset vector: The offset at each observation. Must have the same shape as data.
+#' @param lambda character: The name of the linear predictor associated with the rate (mean) parameter of the Poisson distribution. The parameter is treated as unknown and equal to the exponential of the associated linear predictor.
+#' @param data numeric: The values of the observed data.
+#' @param offset numeric: The offset at each observation. Must have the same shape as data.
 #'
 #' @return A object of the class dlm_distr
 #'
@@ -96,7 +96,7 @@ Poisson <- function(lambda, data, offset = as.matrix(data)**0) {
 #' Calculate the parameters of the Gamma that best approximates the given log-Normal distribution.
 #' The approximation is the best in the sense that it minimizes the KL divergence from the log-Normal to the Gamma
 #'
-#' @param ft vector: A vector representing the means from the normal distribution.
+#' @param ft numeric: A vector representing the means from the normal distribution.
 #' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution.
 #' @param parms list: A list of extra known parameters of the distribution. Not used in this kernel.
 #'
@@ -148,9 +148,9 @@ convert_Normal_Poisson <- function(conj.param, parms) {
 #' Calculate posterior parameter for the Gamma, assuming that the observed values came from a Poisson model from which the rate parameter (lambda) have prior distribution Gamma.
 #'
 #' @param conj.param list: A vector containing the parameters of the Gamma (alpha,beta).
-#' @param ft vector: A vector representing the means from the normal distribution. Not used in the default method.
+#' @param ft numeric: A vector representing the means from the normal distribution. Not used in the default method.
 #' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution. Not used in the default method.
-#' @param y vector: A vector containing the observations.
+#' @param y numeric: A vector containing the observations.
 #' @param parms list: A list of extra known parameters of the distribution. Not used in this kernel.
 #'
 #' @return The parameters of the posterior distribution.
@@ -170,21 +170,21 @@ update_Poisson <- function(conj.param, ft, Qt, y, parms) {
 #' The data is assumed to have Poisson distribution with its mean having distribution Gamma with shape parameter a e rate parameter b.
 #' In this scenario, the marginal distribution of the data is Negative Binomial with a as the dispersion parameter and b/(b+1) as the probability.
 #'
-#' @param conj.param List or data.frame: The parameters of the conjugated distributions of the linear predictor.
-#' @param outcome Vector or matrix (optional): The observed values at the current time. Not used in this function.
-#' @param parms List (optional): A list of extra parameters for the model. Not used in this function.
-#' @param pred.cred Numeric: the desired credibility for the credibility interval.
+#' @param conj.param list or data.frame: The parameters of the conjugated distributions of the linear predictor.
+#' @param outcome numeric or matrix (optional): The observed values at the current time. Not used in this function.
+#' @param parms list (optional): A list of extra parameters for the model. Not used in this function.
+#' @param pred.cred numeric: the desired credibility for the credibility interval.
 #'
 #' @return A list containing the following values:
 #' \itemize{
-#'    \item pred vector/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item var.pred vector/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item icl.pred vector/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item icu.pred vector/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item log.like vector: the The log likelihood for the outcome given the conjugated parameters.
+#'    \item pred numeric/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item var.pred numeric/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item icl.pred numeric/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item icu.pred numeric/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item log.like numeric: the The log likelihood for the outcome given the conjugated parameters.
 #' }
 #'
-#' @importFrom stats rgamma rpois dpois qnbinom dnbinom var quantile
+#' @importFrom stats rgamma rnorm rpois dpois qnbinom dnbinom var quantile
 #' @keywords internal
 #' @family {auxiliary functions for a Poisson outcome}
 poisson_pred <- function(conj.param, outcome = NULL, parms = list(), pred.cred = 0.95) {
@@ -270,8 +270,8 @@ poisson_pred <- function(conj.param, outcome = NULL, parms = list(), pred.cred =
 #' Calculate the (approximated) posterior parameter for the linear predictors, assuming that the observed values came from a Poisson model from which the rate parameter have prior distribution in the log-Normal family.
 #'
 #' @param conj.param list: A vector containing the parameters of the Gamma (alpha,beta). Not used in the alternative method.
-#' @param y vector: A vector containing the observations.
-#' @param ft vector: A vector representing the means from the normal distribution.
+#' @param y numeric: A vector containing the observations.
+#' @param ft numeric: A vector representing the means from the normal distribution.
 #' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution.
 #' @param parms list: A list of extra known parameters of the distribution. Not used in this kernel.
 #'
@@ -296,9 +296,13 @@ poisson_pred <- function(conj.param, outcome = NULL, parms = list(), pred.cred =
 #'    \insertAllCited{}
 update_Poisson_alt <- function(conj.param, ft, Qt, y, parms) {
   if (TRUE) {
-    # y=29
-    # ft=2.768110
-    # Qt=0.010849
+    # y=156
+    # ft=-4.868097
+    # Qt=5.568841
+    # print('a')
+    # print(y)
+    # print(ft)
+    # print(Qt)
 
     if (y > 0) {
       S <- 1 / y
@@ -316,12 +320,12 @@ update_Poisson_alt <- function(conj.param, ft, Qt, y, parms) {
       -exp(x) - 1 / Qt
     }
     solve <- f_root(df, ddf, start = f0)
-    m <- f_root(df, ddf, start = ft)$root
+    m <- solve$root
     S <- -1 / ddf(m)
     ft <- matrix(m, 1, 1)
     Qt <- matrix(S, 1, 1)
   } else {
-    c.val <- 1
+    c.val <- 0
     f <- function(x) {
       log.prob <- y * log(x) - x + dlnorm(x, ft, sqrt(Qt), log = TRUE)
 
@@ -333,36 +337,36 @@ update_Poisson_alt <- function(conj.param, ft, Qt, y, parms) {
         (log(x)**2) * prob
       )
     }
-
-    if (y > 0) {
-      S <- 1 / y
-      l.f0 <- (log(y) / S + ft / Qt) / (1 / S + 1 / Qt)
-      Q0 <- 1 / (1 / S + 1 / Qt)
-
-      f0 <- exp(l.f0)
-      c.val <- c(y * l.f0 - f0 + dlnorm(f0, ft, sqrt(Qt), log = TRUE))
-      # c.val <- c(y * l.f0 - f0 + dnorm(l.f0, ft, sqrt(Qt), log = TRUE))
-      # c.val=1
-    } else {
-      f0 <- 1
-      l.f0 <- 0
-      Q0 <- Qt
-      c.val <- c(-exp(ft) + dlnorm(exp(ft), ft, sqrt(Qt), log = TRUE))
-      # c.val <- c(- exp(ft) + dnorm(ft, ft, sqrt(Qt), log = TRUE))
-    }
-    print(ft)
-    print(Qt)
-    print(l.f0)
-    print(Q0)
+    #
+    # if (y > 0) {
+    #   S <- 1 / y
+    #   l.f0 <- (log(y) / S + ft / Qt) / (1 / S + 1 / Qt)
+    #   Q0 <- 1 / (1 / S + 1 / Qt)
+    #
+    #   f0 <- exp(l.f0)
+    #   c.val <- c(y * l.f0 - f0 + dlnorm(f0, ft, sqrt(Qt), log = TRUE))
+    #   # c.val <- c(y * l.f0 - f0 + dnorm(l.f0, ft, sqrt(Qt), log = TRUE))
+    #   # c.val=1
+    # } else {
+    #   f0 <- 1
+    #   l.f0 <- 0
+    #   Q0 <- Qt
+    #   c.val <- c(-exp(ft) + dlnorm(exp(ft), ft, sqrt(Qt), log = TRUE))
+    #   # c.val <- c(- exp(ft) + dnorm(ft, ft, sqrt(Qt), log = TRUE))
+    # }
+    # print(ft)
+    # print(Qt)
+    # print(l.f0)
+    # print(Q0)
 
     # val <- cubintegrate(f, c(l.f0-8*sqrt(Q0)), c(l.f0+8*sqrt(Q0)), fDim = 3, nVec = 1000)$integral
-    val <- cubintegrate(f, c(0), c(exp(l.f0 + 8 * sqrt(Q0))), fDim = 3, nVec = 1000)$integral
-    # val <- cubintegrate(f, c(0), c(Inf), fDim = 3, nVec = 1000)$integral
+    # val <- cubintegrate(f, c(0), c(exp(l.f0 + 8 * sqrt(Q0))), fDim = 3, nVec = 1000)$integral
+    val <- cubintegrate(f, c(0), c(1e6), fDim = 3, nVec = 1000)$integral
     ft <- matrix(val[2] / val[1], 1, 1)
     Qt <- matrix(val[3], 1, 1) / val[1] - ft**2
-    print(cubintegrate(f, c(l.f0 - 8 * sqrt(Q0)), c(l.f0 + 8 * sqrt(Q0)), fDim = 3, nVec = 1000))
-    print(ft)
-    print(Qt)
+    # print(cubintegrate(f, c(l.f0 - 8 * sqrt(Q0)), c(l.f0 + 8 * sqrt(Q0)), fDim = 3, nVec = 1000))
+    # print(ft)
+    # print(Qt)
   }
 
   return(list("ft" = ft, "Qt" = Qt))

@@ -15,7 +15,7 @@ convert_Normal_Gamma(conj.param, parms)
 The parameters of the Normal distribution of the linear predictor.
 }
 \description{
-Calculate the parameters of the log-Normal that best approximates the given Inverse-Gamma distribution.
+Calculates the parameters of the log-Normal that best approximates the given Inverse-Gamma distribution.
 The approximation is the best in the sense that it minimizes the KL divergence from the Inverse-Gamma to the log-Normal
 }
 \seealso{

@@ -84,8 +84,8 @@ A dlm_block object containing the following values:
    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
    \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
-   \item D Array: A 3D-array containing the discount factor matrix for each time. It's dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
-   \item H Array: A 3D-array containing the covariance matrix of the noise for each time. It's dimension should be the same as D.
+   \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
+   \item H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.
    \item a1 Vector: The prior mean for the latent vector.
    \item R1 Matrix: The prior covariance matrix for the latent vector.
    \item var.names list: A list containing the variables indexes by their name.
@@ -124,7 +124,7 @@ For the details about dynamic regression models in the context of DLM's, see \in
 AR_block(mu = 1, order = 2, noise.disc = 0.9)
 
 #### Transfer function ####
-AR_block(mu = 1, pulse = beaver1$activ, order = 1)
+AR_block(mu = 1, pulse = beaver1$activ, order = 1, noise.disc = 0.9)
 
 }
 \references{
@@ -134,18 +134,15 @@ AR_block(mu = 1, pulse = beaver1$activ, order = 1)
 \code{\link{fit_model}}
 
 Other {auxiliary functions for structural blocks}: 
-\code{\link{*.dlm_block}()},
-\code{\link{+.dlm_block}()},
-\code{\link{CAR_prior}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},
 \code{\link{harmonic_block}()},
+\code{\link{intervention}()},
 \code{\link{noise_block}()},
 \code{\link{polynomial_block}()},
-\code{\link{print.dlm_block}()},
 \code{\link{regression_block}()},
-\code{\link{summary.dlm_block}()},
-\code{\link{zero_sum_prior}()}
+\code{\link{set.block.value}()},
+\code{\link{summary.dlm_block}()}
 }
 \concept{{auxiliary functions for structural blocks}}

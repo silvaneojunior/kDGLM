@@ -9,9 +9,9 @@ rmvnorm(n, mu, Sigma, norm.x = matrnorm(k, n))
 \arguments{
 \item{n}{integer: The sample size.}
 
-\item{mu}{Vector: The mean vector}
+\item{mu}{numeric: The mean vector}
 
-\item{Sigma}{Matrix: The Covariance matrix.}
+\item{Sigma}{matrix: The Covariance matrix.}
 }
 \description{
 Obtains a sample from a multivariate normal distribution.

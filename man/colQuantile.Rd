@@ -7,12 +7,12 @@
 colQuantile(X, q)
 }
 \arguments{
-\item{X}{Matrix.}
+\item{X}{matrix.}
 
-\item{q}{Numeric: A number between 0 and 1.}
+\item{q}{numeric: A number between 0 and 1.}
 }
 \value{
-Vector: The chosen quantile for each column of X.
+numeric: The chosen quantile for each column of X.
 }
 \description{
 A function that calculates the column-wise quantile of a matrix.

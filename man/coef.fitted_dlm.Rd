@@ -5,39 +5,45 @@
 \title{coef.fitted_dlm}
 \usage{
 \method{coef}{fitted_dlm}(
-  model,
-  eval_t = seq_len(model$t),
+  object,
+  eval_t = seq_len(object$t),
   lag = -1,
   pred.cred = 0.95,
-  eval.pred = TRUE
+  eval.pred = FALSE,
+  eval.metric = FALSE,
+  ...
 )
 }
 \arguments{
-\item{model}{fitted_dlm: The fitted model to be use for evaluation.}
+\item{object}{fitted_dlm: The fitted model to be use for evaluation.}
 
-\item{eval_t}{vector: A vector of positive integers indicating the time index from which to extract predictions. Default is to extract all observed times in model.}
+\item{eval_t}{numeric: A vector of positive integers indicating the time index from which to extract predictions. The default is to extract to evaluate the model at all observed times.}
 
-\item{lag}{positive integer: The relative offset for forecast. Values for time t will be calculated based on the filtered values of time t-h. If lag is negative, then the smoothed distribution will be used.}
+\item{lag}{integer: The relative offset for forecast. Values for time t will be calculated based on the filtered values of time t-h. If lag is negative, then the smoothed distribution for the latent states will be used.}
 
-\item{pred.cred}{Numeric: The credibility level for the I.C. intervals.}
+\item{pred.cred}{numeric: The credibility level for the C.I..}
 
-\item{eval.pred}{Bool: A flag indicating if the predictions should be calculated.}
+\item{eval.pred}{boolean: A flag indicating if the predictions should be calculated.}
+
+\item{eval.metric}{boolean: A flag indicating if the model density (f(M|y)) should be calculated. Only used when lag<0.}
+
+\item{...}{Extra arguments passed to the coef method.}
 }
 \value{
 A list containing:
 \itemize{
    \item data data.frame: A table with the model evaluated at each observed time.
-   \item mt Matrix: The mean of the latent variables at each time. Dimensions are n x t, where t is the size of eval_t.
-   \item Ct Array: A 3D-array containing the covariance matrix of the latent variable at each time. Dimensions are n x n x t.
-   \item ft Matrix: The mean of the linear predictor at each time. Dimensions are k x t.
-   \item Qt Array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t.
+   \item mt matrix: The mean of the latent variables at each time. Dimensions are n x t, where t is the size of eval_t and n is the number of latent states.
+   \item Ct array: A 3D-array containing the covariance matrix of the latent variable at each time. Dimensions are n x n x t, where t is the size of eval_t and n is the number of latent states.
+   \item ft matrix: The mean of the linear predictor at each time. Dimensions are k x t, where t is the size of eval_t and k is the number of linear predictors.
+   \item Qt array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t, where t is the size of eval_t and k is the number of linear predictors.
    \item log.like, mae, mase, rae, mse, interval.score: The metric value at each time.
    \item conj.param list: A list containing, for each outcome, a data.frame with the parameter of the conjugated distribution at each time.
 }
 }
 \description{
 Evaluates the predictive values for the observed values used to fit the model and its latent variables.
-Predictions can be made with smoothed values or with filtered values with a time offset.
+Predictions can be made with smoothed values, with filtered values or h-steps ahead.
 }
 \examples{
 # Poisson case
@@ -54,13 +60,17 @@ fitted.data <- fit_model(level, season,
 
 # var.vals <- coefficients(fitted.data)
 # Or
+var.vals <- coef(fitted.data)
 
 }
 \seealso{
 Other {auxiliary functions for fitted_dlm objects}: 
-\code{\link{coefficients.fitted_dlm}()},
 \code{\link{dlm_sampling}()},
+\code{\link{eval_dlm_norm_const}()},
+\code{\link{fit_model}()},
 \code{\link{forecast.fitted_dlm}()},
+\code{\link{search_model}()},
+\code{\link{smoothing}()},
 \code{\link{update.fitted_dlm}()}
 }
 \concept{{auxiliary functions for fitted_dlm objects}}

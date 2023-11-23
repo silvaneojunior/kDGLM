@@ -2,15 +2,17 @@
 #'
 #' Calculate the predictive mean and some quantile for the observed data and show a plot.
 #'
-#' @param model fitted_dlm: A fitted DGLM.
-#' @param outcomes String: The name of the outcomes to plot.
-#' @param pred.cred Numeric: The credibility value for the credibility interval.
-#' @param lag Integer: The number of steps ahead to be used for prediction. If lag<0, the smoothed distribution is used and, if lag==0, the filtered interval.score is used.
-#' @param cutoff Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the predictions are not reliable.
-#' @param plot.pkg String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.
+#' @param x fitted_dlm object: A fitted DGLM.
+#' @param outcomes character: The name of the outcomes to plot.
+#' @param pred.cred numeric: The credibility value for the credibility interval.
+#' @param lag integer: The number of steps ahead to be used for prediction. If lag<0, the smoothed distribution is used and, if lag==0, the filtered interval.score is used.
+#' @param cutoff integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the predictions are not reliable.
+#' @param plot.pkg character: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.
+#' @param ... Extra arguments passed to the plot method.
 #'
 #' @return ggplot or plotly object: A plot showing the predictive mean and credibility interval with the observed data.
 #'
+#' @rdname plot.fitted_dlm
 #' @export
 #' @importFrom grDevices rainbow
 #' @import graphics
@@ -30,8 +32,9 @@
 #'
 #' plot(fitted.data, plot.pkg = "base")
 #'
+#' @seealso \code{\link{fit_model}}
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-plot.fitted_dlm <- function(model, outcomes = names(model$outcomes), pred.cred = 0.95, lag = 1, cutoff = floor(model$t / 10), plot.pkg = "auto") {
+plot.fitted_dlm <- function(x, outcomes = names(x$outcomes), pred.cred = 0.95, lag = 1, cutoff = floor(x$t / 10), plot.pkg = "auto", ...) {
   if (plot.pkg == "auto") {
     plot.pkg <- if (requireNamespace("plotly", quietly = TRUE) & requireNamespace("ggplot2", quietly = TRUE)) {
       "plotly"
@@ -41,8 +44,8 @@ plot.fitted_dlm <- function(model, outcomes = names(model$outcomes), pred.cred =
       "base"
     }
   }
-  t_last <- model$t
-  eval <- coef(model, eval_t = cutoff:t_last, lag = lag, pred.cred = pred.cred, eval.pred = TRUE)$data
+  t_last <- x$t
+  eval <- coef.fitted_dlm(x, eval_t = cutoff:t_last, lag = lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = FALSE)$data
   outcome.names <- unique(eval$Serie)
 
   flags.outcomes <- (sapply(outcomes, function(x) {
@@ -62,8 +65,8 @@ plot.fitted_dlm <- function(model, outcomes = names(model$outcomes), pred.cred =
   min.value <- -evaluate_max(-(obs.na.rm - max(obs.na.rm)))[[3]] + max(obs.na.rm)
 
   n.series <- length(unique(eval$Serie))
-  colors <- rainbow(n.series, s = 0.8)
-  fills <- rainbow(n.series, s = 0.4)
+  colors <- rainbow(n.series, s = 0.8,v=0.9)
+  fills <- rainbow(n.series, s = 0.4,v=0.9)
   series.names <- unique(eval$Serie)
   names(colors) <- series.names
   names(fills) <- series.names
@@ -125,8 +128,8 @@ plot.fitted_dlm <- function(model, outcomes = names(model$outcomes), pred.cred =
         col = fills[[serie]], lty = 0
       )
     }
-    if (any(model$alt.flags == 1)) {
-      for (t in (1:(t_last - cutoff))[model$alt.flags == 1]) {
+    if (any(x$alt.flags == 1)) {
+      for (t in (1:(t_last - cutoff))[x$alt.flags == 1]) {
         lines(x = c(t, t), c(min.value - 1, max.value + 1), lty = 2)
       }
     }
@@ -173,10 +176,10 @@ plot.fitted_dlm <- function(model, outcomes = names(model$outcomes), pred.cred =
       ggplot2::ggtitle(title) +
       ggplot2::theme_bw() +
       ggplot2::coord_cartesian(ylim = c(min.value, max.value))
-    if (any(model$alt.flags == 1)) {
+    if (any(x$alt.flags == 1)) {
       plt <- plt +
         ggplot2::geom_vline(
-          data = data.frame(xintercept = (1:t_last)[model$alt.flags == 1], linetype = "Detected changes"),
+          data = data.frame(xintercept = (1:t_last)[x$alt.flags == 1], linetype = "Detected changes"),
           ggplot2::aes_string(xintercept = "xintercept", linetype = "linetype")
         )
     }
@@ -206,20 +209,22 @@ plot.fitted_dlm <- function(model, outcomes = names(model$outcomes), pred.cred =
     } else {
       plt <- plt + ggplot2::scale_y_continuous(expression(Y[t]))
     }
+    return(plt)
   }
-  return(plt)
 }
 
 #' Visualizing latent states in a fitted kDGLM model
 #'
-#' @param dlm.coef dlm_coef object: The coefficients of a fitted DGLM model.
-#' @param var Character: The name of the variables to plot (same value passed while creating the structure). Any variable whose name partially match this variable will be plotted.
-#' @param cutoff Integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.
-#' @param pred.cred Numeric: The credibility value for the credibility interval.
-#' @param plot.pkg String: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.
+#' @param x dlm_coef object: The coefficients of a fitted DGLM model.
+#' @param var character: The name of the variables to plot (same value passed while creating the structure). Any variable whose name partially match this variable will be plotted.
+#' @param cutoff integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the estimated values are not reliable.
+#' @param pred.cred numeric: The credibility value for the credibility interval.
+#' @param plot.pkg character: A flag indicating if a plot should be produced. Should be one of 'auto', 'base', 'ggplot2' or 'plotly'.
+#' @param ... Extra arguments passed to the plot method.
 #'
 #' @return ggplot or plotly object: A plot showing the predictive mean and credibility interval with the observed data.
 #'
+#' @rdname plot.dlm_coef
 #' @export
 #'
 #' @importFrom grDevices rainbow
@@ -244,8 +249,9 @@ plot.fitted_dlm <- function(model, outcomes = names(model$outcomes), pred.cred =
 #'
 #' plot(model.coef)$plot
 #'
+#' @seealso \code{\link{fit_model}},\code{\link{coef}}
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-plot.dlm_coef <- function(dlm.coef, var = rownames(dlm.coef$mt), cutoff = floor(t / 10), pred.cred = 0.95, plot.pkg = "auto") {
+plot.dlm_coef <- function(x, var = rownames(x$mt), cutoff = floor(t / 10), pred.cred = 0.95, plot.pkg = "auto", ...) {
   if (plot.pkg == "auto") {
     plot.pkg <- if (requireNamespace("plotly", quietly = TRUE) & requireNamespace("ggplot2", quietly = TRUE)) {
       "plotly"
@@ -256,9 +262,9 @@ plot.dlm_coef <- function(dlm.coef, var = rownames(dlm.coef$mt), cutoff = floor(
     }
   }
 
-  t <- dim(dlm.coef$mt)[2]
-  var.labels <- rownames(dlm.coef$mt)
-  pred.names <- rownames(dlm.coef$ft)
+  t <- dim(x$mt)[2]
+  var.labels <- rownames(x$mt)
+  pred.names <- rownames(x$ft)
 
   flags.var <- (sapply(var, function(x) {
     grepl(x, var.labels)
@@ -278,16 +284,16 @@ plot.dlm_coef <- function(dlm.coef, var = rownames(dlm.coef$mt), cutoff = floor(
   seq.time <- (cutoff + 1):t
 
   m1 <- rbind(
-    dlm.coef$mt[flags.var, seq.time, drop = FALSE],
-    dlm.coef$ft[flags.pred, seq.time, drop = FALSE]
+    x$mt[flags.var, seq.time, drop = FALSE],
+    x$ft[flags.pred, seq.time, drop = FALSE]
   ) |>
     t()
-  std.mat.var <- dlm.coef$Ct[flags.var, flags.var, seq.time, drop = FALSE] |>
+  std.mat.var <- x$Ct[flags.var, flags.var, seq.time, drop = FALSE] |>
     apply(3, diag) |>
     sqrt() |>
     matrix(sum(flags.var), t - cutoff) |>
     t()
-  std.mat.pred <- dlm.coef$Qt[flags.pred, flags.pred, seq.time, drop = FALSE] |>
+  std.mat.pred <- x$Qt[flags.pred, flags.pred, seq.time, drop = FALSE] |>
     apply(3, diag) |>
     sqrt() |>
     matrix(sum(flags.pred), t - cutoff) |>
@@ -320,22 +326,22 @@ plot.dlm_coef <- function(dlm.coef, var = rownames(dlm.coef$mt), cutoff = floor(
 
   var.names <- levels(plot.data$Label)
   n.var <- length(var.names)
-  color.list <- rainbow(n.var, s = 0.8)
+  color.list <- rainbow(n.var, s = 0.8,v=0.9)
   names(color.list) <- var.names
 
-  fill.list <- rainbow(n.var, s = 0.4)
+  fill.list <- rainbow(n.var, s = 0.4,v=0.9)
   names(fill.list) <- var.names
   plot.data$fill.name <- plot.data$Label
   plot.data$color.name <- plot.data$Label
 
-  title <- if (dlm.coef$lag < 0) {
-    "Smoothed estimation of latent variables"
-  } else if (dlm.coef$lag == 0) {
-    "Filtered estimation of latent variables"
-  } else if (dlm.coef$lag == 1) {
-    "One-step-ahead prediction for latent variables"
+  title <- if (x$lag < 0) {
+    "Smoothed estimation of latent states"
+  } else if (x$lag == 0) {
+    "Filtered estimation of latent states"
+  } else if (x$lag == 1) {
+    "One-step-ahead prediction for latent states"
   } else {
-    paste0(dlm.coef$lag, "-steps-ahead prediction for latent variables")
+    paste0(x$lag, "-steps-ahead prediction for latent states")
   }
 
   if (plot.pkg == "base" | !requireNamespace("ggplot2", quietly = TRUE)) {
@@ -431,6 +437,6 @@ plot.dlm_coef <- function(dlm.coef, var = rownames(dlm.coef$mt), cutoff = floor(
         }
       }
     }
+    return(plt)
   }
-  return(plt)
 }

@@ -9,11 +9,11 @@ update_NG_alt(conj.param, ft, Qt, y, parms = list())
 \arguments{
 \item{conj.param}{list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta). Not used in the alternative method.}
 
-\item{ft}{vector: A vector representing the means from the normal distribution.}
+\item{ft}{numeric: A vector representing the means from the normal distribution.}
 
 \item{Qt}{matrix: A matrix representing the covariance matrix of the normal distribution.}
 
-\item{y}{vector: A vector containing the observations.}
+\item{y}{numeric: A vector containing the observations.}
 
 \item{parms}{list: A list of extra known parameters of the distribution. Not used in this kernel.}
 }
@@ -38,9 +38,7 @@ Other {auxiliary functions for a Normal outcome}:
 \code{\link{convert_multi_NG_Normal}()},
 \code{\link{multi_normal_gamma_pred}()},
 \code{\link{normal_pred}()},
-\code{\link{update_Normal}()},
-\code{\link{update_multi_NG_chol}()},
-\code{\link{update_multi_NG_correl}()}
+\code{\link{update_Normal}()}
 }
 \concept{{auxiliary functions for a Normal outcome}}
 \keyword{internal}

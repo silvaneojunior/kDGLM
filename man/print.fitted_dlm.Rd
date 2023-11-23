@@ -12,12 +12,9 @@
 \item{...}{Arguments passed to summary.fitted_dlm}
 }
 \description{
-print.fitted_dlm
+This method is wrapper for the summary.fitted_dlm methdd.
 }
 \seealso{
-Other {auxiliary visualization functions for the fitted_dlm class}: 
-\code{\link{plot.dlm_coef}()},
-\code{\link{plot.fitted_dlm}()}
+\code{\link{summary.fitted_dlm}}
 }
-\concept{{auxiliary visualization functions for the fitted_dlm class}}
 \keyword{internal}

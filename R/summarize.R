@@ -1,14 +1,15 @@
 #' Summary for a fitted kDGLM model
 #'
-#' Prints a report for a fitted.dlm object.
+#' Prints a report for a fitted_dlm object.
 #'
-#' @param fitted.dlm A fitted.dlm object.
+#' @param object A fitted_dlm object.
 #' @param t Integer: The time index for the latent states.
-#' @param lag Integer: The number of steps ahead used for the evaluating the latent variables. Use lag<0 for the smoothed distribution, If lag==0 for the filtered distribution and lag=h for the h-step-ahead prediction.
+#' @param lag Integer: The number of steps ahead used for the evaluating the latent states. Use lag<0 for the smoothed distribution, If lag==0 for the filtered distribution and lag=h for the h-step-ahead prediction.
 #' @param metric.lag Integer: The number of steps ahead used for the evaluating the predictions used when calculating metrics. Use metric.lag<0 for the smoothed distribution, If metric.lag==0 for the filtered distribution and metric.lag=h for the h-step-ahead prediction.
 #' @param metric.cutoff Integer: The cutoff time index for the metric calculation. Values before that time will be ignored.
 #' @param pred.cred numeric: The credibility interval to be used for the interval score.
-#'
+#' @param ... Extra arguments passed to the coef method.#'
+#' @rdname summary.fitted_dlm
 #' @export
 #' @importFrom stats pnorm
 #'
@@ -27,10 +28,10 @@
 #' summary(fitted.data)
 #'
 #' @family {auxiliary visualization functions for the fitted.dlm class}
-summary.fitted_dlm <- function(fitted.dlm, t = fitted.dlm$t, lag = -1, metric.lag = 1, metric.cutoff = floor(fitted.dlm$t / 10), pred.cred = 0.95) {
-  k <- fitted.dlm$k
-  T_len <- fitted.dlm$t
-  predictions <- coef(fitted.dlm, eval_t = (metric.cutoff + 1):T_len, lag = metric.lag, pred.cred = pred.cred, eval.pred = TRUE)
+summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, metric.cutoff = floor(object$t / 10), pred.cred = 0.95,...) {
+  k <- object$k
+  T_len <- object$t
+  predictions <- coef.fitted_dlm(object, eval_t = (metric.cutoff + 1):T_len, lag = metric.lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = TRUE)
   metric.vals <- c(
     sum(predictions$log.like),
     mean(predictions$interval.score),
@@ -48,9 +49,9 @@ summary.fitted_dlm <- function(fitted.dlm, t = fitted.dlm$t, lag = -1, metric.la
     "Mean Squared Error"
   )
   metric.len <- 22
-  predictions <- coef(fitted.dlm, eval_t = seq_len(T_len), lag = min(lag, 0), pred.cred = pred.cred, eval.pred = FALSE)
+  predictions <- coef.fitted_dlm(object, eval_t = T_len, lag = lag, pred.cred = pred.cred, eval.pred = FALSE, eval.metric = FALSE)
 
-  distr.names <- lapply(fitted.dlm$outcomes, function(x) {
+  distr.names <- lapply(object$outcomes, function(x) {
     x$name
   })
   distr.names.len <- max(sapply(names(distr.names), nchar))
@@ -74,14 +75,14 @@ summary.fitted_dlm <- function(fitted.dlm, t = fitted.dlm$t, lag = -1, metric.la
   } else {
     paste0(metric.lag, "-steps-ahead prediction")
   }
-  len.names <- max(sapply(as.character(fitted.dlm$var.labels), function(x) {
+  len.names <- max(sapply(as.character(object$var.labels), function(x) {
     nchar(x)
   }))
-  var.labels <- format(fitted.dlm$var.labels, width = len.names, justify = "l")
+  var.labels <- format(object$var.labels, width = len.names, justify = "l")
 
 
-  mean.coef <- predictions$mt[, t]
-  var.mat <- predictions$Ct[, , t]
+  mean.coef <- predictions$mt[, 1]
+  var.mat <- predictions$Ct[, , 1]
   if (length(var.mat) == 1) {
     std.coef <- sqrt(abs(var.mat))
   } else {
@@ -113,7 +114,7 @@ summary.fitted_dlm <- function(fitted.dlm, t = fitted.dlm$t, lag = -1, metric.la
   metric.names <- format(metric.names, width = metric.len, justify = "l")
 
   cat(paste0(
-    "Fitted DGLM with ", length(fitted.dlm$outcomes), " outcomes.\n\n",
+    "Fitted DGLM with ", length(object$outcomes), " outcomes.\n\n",
     "distributions:\n",
     paste0("    ", names(distr.names), ": ", distr.names, "\n", collapse = ""), "\n",
     "Coeficients (", coef.label, ") at time ", t, ":\n",
@@ -132,26 +133,27 @@ summary.fitted_dlm <- function(fitted.dlm, t = fitted.dlm$t, lag = -1, metric.la
 #'
 #' Prints a report for a dlm_distr object.
 #'
-#' @param dlm.distr A dlm_distr object.
+#' @param object A dlm_distr object.
 #'
+#' @rdname summary.dlm_distr
 #' @export
 #'
 #' @keywords internal
 #' @family {auxiliary functions for a creating outcomes}
 #' @family {Reports for dlm_distr objects.}
-summary.dlm_distr <- function(dlm.distr) {
+summary.dlm_distr <- function(object,...) {
   cat(paste0(
-    dlm.distr$name, " distribution.\n\nUnknown parameters: \n",
-    paste0("    ", names(dlm.distr$pred.names), " - ", dlm.distr$pred.names, collapse = "\n"), "\n",
-    if (length(dlm.distr$parms) > 0) {
-      paste0("Known parameters: \n", paste0("    ", names(dlm.distr$parms), "=", dlm.distr$parms, collapse = "\n"), "\n")
+    object$name, " distribution.\n\nUnknown parameters: \n",
+    paste0("    ", names(object$pred.names), " - ", object$pred.names, collapse = "\n"), "\n",
+    if (length(object$parms) > 0) {
+      paste0("Known parameters: \n", paste0("    ", names(object$parms), "=", object$parms, collapse = "\n"), "\n")
     } else {
       ""
     },
     "\n",
-    paste0("Serie length: ", dlm.distr$t, "\n"),
-    paste0("Number of outcomes: ", dlm.distr$r, "\n"),
-    paste0("Number of parameters: ", dlm.distr$k), "\n"
+    paste0("Serie length: ", object$t, "\n"),
+    paste0("Number of outcomes: ", object$r, "\n"),
+    paste0("Number of parameters: ", object$k), "\n"
   ))
 }
 
@@ -159,13 +161,14 @@ summary.dlm_distr <- function(dlm.distr) {
 #'
 #' Prints a report for a dlm_block object.
 #'
-#' @param dlm.block A dlm_block object.
+#' @param object A dlm_block object.
 #'
+#' @rdname summary.dlm_block
 #' @export
 #' @keywords internal
 #' @family {auxiliary functions for structural blocks}
-summary.dlm_block <- function(dlm.block) {
-  block.names <- names(dlm.block$var.names)
+summary.dlm_block <- function(object,...) {
+  block.names <- names(object$var.names)
 
   for (name in unique(block.names)) {
     count.name <- sum(block.names == name)
@@ -176,21 +179,21 @@ summary.dlm_block <- function(dlm.block) {
   }
 
   cat(paste0(
-    dlm.block$type, " DLM block.",
+    object$type, " DLM block.",
     "\n",
-    paste0("Latent variables: \n", paste0("    ", block.names, ": ", lapply(dlm.block$var.names, function(x) {
+    paste0("latent states: \n", paste0("    ", block.names, ": ", lapply(object$var.names, function(x) {
       paste0(names(x), collapse = ", ")
-    }), " (", lapply(dlm.block$var.names, length), " variable(s))", collapse = "\n"), "\n"),
+    }), " (", lapply(object$var.names, length), " variable(s))", collapse = "\n"), "\n"),
     "\n",
-    paste0("Linear predictors: \n", paste0("    ", dlm.block$pred.names, collapse = "\n"), "\n"),
+    paste0("Linear predictors: \n", paste0("    ", object$pred.names, collapse = "\n"), "\n"),
     "\n",
-    paste0("Status: ", dlm.block$status, "\n"),
-    paste0("Serie length: ", dlm.block$t, "\n"),
+    paste0("Status: ", object$status, "\n"),
+    paste0("Serie length: ", object$t, "\n"),
     paste0(
       "Interventions at: ",
       paste0(
         lapply(
-          dlm.block$interventions,
+          object$interventions,
           function(x) {
             paste0(x$times, collapse = ", ")
           }
@@ -198,8 +201,8 @@ summary.dlm_block <- function(dlm.block) {
         collapse = ", "
       ), "\n"
     ),
-    paste0("Number of latent variables: ", dlm.block$n, "\n"),
-    paste0("Number of linear predictors: ", dlm.block$k)
+    paste0("Number of latent states: ", object$n, "\n"),
+    paste0("Number of linear predictors: ", object$k)
   ))
 }
 
@@ -207,12 +210,13 @@ summary.dlm_block <- function(dlm.block) {
 #'
 #' Prints a report for a searched_dlm object.
 #'
-#' @param searched.dlm A searched_dlm object.
+#' @param object A searched_dlm object.
 #'
+#' @rdname summary.searched_dlm
 #' @export
 #' @keywords internal
 #' @family {auxiliary visualization functions for the fitted.dlm class}
-summary.searched_dlm <- function(searched.dlm) {
-  print(searched.dlm$search.data[1:5, ])
-  summary(searched.dlm$model)
+summary.searched_dlm <- function(object,...) {
+  print(object$search.data[1:5, ])
+  summary(object$model)
 }

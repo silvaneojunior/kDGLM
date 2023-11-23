@@ -12,14 +12,9 @@
 \item{...}{Arguments passed to coef.}
 }
 \description{
-coefficients method for class fitted_dlm
+This method is wrapper for the coef method.
 }
 \seealso{
-Other {auxiliary functions for fitted_dlm objects}: 
-\code{\link{coef.fitted_dlm}()},
-\code{\link{dlm_sampling}()},
-\code{\link{forecast.fitted_dlm}()},
-\code{\link{update.fitted_dlm}()}
+\code{\link{coef.fitted_dlm}}
 }
-\concept{{auxiliary functions for fitted_dlm objects}}
 \keyword{internal}

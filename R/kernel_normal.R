@@ -9,10 +9,10 @@
 #' @param Tau character or numeric: If Tau is a character, it is interpreted as the names of the linear predictors associated with the precisions parameter of the Normal distribution. If Tau is numeric, the precision is considered known and equal to the value of Tau, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed in Tau. If the outcome is a Multivariate Normal, then Tau must be a matrix and, if the precision is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise Tau is treated as the precision matrix. The user cannot specify Tau with V, Sigma, Sd, n0 or d0.
 #' @param Sigma character or numeric: If Sigma is a character, it is interpreted as the names of the linear predictors associated with the variance parameter of the Normal distribution. If Sigma is numeric, the variance is considered known and equal to the value of Sigma, otherwise, the variance is considered unknown and equal to the exponential of the linear predictor informed in Sigma. If the outcome is a Multivariate Normal, then Sigma must be a matrix and, if the variance is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise Sigma is treated as the covariance matrix. The user cannot specify Sigma with V, Tau, Sd, n0 or d0.
 #' @param Sd character or numeric: If Sd is a character, it is interpreted as the names of the linear predictors associated with the standard deviation parameter of the Normal distribution. If Sd is numeric, the standard deviation is considered known and equal to the value of Sd, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed by in Sd. If the outcome is a Multivariate Normal, then Tau must be a matrix and the elements outside its main diagonal are treated as the correlation (or the name of the linear predictor associated) between each coordinate of the outcome. The user cannot specify Sd with V, Tau, Sigma, n0 or d0.
-#' @param n0 Numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify n0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.
-#' @param d0 Numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify d0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.
-#' @param delta Numeric: The discount factor for the observational variance. This option is meant only for didactic reasons, we discourage its usage.
-#' @param data vector: Values of the observed data.
+#' @param n0 numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify n0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.
+#' @param d0 numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify d0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.
+#' @param delta numeric: The discount factor for the observational variance. This option is meant only for didactic reasons, we discourage its usage.
+#' @param data numeric: Values of the observed data.
 #'
 #' @return A object of the class dlm_distr
 #' @importFrom Rfast upper_tri.assign lower_tri.assign is.symmetric
@@ -25,7 +25,7 @@
 #'   polynomial_block(V = 1, D = 0.95)
 #'
 #' outcome <- Normal(mu = "mu", V = "V", data = cornWheat$corn.log.return[1:500])
-#' fitted.data <- fit_model(structure, outcome)
+#' fitted.data <- fit_model(structure, corn = outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -39,7 +39,7 @@
 #'   V = matrix(c("V.1", "rho", "rho", "V.2"), 2, 2),
 #'   data = cornWheat[1:500, c(4, 5)]
 #' )
-#' fitted.data <- fit_model(structure, outcome)
+#' fitted.data <- fit_model(structure, cornWheat = outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -192,6 +192,9 @@ Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, n0 = NA, d0 = NA, 
     distr$alt.method <- FALSE
   } else {
     k <- r + r * (r + 1) / 2
+    if (r > 2) {
+      stop("Error: The general r-variated Normal case with unknown covariance matrix has not been implemented yet. Currently only r=1 and r=2 cases are supported.")
+    }
     # warning("Covariance matrix is unknown. Beware non diagonal values are interpreted as correlation.")
 
     pred.names <- c(mu, diag(Var), Var[lower.index])
@@ -228,6 +231,7 @@ Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, n0 = NA, d0 = NA, 
       },
       update = if (r > 1) {
         update_multi_NG_correl
+        # update_multi_NG_chol
       } else {
         if (alt.method) {
           update_NG_alt
@@ -386,10 +390,10 @@ Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, n0 = NA, d0 = NA, 
 #' Calculate posterior parameter for the Normal, assuming that the observed values came from a Normal model from which the covariance is known and the prior distribution for the mean vector have Normal distribution
 #'
 #' @param conj.param list: A vector containing the concentration parameters of the Normal.
-#' @param ft vector: A vector representing the means from the normal distribution. Not used in the default method.
+#' @param ft numeric: A vector representing the means from the normal distribution. Not used in the default method.
 #' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution. Not used in the default method.
-#' @param y vector: A vector containing the observations.
-#' @param parms list: A list of extra known parameters of the distribution. For this kernel, parms should containg the covariance matrix parameter (Sigma) for the observational Normal model.
+#' @param y numeric: A vector containing the observations.
+#' @param parms list: A list of extra known parameters of the distribution. For this kernel, parms should containing the covariance matrix parameter (Sigma) for the observational Normal model.
 #'
 #' @return The parameters of the posterior distribution.
 #' @keywords internal
@@ -421,18 +425,18 @@ update_Normal <- function(conj.param, ft, Qt, y, parms) {
 #' The data is assumed to have Normal distribution with known variance and its mean having distribution Normal.
 #' In this scenario, the marginal distribution of the data is also Normal.
 #'
-#' @param conj.param List or data.frame: The parameters of the conjugated distributions of the linear predictor.
-#' @param outcome Vector or matrix (optional): The observed values at the current time. Not used in this function.
-#' @param parms List: A list of extra parameters for the model. For this function, it must contain the observational covariance matrix, Sigma.
-#' @param pred.cred Numeric: the desired credibility for the credibility interval.
+#' @param conj.param list or data.frame: The parameters of the conjugated distributions of the linear predictor.
+#' @param outcome numeric or matrix (optional): The observed values at the current time. Not used in this function.
+#' @param parms list: A list of extra parameters for the model. For this function, it must contain the observational covariance matrix, Sigma.
+#' @param pred.cred numeric: the desired credibility for the credibility interval.
 #'
 #' @return A list containing the following values:
 #' \itemize{
-#'    \item pred vector/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item var.pred vector/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item icl.pred vector/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item icu.pred vector/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item log.like vector: the The log likelihood for the outcome given the conjugated parameters.
+#'    \item pred numeric/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item var.pred numeric/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item icl.pred numeric/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item icu.pred numeric/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item log.like numeric: the The log likelihood for the outcome given the conjugated parameters.
 #' }
 #'
 #' @importFrom Rfast data.frame.to_matrix
@@ -579,9 +583,9 @@ convert_Normal_NG <- function(conj.param, parms = list()) {
 #' Calculate posterior parameter for the Normal-Gamma, assuming that the observed values came from a Normal model from which the prior distribution for the mean and the precision have joint distribution Normal-Gamma
 #'
 #' @param conj.param list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta).
-#' @param ft vector: A vector representing the means from the normal distribution. Not used in the default method.
+#' @param ft numeric: A vector representing the means from the normal distribution. Not used in the default method.
 #' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution. Not used in the default method.
-#' @param y vector: A vector containing the observations.
+#' @param y numeric: A vector containing the observations.
 #' @param parms list: A list of extra known parameters of the distribution. Not used in this kernel.
 #'
 #' @return The parameters of the posterior distribution.
@@ -599,9 +603,9 @@ update_NG <- function(conj.param, ft, Qt, y, parms = list()) {
 #' Calculate posterior parameter for the Normal-Gamma, assuming that the observed values came from a Normal model from which the prior distribution for the mean and the precision have joint distribution Normal-Gamma
 #'
 #' @param conj.param list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta).
-#' @param ft vector: A vector representing the means from the normal distribution. Not used in the default method.
+#' @param ft numeric: A vector representing the means from the normal distribution. Not used in the default method.
 #' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution. Not used in the default method.
-#' @param y vector: A vector containing the observations.
+#' @param y numeric: A vector containing the observations.
 #' @param parms list: A list of extra known parameters of the distribution. Not used in this kernel.
 #'
 #' @return The parameters of the posterior distribution.
@@ -636,9 +640,9 @@ update_NG2 <- function(conj.param, ft, Qt, y, parms = list()) {
 #' Calculate the (approximated) posterior parameter for the linear predictors, assuming that the observed values came from a Normal model from which the mean and the log precision have prior distribution in the Normal family.
 #'
 #' @param conj.param list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta). Not used in the alternative method.
-#' @param ft vector: A vector representing the means from the normal distribution.
+#' @param ft numeric: A vector representing the means from the normal distribution.
 #' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution.
-#' @param y vector: A vector containing the observations.
+#' @param y numeric: A vector containing the observations.
 #' @param parms list: A list of extra known parameters of the distribution. Not used in this kernel.
 #'
 #' @return The parameters of the posterior distribution.

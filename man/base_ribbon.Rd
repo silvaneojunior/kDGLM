@@ -7,11 +7,11 @@
 base_ribbon(x, ymin, ymax, ...)
 }
 \arguments{
-\item{x}{Vector: A sequence of values for the x-axis.}
+\item{x}{numeric: A sequence of values for the x-axis.}
 
-\item{ymin}{Vector: A sequence of values for lower bound of the ribbon.}
+\item{ymin}{numeric: A sequence of values for lower bound of the ribbon.}
 
-\item{ymax}{Vector: A sequence of values for upper bound of the ribbon.}
+\item{ymax}{numeric: A sequence of values for upper bound of the ribbon.}
 
 \item{...}{Extra arguments for the polygon function.}
 }

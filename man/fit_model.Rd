@@ -4,47 +4,17 @@
 \alias{fit_model}
 \title{Fitting kDGLM models}
 \usage{
-fit_model(..., smooth = TRUE, p.monit = NA, c.monit = 1)
+fit_model(..., smooth = TRUE, p.monit = NA)
 }
 \arguments{
 \item{...}{dlm_block or dlm_distr objects: The structural blocks of the model (dlm_block objects), alongside the model outcomes (dlm_distr object). All block must be completely defined.}
 
-\item{smooth}{Bool: A flag indicating if the smoothed distribution for the latent variables should be calculated.}
+\item{smooth}{boolean: A flag indicating if the smoothed distribution for the latent variables should be calculated.}
 
 \item{p.monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.}
-
-\item{c.monit}{numeric (optional, if p.monit is not specified): The relative cost of false alarm in the monitoring compared to the cost of not detecting abnormalities.}
-
-\item{pred.cred}{Numeric: A number between 0 and 1 (not included) indicating the credibility interval for predictions. If not within the valid range of values, predictions are not made.}
 }
 \value{
-A fitted_dlm object. Contains:
-\itemize{
-   \item mt Matrix: The filtered mean of the latent variables for each time. Dimensions are n x t.
-   \item Ct Array: A 3D-array containing the filtered covariance matrix of the latent variable for each time. Dimensions are n x n x t.
-   \item mts Matrix: The smoothed mean of the latent variables for each time. Dimensions are n x t. Only available if smooth=TRUE.
-   \item Cts Array: A 3D-array containing the smoothed covariance matrix of the latent variable for each time. Dimensions are n x n x t. Only available if smooth=TRUE.
-   \item FF Array: The same as the argument (same values).
-   \item G Matrix: The same as the argument (same values).
-   \item G.labs Matrix: The same as the argument (same values).
-   \item D Array: The same as the argument (same values) when there is no monitoring. When monitoring for abnormalities, the value in times where abnormalities were detected is increased.
-   \item h Matrix: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.
-   \item H Array: The same as the argument (same values).
-   \item W Array: A 3D-array containing the effective covariance matrix of the noise for each time, i.e., considering both H and D. Its dimension should be the same as H and D.
-   \item outcomes List: A list containing the outcomes of the model passed in the ... argument.
-   \item pred.names Vector: The names of the linear predictors.
-   \item var.names List: A list containing names and indexes for latent variables.
-   \item a1 Matrix: The prior mean for time 1. Dimensions are n x 1.
-   \item R1 Matrix: The prior covariance matrix for time 1. Dimensions are n x n.
-   \item smooth Bool: The same as the argument (same value).
-   \item pred.cred Numeric: The same as the argument (same value).
-   \item t Numeric: The time range for which the model has been fitted.
-   \item n Numeric: The number of latent variables in the model.
-   \item k Numeric: The number of linear predictors in the model.
-   \item l Numeric: The total number of parameters for the observational model.
-   \item r Numeric: The total number number of outcomes of the model.
-   \item structure dlm_block: The structure of the model. It's equivalent to block_superpos(...), but also taking into consideration the outcome length.
-}
+A fitted_dlm object.
 }
 \description{
 Fit a model given its structure and the observed data. This function can be used for any supported family (see vignette).
@@ -82,11 +52,12 @@ structure <- (
   polynomial_block(p = 1, order = 2, D = 0.95) +
     harmonic_block(p = 1, period = 12, D = 0.975) +
     noise_block(p = 1, R1 = 0.1) +
-    regression_block(p = as.Date("2013-09-1")) # Vaccine was introduced in September of 2013
+    regression_block(p = chickenPox$date >= as.Date("2013-09-01"))
+  # Vaccine was introduced in September of 2013
 ) * 4
 
 outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
-fitted.data <- fit_model(structure, outcome)
+fitted.data <- fit_model(structure, chickenPox = outcome)
 summary(fitted.data)
 plot(fitted.data, plot.pkg = "base")
 
@@ -97,7 +68,7 @@ structure <- polynomial_block(mu = 1, D = 0.95) +
   polynomial_block(V = 1, D = 0.95)
 
 outcome <- Normal(mu = "mu", V = "V", data = cornWheat$corn.log.return[1:500])
-fitted.data <- fit_model(structure, outcome)
+fitted.data <- fit_model(structure, corn = outcome)
 summary(fitted.data)
 plot(fitted.data, plot.pkg = "base")
 
@@ -113,7 +84,7 @@ outcome <- Normal(
   V = matrix(c("V.1", "rho", "rho", "V.2"), 2, 2),
   data = cornWheat[1:500, c(4, 5)]
 )
-fitted.data <- fit_model(structure, outcome)
+fitted.data <- fit_model(structure, cornWheat = outcome)
 summary(fitted.data)
 plot(fitted.data, plot.pkg = "base")
 
@@ -123,7 +94,7 @@ plot(fitted.data, plot.pkg = "base")
 structure <- polynomial_block(mu = 1, D = 0.95)
 
 outcome <- Gamma(phi = 0.5, mu = "mu", data = cornWheat$corn.log.return[1:500]**2)
-fitted.data <- fit_model(structure, outcome)
+fitted.data <- fit_model(structure, corn = outcome)
 summary(fitted.data)
 plot(fitted.data, plot.pkg = "base")
 
@@ -133,6 +104,17 @@ auxiliary functions for creating outcomes \code{\link{Poisson}}, \code{\link{Mul
 
 auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{AR_block}}
 
+auxiliary functions for defining priors \code{\link{zero_sum_prior}}, \code{\link{CAR_prior}}
+
 auxiliary function for choosing hyper parameters \code{\link{search_model}}.
+
+Other {auxiliary functions for fitted_dlm objects}: 
+\code{\link{coef.fitted_dlm}()},
+\code{\link{dlm_sampling}()},
+\code{\link{eval_dlm_norm_const}()},
+\code{\link{forecast.fitted_dlm}()},
+\code{\link{search_model}()},
+\code{\link{smoothing}()},
+\code{\link{update.fitted_dlm}()}
 }
-\concept{{auxiliary functions for fitted_dlm objects}.}
+\concept{{auxiliary functions for fitted_dlm objects}}

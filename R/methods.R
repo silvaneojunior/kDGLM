@@ -1,54 +1,62 @@
 #' print.fitted_dlm
 #'
+#' This method is wrapper for the summary.fitted_dlm methdd.
+#'
 #' @param x A fitted_dlm object.
 #' @param ... Arguments passed to summary.fitted_dlm
 #'
 #' @export
 #' @keywords internal
-#' @family {auxiliary visualization functions for the fitted_dlm class}
+#' @seealso \code{\link{summary.fitted_dlm}}
 print.fitted_dlm <- function(x, ...) {
   summary.fitted_dlm(x, ...)
 }
 
 #' print.dlm_distr
 #'
+#' This method is wrapper for the summary.dlm_distr function.
+#'
 #' @param x A dlm_distr object.
 #' @param ... Arguments passed to summary.dlm_distr
 #'
 #' @export
 #' @keywords internal
-#' @family {auxiliary visualization functions for the fitted.dlm class}
+#' @seealso \code{\link{summary.dlm_distr}}
 print.dlm_distr <- function(x, ...) {
   summary.dlm_distr(x, ...)
 }
 
 #' print.dlm_block
 #'
+#' This method is wrapper for the summary.dlm_block function.
+#'
 #' @param x A dlm_block object.
 #' @param ... Arguments passed to summary.dlm_block
 #'
 #' @export
 #' @keywords internal
-#' @family {auxiliary functions for structural blocks}
+#' @seealso \code{\link{summary.dlm_block}}
 print.dlm_block <- function(x, ...) {
   summary.dlm_block(x, ...)
 }
 
 #' print.searched_dlm
 #'
+#' This method is wrapper for the block_superpos function.
+#'
 #' @param x A searched_dlm object.
 #' @param ... Arguments passed to summary.searched_dlm
 #'
 #' @export
 #' @keywords internal
-#' @family {auxiliary visualization functions for the fitted.dlm class}
+#' @seealso \code{\link{summary.searched_dlm}}
 print.searched_dlm <- function(x, ...) {
   summary.searched_dlm(x, ...)
 }
 
 #' coefficients.fitted_dlm
 #'
-#' coefficients method for class fitted_dlm
+#' This method is wrapper for the coef method.
 #'
 #' @param object A fitted_dlm object.
 #' @param ... Arguments passed to coef.
@@ -57,35 +65,37 @@ print.searched_dlm <- function(x, ...) {
 #'
 #' @export
 #' @keywords internal
-#' @family {auxiliary functions for fitted_dlm objects}
+#' @seealso \code{\link{coef.fitted_dlm}}
 coefficients.fitted_dlm <- function(object, ...) {
-  coef(object, ...)
+  coef.fitted_dlm(object, ...)
 }
 
 #' +.fitted_dlm
 #'
-#' Define add operator for class dlm_block
+#' Define add operator for class dlm_block.
+#' This method is wrapper for the block_superpos function.
 #'
 #' @param e1 A dlm_block.
 #' @param e2 A dlm_block.
 #'
 #' @export
 #' @keywords internal
-#' @family {auxiliary functions for structural blocks}
+#' @seealso \code{\link{block_superpos}}
 `+.dlm_block` <- function(e1, e2) {
   block_superpos(e1, e2)
 }
 
 #' *.fitted_dlm
 #'
-#' Define product operator for class dlm_block
+#' Define product operator for class dlm_block.
+#' This method is wrapper for the block_mult function.
 #'
-#' @param e1 A dlm_block (if e2 is an Integer) or an Integer (if e2 is a dlm_block).
-#' @param e2 An Integer (if e1 is an dlm_block) or a dlm_block (if e1 is an Integer).
+#' @param e1 A dlm_block (if e2 is an integer) or an integer (if e2 is a dlm_block).
+#' @param e2 An integer (if e1 is an dlm_block) or a dlm_block (if e1 is an integer).
 #'
 #' @export
 #' @keywords internal
-#' @family {auxiliary functions for structural blocks}
+#' @seealso \code{\link{block_mult}}
 `*.dlm_block` <- function(e1, e2) {
   if (is.numeric(e2)) {
     return(block_mult(e1, e2))
@@ -100,9 +110,6 @@ coefficients.fitted_dlm <- function(object, ...) {
 #'
 #' @param object A model for which forecasts are required.
 #' @param ... Other arguments passed to methods
-#'
-#' @section Methods:
-#' \Sexpr[stage=render,results=rd]{generics:::methods_rd("forecast")}
 #'
 #' @author Hadley Wickham, \email{hadley@@rstudio.com}; Max Kuhn, \email{max@@rstudio.com}; Davis Vaughan, \email{davis@@rstudio.com}; RStudio.
 #' @seealso [generics package](https://github.com/r-lib/generics)

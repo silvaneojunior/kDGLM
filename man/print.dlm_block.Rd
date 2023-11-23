@@ -12,23 +12,9 @@
 \item{...}{Arguments passed to summary.dlm_block}
 }
 \description{
-print.dlm_block
+This method is wrapper for the summary.dlm_block function.
 }
 \seealso{
-Other {auxiliary functions for structural blocks}: 
-\code{\link{*.dlm_block}()},
-\code{\link{+.dlm_block}()},
-\code{\link{AR_block}()},
-\code{\link{CAR_prior}()},
-\code{\link{block_mult}()},
-\code{\link{block_rename}()},
-\code{\link{block_superpos}()},
-\code{\link{harmonic_block}()},
-\code{\link{noise_block}()},
-\code{\link{polynomial_block}()},
-\code{\link{regression_block}()},
-\code{\link{summary.dlm_block}()},
-\code{\link{zero_sum_prior}()}
+\code{\link{summary.dlm_block}}
 }
-\concept{{auxiliary functions for structural blocks}}
 \keyword{internal}

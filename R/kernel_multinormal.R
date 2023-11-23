@@ -6,7 +6,7 @@
 #' The approximation is the best in the sense that it minimizes the KL divergence from the Normal to the Normal-Gamma.
 #' In this approach, we suppose that the first entry of the multivariate normal represents the mean of the observed data and the second represent the log variance.
 #'
-#' @param ft vector: A vector representing the means from the normal distribution.
+#' @param ft numeric: A vector representing the means from the normal distribution.
 #' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution.
 #' @param parms list: A list of extra known parameters of the distribution. Not used in this kernel.
 #'
@@ -70,34 +70,13 @@ convert_multi_Normal_NG <- function(conj.param, parms = list()) {
   return(list("ft" = ft, "Qt" = Qt))
 }
 
+#
 #' update_multi_NG_correl
-#'
-#'
-#'
-#' @param conj.param list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta).
-#' @param ft vector: A vector representing the means from the normal distribution. Not used in the default method.
-#' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution. Not used in the default method.
-#' @param y vector: A vector containing the observations.
-#' @param parms list: A list of extra known parameters of the distribution. Not used in this kernel.
 #'
 #' @importFrom Rfast lower_tri upper_tri lower_tri.assign upper_tri.assign
 #'
 #' @return The parameters of the posterior distribution.
 #' @keywords internal
-#' @family {auxiliary functions for a Normal outcome}
-#'
-#' @details
-#'
-#' For evaluating the posterior parameters, we iterate over the method proposed in \insertCite{ArtigokParametrico;textual}{kDGLM}, updating one coordinate of the observation at a time.
-#'
-#' Since the original methodology requires a linear structure, a linearization is applied to the condinal mean and variance at each step. See \insertCite{ArtigoMultinormal;textual}{kDGLM}
-#'
-#' For the details about the implementation see  \insertCite{ArtigoPacote;textual}{kDGLM}.
-#'
-#' For the detail about the methodology, see \insertCite{ArtigokParametrico;textual}{kDGLM} and \insertCite{ArtigoMultinormal;textual}{kDGLM}.
-#'
-#' @references
-#'    \insertAllCited{}
 update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
   # parms=outcome$parms
   # ft.up=level$a1
@@ -153,15 +132,15 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
     for (i in 2:r) {
       {      x <- c(ft.up)
         rho <- matrix(0, r, r)
-        rho[upper.index] <- rho[lower.index] <- x[cor.index]
+        rho[upper.index] <- rho[lower.index] <- tanh(x[cor.index])
         sd <- diag(exp(-x[var.index] / 2))
-        rho <- tanh(rho)
         diag(rho) <- 1
         Sigma <- sd %*% rho %*% sd
         # diag(rho)=diag(sd)
         # Sigma=rho%*%t(rho)
         # Sigma=crossprod(transpose(rho))
         # print(eigen(Sigma))
+        # print(Sigma)
 
         i.seq <- seq_len(i - 1)
 
@@ -286,210 +265,107 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
   return(list("ft" = ft.up, "Qt" = Qt.up))
 }
 
-#' update_multi_NG_correl
-#'
-#'
-#'
-#' @param conj.param list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta).
-#' @param ft vector: A vector representing the means from the normal distribution. Not used in the default method.
-#' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution. Not used in the default method.
-#' @param y vector: A vector containing the observations.
-#' @param parms list: A list of extra known parameters of the distribution. Not used in this kernel.
-#'
-#' @importFrom Rfast lower_tri upper_tri lower_tri.assign upper_tri.assign
-#'
-#' @return The parameters of the posterior distribution.
-#' @keywords internal
-#' @family {auxiliary functions for a Normal outcome}
-#'
-#' @details
-#'
-#' For evaluating the posterior parameters, we iterate over the method proposed in \insertCite{ArtigokParametrico;textual}{kDGLM}, updating one coordinate of the observation at a time.
-#'
-#' Since the original methodology requires a linear structure, a linearization is applied to the condinal mean and variance at each step. See \insertCite{ArtigoMultinormal;textual}{kDGLM}
-#'
-#' For the details about the implementation see  \insertCite{ArtigoPacote;textual}{kDGLM}.
-#'
-#' For the detail about the methodology, see \insertCite{ArtigokParametrico;textual}{kDGLM} and \insertCite{ArtigoMultinormal;textual}{kDGLM}.
-#'
-#' @references
-#'    \insertAllCited{}
-update_multi_NG_chol <- function(conj.param, ft, Qt, y, parms) {
-  parms <- outcome$parms
-  k <- r + r * (r + 1) / 2
-  ft <- matrix(rnorm(k, 0, 10), k, 1)
-  Qt <- MCMCpack::riwish(3 * k, 3 * k * diag(k))
-  ft_star <- array(NA, c(k, k))
-  Qt_star <- array(NA, c(k, k, k))
-  i <- 5
-  #
-  # for(index in 1:5){
-  #   ft=ft.up
-  #   Qt=Qt.up
-  y <- outcome$data[index, ]
-
-  mu.index <- parms$mu.index
-  var.index <- parms$var.index
-  cor.index <- parms$cor.index
-  upper.index <- parms$upper.index
-  lower.index <- parms$lower.index
-  alt.method <- parms$alt.method
-  r.index <- mu.index
-
-  r <- length(y)
-  k <- r + r * (r + 1) / 2
-  vec.r <- 1:(r**2)
-
-  ft.up <- ft
-  Qt.up <- Qt
-
-  for (i in 1:r) {
-    {        x <- c(ft.up)
-      rho <- matrix(0, r, r)
-      # rho <- lower_tri.assign(rho, x[cor.index], diag = FALSE)
-      rho <- upper_tri.assign(rho, x[cor.index], diag = FALSE)
-      # diag(rho) <- x[var.index]
-      # eigen.decomp=eigen(rho)
-      # Sigma <- eigen.decomp$vectors %*% diag(exp(-eigen.decomp$values)) %*% t(eigen.decomp$vectors)
-      diag(rho) <- exp(-x[var.index] / 2)
-      sd <- diag(exp(-x[var.index] / 2))
-      Sigma <- t(rho) %*% rho
-
-      i.seq <- seq_len(i - 1)
-
-      Sigma.rho <- Sigma[i, i.seq]
-      Sigma.part <- Sigma[i.seq, i.seq]
-
-      if (all(Sigma.part == 0)) {
-        A <- diag(k)[, c(i, i + r)]
-        ft.now <- x[c(i, i + r)]
-        Qt.now <- Qt.up[c(i, i + r), c(i, i + r)]
-      } else {
-        S <- ginv(Sigma.part)
-        e <- (y[i.seq] - x[i.seq])
-        Sigma.S <- c(Sigma.rho %*% S)
-        mu_bar <- x[i] + Sigma.S %*% e
-        S_bar <- Sigma[i, i] - Sigma.S %*% Sigma.rho
-
-        A <- matrix(0, k, 2)
-        A[1:i, 1] <- c(-Sigma.S, 1)
-
-        dx <- array(0, c(r, r, r * (r + 1) / 2))
-        for (j in 1:i) {
-          dx[j, j, j] <- -0.5 * rho[j, j]
-        }
-        ref.rho <- c(rho)[upper.index]
-
-        dx[vec.r[upper.index] + c(0:(k - 2 * r - 1)) * (r**2) + (r**3)] <-
-          # dx[vec.r[lower.index] + c(0:(k - 2 * r - 1)) * (r**2) + (r**3)] <-
-          1
-
-        dSigma <- array(NA, c(r, r, r * (r + 1) / 2))
-        aux.1 <- t(rho)
-
-        dSigma[, , ] <- array_mult_right(dx[, , ], aux.1)
-
-        dSigma[, , ] <- dSigma[, , ] + array_transp(dSigma[, , ])
-
-        dSigma.part <- dSigma[i.seq, i.seq, , drop = FALSE]
-        dSigma.rho <- dSigma[i, i.seq, ] |> matrix(i - 1, r * (r + 1) / 2)
-
-        dSigma.p1 <- (-array_mult_right(dSigma.part, S)) |>
-          array_mult_left(S) |>
-          array_collapse_left(e)
-        dSigma.p1 <- c(Sigma.rho %*% dSigma.p1)
-
-        dSigma.p2 <- c(c(S %*% e) %*% dSigma.rho)
-        A[-r.index, 1] <- dSigma.p1 + dSigma.p2
-
-        dSigma.p1 <- -array_collapse_right(dSigma.part, Sigma.S)
-        dSigma.p1 <- c(Sigma.S %*% dSigma.p1)
-
-        helper.p2 <- c(S %*% Sigma.rho)
-        dSigma.p2 <- 2 * c(helper.p2 %*% dSigma.rho)
-        A[-r.index, 2] <- -(dSigma[i, i, ] - dSigma.p1 - dSigma.p2) / c(S_bar)
-
-        ft.now <- c(mu_bar, -log(S_bar))
-        Qt.now <- t(A) %*% Qt.up %*% A
-      }
-    }
-
-    ###################################
-    # {
-    #   f <- function(x) {
-    #     mu <- x
-    #     rho <- matrix(0, r, r)
-    #     # rho <- lower_tri.assign(rho, x[cor.index], diag = FALSE)
-    #     rho <- upper_tri.assign(rho, x[cor.index], diag = FALSE)
-    #     # diag(rho) <- x[var.index]
-    #     # eigen.decomp=eigen(rho)
-    #     # Sigma <- eigen.decomp$vectors %*% diag(exp(-eigen.decomp$values)) %*% t(eigen.decomp$vectors)
-    #     diag(rho) <- exp(-x[var.index] / 2)
-    #     Sigma <- t(rho) %*% rho
-    #
-    #     if (i == 1) {
-    #       mu_bar <- mu[i]
-    #       S_bar <- Sigma[i, i]
-    #     } else {
-    #       S <- ginv(Sigma[1:(i - 1), 1:(i - 1)])
-    #       mu_bar <- mu[i] + Sigma[i, 1:(i - 1)] %*% S %*% (y[1:(i - 1)] - mu[1:(i - 1)])
-    #       S_bar <- Sigma[i, i] - Sigma[i, 1:(i - 1)] %*% S %*% Sigma[1:(i - 1), i]
-    #     }
-    #     return(c(mu_bar, -log(S_bar)))
-    #     # return(c(Sigma))
-    #   }
-    #
-    #   A_test <- t(calculus::derivative(f, var = ft.up))
-    #   # ft.now=f(ft.up)
-    #   # Qt.now=t(A)%*%Qt.up%*%A
-    #   print(max(abs(A - A_test)))
-    # }
-    ####################################
-
-    if (parms$alt.method) {
-      post <- update_NG_alt(param, ft.now, Qt.now, y[i])
-    } else {
-      param <- convert_NG_Normal(ft.now, Qt.now)
-      up.param <- update_NG(param, ft.now, Qt.now, y[i])
-      post <- convert_Normal_NG(up.param)
-    }
-
-    ft.post <- post$ft
-    Qt.post <- post$Qt
-    # print('\n#################### second #######################')
-    # print(Qt.now)
-    # print(Qt.post)
-    # print(Qt.up)
-
-    At <- Qt.up %*% A %*% ginv(Qt.now)
-    At.t <- t(At)
-
-    ft.up <- ft.up + At %*% (ft.post - ft.now)
-    Qt.up <- Qt.up + At %*% (Qt.post - Qt.now) %*% At.t
-  }
-  # ft_star[,index]=ft.up
-  # Qt_star[,,index]=Qt.up
-  # }
-
-
-
-  return(list("ft" = ft.up, "Qt" = Qt.up))
-}
+##' update_multi_NG_chol
+# #'
+# #' @importFrom Rfast lower_tri upper_tri lower_tri.assign upper_tri.assign
+# update_multi_NG_chol <- function(conj.param, ft, Qt, y, parms) {
+#   mu.index <- parms$mu.index
+#   var.index <- parms$var.index
+#   cor.index <- parms$cor.index
+#   upper.index <- parms$upper.index
+#   lower.index <- parms$lower.index
+#   alt.method <- parms$alt.method
+#   r.index <- mu.index
+#
+#   r <- length(y)
+#   k <- r + r * (r + 1) / 2
+#   vec.r <- 1:(r**2)
+#
+#   ft.up <- ft
+#   Qt.up <- Qt
+#
+#   for (i in 1:r) {
+#     {
+#       f <- function(x) {
+#         mu <- x
+#         rho <- matrix(0, r, r)
+#         rho[upper.index] <- rho[lower.index] <- x[cor.index]
+#         # rho[upper.index] <- rho[lower.index] <- 2*exp(x[cor.index])/(1+sum(exp(x[cor.index])))-1
+#         sd <- diag(exp(-x[var.index] / 2))
+#         rho <- tanh(rho)
+#         diag(rho) <- 1
+#         Sigma <- sd %*% rho %*% sd
+#         # diag(rho)=diag(sd)
+#         # Sigma=rho%*%t(rho)
+#         # Sigma=crossprod(transpose(rho))
+#         # print(eigen(Sigma))
+#
+#         if (i == 1) {
+#           mu_bar <- mu[i]
+#           S_bar <- Sigma[i, i]
+#         } else {
+#           S <- ginv(Sigma[1:(i - 1), 1:(i - 1)])
+#           mu_bar <- mu[i] + Sigma[i, 1:(i - 1)] %*% S %*% (y[1:(i - 1)] - mu[1:(i - 1)])
+#           S_bar <- Sigma[i, i] - Sigma[i, 1:(i - 1)] %*% S %*% Sigma[1:(i - 1), i]
+#         }
+#         # print(S_bar)
+#         return(c(mu_bar, -log(S_bar)))
+#         # return(c(Sigma))
+#       }
+#
+#       A_test <- t(derivative(f, var = ft.up))
+#       A <- A_test
+#       ft.now <- f(ft.up)
+#       Qt.now <- t(A) %*% Qt.up %*% A
+#       # print(ft.now)
+#       # print(max(abs(A - A_test)))
+#     }
+#     ####################################
+#
+#     if (parms$alt.method) {
+#       post <- update_NG_alt(param, ft.now, Qt.now, y[i])
+#     } else {
+#       param <- convert_NG_Normal(ft.now, Qt.now)
+#       up.param <- update_NG(param, ft.now, Qt.now, y[i])
+#       post <- convert_Normal_NG(up.param)
+#     }
+#
+#     ft.post <- post$ft
+#     Qt.post <- post$Qt
+#     # print('\n#################### second #######################')
+#     # print(Qt.now)
+#     # print(Qt.post)
+#     # print(Qt.up)
+#
+#     At <- Qt.up %*% A %*% ginv(Qt.now)
+#     At.t <- t(At)
+#
+#     ft.up <- ft.up + At %*% (ft.post - ft.now)
+#     Qt.up <- Qt.up + At %*% (Qt.post - Qt.now) %*% At.t
+#   }
+#   # ft_star[,index]=ft.up
+#   # Qt_star[,,index]=Qt.up
+#   # }
+#
+#
+#
+#   return(list("ft" = ft.up, "Qt" = Qt.up))
+# }
 
 #' multi_normal_gamma_pred
 #'
-#' @param conj.param List or data.frame: The parameters of the conjugated distribution (Normal-Gamma) of the linear predictor.
-#' @param outcome Vector or matrix (optional): The observed values at the current time.
-#' @param parms List (optional): A list of extra parameters for the model. Not used in this function.
-#' @param pred.cred Numeric: the desired credibility for the credibility interval.
+#' @param conj.param list or data.frame: The parameters of the conjugated distribution (Normal-Gamma) of the linear predictor.
+#' @param outcome numeric or matrix (optional): The observed values at the current time.
+#' @param parms list (optional): A list of extra parameters for the model. Not used in this function.
+#' @param pred.cred numeric: the desired credibility for the credibility interval.
 #'
 #' @return A list containing the following values:
 #' \itemize{
-#'    \item pred vector/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item var.pred vector/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item icl.pred vector/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item icu.pred vector/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
-#'    \item log.like vector: the The log likelihood for the outcome given the conjugated parameters.
+#'    \item pred numeric/matrix: the mean of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item var.pred numeric/matrix: the variance of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item icl.pred numeric/matrix: the percentile of 100*((1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item icu.pred numeric/matrix: the percentile of 100*(1-(1-pred.cred)/2)% of the predictive distribution of a next observation. Same type and shape as the parameter in model.
+#'    \item log.like numeric: the The log likelihood for the outcome given the conjugated parameters.
 #' }
 #'
 #' @importFrom stats qt dt
@@ -507,7 +383,8 @@ multi_normal_gamma_pred <- function(conj.param, outcome = NULL, parms = list(), 
   r <- if.null(dim(conj.param)[2], length(conj.param)) / 4
   k <- r + r * (r + 1) / 2
 
-  conj.param <- data.frame.to_matrix(conj.param)
+  # conj.param <- data.frame.to_matrix(conj.param)
+  conj.param <- matrix(unlist(conj.param, use.names = FALSE), t, 4 * r)
   if (dim(conj.param)[2] == 1) {
     conj.param <- conj.param |> t()
   }
@@ -542,6 +419,7 @@ multi_normal_gamma_pred <- function(conj.param, outcome = NULL, parms = list(), 
   }
   if (like.flag) {
     outcome <- matrix(outcome, t, r)
+    warning('The log-likelihood is not being calculated properly. Each outcome is computed independently.')
     log.like <- colSums(dt((outcome - mu0) / s, nu, log = TRUE) - log(s))
   } else {
     log.like <- NULL

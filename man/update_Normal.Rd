@@ -9,13 +9,13 @@ update_Normal(conj.param, ft, Qt, y, parms)
 \arguments{
 \item{conj.param}{list: A vector containing the concentration parameters of the Normal.}
 
-\item{ft}{vector: A vector representing the means from the normal distribution. Not used in the default method.}
+\item{ft}{numeric: A vector representing the means from the normal distribution. Not used in the default method.}
 
 \item{Qt}{matrix: A matrix representing the covariance matrix of the normal distribution. Not used in the default method.}
 
-\item{y}{vector: A vector containing the observations.}
+\item{y}{numeric: A vector containing the observations.}
 
-\item{parms}{list: A list of extra known parameters of the distribution. For this kernel, parms should containg the covariance matrix parameter (Sigma) for the observational Normal model.}
+\item{parms}{list: A list of extra known parameters of the distribution. For this kernel, parms should containing the covariance matrix parameter (Sigma) for the observational Normal model.}
 }
 \value{
 The parameters of the posterior distribution.
@@ -28,9 +28,7 @@ Other {auxiliary functions for a Normal outcome}:
 \code{\link{convert_multi_NG_Normal}()},
 \code{\link{multi_normal_gamma_pred}()},
 \code{\link{normal_pred}()},
-\code{\link{update_NG_alt}()},
-\code{\link{update_multi_NG_chol}()},
-\code{\link{update_multi_NG_correl}()}
+\code{\link{update_NG_alt}()}
 }
 \concept{{auxiliary functions for a Normal outcome}}
 \keyword{internal}

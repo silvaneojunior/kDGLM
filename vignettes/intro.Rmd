@@ -1,0 +1,125 @@
+---
+title: "kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models"
+author: Silvaneo V. dos Santos Jr.
+output: rmdformats::readthedown
+date: "`r Sys.setlocale('LC_TIME', 'English'); format(Sys.Date(),'%d of %B, %Y')`"
+bibliography: '`r system.file("REFERENCES.bib", package="kDGLM")`'
+link-citations: TRUE
+urlcolor: blue
+linkcolor: green
+vignette: >
+  %\VignetteIndexEntry{kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = ""
+)
+```
+
+# Introduction
+
+This vignette is intended as an introduction to the usage of the kDGLM package, which offers routines for Bayesian analysis of Dynamic Generalized Linear Models, including fitting (filtering and smoothing), forecasting, sampling, intervention and automated monitoring, following the theory developed and/or explored in @Kalman_filter_origins, @WestHarr-DLM and @ArtigokParametrico.
+
+In this document we will focus exclusively in the usage of the package and will only briefly mention the theory behind these models and only with the intention of highlighting the notation. We highly recommend all users to read the theoretical work in which we based this package.
+
+This document is organized in the following order: 
+
+1. First we introduce the notations and the class of models we will be dealing with;
+3. Next we present the details about the specification of the model structure, offering tools that allow for an easy, fast and (hopefully) intuitive way of defining models;
+4. In the following section we discuss details about how the user can specify the observational model;
+2. Then we present some basic examples of model fitting, also showing the auxiliary functions that help the user to analyse the fitted model. We also show tools for easy model selection;
+5. Lastly, we present a variety of advanced examples, combining the basic features shown in previous sections to create more complex models;
+
+# Notation
+
+Let us assume that the user is interested in analyzing a Time Series $\{Y_t\}_{t=1}^T$ which can be described by the following model:
+
+$$
+\begin{align}
+Y_t|\eta_t &\sim \mathcal{F}\left(\eta_t\right),\\
+g(\eta_t) &=\lambda_{t}=F_t'\theta_t,\\
+\theta_t&=G_t\theta_{t-1}+\omega_t,\\
+\omega_t &\sim \mathcal{N}_n(h_t,W_t),
+\end{align}
+$$
+where:
+
+- $\theta_t$ are the unknown parameter of interest;
+- $\mathcal{F}$ is a probability distribution in the Exponential Family and indexed by $\eta_t$;
+- $g$, called the link function, is a pre-specified function (in this package, each choice of $\mathcal{F}$ will have a pre-determined $g$);
+- $F_t$, called the design matrix, is a (mostly) known matrix specified by the user;
+- $G_t$, called the evolution matrix, is a (mostly) known matrix specified by the user;
+- $h_t$, called drift, is a known vector specified by the user. In general, we have $h_t=0$, except when making interventions on the model [see @WestHarr-DLM, chapter 11];
+- $W_t$ is a known covariance matrix specified by the user;
+- $n$ is the dimension of $\theta_t$ (we will always consider that $\theta_t$ has the same dimension for all $t$).
+
+Also, following the notation in @WestHarr-DLM, we will define $\mathcal{D}_t$ as the information one has after the first $t$ observations, such that $\mathcal{D}_t=\mathcal{D}_{t-1}\cup\{Y_t\}$ (for now, let us assume that there is no external source of information beside $Y_t$ itself) and $\mathcal{D}_0$ denotes the information we have about the process $\{Y_t\}^T_{t=1}$ *prior* to observing the data.
+
+For the specification of $W_t$, we follow the ideas presented @WestHarr-DLM, section 6.3, such that we define $W_t=Var[G_t\theta_{t-1}|\mathcal{D}_{t-1}] \odot (1-D_t) \oslash D_t + H_t$, where:
+
+- $D_t$ (called the discount matrix) is a matrix of values between $0$ and $1$ (including $1$, but excluding $0$);
+- $\odot$ is the Hadamard product (i.e., element-wise product);
+- $\oslash$ is the Hadamard division (i.e., element-wise division);
+- $H_t$ is a known matrix specified by the user.
+ 
+Notice that this specification implies that $Var[\theta_{t}|\mathcal{D}_{t-1}]=Var[G_t\theta_{t-1}|\mathcal{D}_{t-1}] \oslash D_t + H_t$, such that, if all entries of $D_t$ are equal to $1$, then $Var[\theta_{t}|\mathcal{D}_{t-1}]=Var[G_t\theta_{t-1}|\mathcal{D}_{t-1}]+H_t$. If also all entries of $H_t$ are equal to $0$, then $Var[\theta_{t}|\mathcal{D}_{t-1}]=Var[G_t\theta_{t-1}|\mathcal{D}_{t-1}]$ (i.e. $\theta_t$ is a deterministic transformation of $\theta_{t-1}$), such that our model becomes equivalent to a Generalized Linear Model.
+
+Notice that we **did not** make any assumptions on the dimension of $Y_t$ or $\eta_t$, indeed, the range of applications of this package covers both time series of vectors (as in the Multinomial case) and/or with multiple unknown parameters (as in the Normal with unknown variance case).
+
+Naturally, the manual specification of all the structural components of the model can be quite tiresome. With that in mind, our package offers a wide and ever expanding set of auxiliary functions that aim to help the user to specify the structure of a model. In the next section we will explore some of those tools.
+
+# Table of contents
+
+<ol style="font-size:24px">
+<li><details><summary>[Creating the model structure:](structures.html) ></summary>
+  <ul style="font-size:24px">
+  <li>[A structure for polynomial trend models](structures.html#a-structure-for-polynomial-trend-models)
+  <li>[A structure for dynamic regression models](structures.html#a-structure-for-dynamic-regression-models)
+  <li>[A structure for harmonic trend models](structures.html#a-structure-for-harmonic-trend-models)
+  <li>[A structure for autoregresive models](structures.html#a-structure-for-autoregresive-models)
+  <li>[A structure for overdispersed models](structures.html#a-structure-for-overdispersed-models)
+  <li>[Handling multiple structural blocks](structures.html#handling-multiple-structural-blocks)
+  <li>[Handling multiple linear predictors](structures.html#handling-multiple-linear-predictors)
+  <li>[Handling unknown components in the planning matrix $F_t$](structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
+  <li>[Special priors](structures.html#special-priors)
+  </ul></details>
+  </li>
+<li><details><summary>[Creating the model outcome:](outcomes.html) ></summary>
+  <ul style="font-size:24px">
+  <li>[Normal case](outcomes.html#normal-case)
+  <li>[Poisson case](outcomes.html#poisson-case)
+  <li>[Gamma case](outcomes.html#gamma-case)
+  <li>[Multinomial case](outcomes.html#multinomial-case)
+  <li>[Handling multiple outcomes](outcomes.html#handling-multiple-outcomes)
+  </ul></details>
+  </li>
+<li><details><summary>[Fitting and analysing models:](fitting.html) ></summary>
+  <ul style="font-size:24px">
+  <li>[Filtering and smoothing](fitting.html#filtering-and-smoothing)
+  <li>[Extracting components](fitting.html#extracting-components)
+  <li>[Forecasting](fitting.html#forecasting)
+  <li>[Intervention and monitoring](fitting.html#intervention-and-monitoring)
+  <li>[Tools for sensibility analysis](fitting.html#tools-for-sensibility-analysis)
+  <li>[Sampling and hyper parameter estimation](fitting.html#sampling-and-hyper-parameter-estimation)
+  </ul></details>
+  </li>
+<li><details><summary>Advanced examples: ></summary><ul style="font-size:24px">
+  <li>[Space-time model hospital admissions from gastroenteritis](example1.html)
+  </details>
+</ul></li>
+</ol>
+
+# References
+
+```{r eval=FALSE, include=FALSE}
+rmarkdown::render("vignettes/intro.Rmd")
+rmarkdown::render("vignettes/structures.Rmd")
+rmarkdown::render("vignettes/outcomes.Rmd")
+rmarkdown::render("vignettes/fitting.Rmd")
+rmarkdown::render("vignettes/example1.Rmd")
+```
+

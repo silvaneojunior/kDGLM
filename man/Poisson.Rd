@@ -7,11 +7,11 @@
 Poisson(lambda, data, offset = as.matrix(data)^0)
 }
 \arguments{
-\item{lambda}{character: Name of the linear predictor associated with the rate (mean) parameter of the Poisson distribution. The parameter is treated as unknown and equal to the exponential of the associated linear predictor.}
+\item{lambda}{character: The name of the linear predictor associated with the rate (mean) parameter of the Poisson distribution. The parameter is treated as unknown and equal to the exponential of the associated linear predictor.}
 
-\item{data}{vector: Values of the observed data.}
+\item{data}{numeric: The values of the observed data.}
 
-\item{offset}{vector: The offset at each observation. Must have the same shape as data.}
+\item{offset}{numeric: The offset at each observation. Must have the same shape as data.}
 }
 \value{
 A object of the class dlm_distr
