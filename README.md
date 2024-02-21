@@ -61,7 +61,7 @@ To test if the package is working properly, execute the following code exemple:
 plot(fitted.data, plot.pkg = "base")
 ```
 
-Refer to the Wiki for detailed usage instructions. Also see the documentation of the `fit_model` function for basic examples for each type of outcome the `kDGLM` package offers.
+Refer to the [vignettes](https://silvaneojunior.github.io/kDGLM/) for detailed usage instructions. Also see the documentation of the `fit_model` function for basic examples for each type of outcome the `kDGLM` package offers.
 
 # Contributing
 
