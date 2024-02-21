@@ -1058,28 +1058,28 @@ set.block.value <- function(block, ...) {
   R1 <- matrix(as.numeric(block$R1), block$n, block$n)
   G <- array(as.numeric(block$G), c(block$n, block$n, block$t))
   scale <- as.numeric(block$scale)
-  if (all(!is.na(FF))){
+  if (all(!is.na(FF))) {
     block$FF <- FF
   }
-  if(all(!is.na(D))){
+  if (all(!is.na(D))) {
     block$D <- D
   }
-  if(all(!is.na(H))){
+  if (all(!is.na(H))) {
     block$H <- H
   }
-  if(all(!is.na(a1))){
+  if (all(!is.na(a1))) {
     block$a1 <- a1
   }
-  if(all(!is.na(R1))){
+  if (all(!is.na(R1))) {
     block$R1 <- R1
-    if(all(!is.na(scale))) {
+    if (all(!is.na(scale))) {
       block$scale <- scale
-      scale.mat=diag(block$n)*sqrt(scale)
-      diag(scale.mat)=sqrt(scale)
+      scale.mat <- diag(block$n) * sqrt(scale)
+      diag(scale.mat) <- sqrt(scale)
       block$R1 <- scale.mat %*% R1 %*% scale.mat
     }
   }
-  if(all(!is.na(G) | array(block$G.labs!='const',c(block$n,block$n,block$t)))){
+  if (all(!is.na(G) | array(block$G.labs != "const", c(block$n, block$n, block$t)))) {
     block$G <- G
   }
   block$status <- check.block.status(block)

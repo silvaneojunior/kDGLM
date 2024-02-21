@@ -19,7 +19,7 @@
 
 \item{t}{Integer: The time index for the latent states.}
 
-\item{lag}{Integer: The number of steps ahead used for the evaluating the latent variables. Use lag<0 for the smoothed distribution, If lag==0 for the filtered distribution and lag=h for the h-step-ahead prediction.}
+\item{lag}{Integer: The number of steps ahead used for the evaluating the latent states. Use lag<0 for the smoothed distribution, If lag==0 for the filtered distribution and lag=h for the h-step-ahead prediction.}
 
 \item{metric.lag}{Integer: The number of steps ahead used for the evaluating the predictions used when calculating metrics. Use metric.lag<0 for the smoothed distribution, If metric.lag==0 for the filtered distribution and metric.lag=h for the h-step-ahead prediction.}
 
@@ -27,7 +27,7 @@
 
 \item{pred.cred}{numeric: The credibility interval to be used for the interval score.}
 
-\item{...}{Extra arguments passed to the summary method.}
+\item{...}{Extra arguments passed to the coef method.#'}
 }
 \description{
 Prints a report for a fitted_dlm object.

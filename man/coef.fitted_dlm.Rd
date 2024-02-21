@@ -33,8 +33,8 @@
 A list containing:
 \itemize{
    \item data data.frame: A table with the model evaluated at each observed time.
-   \item mt matrix: The mean of the latent variables at each time. Dimensions are n x t, where t is the size of eval_t and n is the number of latent states.
-   \item Ct array: A 3D-array containing the covariance matrix of the latent variable at each time. Dimensions are n x n x t, where t is the size of eval_t and n is the number of latent states.
+   \item mt matrix: The mean of the latent states at each time. Dimensions are n x t, where t is the size of eval_t and n is the number of latent states.
+   \item Ct array: A 3D-array containing the covariance matrix of the latent states at each time. Dimensions are n x n x t, where t is the size of eval_t and n is the number of latent states.
    \item ft matrix: The mean of the linear predictor at each time. Dimensions are k x t, where t is the size of eval_t and k is the number of linear predictors.
    \item Qt array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t, where t is the size of eval_t and k is the number of linear predictors.
    \item log.like, mae, mase, rae, mse, interval.score: The metric value at each time.
@@ -42,7 +42,7 @@ A list containing:
 }
 }
 \description{
-Evaluates the predictive values for the observed values used to fit the model and its latent variables.
+Evaluates the predictive values for the observed values used to fit the model and its latent states.
 Predictions can be made with smoothed values, with filtered values or h-steps ahead.
 }
 \examples{

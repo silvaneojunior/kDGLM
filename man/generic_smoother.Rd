@@ -7,20 +7,20 @@
 generic_smoother(mt, Ct, at, Rt, G, G.labs)
 }
 \arguments{
-\item{mt}{matrix: A matrix containing the filtered mean of the latent variables at each time. Each row should represent one variable.}
+\item{mt}{matrix: A matrix containing the filtered mean of the latent states at each time. Each row should represent one variable.}
 
-\item{Ct}{array: A 3D-array representing the filtered covariance matrix of the latent variables at each time. The third dimension should represent the time index.}
+\item{Ct}{array: A 3D-array representing the filtered covariance matrix of the latent states at each time. The third dimension should represent the time index.}
 
-\item{at}{matrix: A matrix containing the one-step-ahead mean of the latent variables at each time based upon the filtered mean. Each row should represent one variable.}
+\item{at}{matrix: A matrix containing the one-step-ahead mean of the latent states at each time based upon the filtered mean. Each row should represent one variable.}
 
-\item{Rt}{array: A 3D-array representing the one-step-ahead covariance matrix of the latent variables at each time based upon the filtered covariance matrix. The third dimension should represent the time index.}
+\item{Rt}{array: A 3D-array representing the one-step-ahead covariance matrix of the latent states at each time based upon the filtered covariance matrix. The third dimension should represent the time index.}
 
 \item{G}{array: A 3D-array representing the transition matrix of the model at each time.}
 
 \item{G.labs}{matrix: A character matrix containing the type associated with each value in G.}
 }
 \value{
-A list containing the smoothed mean (mts) and covariance (Cts) of the latent variables at each time. Their dimension follows, respectively, the dimensions of mt and Ct.
+A list containing the smoothed mean (mts) and covariance (Cts) of the latent states at each time. Their dimension follows, respectively, the dimensions of mt and Ct.
 }
 \description{
 Generic smoother for all models.

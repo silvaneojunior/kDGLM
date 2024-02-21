@@ -28,7 +28,7 @@
 #' summary(fitted.data)
 #'
 #' @family {auxiliary visualization functions for the fitted.dlm class}
-summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, metric.cutoff = floor(object$t / 10), pred.cred = 0.95,...) {
+summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, metric.cutoff = floor(object$t / 10), pred.cred = 0.95, ...) {
   k <- object$k
   T_len <- object$t
   predictions <- coef.fitted_dlm(object, eval_t = (metric.cutoff + 1):T_len, lag = metric.lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = TRUE)
@@ -141,7 +141,7 @@ summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, m
 #' @keywords internal
 #' @family {auxiliary functions for a creating outcomes}
 #' @family {Reports for dlm_distr objects.}
-summary.dlm_distr <- function(object,...) {
+summary.dlm_distr <- function(object, ...) {
   cat(paste0(
     object$name, " distribution.\n\nUnknown parameters: \n",
     paste0("    ", names(object$pred.names), " - ", object$pred.names, collapse = "\n"), "\n",
@@ -167,7 +167,7 @@ summary.dlm_distr <- function(object,...) {
 #' @export
 #' @keywords internal
 #' @family {auxiliary functions for structural blocks}
-summary.dlm_block <- function(object,...) {
+summary.dlm_block <- function(object, ...) {
   block.names <- names(object$var.names)
 
   for (name in unique(block.names)) {
@@ -216,7 +216,7 @@ summary.dlm_block <- function(object,...) {
 #' @export
 #' @keywords internal
 #' @family {auxiliary visualization functions for the fitted.dlm class}
-summary.searched_dlm <- function(object,...) {
+summary.searched_dlm <- function(object, ...) {
   print(object$search.data[1:5, ])
   summary(object$model)
 }

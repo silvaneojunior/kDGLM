@@ -4,7 +4,7 @@
 \alias{rmvnorm}
 \title{rmvnorm}
 \usage{
-rmvnorm(n, mu, Sigma, norm.x = matrnorm(k, n))
+rmvnorm(n, mu, Sigma, norm.x = matrnorm(k, n, seed = round(runif(1) * 1e+15)))
 }
 \arguments{
 \item{n}{integer: The sample size.}

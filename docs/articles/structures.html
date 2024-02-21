@@ -8,8 +8,8 @@
 <meta name="description" content="kDGLM">
 <title>Creation of model structures • kDGLM</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Creation of model structures">
 <meta property="og:description" content="kDGLM">
@@ -41,11 +41,11 @@
 <li class="active nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/example1.html">Space-time model hospital admissions from gastroenteritis</a>
-    <a class="dropdown-item" href="../articles/fitting.html">Fitting and analysing models</a>
-    <a class="dropdown-item" href="../articles/intro.html">kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models</a>
-    <a class="dropdown-item" href="../articles/outcomes.html">Creation of model outcomes</a>
+    <a class="dropdown-item" href="../articles/intro.html">Notation</a>
     <a class="dropdown-item" href="../articles/structures.html">Creation of model structures</a>
+    <a class="dropdown-item" href="../articles/outcomes.html">Creation of model outcomes</a>
+    <a class="dropdown-item" href="../articles/fitting.html">Fitting and analysing models</a>
+    <a class="dropdown-item" href="../articles/example1.html">Applied example: Space-time model hospital admissions from gastroenteritis</a>
   </div>
 </li>
       </ul>
@@ -73,10 +73,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Creation of model structures</h1>
-                        <h4 data-toc-skip class="author">Silvaneo V. dos
-Santos Jr.</h4>
             
-            <h4 data-toc-skip class="date">20 of February, 2024</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/silvaneojunior/kDGLM/blob/HEAD/vignettes/structures.Rmd" class="external-link"><code>vignettes/structures.Rmd</code></a></small>
       <div class="d-none name"><code>structures.Rmd</code></div>
@@ -84,122 +81,6 @@ Santos Jr.</h4>
 
     
     
-<div class="section level2">
-<h2 id="table-of-contents">Table of contents<a class="anchor" aria-label="anchor" href="#table-of-contents"></a>
-</h2>
-<ol>
-<li>
-<details><summary><a href="intro.html">Introduction:</a> &gt;
-</summary><ul>
-<li>
-<a href="intro.html#introduction">Introduction</a>
-</li>
-<li>
-<a href="intro.html#notation">Notation</a>
-</li>
-</ul></details>
-</li>
-<li>
-<details><summary><a href="structures.html">Creating the model structure:</a> &gt;
-</summary><ul>
-<li>
-<a href="structures.html#a-structure-for-polynomial-trend-models">A
-structure for polynomial trend models</a>
-</li>
-<li>
-<a href="structures.html#a-structure-for-dynamic-regression-models">A
-structure for dynamic regression models</a>
-</li>
-<li>
-<a href="structures.html#a-structure-for-harmonic-trend-models">A
-structure for harmonic trend models</a>
-</li>
-<li>
-<a href="structures.html#a-structure-for-autoregresive-models">A
-structure for autoregresive models</a>
-</li>
-<li>
-<a href="structures.html#a-structure-for-overdispersed-models">A
-structure for overdispersed models</a>
-</li>
-<li>
-<a href="structures.html#handling-multiple-structural-blocks">Handling
-multiple structural blocks</a>
-</li>
-<li>
-<a href="structures.html#handling-multiple-linear-predictors">Handling
-multiple linear predictors</a>
-</li>
-<li>
-<a href="structures.html#handling-unknown-components-in-the-planning-matrix-f_t">Handling
-unknown components in the planning matrix <span class="math inline">\(F_t\)</span></a>
-</li>
-<li>
-<a href="structures.html#special-priors">Special priors</a>
-</li>
-</ul></details>
-</li>
-<li>
-<details><summary><a href="outcomes.html">Creating the model outcome:</a> &gt;
-</summary><ul>
-<li>
-<a href="outcomes.html#normal-case">Normal case</a>
-</li>
-<li>
-<a href="outcomes.html#poisson-case">Poisson case</a>
-</li>
-<li>
-<a href="outcomes.html#gamma-case">Gamma case</a>
-</li>
-<li>
-<a href="outcomes.html#multinomial-case">Multinomial case</a>
-</li>
-<li>
-<a href="outcomes.html#handling-multiple-outcomes">Handling multiple
-outcomes</a>
-</li>
-</ul></details>
-</li>
-<li>
-<details><summary><a href="fitting.html">Fitting and analysing models:</a> &gt;
-</summary><ul>
-<li>
-<a href="fitting.html#filtering-and-smoothing">Filtering and
-smoothing</a>
-</li>
-<li>
-<a href="fitting.html#extracting-components">Extracting components</a>
-</li>
-<li>
-<a href="fitting.html#forecasting">Forecasting</a>
-</li>
-<li>
-<a href="fitting.html#intervention-and-monitoring">Intervention and
-monitoring</a>
-</li>
-<li>
-<a href="fitting.html#tools-for-sensibility-analysis">Tools for
-sensibility analysis</a>
-</li>
-<li>
-<a href="fitting.html#sampling-and-hyper-parameter-estimation">Sampling
-and hyper parameter estimation</a>
-</li>
-</ul></details>
-</li>
-<li>
-<details><summary>
-Advanced examples:&gt;
-</summary><ul><li>
-<a href="example1.html">Space-time model hospital admissions from
-gastroenteritis</a>
-</li></ul></details>
-</li>
-</ol>
-</div>
-<div class="section level2">
-<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
-</h2>
 <p>In this vignette we will discuss the specification of the model
 structure. We will consider the structure of a model as all the elements
 that determine the relation between our linear predictor <span class="math inline">\(\lambda_t\)</span> and our latent states <span class="math inline">\(\theta_t\)</span> though time, i.e., we want the
@@ -220,7 +101,6 @@ those matrices (which we <strong>do not</strong> recommend), we also
 offer tools to simplify this task. Let us start by presenting the basis
 function for all structural blocks, the <code>polynomial_block</code>
 function.</p>
-</div>
 <div class="section level2">
 <h2 id="a-structure-for-polynomial-trend-models">A structure for polynomial trend models<a class="anchor" aria-label="anchor" href="#a-structure-for-polynomial-trend-models"></a>
 </h2>

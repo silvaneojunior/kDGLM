@@ -1,8 +1,6 @@
 ---
 title: "Creation of model outcomes"
-author: Silvaneo V. dos Santos Jr.
 output: rmdformats::readthedown
-date: "`r Sys.setlocale('LC_TIME', 'English'); format(Sys.Date(),'%d of %B, %Y')`"
 bibliography: '`r system.file("REFERENCES.bib", package="kDGLM")`'
 link-citations: TRUE
 urlcolor: blue
@@ -26,56 +24,6 @@ knitr::opts_chunk$set(
 library(kDGLM)
 # devtools::load_all()
 ```
-
-# Table of contents
-
-<ol>
-<li><details><summary>[Introduction:](intro.html) ></summary>
-  <ul>
-  <li>[Introduction](intro.html#introduction)
-  <li>[Notation](intro.html#notation)
-  </ul></details>
-  </li>
-<li><details><summary>[Creating the model structure:](structures.html) ></summary>
-  <ul>
-  <li>[A structure for polynomial trend models](structures.html#a-structure-for-polynomial-trend-models)
-  <li>[A structure for dynamic regression models](structures.html#a-structure-for-dynamic-regression-models)
-  <li>[A structure for harmonic trend models](structures.html#a-structure-for-harmonic-trend-models)
-  <li>[A structure for autoregresive models](structures.html#a-structure-for-autoregresive-models)
-  <li>[A structure for overdispersed models](structures.html#a-structure-for-overdispersed-models)
-  <li>[Handling multiple structural blocks](structures.html#handling-multiple-structural-blocks)
-  <li>[Handling multiple linear predictors](structures.html#handling-multiple-linear-predictors)
-  <li>[Handling unknown components in the planning matrix $F_t$](structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
-  <li>[Special priors](structures.html#special-priors)
-  </ul></details>
-  </li>  
-  
-<li><details><summary>[Creating the model outcome:](outcomes.html) > </summary>
-  <ul>
-  <li>[Normal case](outcomes.html#normal-case)
-  <li>[Poisson case](outcomes.html#poisson-case)
-  <li>[Gamma case](outcomes.html#gamma-case)
-  <li>[Multinomial case](outcomes.html#multinomial-case)
-  <li>[Handling multiple outcomes](outcomes.html#handling-multiple-outcomes)
-  </ul></details>
-  </li>
-<li><details><summary>[Fitting and analysing models:](fitting.html) > </summary>
-  <ul>
-  <li>[Filtering and smoothing](fitting.html#filtering-and-smoothing)
-  <li>[Extracting components](fitting.html#extracting-components)
-  <li>[Forecasting](fitting.html#forecasting)
-  <li>[Intervention and monitoring](fitting.html#intervention-and-monitoring)
-  <li>[Tools for sensibility analysis](fitting.html#tools-for-sensibility-analysis)
-  <li>[Sampling and hyper parameter estimation](fitting.html#sampling-and-hyper-parameter-estimation)
-  </ul></details>
-  </li>
-<li><details><summary>Advanced examples:> </summary><ul>
-  <li>[Space-time model hospital admissions from gastroenteritis](example1.html)
-  </details>
-</ul></li>
-</ol>
-
-# Introduction
 
 Until now, we have presented the tools for creating the structure of a DGLM model, specifically, we have shown how to define the relationship between the latent vector $\theta_t$ and the linear predictors $\lambda_t$, along with the temporal dynamic of $\theta_t$. Now we proceed to define the observational model for $Y_t$ and the relationship between $\lambda_t$ and $\eta_t$, the parameters for the observational model, i.e., the highlighted part of the following equations:
 

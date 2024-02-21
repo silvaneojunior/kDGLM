@@ -16,7 +16,7 @@ dlm_sampling(model, sample.size, filt.distr = FALSE)
 \value{
 A list containing the following values:
 \itemize{
-   \item mt array: An array containing a sample of the latent states. Dimensions are n x t x sample.size, where n is the number of latent variables in the model and t is the number of observed values.
+   \item mt array: An array containing a sample of the latent states. Dimensions are n x t x sample.size, where n is the number of latent states in the model and t is the number of observed values.
    \item ft array: An array containing a sample of the linear predictors. Dimensions are k x t x sample.size, where k is the number of linear predictors in the model and t is the number of observed values.
    \item param list: A named list containing, for each model outcome, an array with the samples of the parameters of the observational model. Each array will have dimensions l x t x sample.size, where l is the number of parameters in the observational model and t is the number of observed values.
 }

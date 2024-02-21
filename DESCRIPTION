@@ -25,6 +25,7 @@ Suggests:
     geobr
 RoxygenNote: 7.2.3
 VignetteBuilder: knitr
+Page: https://silvaneojunior.github.io/kDGLM/
 Repository: https://github.com/silvaneojunior/kDGLM
 BugReports: https://github.com/silvaneojunior/kDGLM/issues
 Depends: 

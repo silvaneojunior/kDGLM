@@ -15,7 +15,7 @@ zero_sum_prior(block, var.index = 1:block$n)
 A dlm_block object with the desired prior.
 }
 \description{
-Defines the prior of a structural block to be such that the latent variables sum zero with probability one.
+Defines the prior of a structural block to be such that the latent states sum zero with probability one.
 }
 \details{
 The covariance matrix of the evolution and the drift parameter are also altered to guarantee that the zero sum condition will always hold.

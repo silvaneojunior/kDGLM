@@ -28,6 +28,7 @@ Other {auxiliary functions for a Normal outcome}:
 \code{\link{convert_multi_NG_Normal}()},
 \code{\link{multi_normal_gamma_pred}()},
 \code{\link{normal_pred}()},
+\code{\link{update_NG_alt2}()},
 \code{\link{update_NG_alt}()}
 }
 \concept{{auxiliary functions for a Normal outcome}}

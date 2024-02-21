@@ -20,7 +20,7 @@ regression_block(
 \arguments{
 \item{...}{Named values for the planning matrix.}
 
-\item{max.lag}{Non-negative integer: An optional argument providing the maximum lag for the explanatory variables. If a positive value is provided, this block will create additional latent variables to measure the lagged effect of X_t up until the given value. See \insertCite{WestHarr-DLM;textual}{kDGLM}, subsection 9.2.2 item (3).}
+\item{max.lag}{Non-negative integer: An optional argument providing the maximum lag for the explanatory variables. If a positive value is provided, this block will create additional latent states to measure the lagged effect of X_t up until the given value. See \insertCite{WestHarr-DLM;textual}{kDGLM}, subsection 9.2.2 item (3).}
 
 \item{zero.fill}{boolean: A Boolean indicating if the block should fill the initial delay values with 0's. If TRUE and max.lag is positive, the block assumes that X_t=0 for all t<1. If FALSE, the block assumes the user will provide X_t for all t, such that X_t will have size t+propagation_size}
 
@@ -28,31 +28,31 @@ regression_block(
 
 \item{D}{Array, Matrix, vector or scalar: The values for the discount factors at each time. If D is a array, its dimensions should be n x n x t, where n is the order of the polynomial block and t is the length of the outcomes. If D is a matrix, its dimensions should be n x n and its values will be used for each time. If D is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of D in the diagonal.}
 
-\item{h}{Matrix, vector or scalar: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, its dimension should be 2 x t, where t is the length of the series. If a vector, it should have size t, and each value will be applied to the first latent variable (the one which affects the linear predictors) in their respective time. If a scalar, the passed value will be used for the first latent variable at each time.}
+\item{h}{Matrix, vector or scalar: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, its dimension should be 2 x t, where t is the length of the series. If a vector, it should have size t, and each value will be applied to the first latent state (the one which affects the linear predictors) in their respective time. If a scalar, the passed value will be used for the first latent state at each time.}
 
 \item{H}{Array, Matrix, vector or scalar: The values for the covariance matrix for the noise factor at each time. If H is a array, its dimensions should be n x n x t, where n is the order of the polynomial block and t is the length of the outcomes. If H is a matrix, its dimensions should be n x n and its values will be used for each time. If H is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of H in the diagonal.}
 
-\item{a1}{Vector or scalar: The prior mean for the latent variables associated with this block at time 1. If a1 is a vector, its dimension should be equal to the order of the polynomial block. If a1 is a scalar, its value will be used for all latent variables.}
+\item{a1}{Vector or scalar: The prior mean for the latent states associated with this block at time 1. If a1 is a vector, its dimension should be equal to the order of the polynomial block. If a1 is a scalar, its value will be used for all latent states.}
 
-\item{R1}{Matrix, vector or scalar: The prior covariance matrix for the latent variables associated with this block at time 1. If R1 is a matrix, its dimensions should be n x n. If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.}
+\item{R1}{Matrix, vector or scalar: The prior covariance matrix for the latent states associated with this block at time 1. If R1 is a matrix, its dimensions should be n x n. If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.}
 
 \item{monitoring}{Vector: A vector of flags indicating which variables should be monitored (if automated monitoring is used). Its size should be n. The default is that no variable should be monitored.}
 }
 \value{
 A dlm_block object containing the following values:
 \itemize{
-   \item FF Array: A 3D-array containing the regression matrix for each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model and t is the time series length.
+   \item FF Array: A 3D-array containing the regression matrix for each time. Its dimension should be n x k x t, where n is the number of latent states, k is the number of linear predictors in the model and t is the time series length.
    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
-   \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
+   \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
-   \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
+   \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
    \item h Matrix: The mean for the random noise of the temporal evolution. Its dimension should be n x t.
    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.
    \item a1 Vector: The prior mean for the latent vector.
    \item R1 Matrix: The prior covariance matrix for the latent vector.
    \item var.names list: A list containing the variables indexes by their name.
    \item max.lag Positive integer: Same as argument.
-   \item n Positive integer: The number of latent variables associated with this block (2).
+   \item n Positive integer: The number of latent states associated with this block (2).
    \item t Positive integer: The number of time steps associated with this block. If 1, the block is compatible with blocks of any time length, but if t is greater than 1, this block can only be used with blocks of the same time length.
    \item k Positive integer: The number of outcomes associated with this block. This block can only be used with blocks with the same outcome length.
    \item pred.names Vector: The name of the linear predictors associated with this block.

@@ -50,7 +50,7 @@ var_decomp <- function(S) {
   # S=as.matrix(S)
   # diag(S)=diag(S)+1e-8
   Chol.decomp <- cholesky(S)
-  flags.index=is.nan(Chol.decomp) | is.infinite(Chol.decomp)
+  flags.index <- is.nan(Chol.decomp) | is.infinite(Chol.decomp)
   flags <- rowAny(flags.index)
   while (any(flags)) {
     sub.chol <- Chol.decomp[!flags, flags, drop = FALSE]
@@ -66,7 +66,7 @@ var_decomp <- function(S) {
     if (any(sub.flags)) {
       Chol.decomp[sub.flags, sub.flags] <- cholesky(placeholder[flags2, flags2])
     }
-    flags.index=is.nan(Chol.decomp) | is.infinite(Chol.decomp)
+    flags.index <- is.nan(Chol.decomp) | is.infinite(Chol.decomp)
     Chol.decomp[flags.index] <- 0
     flags <- rowAny(flags.index)
   }
@@ -157,20 +157,20 @@ ginv <- function(S) {
 #'
 #' @keywords internal
 dmvnorm <- function(x, mu, Sigma) {
-  Sigma=as.matrix(Sigma)
-  index=order(diag(Sigma),decreasing =TRUE)
-  x=x[index]
-  mu=mu[index]
-  Sigma=Sigma[index,index,drop=FALSE]
-  diag(Sigma)=diag(Sigma)+1e-8
+  Sigma <- as.matrix(Sigma)
+  index <- order(diag(Sigma), decreasing = TRUE)
+  x <- x[index]
+  mu <- mu[index]
+  Sigma <- Sigma[index, index, drop = FALSE]
+  diag(Sigma) <- diag(Sigma) + 1e-8
 
 
   Chol.decomp <- var_decomp(Sigma)
   flags.valid <- diag(Chol.decomp) > 0
-  inv.chol.Sigma=Chol.decomp*0
+  inv.chol.Sigma <- Chol.decomp * 0
 
-  inv.chol.Sigma[flags.valid,flags.valid] <-
-    backsolve(Chol.decomp[flags.valid,flags.valid], diag(sum(flags.valid)))
+  inv.chol.Sigma[flags.valid, flags.valid] <-
+    backsolve(Chol.decomp[flags.valid, flags.valid], diag(sum(flags.valid)))
   diag.chol.inv <- diag(inv.chol.Sigma)
 
   norm.x <- transpose(inv.chol.Sigma) %*% (x - mu)
@@ -211,7 +211,7 @@ dmvnorm <- function(x, mu, Sigma) {
 #'
 #' @keywords internal
 rmvnorm <- function(n, mu, Sigma,
-                    norm.x = matrnorm(k, n,seed=round(runif(1)*1e15))) {
+                    norm.x = matrnorm(k, n, seed = round(runif(1) * 1e15))) {
   k <- length(mu)
   chol.Sigma <- var_decomp(Sigma)
   transpose(chol.Sigma) %*% norm.x + c(mu)

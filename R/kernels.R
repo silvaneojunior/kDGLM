@@ -408,10 +408,10 @@ calc_current_G <- function(m0, C0, G, G.labs) {
         }
         a1 <- G.now %*% m1
         R1 <- G.now %*% C1 %*% transpose(G.now)
-        index.G=c(seq_len(n)[-index.kl],index.kl)
-        index.G.inv=order(index.G)
-        G.now <- create_G(C0[index.G,index.G], C1[index.G,index.G])[index.G.inv,index.G.inv]
-        drift <- drift + a1-G.now %*% m0
+        index.G <- c(seq_len(n)[-index.kl], index.kl)
+        index.G.inv <- order(index.G)
+        G.now <- create_G(C0[index.G, index.G], C1[index.G, index.G])[index.G.inv, index.G.inv]
+        drift <- drift + a1 - G.now %*% m0
 
         # n_kl=sum(flags.kl)
         # m1[index.row]=0

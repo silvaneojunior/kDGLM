@@ -9,7 +9,7 @@ fit_model(..., smooth = TRUE, p.monit = NA)
 \arguments{
 \item{...}{dlm_block or dlm_distr objects: The structural blocks of the model (dlm_block objects), alongside the model outcomes (dlm_distr object). All block must be completely defined.}
 
-\item{smooth}{boolean: A flag indicating if the smoothed distribution for the latent variables should be calculated.}
+\item{smooth}{boolean: A flag indicating if the smoothed distribution for the latent states should be calculated.}
 
 \item{p.monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.}
 }

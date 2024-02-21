@@ -41,7 +41,7 @@ A list containing:
 Auxiliary function for forecasting
 }
 \details{
-If an a covariate is necessary for forecasting, it should be passed as a named argument. Its name must follow this structure: <block name>.Covariate<.index>. If there is only one pulse in the associated block the index is omitted.
+If an a covariate is necessary for forecasting, it should be passed as a named argument. Its name must follow this structure: <block name>.Covariate<.index>. If there is only one covariate in the associated block the index is omitted.
 If an a pulse is necessary for forecasting, it should be passed as a named argument. Its name must follow this structure: <block name>.Pulse<.index>. If there is only one pulse in the associated block the index is omitted.
 The user may pass the observed values at the prediction windows (optional). See example.
 As an special case, if the model has an Multinomial outcome, the user may pass the N parameter instead of the observations.

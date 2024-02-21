@@ -14,7 +14,8 @@ search_model(
   pred.cred = 0.95,
   metric.cutoff = NA,
   p.monit = NA,
-  save.models = FALSE
+  save.models = FALSE,
+  silent = FALSE
 )
 }
 \arguments{
@@ -26,9 +27,9 @@ search_model(
 
 \item{metric}{character: The name of the metric to use for model selection. One of log-likelihood for the one-step-ahead prediction ("log.like"), Mean Absolute Error ("mae"), Mean Absolute Scaled Error ("mase") \insertCite{mase}{kDGLM}, Relative Absolute Error ("rae"), Mean Squared Error ("mse") or Interval Score ("interval.score") \insertCite{interval_score}{kDGLM}.}
 
-\item{smooth}{boolean: A flag indicating if the smoothed distribution for the latent variables should be calculated.}
+\item{smooth}{boolean: A flag indicating if the smoothed distribution for the latent states should be calculated.}
 
-\item{lag}{integer: The number of steps ahead used for the prediction when calculating the metrics. If lag<0, predictions are made using the smoothed distribution of the latent variables.}
+\item{lag}{integer: The number of steps ahead used for the prediction when calculating the metrics. If lag<0, predictions are made using the smoothed distribution of the latent states.}
 
 \item{pred.cred}{numeric: A number between 0 and 1 (not included) indicating the credibility interval for predictions. If not within the valid range of values, 0.95 will be used.}
 
@@ -37,6 +38,8 @@ search_model(
 \item{p.monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.}
 
 \item{save.models}{boolean: A flag indicating if all evaluated models should be saved. If FALSE, only the best model (according to the chosen metric) will be saved;}
+
+\item{silent}{boolean: A flag indicating if a progress bar should be printed.}
 }
 \value{
 A searched_dlm object containing the following values:
@@ -57,7 +60,7 @@ This function simple evaluates all possible combinations and chooses the one tha
 
 data <- c(AirPassengers)
 
-level <- polynomial_block(rate = 1, order = 2, D = 0.95)
+level <- polynomial_block(rate = 1, order = 2, D = "D.level")
 season <- harmonic_block(rate = "sazo.effect", order = 2, period = 12, D = "D.sazo")
 
 outcome <- Poisson(lambda = "rate", data = data)
@@ -66,6 +69,7 @@ search_model(level, season,
   outcomes = outcome,
   search.grid = list(
     sazo.effect = c(0, 1),
+    D.level = c(seq.int(0.8, 1, l = 11)),
     D.sazo = c(seq.int(0.95, 1, l = 11))
   ),
   condition = "sazo.effect==1 | D.sazo==1"

@@ -33,12 +33,12 @@
 #'   polynomial_block(p = 1, order = 2, D = 0.95) +
 #'     harmonic_block(p = 1, period = 12, D = 0.975) +
 #'     noise_block(p = 1, R1 = 0.1) +
-#'     regression_block(p = chickenPox$date>=as.Date("2013-09-01"))
-#'     # Vaccine was introduced in September of 2013
+#'     regression_block(p = chickenPox$date >= as.Date("2013-09-01"))
+#'   # Vaccine was introduced in September of 2013
 #' ) * 4
 #'
 #' outcome <- Multinom(p = structure$pred.names, data = chickenPox[, c(2, 3, 4, 6, 5)])
-#' fitted.data <- fit_model(structure, chickenPox=outcome)
+#' fitted.data <- fit_model(structure, chickenPox = outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -49,7 +49,7 @@
 #'   polynomial_block(V = 1, D = 0.95)
 #'
 #' outcome <- Normal(mu = "mu", V = "V", data = cornWheat$corn.log.return[1:500])
-#' fitted.data <- fit_model(structure, corn=outcome)
+#' fitted.data <- fit_model(structure, corn = outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -65,7 +65,7 @@
 #'   V = matrix(c("V.1", "rho", "rho", "V.2"), 2, 2),
 #'   data = cornWheat[1:500, c(4, 5)]
 #' )
-#' fitted.data <- fit_model(structure, cornWheat=outcome)
+#' fitted.data <- fit_model(structure, cornWheat = outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -75,7 +75,7 @@
 #' structure <- polynomial_block(mu = 1, D = 0.95)
 #'
 #' outcome <- Gamma(phi = 0.5, mu = "mu", data = cornWheat$corn.log.return[1:500]**2)
-#' fitted.data <- fit_model(structure, corn=outcome)
+#' fitted.data <- fit_model(structure, corn = outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -176,9 +176,9 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA) {
 
   coef.names <- rep(NA, structure$n)
   for (name in names(structure$var.names)) {
-    if(length(names(structure$var.names[[name]]))>1){
+    if (length(names(structure$var.names[[name]])) > 1) {
       coef.names[structure$var.names[[name]]] <- paste0(name, ".", names(structure$var.names[[name]]))
-    }else{
+    } else {
       coef.names[structure$var.names[[name]]] <- name
     }
   }
@@ -562,9 +562,9 @@ forecast.fitted_dlm <- function(object, t = 1,
     model_i <- object$outcomes[[outcome.name]]
     r.cur <- model_i$r
     prediction <- model_i$calc_pred(outcome.forecast[[outcome.name]]$conj.param,
-                                    outcome.forecast[[outcome.name]]$data,
-                                    pred.cred = pred.cred,
-                                    parms = model_i$parms
+      outcome.forecast[[outcome.name]]$data,
+      pred.cred = pred.cred,
+      parms = model_i$parms
     )
 
 
@@ -626,8 +626,8 @@ forecast.fitted_dlm <- function(object, t = 1,
     plot.data$group.ribbon <- paste0(plot.data$Serie, plot.data$type)
     series.names <- levels(plot.data$Serie)
     n.series <- length(series.names)
-    colors <- rainbow(n.series, s = 0.8,v=0.9)
-    fills <- rainbow(n.series, s = 0.4,v=0.9)
+    colors <- rainbow(n.series, s = 0.8, v = 0.9)
+    fills <- rainbow(n.series, s = 0.4, v = 0.9)
     if (plot == "base" || !requireNamespace("ggplot2", quietly = TRUE)) {
       if (plot != "base") {
         warning("The ggplot2 package is required for ggplot2 and plotly plots and was not found. Falling back to R base plot functions.")
@@ -656,14 +656,14 @@ forecast.fitted_dlm <- function(object, t = 1,
       for (serie in series.names) {
         plot.serie <- plot.data[plot.data$Serie == serie, ]
         points(plot.serie$Time, plot.serie$Observation,
-               col = points[[serie]],
-               pch = 16 + (seq_len(t + t_last) > t_last)
+          col = points[[serie]],
+          pch = 16 + (seq_len(t + t_last) > t_last)
         )
 
         lines(plot.serie$Time[time.index], plot.serie$Prediction[time.index], col = colors[[serie]], lty = 1)
         lines(plot.serie$Time[time.index.foward], plot.serie$Prediction[time.index.foward], col = colors[[serie]], lty = 2)
         base_ribbon(plot.serie$Time, plot.serie$C.I.lower, plot.serie$C.I.upper,
-                    col = fills[[serie]], lty = 0
+          col = fills[[serie]], lty = 0
         )
       }
 
@@ -697,10 +697,10 @@ forecast.fitted_dlm <- function(object, t = 1,
       names(colors) <- names(fills) <- series.names
       plt.obj <- ggplot2::ggplot(plot.data, ggplot2::aes_string(x = "Time")) +
         ggplot2::geom_line(ggplot2::aes_string(y = "Prediction", linetype = "type", color = "Serie")) +
-        ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper", fill = "Serie", group = "group.ribbon"),alpha=0.25, color = NA) +
+        ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper", fill = "Serie", group = "group.ribbon"), alpha = 0.25, color = NA) +
         ggplot2::geom_point(ggplot2::aes_string(y = "Observation", shape = "shape.point", color = "Serie"), alpha = 0.5) +
-        ggplot2::scale_fill_manual("", values=fills,na.value = NA) +
-        ggplot2::scale_color_manual("",values=colors, na.value = NA) +
+        ggplot2::scale_fill_manual("", values = fills, na.value = NA) +
+        ggplot2::scale_color_manual("", values = colors, na.value = NA) +
         ggplot2::scale_linetype_manual("", values = c("solid", "dashed")) +
         ggplot2::scale_shape_manual("", values = c(17, 16)) +
         ggplot2::scale_x_continuous("Time") +
@@ -1177,13 +1177,13 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
         conj.param <- outcome$conj_distr(ft.canom, Qt.canom, parms = outcome$parms)
         conj.param.list[[outcome.name]][t.index, ] <- conj.param
         prediction <- outcome$calc_pred(conj.param,
-                                        if (i > t_last) {
-                                          NULL
-                                        } else {
-                                          outcome$data[i, , drop = FALSE]
-                                        },
-                                        pred.cred,
-                                        parms = outcome$parms
+          if (i > t_last) {
+            NULL
+          } else {
+            outcome$data[i, , drop = FALSE]
+          },
+          pred.cred,
+          parms = outcome$parms
         )
         out.ref <- t(outcome$data)[, i, drop = FALSE]
         if (object$period < object$t) {
@@ -1205,8 +1205,8 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
         mse[t.index] <- mse[t.index] + sum((out.ref - prediction$pred)**2)
         interval.score[t.index] <- interval.score[t.index] +
           sum((prediction$icu.pred - prediction$icl.pred) +
-                2 / (1 - pred.cred) * (prediction$icl.pred - out.ref) * (out.ref < prediction$icl.pred) +
-                2 / (1 - pred.cred) * (out.ref - prediction$icu.pred) * (out.ref > prediction$icu.pred))
+            2 / (1 - pred.cred) * (prediction$icl.pred - out.ref) * (out.ref < prediction$icl.pred) +
+            2 / (1 - pred.cred) * (out.ref - prediction$icu.pred) * (out.ref > prediction$icu.pred))
         r.acum <- r.acum + r.cur
 
         mase[t.index] <- mase[t.index] + mean(abs(out.ref - prediction$pred) / mase.coef) / r
@@ -1301,7 +1301,7 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
 #'   polynomial_block(V = 1, D = 0.95)
 #'
 #' outcome <- Normal(mu = "mu", V = "V", data = cornWheat$corn.log.return[1:500])
-#' fitted.data <- fit_model(structure, corn=outcome)
+#' fitted.data <- fit_model(structure, corn = outcome)
 #'
 #' sample <- dlm_sampling(fitted.data, 5000)
 #'
@@ -1341,10 +1341,10 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
   FF.step <- FF[, , t.len]
   if (any(is.na(FF.step))) {
     ft.sample_i <- sapply(seq_len(sample.size),
-                          function(j) {
-                            calc_lin_pred(mt.sample_i[, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
-                          },
-                          simplify = "matrix"
+      function(j) {
+        calc_lin_pred(mt.sample_i[, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
+      },
+      simplify = "matrix"
     )
   } else {
     ft.sample_i <- crossprod(FF.step, mt.sample_i)
@@ -1405,10 +1405,10 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
       FF.step <- FF[, , t]
       if (any(is.na(FF.step))) {
         ft.sample_i <- sapply(seq_len(sample.size),
-                              function(j) {
-                                calc_lin_pred(mt.sample_i[, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
-                              },
-                              simplify = "matrix"
+          function(j) {
+            calc_lin_pred(mt.sample_i[, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
+          },
+          simplify = "matrix"
         )
       } else {
         ft.sample_i <- crossprod(FF.step, mt.sample_i)
@@ -1496,7 +1496,7 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
 #' @family {auxiliary functions for fitted_dlm objects}
 #' @references
 #'    \insertAllCited{}
-search_model <- function(..., search.grid, condition = "TRUE", metric = "log.like", smooth = TRUE, lag = 1, pred.cred = 0.95, metric.cutoff = NA, p.monit = NA, save.models = FALSE,silent=FALSE) {
+search_model <- function(..., search.grid, condition = "TRUE", metric = "log.like", smooth = TRUE, lag = 1, pred.cred = 0.95, metric.cutoff = NA, p.monit = NA, save.models = FALSE, silent = FALSE) {
   if (is.null(pred.cred) || is.na(pred.cred)) {
     pred.cred <- 0.95
   } else {
@@ -1584,7 +1584,7 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
     raw.perc <- i / vals.nums
     perc <- round(100 * raw.perc, 2)
     n.bar <- round(50 * raw.perc)
-    if(!silent){
+    if (!silent) {
       cat(paste0(
         "\r[", paste0(rep("=", n.bar), collapse = ""),
         paste0(rep(" ", 50 - n.bar), collapse = ""), "] - ",
@@ -1597,7 +1597,7 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
 
     structure <- do.call(function(...) {
       set.block.value(ref.strucuture, ...)
-    }, search.data[i, ,drop=FALSE])
+    }, search.data[i, , drop = FALSE])
 
     if (structure$status == "undefined") {
       stop("Error: not all unkown hiper parameter have values. Check the search grid to make sure every unkown hiper parameter has a range of values.")
@@ -1641,7 +1641,7 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
     }
   }
 
-  if(!silent){
+  if (!silent) {
     cat("\n")
   }
   search.data <- search.data[order(-search.data[[metric]], decreasing = (metric != "log.like")), ]
@@ -1985,8 +1985,8 @@ eval_dlm_norm_const <- function(model, lin.pred = model$n > 2 * model$k) {
     }
 
     return(eval_dlm_prior(fts, model, lin.pred = lin.pred) +
-             eval_dlm_log_like(fts, model, lin.pred = lin.pred) +
-             -eval_dlm_post(fts, model, lin.pred = lin.pred))
+      eval_dlm_log_like(fts, model, lin.pred = lin.pred) +
+      -eval_dlm_post(fts, model, lin.pred = lin.pred))
   } else {
     eval_dlm_prior(model$mts, model, lin.pred = lin.pred) +
       eval_dlm_log_like(model$mts, model, lin.pred = lin.pred) +

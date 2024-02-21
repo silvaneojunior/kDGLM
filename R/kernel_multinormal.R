@@ -419,7 +419,7 @@ multi_normal_gamma_pred <- function(conj.param, outcome = NULL, parms = list(), 
   }
   if (like.flag) {
     outcome <- matrix(outcome, t, r)
-    warning('The log-likelihood is not being calculated properly. Each outcome is computed independently.')
+    warning("The log-likelihood is not being calculated properly. Each outcome is computed independently.")
     log.like <- colSums(dt((outcome - mu0) / s, nu, log = TRUE) - log(s))
   } else {
     log.like <- NULL

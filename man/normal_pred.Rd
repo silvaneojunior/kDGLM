@@ -34,6 +34,7 @@ In this scenario, the marginal distribution of the data is also Normal.
 Other {auxiliary functions for a Normal outcome}: 
 \code{\link{convert_multi_NG_Normal}()},
 \code{\link{multi_normal_gamma_pred}()},
+\code{\link{update_NG_alt2}()},
 \code{\link{update_NG_alt}()},
 \code{\link{update_Normal}()}
 }

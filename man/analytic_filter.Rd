@@ -26,15 +26,15 @@ analytic_filter(
 
 \item{R1}{matrix: The prior covariance matrix at the latent vector.}
 
-\item{FF}{array: A 3D-array containing the planning matrix at each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model and t is the time series length.}
+\item{FF}{array: A 3D-array containing the planning matrix at each time. Its dimension should be n x k x t, where n is the number of latent states, k is the number of linear predictors in the model and t is the time series length.}
 
 \item{FF.labs}{matrix: A character matrix containing the label associated with each value in FF.}
 
-\item{G}{array: A 3D-array containing the evolution matrix at each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.}
+\item{G}{array: A 3D-array containing the evolution matrix at each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.}
 
 \item{G.labs}{matrix: A character matrix containing the label associated with each value in G.}
 
-\item{D}{array: A 3D-array containing the discount factor matrix at each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.}
+\item{D}{array: A 3D-array containing the discount factor matrix at each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.}
 
 \item{h}{matrix: A drift to be added after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.}
 
@@ -42,19 +42,19 @@ analytic_filter(
 
 \item{p.monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.}
 
-\item{monitoring}{numeric: A vector of flags indicating which latent variables should be monitored.}
+\item{monitoring}{numeric: A vector of flags indicating which latent states should be monitored.}
 }
 \value{
 A list containing the following values:
 \itemize{
-   \item mt matrix: The filtered mean of the latent variables for each time. Dimensions are n x t.
-   \item Ct array: A 3D-array containing the filtered covariance matrix of the latent variable for each time. Dimensions are n x n x t.
-   \item at matrix: The one-step-ahead mean of the latent variables at each time. Dimensions are n x t.
-   \item Rt array: A 3D-array containing the one-step-ahead covariance matrix for latent variables at each time. Dimensions are n x n x t.
+   \item mt matrix: The filtered mean of the latent states for each time. Dimensions are n x t.
+   \item Ct array: A 3D-array containing the filtered covariance matrix of the latent states for each time. Dimensions are n x n x t.
+   \item at matrix: The one-step-ahead mean of the latent states at each time. Dimensions are n x t.
+   \item Rt array: A 3D-array containing the one-step-ahead covariance matrix for latent states at each time. Dimensions are n x n x t.
    \item ft matrix: The one-step-ahead mean of the linear predictors at each time. Dimensions are k x t.
    \item Qt array: A 3D-array containing the one-step-ahead covariance matrix for linear predictors at each time. Dimensions are k x k x t.
    \item ft.star matrix: The filtered mean of the linear predictors for each time. Dimensions are k x t.
-   \item Qt.star array: A 3D-array containing the linear predictors matrix of the latent variable for each time. Dimensions are k x k x t.
+   \item Qt.star array: A 3D-array containing the linear predictors matrix of the latent state for each time. Dimensions are k x k x t.
    \item FF array: The same as the argument (same values).
    \item G matrix: The same as the argument (same values).
    \item G.labs matrix: The same as the argument (same values).
