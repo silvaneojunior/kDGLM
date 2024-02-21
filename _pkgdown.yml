@@ -1,4 +1,13 @@
 url: ~
 template:
   bootstrap: 5
+articles:
+- title: Vignettes
+  navbar: ~
+  contents:
+  - intro.html
+  - structures.html
+  - outcomes.html
+  - fitting.html
+  - example1.html
 

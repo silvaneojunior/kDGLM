@@ -8,8 +8,8 @@
 <meta name="description" content="kDGLM">
 <title>Fitting and analysing models • kDGLM</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Fitting and analysing models">
 <meta property="og:description" content="kDGLM">
@@ -76,7 +76,7 @@
                         <h4 data-toc-skip class="author">Silvaneo V. dos
 Santos Jr.</h4>
             
-            <h4 data-toc-skip class="date">20 of February, 2024</h4>
+            <h4 data-toc-skip class="date">21 of February, 2024</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/silvaneojunior/kDGLM/blob/HEAD/vignettes/fitting.Rmd" class="external-link"><code>vignettes/fitting.Rmd</code></a></small>
       <div class="d-none name"><code>fitting.Rmd</code></div>
@@ -301,23 +301,23 @@ distributions:
 
 Coeficients (smoothed) at time 144:
                 Estimate Std. Error   t value Pr(&gt;|t|)
-Var.Poly.Level   6.20313    0.01580 392.59699   &lt;1e-12 *** 
-Var.Poly.Slope   0.00848    0.00068  12.42254   &lt;1e-12 *** 
-Var.Sazo.Main.1 -0.15728    0.01198 -13.12635   &lt;1e-12 *** 
-Var.Sazo.Aux.1  -0.07581    0.01231  -6.15947 7.30e-10 *** 
-Var.Sazo.Main.2 -0.00826    0.01167  -0.70787    0.479   
-Var.Sazo.Aux.2   0.08594    0.01198   7.17266   &lt;1e-12 *** 
+Var.Poly.Level   6.20799    0.01413 439.36382   &lt;1e-12 *** 
+Var.Poly.Slope   0.00889    0.00052  17.05167   &lt;1e-12 *** 
+Var.Sazo.Main.1 -0.15753    0.01196 -13.17551   &lt;1e-12 *** 
+Var.Sazo.Aux.1  -0.07526    0.01225  -6.14283 8.11e-10 *** 
+Var.Sazo.Main.2 -0.00841    0.01167  -0.72095    0.471   
+Var.Sazo.Aux.2   0.08618    0.01197   7.19746   &lt;1e-12 *** 
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 ---
 One-step-ahead prediction
-Log-likelihood        : -564.43095
-Interval Score        :  100.50769
-Mean Abs. Scaled Error:    0.42600
-Relative abs. Error   :    0.05100
-Mean Abs. Error       :   13.64499
-Mean Squared Error    :  310.81196
+Log-likelihood        : -567.01085
+Interval Score        :  102.96154
+Mean Abs. Scaled Error:    0.43384
+Relative abs. Error   :    0.05214
+Mean Abs. Error       :   13.89588
+Mean Squared Error    :  320.56218
 ---</code></pre>
 <p>Notice that the coefficients shown are those of the last observation,
 but one can also see the summary of any particular time by changing the
@@ -331,23 +331,23 @@ distributions:
 
 Coeficients (smoothed) at time 100:
                 Estimate Std. Error   t value Pr(&gt;|t|)
-Var.Poly.Level   6.20313    0.01580 392.59699   &lt;1e-12 *** 
-Var.Poly.Slope   0.00848    0.00068  12.42254   &lt;1e-12 *** 
-Var.Sazo.Main.1 -0.15728    0.01198 -13.12635   &lt;1e-12 *** 
-Var.Sazo.Aux.1  -0.07581    0.01231  -6.15947 7.30e-10 *** 
-Var.Sazo.Main.2 -0.00826    0.01167  -0.70787    0.479   
-Var.Sazo.Aux.2   0.08594    0.01198   7.17266   &lt;1e-12 *** 
+Var.Poly.Level   5.84951    0.01089 537.00195   &lt;1e-12 *** 
+Var.Poly.Slope   0.00889    0.00052  17.05167   &lt;1e-12 *** 
+Var.Sazo.Main.1  0.01729    0.01032   1.67484    0.094   
+Var.Sazo.Aux.1   0.16871    0.01009  16.72138   &lt;1e-12 *** 
+Var.Sazo.Main.2 -0.06609    0.00995  -6.64074 3.12e-11 *** 
+Var.Sazo.Aux.2  -0.05222    0.00999  -5.22925 1.70e-07 *** 
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 ---
 One-step-ahead prediction
-Log-likelihood        : -564.43095
-Interval Score        :  100.50769
-Mean Abs. Scaled Error:    0.42600
-Relative abs. Error   :    0.05100
-Mean Abs. Error       :   13.64499
-Mean Squared Error    :  310.81196
+Log-likelihood        : -567.01085
+Interval Score        :  102.96154
+Mean Abs. Scaled Error:    0.43384
+Relative abs. Error   :    0.05214
+Mean Abs. Error       :   13.89588
+Mean Squared Error    :  320.56218
 ---</code></pre>
 <p>For more details about the usage of the <code>summary</code> method
 of the <code>fitted_dlm</code> class, see the associated documentation
@@ -403,17 +403,20 @@ used:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.coef</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="fitting_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
+<pre><code><span><span class="cn">NULL</span></span></code></pre>
 <p>If the user wants to see only a restricted set of latent variables,
 the extra argument <code>var</code> can be used to specify the name of
 the variable to plot:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.coef</span>, <span class="st">"Var.Poly.Level"</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="fitting_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
+<pre><code><span><span class="cn">NULL</span></span></code></pre>
 <p>The user may also plot the linear predictors, by specifying the name
 of the linear predictor:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.coef</span>, <span class="st">"rate"</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="fitting_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
+<pre><code><span><span class="cn">NULL</span></span></code></pre>
 <p>Lastly, although we do not recommend it, the user may also extract
 some of these information directly from the <code>fitted_dlm</code>
 object.</p>
@@ -428,7 +431,7 @@ package.</p>
 restricted to the period where the model was fitted. If the user wishes
 make predictions for future observations, the <code>forecast</code>
 method can be used:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/forecast.html">forecast</a></span><span class="op">(</span><span class="va">fitted.data</span>, <span class="fl">20</span>, plot <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span><span class="op">$</span><span class="va">plot</span></span></code></pre></div>
 <p><img src="fitting_files/figure-html/unnamed-chunk-12-1.png" width="700"></p>
 <pre><code><span><span class="cn">NULL</span></span></code></pre>
@@ -461,13 +464,13 @@ previously observed. This feature is particularly useful in problems
 that involve monitoring or real time inference about a phenomena.</p>
 <p>For updating a <code>fitted_dlm</code> object, the user can use the
 <code>update</code> method for the <code>fitted_dlm</code> class:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/update.fitted_dlm.html">update.fitted_dlm</a></span><span class="op">(</span><span class="va">model</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
 <p>As one can imagine, the <code>model</code> argument must be a
 <code>fitted_dlm</code> object. Moreover, the <code>...</code> argument
 must be a sequence of named arguments containing the new information
 observed. For example:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">level</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, D <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
 <span><span class="va">season</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/harmonic_block.html">harmonic_block</a></span><span class="op">(</span>rate <span class="op">=</span> <span class="fl">1</span>, period <span class="op">=</span> <span class="fl">12</span>, order <span class="op">=</span> <span class="fl">2</span>, D <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span></span>
 <span><span class="co"># Omitting the last 44 observations</span></span>
@@ -493,7 +496,7 @@ time there is some change in the time series that is not part of its
 temporal dynamic, then the user should provide that information in the
 model structure. For that we provide the <code>intervention</code>
 function:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span></span>
 <span><span class="co"># Adding an artificial change, so that we can make an intervention on the data at that point</span></span>
 <span><span class="co"># Obviously, one should NOT change their own data.</span></span>
@@ -512,6 +515,7 @@ function:</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="fitting_files/figure-html/unnamed-chunk-15-1.png" width="700"></p>
+<pre><code><span><span class="cn">NULL</span></span></code></pre>
 <p>See the documentation of the <code>intervention</code> function for
 more details about its arguments. Also, we strongly recommend the user
 to consult <span class="citation">West and Harrison (<a href="#ref-WestHarr-DLM">1997</a>)</span>, chapter 11 for a detailed
@@ -526,7 +530,7 @@ valid value for the <code>p.monit</code> argument in the
 the prior probability (i.e., the probability before observing the data),
 at any given time, of behavioral change in the series that is not
 accommodated by the temporal dynamic.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span></span>
 <span><span class="co"># Adding an artificial change, so that we can make an intervention on the data at that point</span></span>
 <span><span class="co"># Obviously, one should NOT change their own data.</span></span>
@@ -542,6 +546,7 @@ accommodated by the temporal dynamic.</p>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="fitting_files/figure-html/unnamed-chunk-16-1.png" width="700"></p>
+<pre><code><span><span class="cn">NULL</span></span></code></pre>
 <p>The approach used for automated monitoring is almost identical to
 that of <span class="citation">West and Harrison (<a href="#ref-WestHarr-DLM">1997</a>)</span>, chapter 11.4, using Bayes’
 factor, such that <code>p.monit</code><span class="math inline">\(=0.05\)</span> yields a threshold equivalent to
@@ -561,14 +566,14 @@ which value to choose for the discount factor in a polynomial trend
 block of a Poisson model. First, when defining the model structure, we
 must set the discount factor as a string, which will be used as the
 label for the unspecified parameter:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">level</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, D <span class="op">=</span> <span class="st">"D1"</span><span class="op">)</span></span></code></pre></div>
 <p>By setting the discount factor as a string, the structural block
 becomes partially <strong>undefined</strong>:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">level</span><span class="op">)</span></span></code></pre></div>
 <pre><code>Basic DLM block.
-latent states: 
+Latent variables: 
     Var.Poly: Level, Slope (2 variable(s))
 
 Linear predictors: 
@@ -577,11 +582,11 @@ Linear predictors:
 Status: undefined
 Serie length: 1
 Interventions at: 
-Number of latent states: 2
+Number of latent variables: 2
 Number of linear predictors: 1</code></pre>
 <p>As such, this block **can not* be used in the <code>fit_model</code>
 function:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">season</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/harmonic_block.html">harmonic_block</a></span><span class="op">(</span>rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, period <span class="op">=</span> <span class="fl">12</span>, D <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span></span>
 <span><span class="va">outcome</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Poisson.html">Poisson</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="st">"rate"</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fitted.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">level</span>, <span class="va">season</span>, AirPassengers <span class="op">=</span> <span class="va">outcome</span><span class="op">)</span></span></code></pre></div>
@@ -590,7 +595,7 @@ function:</p>
 <code>dlm_block</code> can only be used with the
 <code>search_model</code> function. This function is used to fit a set
 of models, while computing some comparative metrics.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/search_model.html">search_model</a></span><span class="op">(</span><span class="va">...</span>, <span class="va">search.grid</span>,</span>
 <span>  condition <span class="op">=</span> <span class="st">"TRUE"</span>,</span>
 <span>  metric <span class="op">=</span> <span class="st">"log.like"</span>, smooth <span class="op">=</span> <span class="cn">TRUE</span>, lag <span class="op">=</span> <span class="fl">1</span>,</span>
@@ -624,7 +629,7 @@ observations to be ignored when computing the metrics.</p>
 <code>search_model</code> function returns the best model by the chosen
 metric, along with a data frame containing the metrics for each model
 evaluated.</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">level</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, D <span class="op">=</span> <span class="st">"D.level"</span><span class="op">)</span></span>
 <span><span class="va">season</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/harmonic_block.html">harmonic_block</a></span><span class="op">(</span></span>
 <span>  rate <span class="op">=</span> <span class="st">"sazo.effect"</span>, period <span class="op">=</span> <span class="fl">12</span>,</span>
@@ -649,7 +654,7 @@ tested directly (such as the order of a polynomial block or the period
 of a harmonic block), he can create one block for each option and
 perform a sensibility analysis for the inclusion/exclusion of each
 block:</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Creating a block for each order</span></span>
 <span><span class="va">level</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>rate <span class="op">=</span> <span class="st">"pol.ord.1"</span>, order <span class="op">=</span> <span class="fl">1</span>, D <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>rate <span class="op">=</span> <span class="st">"pol.ord.2"</span>, order <span class="op">=</span> <span class="fl">2</span>, D <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span> <span class="op">+</span></span>
@@ -687,7 +692,7 @@ the sampling algorithm.</p>
 <p>Our package offers the <code>dlm_sampling</code> function, which
 provides a routine for drawing independent samples from any fitted
 model:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/dlm_sampling.html">dlm_sampling</a></span><span class="op">(</span><span class="va">fitted.data</span>, <span class="fl">5000</span><span class="op">)</span></span></code></pre></div>
 <p>For the example above, where our model has <span class="math inline">\(6\)</span> latent states and <span class="math inline">\(144\)</span> observations (which yields a total of
 <span class="math inline">\(864\)</span> parameters), it takes
@@ -714,7 +719,7 @@ observe that <span class="math inline">\(f(\tau|y) \propto
 f(y|\tau)f(\tau)\)</span>, from which <span class="math inline">\(f(y|\tau)\)</span> can be evaluated using the
 <code>coef</code> method, the <code>eval_dlm_norm_const</code> function
 or <code>search_model</code> function.</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">H.range</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq.int</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, l <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="va">log.like.H</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">H.range</span><span class="op">)</span></span>
 <span><span class="va">log.prior.H</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Lognormal.html" class="external-link">dlnorm</a></span><span class="op">(</span><span class="va">H.range</span>, <span class="fl">0</span>, <span class="fl">1</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>

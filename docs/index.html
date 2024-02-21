@@ -8,8 +8,8 @@
 <meta name="description" content="Provide routines for Kalman filtering and smoothing, forecasting, sampling and Bayesian analysis of Dynamic Generalized Linear Models.">
 <title>kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models • kDGLM</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
+<script src="deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models">
 <meta property="og:description" content="Provide routines for Kalman filtering and smoothing, forecasting, sampling and Bayesian analysis of Dynamic Generalized Linear Models.">
@@ -68,19 +68,91 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="kdglm">kDGLM<a class="anchor" aria-label="anchor" href="#kdglm"></a>
+<div class="page-header"><h1 id="kdglm-a-bayesian-analysis-package-for-generalized-dynamic-linear-models-in-r">kDGLM: A Bayesian Analysis Package for Generalized Dynamic Linear Models in R<a class="anchor" aria-label="anchor" href="#kdglm-a-bayesian-analysis-package-for-generalized-dynamic-linear-models-in-r"></a>
 </h1></div>
-<p>kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models</p>
+<p>Welcome to the <code>kDGLM</code> GitHub repository! <code>kDGLM</code> is an innovative R package tailored for Bayesian analysis of Generalized Dynamic Linear Models (GDLM), catering to both uni- and multivariate exponential families. This package is your go-to tool for sequential inference on time series data, offering a broad spectrum of functionalities including fitting, smoothing, monitoring, and feed-forward interventions.</p>
+<p>Developed based on the methodology proposed in Alves et al.(<a href="https://doi.org/10.48550/arXiv.2201.05387" class="external-link">2024</a>), <code>kDGLM</code> integrates seamlessly with established techniques in the literature, particularly those applied in Gaussian Dynamic Models. It supports various features such as discount strategies, autoregressive components, transfer functions, and more, leveraging the Kalman filter and smoothing properties for exceptional computational efficiency. With kDGLM, you can expect almost instantaneous fitting times that scale linearly with your time series length, making it an invaluable tool for analyzing extended time series datasets.</p>
+<p>Currently, <code>kDGLM</code> supports a variety of distributions, including:</p>
+<ul>
+<li>Univariate Normal (with unknown mean and observational variance);</li>
+<li>Bivariate Normal (with unknown means, observational variances, and correlation);</li>
+<li>Poisson;</li>
+<li>Gamma (with known shape and unknown mean);</li>
+<li>Multinomial (with known number of trials and unknown event probabilities).</li>
+</ul>
+<p>Furthermore, <code>kDGLM</code> allows for the joint modeling of multiple time series, provided each series adheres to one of the supported distributions. Our ongoing development efforts are focused on continuously expanding the range of supported distributions to enhance the package’s versatility.</p>
+<p>Whether you are analyzing time series data for research, business intelligence, or any other purpose, <code>kDGLM</code> offers a powerful, efficient, and comprehensive solution for your needs. Explore our documentation to get started and join the community of users benefiting from the advanced capabilities of <code>kDGLM</code>!</p>
+</div>
+<div class="section level1">
+<h1 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h1>
 <div class="section level2">
-<h2 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
+<h2 id="dependencies">Dependencies<a class="anchor" aria-label="anchor" href="#dependencies"></a>
 </h2>
+<p>Before installing kDGLM, ensure you have the following dependencies installed in your R environment:</p>
+<ul>
+<li>
+<code>extraDistr</code> &gt;= 1.9.1</li>
+<li>
+<code>cubature</code> &gt;= 2.1.0</li>
+<li>
+<code>Rfast</code> &gt;= 2.0.8</li>
+</ul>
+<p>Additionally, for an enhanced plotting experience, we recommend installing the <code>ggplot2</code> and <code>plotly</code> packages, which augment the built-in plot methods provided by <code>kDGLM</code>.</p>
+</div>
+<div class="section level2">
+<h2 id="installing-kdglm">Installing kDGLM<a class="anchor" aria-label="anchor" href="#installing-kdglm"></a>
+</h2>
+<p>As of now, <code>kDGLM</code> is available directly from its GitHub repository. While we are in the process of submitting <code>kDGLM</code> to CRAN, you can install the latest version of the package by executing the following command in your R console:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">'silvaneojunior/kDGLM'</span><span class="op">)</span></span></code></pre></div>
+<p>This command uses the remotes package to install kDGLM. If you do not have remotes installed, you can install it first by running install.packages(“remotes”).</p>
+</div>
+</div>
+<div class="section level1">
+<h1 id="getting-started">Getting Started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
+</h1>
+<p>After installation, load <code>kDGLM</code> into your R session:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">kDGLM</span><span class="op">)</span></span></code></pre></div>
+<p>To test if the package is working properly, execute the following code exemple:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span> <span class="co"># Poisson case</span></span>
+<span> <span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span></span>
+<span></span>
+<span> <span class="va">level</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, D <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
+<span> <span class="va">season</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/harmonic_block.html">harmonic_block</a></span><span class="op">(</span>rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, period <span class="op">=</span> <span class="fl">12</span>, D <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span></span>
+<span></span>
+<span> <span class="va">outcome</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Poisson.html">Poisson</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="st">"rate"</span>, data <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span>
+<span></span>
+<span> <span class="va">fitted.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">level</span>, <span class="va">season</span>,</span>
+<span>   AirPassengers <span class="op">=</span> <span class="va">outcome</span></span>
+<span> <span class="op">)</span></span>
+<span> <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p>Refer to the Wiki for detailed usage instructions. Also see the documentation of the <code>fit_model</code> function for basic examples for each type of outcome the <code>kDGLM</code> package offers.</p>
+</div>
+<div class="section level1">
+<h1 id="contributing">Contributing<a class="anchor" aria-label="anchor" href="#contributing"></a>
+</h1>
+<p>We welcome contributions! If you’re interested in improving kDGLM, please consider submitting bug reports, feature requests, or pull requests.</p>
+</div>
+<div class="section level1">
+<h1 id="acknowledgements">Acknowledgements<a class="anchor" aria-label="anchor" href="#acknowledgements"></a>
+</h1>
 <ul>
 <li>Raíra Marotta, who gently provided the base code for the initial versions.</li>
 <li>
 <a href="hadley@rstudio.com">Hadley Wickham</a>, <a href="max@rstudio.com">Max Kuhn</a>, <a href="davis@rstudio.com">Davis Vaughan</a> and RStudio, authors of the “<a href="https://github.com/r-lib/generics" class="external-link">generics</a>” package, from which code from the generic “forecast” method was taken.</li>
 </ul>
 </div>
+<div class="section level1">
+<h1 id="contact">Contact<a class="anchor" aria-label="anchor" href="#contact"></a>
+</h1>
+<p>For support or to provide feedback, please contact <a href="silvaneo@dme.ufrj.br">Silvaneo dos Santos</a> or open an issue on the GitHub repository.</p>
 </div>
+
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">

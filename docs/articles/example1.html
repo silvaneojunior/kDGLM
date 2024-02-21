@@ -8,8 +8,8 @@
 <meta name="description" content="kDGLM">
 <title>Space-time model hospital admissions from gastroenteritis • kDGLM</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
+<link href="../deps/bootstrap-5.2.2/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.2.2/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Space-time model hospital admissions from gastroenteritis">
 <meta property="og:description" content="kDGLM">
@@ -76,7 +76,7 @@
                         <h4 data-toc-skip class="author">Silvaneo V. dos
 Santos Jr.</h4>
             
-            <h4 data-toc-skip class="date">20 of February, 2024</h4>
+            <h4 data-toc-skip class="date">21 of February, 2024</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/silvaneojunior/kDGLM/blob/HEAD/vignettes/example1.Rmd" class="external-link"><code>vignettes/example1.Rmd</code></a></small>
       <div class="d-none name"><code>example1.Rmd</code></div>
@@ -282,6 +282,7 @@ Mean Squared Error    :  3.691e+06
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="example1_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+<pre><code><span><span class="cn">NULL</span></span></code></pre>
 <p>Clearly the model described above is too simply to explain the data,
 in particular, it does not take into account any form of seasonal
 pattern. Let us proceed then by assuming the following model:</p>
@@ -301,7 +302,7 @@ identity matrix.</p>
 <p>To define the structure of that model we can use the
 <code>harmonic_block</code> function alongside the
 <code>polynomial_block</code> function:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">structure</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span></span>
 <span>  rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, D <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.95</span>, <span class="fl">0.975</span><span class="op">)</span>,</span>
 <span>  name <span class="op">=</span> <span class="st">"Trend"</span></span>
@@ -311,7 +312,7 @@ identity matrix.</p>
 <span>    name <span class="op">=</span> <span class="st">"Season"</span></span>
 <span>  <span class="op">)</span></span></code></pre></div>
 <p>Then we fit the model (using the previously defined outcome):</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fitted.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">structure</span>, <span class="va">outcome</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.model</span><span class="op">)</span></span></code></pre></div>
 <pre><code>Fitted DGLM with 1 outcomes.
@@ -337,9 +338,10 @@ Relative abs. Error   :       0.15308
 Mean Abs. Error       :    1319.68499
 Mean Squared Error    :  2.985e+06
 ---</code></pre>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="example1_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<pre><code><span><span class="cn">NULL</span></span></code></pre>
 <p>Notice that this change significantly improves all metrics provided
 by the model summary, which indicates that we are going in the right
 direction. We leave as an exercise for the reader to test different
@@ -377,7 +379,7 @@ Y_t|\eta_t &amp;\sim Poisson(\eta_t)\\
 \]</span></p>
 <p>This structure can be defined using the <code>noise_block</code>
 function, alongside the previously used functions:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">structure</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span></span>
 <span>  rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, D <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.95</span>, <span class="fl">0.975</span><span class="op">)</span>,</span>
 <span>  name <span class="op">=</span> <span class="st">"Trend"</span></span>
@@ -403,7 +405,7 @@ the data, i.e., we do not known of any particular event that we expect
 to impact our outcome.</p>
 <p>Following what was presented in the subsection about automated
 monitoring, we can use the following code to fit our model:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">structure</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span></span>
 <span>  rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, D <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.95</span>, <span class="fl">0.975</span><span class="op">)</span>,</span>
 <span>  name <span class="op">=</span> <span class="st">"Trend"</span>, monitoring <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -420,7 +422,7 @@ its first component (the level), but, by the previous plot, it is very
 clear that the pandemic affected both the level and the slope of the
 average number of hospital admissions, as such, we would like to monitor
 both parameters.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># To activate the automated monitoring it is enough to set the p.monit argument to a valid value</span></span>
 <span><span class="va">fitted.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">structure</span>, <span class="va">outcome</span>, p.monit <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.model</span><span class="op">)</span></span></code></pre></div>
@@ -431,29 +433,31 @@ distributions:
 
 Coeficients (smoothed) at time 156:
             Estimate Std. Error   t value Pr(&gt;|t|)
-Trend.Level -10.29317    0.06745 -152.60175   &lt;1e-12 *** 
-Trend.Slope   0.01513    0.00704    2.15079    0.031 * 
-Season.Main   0.10590    0.03732    2.83789    0.005 ** 
-Season.Aux   -0.01038    0.03770   -0.27540    0.783   
-Noise         0.00000    0.15239    0.00000    1.000   
+Trend.Level -10.29011    0.05268 -195.32261   &lt;1e-12 *** 
+Trend.Slope   0.01578    0.00523    3.01764    0.003 ** 
+Season.Main   0.11250    0.02759    4.07744 4.55e-05 *** 
+Season.Aux   -0.00854    0.02773   -0.30786    0.758   
+Noise.Var     0.00000    0.12242    0.00000    1.000   
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 
 ---
 One-step-ahead prediction
-Log-likelihood        :   -1260.11029
-Interval Score        :   12658.79433
-Mean Abs. Scaled Error:       0.63103
-Relative abs. Error   :       0.12972
-Mean Abs. Error       :    1287.26529
-Mean Squared Error    :  3.180e+06
+Log-likelihood        :   -1243.03595
+Interval Score        :   10808.12766
+Mean Abs. Scaled Error:       0.60043
+Relative abs. Error   :       0.12306
+Mean Abs. Error       :    1224.83848
+Mean Squared Error    :  2.887e+06
 ---</code></pre>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="example1_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<pre><code><span><span class="cn">NULL</span></span></code></pre>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, lag <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="example1_files/figure-html/unnamed-chunk-10-2.png" width="700"></p>
+<pre><code><span><span class="cn">NULL</span></span></code></pre>
 <p>The summary presented above shows a massive improvement in the
 comparison metrics with the new changes introduced, moreover, the
 automated monitoring detected the exact moment where the series <span class="math inline">\(Y_t\)</span> changed behavior, which allowed the
@@ -466,7 +470,7 @@ documentation for details), which can be a bit too sensitive to bad
 prior specification at the initial steps. As such, we highly recommend
 the user to do a sensibility analysis to choose the initial variance of
 the white noise:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">structure</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span></span>
 <span>  rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, D <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.95</span>, <span class="fl">0.975</span><span class="op">)</span>,</span>
 <span>  name <span class="op">=</span> <span class="st">"Trend"</span></span>
@@ -489,7 +493,7 @@ the white noise:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.model</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="example1_files/figure-html/unnamed-chunk-11-1.png" width="700"></p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, lag <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="example1_files/figure-html/unnamed-chunk-11-2.png" width="700"></p>
 <p>Notice that, this time around, we chose to make an intervention at
@@ -511,7 +515,7 @@ distribution for this parameter and estimate it along with the others.
 While we will not detail this approach for the sake of brevity (since
 our package does not support it directly), we would like to point out
 that we do offer tools to facilitate this procedure:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">search.result</span> <span class="op">&lt;-</span> <span class="va">search.model</span><span class="op">$</span><span class="va">search.data</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">search.model</span><span class="op">$</span><span class="va">search.data</span><span class="op">$</span><span class="va">H</span><span class="op">)</span>, <span class="op">]</span></span>
 <span></span>
 <span><span class="va">H.vals</span> <span class="op">&lt;-</span> <span class="va">search.result</span><span class="op">$</span><span class="va">H</span></span>
@@ -533,13 +537,13 @@ that we do offer tools to facilitate this procedure:</p>
 such, we will use some auxiliary packages, namely <code>geobr</code>,
 <code>tidyverse</code>, <code>sf</code> and <code>spdep</code>, although
 the <code>kDGLM</code> package does not depend on them:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://ipeagit.github.io/geobr/" class="external-link">geobr</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/ipeaGIT/geobr" class="external-link">geobr</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://tidyverse.tidyverse.org" class="external-link">tidyverse</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://r-spatial.github.io/sf/" class="external-link">sf</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/r-spatial/spdep/" class="external-link">spdep</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">br.base</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://ipeagit.github.io/geobr/reference/read_state.html" class="external-link">read_state</a></span><span class="op">(</span></span>
+<span><span class="va">br.base</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/geobr/man/read_state.html" class="external-link">read_state</a></span><span class="op">(</span></span>
 <span>  year <span class="op">=</span> <span class="fl">2019</span>,</span>
 <span>  showProgress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
@@ -572,7 +576,7 @@ the <code>kDGLM</code> package does not depend on them:</p>
 autocorrelation within our data. For that, following common practices in
 literature, we proceed by applying Moran’s test for each year and then
 to total number of admissions:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw">for</span> <span class="op">(</span><span class="va">ano</span> <span class="kw">in</span> <span class="fl">2010</span><span class="op">:</span><span class="fl">2022</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">ref.br</span> <span class="op">&lt;-</span> <span class="va">br.base</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span></span>
@@ -608,7 +612,7 @@ to total number of admissions:</p>
 [1] "2020 - 0.0063"
 [1] "2021 - 5e-04"
 [1] "2022 - 0.0033"</code></pre>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ref.br</span> <span class="op">&lt;-</span> <span class="va">br.base</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span></span>
 <span>    <span class="va">gastroBR</span> <span class="op">|&gt;</span></span>
@@ -659,7 +663,7 @@ that only affects region <span class="math inline">\(i\)</span> and
 evolves smoothly though time. Here we chose a vague CAR prior <span class="citation">(<a href="#ref-AlexCar">Schmidt and Nobre
 2018</a>)</span> for <span class="math inline">\(S_{i,t}\)</span>.</p>
 <p>The proposed model can be fitted using the following code.</p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">adj.matrix</span> <span class="op">&lt;-</span> <span class="va">ref.br</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://r-spatial.github.io/spdep/reference/poly2nb.html" class="external-link">poly2nb</a></span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://r-spatial.github.io/spdep/reference/nb2mat.html" class="external-link">nb2mat</a></span><span class="op">(</span>style <span class="op">=</span> <span class="st">"B"</span><span class="op">)</span></span>
@@ -691,7 +695,7 @@ evolves smoothly though time. Here we chose a vague CAR prior <span class="citat
 <span>  <span class="va">inputs</span><span class="op">[[</span><span class="va">uf</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Poisson.html">Poisson</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="va">uf</span>, data <span class="op">=</span> <span class="va">reg.data</span><span class="op">$</span><span class="va">Admissions</span>, offset <span class="op">=</span> <span class="va">reg.data</span><span class="op">$</span><span class="va">Population</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="va">fitted.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">fit_model</span>, <span class="va">inputs</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, lag <span class="op">=</span> <span class="op">-</span><span class="fl">1</span>, plot.pkg <span class="op">=</span> <span class="st">"ggplot2"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">Serie</span>, ncol <span class="op">=</span> <span class="fl">3</span>, scale <span class="op">=</span> <span class="st">"free_y"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -715,7 +719,7 @@ capturing the dependence between regions through the shared component
 <span class="math inline">\(S_i\)</span>.
 </p>
 </div>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">CAR.var.index</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grepl</a></span><span class="op">(</span><span class="st">"CAR"</span>, <span class="va">fitted.data</span><span class="op">$</span><span class="va">var.labels</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">plot.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">labels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
