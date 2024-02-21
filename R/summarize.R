@@ -4,7 +4,7 @@
 #'
 #' @param object A fitted_dlm object.
 #' @param t Integer: The time index for the latent states.
-#' @param lag Integer: The number of steps ahead used for the evaluating the latent variables. Use lag<0 for the smoothed distribution, If lag==0 for the filtered distribution and lag=h for the h-step-ahead prediction.
+#' @param lag Integer: The number of steps ahead used for the evaluating the latent states. Use lag<0 for the smoothed distribution, If lag==0 for the filtered distribution and lag=h for the h-step-ahead prediction.
 #' @param metric.lag Integer: The number of steps ahead used for the evaluating the predictions used when calculating metrics. Use metric.lag<0 for the smoothed distribution, If metric.lag==0 for the filtered distribution and metric.lag=h for the h-step-ahead prediction.
 #' @param metric.cutoff Integer: The cutoff time index for the metric calculation. Values before that time will be ignored.
 #' @param pred.cred numeric: The credibility interval to be used for the interval score.
@@ -181,7 +181,7 @@ summary.dlm_block <- function(object,...) {
   cat(paste0(
     object$type, " DLM block.",
     "\n",
-    paste0("Latent variables: \n", paste0("    ", block.names, ": ", lapply(object$var.names, function(x) {
+    paste0("latent states: \n", paste0("    ", block.names, ": ", lapply(object$var.names, function(x) {
       paste0(names(x), collapse = ", ")
     }), " (", lapply(object$var.names, length), " variable(s))", collapse = "\n"), "\n"),
     "\n",
@@ -201,7 +201,7 @@ summary.dlm_block <- function(object,...) {
         collapse = ", "
       ), "\n"
     ),
-    paste0("Number of latent variables: ", object$n, "\n"),
+    paste0("Number of latent states: ", object$n, "\n"),
     paste0("Number of linear predictors: ", object$k)
   ))
 }

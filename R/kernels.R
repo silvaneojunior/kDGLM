@@ -2,14 +2,14 @@
 #'
 #' Generic smoother for all models.
 #'
-#' @param mt matrix: A matrix containing the filtered mean of the latent variables at each time. Each row should represent one variable.
-#' @param Ct array: A 3D-array representing the filtered covariance matrix of the latent variables at each time. The third dimension should represent the time index.
-#' @param at matrix: A matrix containing the one-step-ahead mean of the latent variables at each time based upon the filtered mean. Each row should represent one variable.
-#' @param Rt array: A 3D-array representing the one-step-ahead covariance matrix of the latent variables at each time based upon the filtered covariance matrix. The third dimension should represent the time index.
+#' @param mt matrix: A matrix containing the filtered mean of the latent states at each time. Each row should represent one variable.
+#' @param Ct array: A 3D-array representing the filtered covariance matrix of the latent states at each time. The third dimension should represent the time index.
+#' @param at matrix: A matrix containing the one-step-ahead mean of the latent states at each time based upon the filtered mean. Each row should represent one variable.
+#' @param Rt array: A 3D-array representing the one-step-ahead covariance matrix of the latent states at each time based upon the filtered covariance matrix. The third dimension should represent the time index.
 #' @param G array: A 3D-array representing the transition matrix of the model at each time.
 #' @param G.labs matrix: A character matrix containing the type associated with each value in G.
 #'
-#' @return A list containing the smoothed mean (mts) and covariance (Cts) of the latent variables at each time. Their dimension follows, respectively, the dimensions of mt and Ct.
+#' @return A list containing the smoothed mean (mts) and covariance (Cts) of the latent states at each time. Their dimension follows, respectively, the dimensions of mt and Ct.
 #'
 #' @importFrom Rfast transpose
 #' @keywords internal
@@ -55,28 +55,28 @@ generic_smoother <- function(mt, Ct, at, Rt, G, G.labs) {
 #' @param outcomes list: The observed data. It should contain objects of the class dlm_distr.
 #' @param a1 numeric: The prior mean at the latent vector.
 #' @param R1 matrix: The prior covariance matrix at the latent vector.
-#' @param FF array: A 3D-array containing the planning matrix at each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model and t is the time series length.
+#' @param FF array: A 3D-array containing the planning matrix at each time. Its dimension should be n x k x t, where n is the number of latent states, k is the number of linear predictors in the model and t is the time series length.
 #' @param FF.labs matrix: A character matrix containing the label associated with each value in FF.
-#' @param G array: A 3D-array containing the evolution matrix at each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
+#' @param G array: A 3D-array containing the evolution matrix at each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #' @param G.labs matrix: A character matrix containing the label associated with each value in G.
-#' @param D array: A 3D-array containing the discount factor matrix at each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.
+#' @param D array: A 3D-array containing the discount factor matrix at each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #' @param h matrix: A drift to be added after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.
 #' @param H array: A 3D-array containing the covariance matrix of the noise at each time. Its dimension should be the same as D.
 #' @param p.monit numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.
-#' @param monitoring numeric: A vector of flags indicating which latent variables should be monitored.
+#' @param monitoring numeric: A vector of flags indicating which latent states should be monitored.
 #'
 #' @importFrom Rfast transpose
 #'
 #' @return A list containing the following values:
 #' \itemize{
-#'    \item mt matrix: The filtered mean of the latent variables for each time. Dimensions are n x t.
-#'    \item Ct array: A 3D-array containing the filtered covariance matrix of the latent variable for each time. Dimensions are n x n x t.
-#'    \item at matrix: The one-step-ahead mean of the latent variables at each time. Dimensions are n x t.
-#'    \item Rt array: A 3D-array containing the one-step-ahead covariance matrix for latent variables at each time. Dimensions are n x n x t.
+#'    \item mt matrix: The filtered mean of the latent states for each time. Dimensions are n x t.
+#'    \item Ct array: A 3D-array containing the filtered covariance matrix of the latent states for each time. Dimensions are n x n x t.
+#'    \item at matrix: The one-step-ahead mean of the latent states at each time. Dimensions are n x t.
+#'    \item Rt array: A 3D-array containing the one-step-ahead covariance matrix for latent states at each time. Dimensions are n x n x t.
 #'    \item ft matrix: The one-step-ahead mean of the linear predictors at each time. Dimensions are k x t.
 #'    \item Qt array: A 3D-array containing the one-step-ahead covariance matrix for linear predictors at each time. Dimensions are k x k x t.
 #'    \item ft.star matrix: The filtered mean of the linear predictors for each time. Dimensions are k x t.
-#'    \item Qt.star array: A 3D-array containing the linear predictors matrix of the latent variable for each time. Dimensions are k x k x t.
+#'    \item Qt.star array: A 3D-array containing the linear predictors matrix of the latent state for each time. Dimensions are k x k x t.
 #'    \item FF array: The same as the argument (same values).
 #'    \item G matrix: The same as the argument (same values).
 #'    \item G.labs matrix: The same as the argument (same values).
@@ -305,6 +305,10 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
         error.ft <- (ft.star.part - ft.step.part)
         error.Qt <- (Qt.star.part - Qt.step.part)
 
+        # print('#########################')
+        # print(Qt.step.part)
+        # print(Qt.star.part)
+
         if (outcome$convert.canom.flag) {
           error.ft <- outcome$convert.mat.default %*% error.ft
           error.Qt <- outcome$convert.mat.default %*% error.Qt %*% transpose(outcome$convert.mat.default)
@@ -402,9 +406,12 @@ calc_current_G <- function(m0, C0, G, G.labs) {
             cov.vec %*% ginv(C0[i:(i + 1), i:(i + 1)]) %*% C0[i:(i + 1), -i]
           G.now[i, i] <- 1
         }
-        C1 <- G.now %*% C1 %*% transpose(G.now)
-        G.now <- create_G(C0, C1)
-        drift <- drift - G.now %*% m0 + m1
+        a1 <- G.now %*% m1
+        R1 <- G.now %*% C1 %*% transpose(G.now)
+        index.G=c(seq_len(n)[-index.kl],index.kl)
+        index.G.inv=order(index.G)
+        G.now <- create_G(C0[index.G,index.G], C1[index.G,index.G])[index.G.inv,index.G.inv]
+        drift <- drift + a1-G.now %*% m0
 
         # n_kl=sum(flags.kl)
         # m1[index.row]=0
@@ -437,10 +444,10 @@ calc_current_G <- function(m0, C0, G, G.labs) {
     }
   }
 
-  m1 <- G.now %*% m0 + drift
-  C1 <- G.now %*% C0 %*% transpose(G.now)
+  a1 <- G.now %*% m0 + drift
+  R1 <- G.now %*% C0 %*% transpose(G.now)
 
-  list("m1" = m1, "C1" = C1, "G" = G.now, "drift" = drift)
+  list("a1" = a1, "R1" = R1, "G" = G.now, "drift" = drift)
 }
 
 one_step_evolve <- function(m0, C0, G, G.labs, D.inv, h, H) {
@@ -451,8 +458,8 @@ one_step_evolve <- function(m0, C0, G, G.labs, D.inv, h, H) {
   # print(cbind(C0,G.vals$C1))
   G.now <- G.vals$G
   drift <- G.vals$drift
-  at <- G.vals$m1 + h
-  Pt <- G.vals$C1
+  at <- G.vals$a1 + h
+  Pt <- G.vals$R1
   W <- ((D.inv - 1) * Pt) + H
   Rt <- W + Pt
 

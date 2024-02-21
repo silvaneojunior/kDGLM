@@ -65,8 +65,8 @@ plot.fitted_dlm <- function(x, outcomes = names(x$outcomes), pred.cred = 0.95, l
   min.value <- -evaluate_max(-(obs.na.rm - max(obs.na.rm)))[[3]] + max(obs.na.rm)
 
   n.series <- length(unique(eval$Serie))
-  colors <- rainbow(n.series, s = 0.8)
-  fills <- rainbow(n.series, s = 0.4)
+  colors <- rainbow(n.series, s = 0.8,v=0.9)
+  fills <- rainbow(n.series, s = 0.4,v=0.9)
   series.names <- unique(eval$Serie)
   names(colors) <- series.names
   names(fills) <- series.names
@@ -326,22 +326,22 @@ plot.dlm_coef <- function(x, var = rownames(x$mt), cutoff = floor(t / 10), pred.
 
   var.names <- levels(plot.data$Label)
   n.var <- length(var.names)
-  color.list <- rainbow(n.var, s = 0.8)
+  color.list <- rainbow(n.var, s = 0.8,v=0.9)
   names(color.list) <- var.names
 
-  fill.list <- rainbow(n.var, s = 0.4)
+  fill.list <- rainbow(n.var, s = 0.4,v=0.9)
   names(fill.list) <- var.names
   plot.data$fill.name <- plot.data$Label
   plot.data$color.name <- plot.data$Label
 
   title <- if (x$lag < 0) {
-    "Smoothed estimation of latent variables"
+    "Smoothed estimation of latent states"
   } else if (x$lag == 0) {
-    "Filtered estimation of latent variables"
+    "Filtered estimation of latent states"
   } else if (x$lag == 1) {
-    "One-step-ahead prediction for latent variables"
+    "One-step-ahead prediction for latent states"
   } else {
-    paste0(x$lag, "-steps-ahead prediction for latent variables")
+    paste0(x$lag, "-steps-ahead prediction for latent states")
   }
 
   if (plot.pkg == "base" | !requireNamespace("ggplot2", quietly = TRUE)) {

@@ -3,7 +3,7 @@
 #' Fit a model given its structure and the observed data. This function can be used for any supported family (see vignette).
 #'
 #' @param ... dlm_block or dlm_distr objects: The structural blocks of the model (dlm_block objects), alongside the model outcomes (dlm_distr object). All block must be completely defined.
-#' @param smooth boolean: A flag indicating if the smoothed distribution for the latent variables should be calculated.
+#' @param smooth boolean: A flag indicating if the smoothed distribution for the latent states should be calculated.
 #' @param p.monit numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.
 #'
 #' @return A fitted_dlm object.
@@ -176,7 +176,11 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA) {
 
   coef.names <- rep(NA, structure$n)
   for (name in names(structure$var.names)) {
-    coef.names[structure$var.names[[name]]] <- paste0(name, ".", names(structure$var.names[[name]]))
+    if(length(names(structure$var.names[[name]]))>1){
+      coef.names[structure$var.names[[name]]] <- paste0(name, ".", names(structure$var.names[[name]]))
+    }else{
+      coef.names[structure$var.names[[name]]] <- name
+    }
   }
   structure$var.labels <- coef.names
 
@@ -334,7 +338,7 @@ smoothing <- function(model) {
 #' @export
 #'
 #' @details
-#' If an a covariate is necessary for forecasting, it should be passed as a named argument. Its name must follow this structure: <block name>.Covariate<.index>. If there is only one pulse in the associated block the index is omitted.
+#' If an a covariate is necessary for forecasting, it should be passed as a named argument. Its name must follow this structure: <block name>.Covariate<.index>. If there is only one covariate in the associated block the index is omitted.
 #' If an a pulse is necessary for forecasting, it should be passed as a named argument. Its name must follow this structure: <block name>.Pulse<.index>. If there is only one pulse in the associated block the index is omitted.
 #' The user may pass the observed values at the prediction windows (optional). See example.
 #' As an special case, if the model has an Multinomial outcome, the user may pass the N parameter instead of the observations.
@@ -558,9 +562,9 @@ forecast.fitted_dlm <- function(object, t = 1,
     model_i <- object$outcomes[[outcome.name]]
     r.cur <- model_i$r
     prediction <- model_i$calc_pred(outcome.forecast[[outcome.name]]$conj.param,
-      outcome.forecast[[outcome.name]]$data,
-      pred.cred = pred.cred,
-      parms = model_i$parms
+                                    outcome.forecast[[outcome.name]]$data,
+                                    pred.cred = pred.cred,
+                                    parms = model_i$parms
     )
 
 
@@ -622,15 +626,15 @@ forecast.fitted_dlm <- function(object, t = 1,
     plot.data$group.ribbon <- paste0(plot.data$Serie, plot.data$type)
     series.names <- levels(plot.data$Serie)
     n.series <- length(series.names)
-    colors <- rainbow(n.series, s = 0.8)
-    fills <- rainbow(n.series, s = 0.4)
-    points <- paste0(colors, "55")
-    fills <- paste0(fills, "33")
-    names(colors) <- names(points) <- names(fills) <- series.names
+    colors <- rainbow(n.series, s = 0.8,v=0.9)
+    fills <- rainbow(n.series, s = 0.4,v=0.9)
     if (plot == "base" || !requireNamespace("ggplot2", quietly = TRUE)) {
       if (plot != "base") {
         warning("The ggplot2 package is required for ggplot2 and plotly plots and was not found. Falling back to R base plot functions.")
       }
+      fills <- paste0(fills, "33")
+      points <- paste0(colors, "55")
+      names(colors) <- names(points) <- names(fills) <- series.names
       cur.height <- dev.size("cm")[2]
       count.spaces <- ceiling(n.series / 4)
       font.cm <- 0.35
@@ -652,14 +656,14 @@ forecast.fitted_dlm <- function(object, t = 1,
       for (serie in series.names) {
         plot.serie <- plot.data[plot.data$Serie == serie, ]
         points(plot.serie$Time, plot.serie$Observation,
-          col = points[[serie]],
-          pch = 16 + (seq_len(t + t_last) > t_last)
+               col = points[[serie]],
+               pch = 16 + (seq_len(t + t_last) > t_last)
         )
 
         lines(plot.serie$Time[time.index], plot.serie$Prediction[time.index], col = colors[[serie]], lty = 1)
         lines(plot.serie$Time[time.index.foward], plot.serie$Prediction[time.index.foward], col = colors[[serie]], lty = 2)
         base_ribbon(plot.serie$Time, plot.serie$C.I.lower, plot.serie$C.I.upper,
-          col = fills[[serie]], lty = 0
+                    col = fills[[serie]], lty = 0
         )
       }
 
@@ -690,12 +694,13 @@ forecast.fitted_dlm <- function(object, t = 1,
       )
       par(mar = config$mar)
     } else {
+      names(colors) <- names(fills) <- series.names
       plt.obj <- ggplot2::ggplot(plot.data, ggplot2::aes_string(x = "Time")) +
         ggplot2::geom_line(ggplot2::aes_string(y = "Prediction", linetype = "type", color = "Serie")) +
-        ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper", fill = "Serie", group = "group.ribbon"), alpha = 0.25, color = NA) +
-        ggplot2::geom_point(ggplot2::aes_string(y = "Observation", shape = "shape.point", color = "Serie")) +
-        ggplot2::scale_fill_hue("", na.value = NA) +
-        ggplot2::scale_color_hue("", na.value = NA) +
+        ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper", fill = "Serie", group = "group.ribbon"),alpha=0.25, color = NA) +
+        ggplot2::geom_point(ggplot2::aes_string(y = "Observation", shape = "shape.point", color = "Serie"), alpha = 0.5) +
+        ggplot2::scale_fill_manual("", values=fills,na.value = NA) +
+        ggplot2::scale_color_manual("",values=colors, na.value = NA) +
         ggplot2::scale_linetype_manual("", values = c("solid", "dashed")) +
         ggplot2::scale_shape_manual("", values = c(17, 16)) +
         ggplot2::scale_x_continuous("Time") +
@@ -987,7 +992,7 @@ update.fitted_dlm <- function(object, ...) {
 
 #' coef.fitted_dlm
 #'
-#' Evaluates the predictive values for the observed values used to fit the model and its latent variables.
+#' Evaluates the predictive values for the observed values used to fit the model and its latent states.
 #' Predictions can be made with smoothed values, with filtered values or h-steps ahead.
 #'
 #' @param object fitted_dlm: The fitted model to be use for evaluation.
@@ -1001,8 +1006,8 @@ update.fitted_dlm <- function(object, ...) {
 #' @return A list containing:
 #' \itemize{
 #'    \item data data.frame: A table with the model evaluated at each observed time.
-#'    \item mt matrix: The mean of the latent variables at each time. Dimensions are n x t, where t is the size of eval_t and n is the number of latent states.
-#'    \item Ct array: A 3D-array containing the covariance matrix of the latent variable at each time. Dimensions are n x n x t, where t is the size of eval_t and n is the number of latent states.
+#'    \item mt matrix: The mean of the latent states at each time. Dimensions are n x t, where t is the size of eval_t and n is the number of latent states.
+#'    \item Ct array: A 3D-array containing the covariance matrix of the latent states at each time. Dimensions are n x n x t, where t is the size of eval_t and n is the number of latent states.
 #'    \item ft matrix: The mean of the linear predictor at each time. Dimensions are k x t, where t is the size of eval_t and k is the number of linear predictors.
 #'    \item Qt array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t, where t is the size of eval_t and k is the number of linear predictors.
 #'    \item log.like, mae, mase, rae, mse, interval.score: The metric value at each time.
@@ -1172,13 +1177,13 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
         conj.param <- outcome$conj_distr(ft.canom, Qt.canom, parms = outcome$parms)
         conj.param.list[[outcome.name]][t.index, ] <- conj.param
         prediction <- outcome$calc_pred(conj.param,
-          if (i > t_last) {
-            NULL
-          } else {
-            outcome$data[i, , drop = FALSE]
-          },
-          pred.cred,
-          parms = outcome$parms
+                                        if (i > t_last) {
+                                          NULL
+                                        } else {
+                                          outcome$data[i, , drop = FALSE]
+                                        },
+                                        pred.cred,
+                                        parms = outcome$parms
         )
         out.ref <- t(outcome$data)[, i, drop = FALSE]
         if (object$period < object$t) {
@@ -1200,8 +1205,8 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
         mse[t.index] <- mse[t.index] + sum((out.ref - prediction$pred)**2)
         interval.score[t.index] <- interval.score[t.index] +
           sum((prediction$icu.pred - prediction$icl.pred) +
-            2 / (1 - pred.cred) * (prediction$icl.pred - out.ref) * (out.ref < prediction$icl.pred) +
-            2 / (1 - pred.cred) * (out.ref - prediction$icu.pred) * (out.ref > prediction$icu.pred))
+                2 / (1 - pred.cred) * (prediction$icl.pred - out.ref) * (out.ref < prediction$icl.pred) +
+                2 / (1 - pred.cred) * (out.ref - prediction$icu.pred) * (out.ref > prediction$icu.pred))
         r.acum <- r.acum + r.cur
 
         mase[t.index] <- mase[t.index] + mean(abs(out.ref - prediction$pred) / mase.coef) / r
@@ -1282,7 +1287,7 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
 #'
 #' @return A list containing the following values:
 #' \itemize{
-#'    \item mt array: An array containing a sample of the latent states. Dimensions are n x t x sample.size, where n is the number of latent variables in the model and t is the number of observed values.
+#'    \item mt array: An array containing a sample of the latent states. Dimensions are n x t x sample.size, where n is the number of latent states in the model and t is the number of observed values.
 #'    \item ft array: An array containing a sample of the linear predictors. Dimensions are k x t x sample.size, where k is the number of linear predictors in the model and t is the number of observed values.
 #'    \item param list: A named list containing, for each model outcome, an array with the samples of the parameters of the observational model. Each array will have dimensions l x t x sample.size, where l is the number of parameters in the observational model and t is the number of observed values.
 #' }
@@ -1336,10 +1341,10 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
   FF.step <- FF[, , t.len]
   if (any(is.na(FF.step))) {
     ft.sample_i <- sapply(seq_len(sample.size),
-      function(j) {
-        calc_lin_pred(mt.sample_i[, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
-      },
-      simplify = "matrix"
+                          function(j) {
+                            calc_lin_pred(mt.sample_i[, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
+                          },
+                          simplify = "matrix"
     )
   } else {
     ft.sample_i <- crossprod(FF.step, mt.sample_i)
@@ -1400,10 +1405,10 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
       FF.step <- FF[, , t]
       if (any(is.na(FF.step))) {
         ft.sample_i <- sapply(seq_len(sample.size),
-          function(j) {
-            calc_lin_pred(mt.sample_i[, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
-          },
-          simplify = "matrix"
+                              function(j) {
+                                calc_lin_pred(mt.sample_i[, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
+                              },
+                              simplify = "matrix"
         )
       } else {
         ft.sample_i <- crossprod(FF.step, mt.sample_i)
@@ -1448,12 +1453,13 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
 #' @param search.grid list: A named list containing the possible values of each undefined hyper parameter.
 #' @param condition character: A character defining which combinations of undefined hyper parameter should be tested. See example for details.
 #' @param metric character: The name of the metric to use for model selection. One of log-likelihood for the one-step-ahead prediction ("log.like"), Mean Absolute Error ("mae"), Mean Absolute Scaled Error ("mase") \insertCite{mase}{kDGLM}, Relative Absolute Error ("rae"), Mean Squared Error ("mse") or Interval Score ("interval.score") \insertCite{interval_score}{kDGLM}.
-#' @param smooth boolean: A flag indicating if the smoothed distribution for the latent variables should be calculated.
-#' @param lag integer: The number of steps ahead used for the prediction when calculating the metrics. If lag<0, predictions are made using the smoothed distribution of the latent variables.
+#' @param smooth boolean: A flag indicating if the smoothed distribution for the latent states should be calculated.
+#' @param lag integer: The number of steps ahead used for the prediction when calculating the metrics. If lag<0, predictions are made using the smoothed distribution of the latent states.
 #' @param pred.cred numeric: A number between 0 and 1 (not included) indicating the credibility interval for predictions. If not within the valid range of values, 0.95 will be used.
 #' @param metric.cutoff integer: The number of observations to ignore when calculating the metrics. Default is 1/10 of the number of observations (rounded down).
 #' @param p.monit numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.
 #' @param save.models boolean: A flag indicating if all evaluated models should be saved. If FALSE, only the best model (according to the chosen metric) will be saved;
+#' @param silent boolean: A flag indicating if a progress bar should be printed.
 #'
 #' @return A searched_dlm object containing the following values:
 #' \itemize{
@@ -1490,7 +1496,7 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
 #' @family {auxiliary functions for fitted_dlm objects}
 #' @references
 #'    \insertAllCited{}
-search_model <- function(..., search.grid, condition = "TRUE", metric = "log.like", smooth = TRUE, lag = 1, pred.cred = 0.95, metric.cutoff = NA, p.monit = NA, save.models = FALSE) {
+search_model <- function(..., search.grid, condition = "TRUE", metric = "log.like", smooth = TRUE, lag = 1, pred.cred = 0.95, metric.cutoff = NA, p.monit = NA, save.models = FALSE,silent=FALSE) {
   if (is.null(pred.cred) || is.na(pred.cred)) {
     pred.cred <- 0.95
   } else {
@@ -1578,18 +1584,20 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
     raw.perc <- i / vals.nums
     perc <- round(100 * raw.perc, 2)
     n.bar <- round(50 * raw.perc)
-    cat(paste0(
-      "\r[", paste0(rep("=", n.bar), collapse = ""),
-      paste0(rep(" ", 50 - n.bar), collapse = ""), "] - ",
-      perc,
-      "% - ETA - ",
-      round(as.numeric((1 - raw.perc) * time.past / raw.perc, units = "mins"), 2),
-      " minutes                 "
-    ))
+    if(!silent){
+      cat(paste0(
+        "\r[", paste0(rep("=", n.bar), collapse = ""),
+        paste0(rep(" ", 50 - n.bar), collapse = ""), "] - ",
+        perc,
+        "% - ETA - ",
+        round(as.numeric((1 - raw.perc) * time.past / raw.perc, units = "mins"), 2),
+        " minutes                 "
+      ))
+    }
 
     structure <- do.call(function(...) {
       set.block.value(ref.strucuture, ...)
-    }, search.data[i, ])
+    }, search.data[i, ,drop=FALSE])
 
     if (structure$status == "undefined") {
       stop("Error: not all unkown hiper parameter have values. Check the search grid to make sure every unkown hiper parameter has a range of values.")
@@ -1597,12 +1605,6 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
 
     if (any(if.na(structure$D, 0) < 0 | if.na(structure$D, 0) > 1)) {
       stop(paste0("Error: invalid value for D. Expected a real number between 0 and 1, got: ", paste(structure$D[if.na(structure$D, 0) < 0 | if.na(structure$D, 0) > 1], collapse = ", "), "."))
-    }
-    if (any(if.na(structure$H, 0) < 0)) {
-      stop(paste0("Error: invalid value for H. Expected a non negative number, got: ", paste(structure$H[if.na(structure$H, 0) < 0], collapse = ", "), "."))
-    }
-    if (any(if.na(structure$R1, 0) < 0)) {
-      stop(paste0("Error: invalid value for R1. Expected a non negative number, got: ", paste(structure$R1[if.na(structure$R1, 0) < 0], collapse = ", "), "."))
     }
     args <- outcomes
     args$structure <- structure
@@ -1638,7 +1640,10 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
       best.metric <- cur.metric
     }
   }
-  cat("\n")
+
+  if(!silent){
+    cat("\n")
+  }
   search.data <- search.data[order(-search.data[[metric]], decreasing = (metric != "log.like")), ]
 
   if (smooth & !save.models) {
@@ -1980,8 +1985,8 @@ eval_dlm_norm_const <- function(model, lin.pred = model$n > 2 * model$k) {
     }
 
     return(eval_dlm_prior(fts, model, lin.pred = lin.pred) +
-      eval_dlm_log_like(fts, model, lin.pred = lin.pred) +
-      -eval_dlm_post(fts, model, lin.pred = lin.pred))
+             eval_dlm_log_like(fts, model, lin.pred = lin.pred) +
+             -eval_dlm_post(fts, model, lin.pred = lin.pred))
   } else {
     eval_dlm_prior(model$mts, model, lin.pred = lin.pred) +
       eval_dlm_log_like(model$mts, model, lin.pred = lin.pred) +

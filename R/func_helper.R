@@ -47,12 +47,19 @@ if.nan <- function(vec, val) {
 #' @importFrom Rfast cholesky transpose rowAny
 #' @keywords internal
 var_decomp <- function(S) {
+  # S=as.matrix(S)
+  # diag(S)=diag(S)+1e-8
   Chol.decomp <- cholesky(S)
   flags.index=is.nan(Chol.decomp) | is.infinite(Chol.decomp)
   flags <- rowAny(flags.index)
   while (any(flags)) {
     sub.chol <- Chol.decomp[!flags, flags, drop = FALSE]
     placeholder <- S[flags, flags, drop = FALSE] - t(sub.chol) %*% sub.chol
+    # diag(placeholder)=abs(diag(placeholder))
+    # flags.neg=diag(placeholder)<1e-6
+    # placeholder[flags.neg,]=0
+    # order=order(diag(placeholder))
+    # flags2 <- diag(placeholder) > 1e-6
     flags2 <- diag(placeholder) > 0
     sub.flags <- flags
     sub.flags[flags] <- flags2
@@ -150,27 +157,42 @@ ginv <- function(S) {
 #'
 #' @keywords internal
 dmvnorm <- function(x, mu, Sigma) {
-  # inv.Sigma=ginv(Sigma)
-  # inv.chol.Sigma=var_decomp(inv.Sigma)
+  Sigma=as.matrix(Sigma)
+  index=order(diag(Sigma),decreasing =TRUE)
+  x=x[index]
+  mu=mu[index]
+  Sigma=Sigma[index,index,drop=FALSE]
+  diag(Sigma)=diag(Sigma)+1e-8
 
-  Chol.decomp <- cholesky(Sigma)
-  if (prod(diag(Chol.decomp), na.rm = TRUE) < 1e-12 || any(is.na(Chol.decomp))) {
-    svd.decomp <- svd(Sigma)
-    Q.l <- svd.decomp$u
-    Q.r <- svd.decomp$v
-    D <- svd.decomp$d
-    D <- ifelse(D > 1e-12, 1 / sqrt(D), 0)
-    D.mat <- diag(length(D))
-    diag(D.mat) <- D
-    inv.chol.Sigma <- (Q.l %*% D.mat %*% transpose(Q.r))
-    diag.chol.inv <- D
-  } else {
-    inv.chol.Sigma <- (backsolve(Chol.decomp, diag(length(mu))))
-    diag.chol.inv <- diag(inv.chol.Sigma)
-  }
 
-  flags.valid <- diag.chol.inv > 1e-12
+  Chol.decomp <- var_decomp(Sigma)
+  flags.valid <- diag(Chol.decomp) > 0
+  inv.chol.Sigma=Chol.decomp*0
+
+  inv.chol.Sigma[flags.valid,flags.valid] <-
+    backsolve(Chol.decomp[flags.valid,flags.valid], diag(sum(flags.valid)))
+  diag.chol.inv <- diag(inv.chol.Sigma)
+
   norm.x <- transpose(inv.chol.Sigma) %*% (x - mu)
+
+  # Chol.decomp <- cholesky(Sigma)
+  # if (prod(diag(Chol.decomp), na.rm = TRUE) < 1e-12 || any(is.na(Chol.decomp))) {
+  #   svd.decomp <- svd(Sigma)
+  #   Q.l <- svd.decomp$u
+  #   Q.r <- svd.decomp$v
+  #   D <- svd.decomp$d
+  #   D <- ifelse(D > 1e-12, 1 / sqrt(D), 0)
+  #   D.mat <- diag(length(D))
+  #   diag(D.mat) <- D
+  #   inv.chol.Sigma <- (Q.l %*% D.mat %*% transpose(Q.r))
+  #   diag.chol.inv <- D
+  # } else {
+  #   inv.chol.Sigma <- (backsolve(Chol.decomp, diag(length(mu))))
+  #   diag.chol.inv <- diag(inv.chol.Sigma)
+  # }
+  #
+  # flags.valid <- diag.chol.inv > 1e-12
+  # norm.x <- transpose(inv.chol.Sigma) %*% (x - mu)
 
   sum(dnorm(norm.x[flags.valid], log = TRUE)) +
     sum(log(abs(diag.chol.inv[flags.valid])))
@@ -189,7 +211,7 @@ dmvnorm <- function(x, mu, Sigma) {
 #'
 #' @keywords internal
 rmvnorm <- function(n, mu, Sigma,
-                    norm.x = matrnorm(k, n)) {
+                    norm.x = matrnorm(k, n,seed=round(runif(1)*1e15))) {
   k <- length(mu)
   chol.Sigma <- var_decomp(Sigma)
   transpose(chol.Sigma) %*% norm.x + c(mu)
@@ -204,15 +226,9 @@ rmvnorm <- function(n, mu, Sigma,
 #'
 #' @keywords internal
 create_G <- function(S0, S1) {
-  svd.decomp0 <- svd(S0)
-  svd.decomp1 <- svd(S1)
-  d0 <- sqrt(svd.decomp0$d)
-  d1 <- sqrt(svd.decomp1$d)
-  d <- ifelse(d0 > 1e-12, d1 / d0, 0)
-
-  u0 <- transpose(svd.decomp0$u)
-  u1 <- svd.decomp1$u
-  return(u1 %*% diag(d) %*% u0)
+  svd.decomp0 <- solve(var_decomp(S0))
+  svd.decomp1 <- var_decomp(S1)
+  return(transpose(svd.decomp0 %*% svd.decomp1))
 }
 
 #' bdiag

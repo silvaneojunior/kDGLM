@@ -455,7 +455,7 @@ Fgamma_pred_alt <- function(conj.param, outcome = NULL, parms = list(), pred.cre
     }
 
     N <- 5000
-    sample <- matrnorm(N, k)
+    # sample <- matrnorm(N, k,seed=round(runif(1)*1e15))
     for (i in seq_len(t)) {
       ft.i <- rmvnorm(N, ft[, i], Qt[, , i])
       sample.y <- rgamma(N, exp(ft.i[, 1]), exp(ft.i[, 1] - ft.i[, 2]))

@@ -1,6 +1,6 @@
 #' Zero sum prior
 #'
-#' Defines the prior of a structural block to be such that the latent variables sum zero with probability one.
+#' Defines the prior of a structural block to be such that the latent states sum zero with probability one.
 #'
 #' @param block dlm_block object: The structural block.
 #' @param var.index integer: The index of the variables from which to set the prior.
@@ -108,12 +108,12 @@ CAR_prior <- function(block, adj.matrix, scale, rho, var.index = 1:block$n) {
   R1 <- R1_decomp$vector %*% diag(R1_decomp$values) %*% t(R1_decomp$vector)
 
   if (is.character(scale)) {
-    block$scale <- scale
+    block$scale[var.index] <- scale
   } else {
     R1 <- R1 * scale
   }
   block$a1[var.index] <- block$a1[var.index] - mean(block$a1[var.index])
-  block$R1[var.index, var.index] <- R1[var.index, var.index]
+  block$R1[var.index, var.index] <- R1
   transf <- matrix(-1 / k, k, k)
   diag(transf) <- 1 + diag(transf)
   for (i in 1:block$t) {

@@ -111,9 +111,6 @@ coefficients.fitted_dlm <- function(object, ...) {
 #' @param object A model for which forecasts are required.
 #' @param ... Other arguments passed to methods
 #'
-#' @section Methods:
-#' \Sexpr[stage=render,results=rd]{generics:::methods_rd("forecast")}
-#'
 #' @author Hadley Wickham, \email{hadley@@rstudio.com}; Max Kuhn, \email{max@@rstudio.com}; Davis Vaughan, \email{davis@@rstudio.com}; RStudio.
 #' @seealso [generics package](https://github.com/r-lib/generics)
 #'
