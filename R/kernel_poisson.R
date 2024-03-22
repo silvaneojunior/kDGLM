@@ -229,19 +229,28 @@ poisson_pred <- function(conj.param, outcome = NULL, parms = list(), pred.cred =
 
     # sample.lambda <- rgamma(N, a[i], b[i])
     sample.lambda <- exp(rnorm(N) * sqrt(Qt) + ft)
-    sample.y <- rpois(N, sample.lambda)
+    if (any(is.infinite(sample.lambda))) {
+      warning("Predictive distribution is numerically intractable at some time.")
+      sample.y <- rep(NA, N)
+    } else {
+      sample.y <- rpois(N, sample.lambda)
+    }
 
     if (pred.flag) {
       pred[, i] <- mean(sample.y)
       var.pred[, , i] <- var(sample.y)
-      icl.pred[, i] <- quantile(sample.y, (1 - pred.cred) / 2)
-      icu.pred[, i] <- quantile(sample.y, 1 - (1 - pred.cred) / 2)
+      icl.pred[, i] <- quantile(sample.y, (1 - pred.cred) / 2, na.rm = TRUE)
+      icu.pred[, i] <- quantile(sample.y, 1 - (1 - pred.cred) / 2, na.rm = TRUE)
     }
     if (like.flag) {
       log.like.list <- dpois(outcome[i, 1], sample.lambda, log = TRUE)
       max.like.list <- max(log.like.list)
 
-      log.like[i] <- log(mean(exp(log.like.list - max.like.list))) + max.like.list
+      if (is.infinite(max.like.list)) {
+        log.like[i] <- NA
+      } else {
+        log.like[i] <- log(mean(exp(log.like.list - max.like.list))) + max.like.list
+      }
     }
   }
   if (!pred.flag) {

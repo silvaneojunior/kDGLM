@@ -4,12 +4,18 @@
 \alias{zero_sum_prior}
 \title{Zero sum prior}
 \usage{
-zero_sum_prior(block, var.index = 1:block$n)
+zero_sum_prior(
+  block,
+  var.index = 1:block$n,
+  weights = rep(1, length(var.index))
+)
 }
 \arguments{
 \item{block}{dlm_block object: The structural block.}
 
 \item{var.index}{integer: The index of the variables from which to set the prior.}
+
+\item{weights}{}
 }
 \value{
 A dlm_block object with the desired prior.

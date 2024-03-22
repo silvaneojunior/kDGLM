@@ -164,10 +164,11 @@ plot.fitted_dlm <- function(x, outcomes = names(x$outcomes), pred.cred = 0.95, l
     par(mar = config$mar)
     plt <- NULL
   } else {
+
     plt <- ggplot2::ggplot() +
-      ggplot2::geom_ribbon(data = eval, ggplot2::aes_string(x = "Time", fill = "Serie", ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25) +
-      ggplot2::geom_line(data = eval, ggplot2::aes_string(x = "Time", color = "Serie", y = "Prediction", linetype = "'Fitted values'")) +
-      ggplot2::geom_point(data = eval, ggplot2::aes_string(x = "Time", color = "Serie", y = "Observation", shape = '"Observation"'), alpha = 0.5) +
+      ggplot2::geom_ribbon(data = eval, na.rm = TRUE, ggplot2::aes_string(x = "Time", fill = "Serie", ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25) +
+      ggplot2::geom_line(data = eval, na.rm = TRUE, ggplot2::aes_string(x = "Time", color = "Serie", y = "Prediction", linetype = "'Fitted values'")) +
+      ggplot2::geom_point(data = eval, na.rm = TRUE, ggplot2::aes_string(x = "Time", color = "Serie", y = "Observation", shape = '"Observation"'), alpha = 0.5) +
       ggplot2::scale_linetype_manual("", values = linetypes) +
       ggplot2::scale_shape_manual("", values = shapes) +
       ggplot2::scale_fill_manual("", na.value = NA, values = fills) +
@@ -251,7 +252,7 @@ plot.fitted_dlm <- function(x, outcomes = names(x$outcomes), pred.cred = 0.95, l
 #'
 #' @seealso \code{\link{fit_model}},\code{\link{coef}}
 #' @family {auxiliary visualization functions for the fitted_dlm class}
-plot.dlm_coef <- function(x, var = rownames(x$mt), cutoff = floor(t / 10), pred.cred = 0.95, plot.pkg = "auto", ...) {
+plot.dlm_coef <- function(x, var = rownames(x$mt)[x$dynamic], cutoff = floor(t / 10), pred.cred = 0.95, plot.pkg = "auto", ...) {
   if (plot.pkg == "auto") {
     plot.pkg <- if (requireNamespace("plotly", quietly = TRUE) & requireNamespace("ggplot2", quietly = TRUE)) {
       "plotly"
@@ -410,6 +411,9 @@ plot.dlm_coef <- function(x, var = rownames(x$mt), cutoff = floor(t / 10), pred.
     par(mar = config$mar)
     plt <- NULL
   } else {
+    # fix GeomRibbon
+    # ggplot2::GeomRibbon$handle_na <- function(data, params) {  data }
+
     plt <- ggplot2::ggplot(plot.data, ggplot2::aes_string(x = "Time", fill = "Label", color = "color.name")) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
       ggplot2::scale_x_continuous("Time") +
@@ -419,8 +423,8 @@ plot.dlm_coef <- function(x, var = rownames(x$mt), cutoff = floor(t / 10), pred.
       ggplot2::scale_y_continuous("Parameter value") +
       ggplot2::theme_bw() +
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
-      ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25, color = NA) +
-      ggplot2::geom_line(ggplot2::aes_string(y = "Mean")) +
+      ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25, color = NA, na.rm = TRUE) +
+      ggplot2::geom_line(ggplot2::aes_string(y = "Mean"), na.rm = TRUE) +
       ggplot2::coord_cartesian(ylim = c(min.value, max.value))
     if (plot.pkg == "plotly") {
       if (!requireNamespace("plotly", quietly = TRUE)) {

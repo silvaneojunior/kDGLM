@@ -28,7 +28,7 @@
     <a class="dropdown-item" href="../articles/structures.html">Creation of model structures</a>
     <a class="dropdown-item" href="../articles/outcomes.html">Creation of model outcomes</a>
     <a class="dropdown-item" href="../articles/fitting.html">Fitting and analysing models</a>
-    <a class="dropdown-item" href="../articles/example1.html">Applied example: Space-time model hospital admissions from gastroenteritis</a>
+    <a class="dropdown-item" href="../articles/example1.html">Applied example: Space-time model for hospital admissions from gastroenteritis</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
@@ -91,11 +91,11 @@
 
 
 <dt>D</dt>
-<dd><p>Array, Matrix, vector or scalar: The values for the discount factors associated with the latent variables at each time. If D is an array, its dimensions should be (2n) x (2n) x t, where n is the order of the harmonic block and t is the length of the outcomes. If D is a matrix, its dimensions should be (2n) x (2n) and the same discount matrix will be used in all observations. If D is a vector, it should have size t and it is interpreted as the discount factor at each observed time (same discount for all variable). If D is a scalar, the same discount will be used for all latent variables at all times.</p></dd>
+<dd><p>Array, Matrix, vector or scalar: The values for the discount factors associated with the latent states at each time. If D is an array, its dimensions should be (2n) x (2n) x t, where n is the order of the harmonic block and t is the length of the outcomes. If D is a matrix, its dimensions should be (2n) x (2n) and the same discount matrix will be used in all observations. If D is a vector, it should have size t and it is interpreted as the discount factor at each observed time (same discount for all variable). If D is a scalar, the same discount will be used for all latent states at all times.</p></dd>
 
 
 <dt>h</dt>
-<dd><p>Matrix, vector or scalar: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, its dimension should be (2n) x t, where n is the order of the harmonic_block and t is the length of the series. If a vector, it should have size t, and each value will be applied to the first latent variable (the one which affects the linear predictors) in their respective time. If a scalar, the passed value will be used for the first latent variable at each time.</p></dd>
+<dd><p>Matrix, vector or scalar: A drift to be add after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, its dimension should be (2n) x t, where n is the order of the harmonic_block and t is the length of the series. If a vector, it should have size t, and each value will be applied to the first latent state (the one which affects the linear predictors) in their respective time. If a scalar, the passed value will be used for the first latent state at each time.</p></dd>
 
 
 <dt>H</dt>
@@ -103,11 +103,11 @@
 
 
 <dt>a1</dt>
-<dd><p>Vector or scalar: The prior mean for the latent variables associated with this block at time 1. If a1 is a vector, its dimension should be equal to two times the order of the harmonic block. If a1 is a scalar, its value will be used for all latent variables.</p></dd>
+<dd><p>Vector or scalar: The prior mean for the latent states associated with this block at time 1. If a1 is a vector, its dimension should be equal to two times the order of the harmonic block. If a1 is a scalar, its value will be used for all latent states.</p></dd>
 
 
 <dt>R1</dt>
-<dd><p>Matrix, vector or scalar: The prior covariance matrix for the latent variables associated with this block at time 1. If R1 is a matrix, its dimensions should be (2n) x (2n). If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.</p></dd>
+<dd><p>Matrix, vector or scalar: The prior covariance matrix for the latent states associated with this block at time 1. If R1 is a matrix, its dimensions should be (2n) x (2n). If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.</p></dd>
 
 
 <dt>monitoring</dt>
@@ -118,18 +118,18 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A dlm_block object containing the following values:</p><ul><li><p>FF Array: A 3D-array containing the regression matrix for each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model and t is the time series length.</p></li>
+<p>A dlm_block object containing the following values:</p><ul><li><p>FF Array: A 3D-array containing the regression matrix for each time. Its dimension should be n x k x t, where n is the number of latent states, k is the number of linear predictors in the model and t is the time series length.</p></li>
 <li><p>FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.</p></li>
-<li><p>G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.</p></li>
+<li><p>G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.</p></li>
 <li><p>G.labs Matrix: A n x n character matrix describing the type of value of each element of G.</p></li>
-<li><p>D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.</p></li>
+<li><p>D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.</p></li>
 <li><p>h Matrix: The mean for the random noise of the temporal evolution. Its dimension should be n x t.</p></li>
 <li><p>H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.</p></li>
 <li><p>a1 Vector: The prior mean for the latent vector.</p></li>
 <li><p>R1 Matrix: The prior covariance matrix for the latent vector.</p></li>
 <li><p>var.names list: A list containing the variables indexes by their name.</p></li>
 <li><p>period Positive integer: Same as argument.</p></li>
-<li><p>n Positive integer: The number of latent variables associated with this block (2).</p></li>
+<li><p>n Positive integer: The number of latent states associated with this block (2).</p></li>
 <li><p>t Positive integer: The number of time steps associated with this block. If 1, the block is compatible with blocks of any time length, but if t is greater than 1, this block can only be used with blocks of the same time length.</p></li>
 <li><p>k Positive integer: The number of outcomes associated with this block. This block can only be used with blocks with the same outcome length.</p></li>
 <li><p>pred.names Vector: The name of the linear predictors associated with this block.</p></li>

@@ -32,13 +32,19 @@ summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, m
   k <- object$k
   T_len <- object$t
   predictions <- coef.fitted_dlm(object, eval_t = (metric.cutoff + 1):T_len, lag = metric.lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = TRUE)
-  metric.vals <- c(
-    sum(predictions$log.like),
-    mean(predictions$interval.score),
-    mean(predictions$mase),
-    mean(predictions$rae),
-    mean(predictions$mae),
-    mean(predictions$mse)
+  metric.log.like=sum(predictions$metrics$log.like, na.rm = TRUE)
+
+  # metric.vals <- rbind(
+  #   colMeans(predictions$metrics$interval.score, na.rm = TRUE),
+  #   colMeans(predictions$metrics$mase, na.rm = TRUE),
+  #   colMeans(predictions$metrics$mae, na.rm = TRUE),
+  #   colMeans(predictions$metrics$mse, na.rm = TRUE)
+  # )
+  metric.vals <- rbind(
+    mean(predictions$metrics$interval.score, na.rm = TRUE),
+    mean(predictions$metrics$mase, na.rm = TRUE),
+    mean(predictions$metrics$mae, na.rm = TRUE),
+    mean(predictions$metrics$mse, na.rm = TRUE)
   )
   metric.names <- c(
     "Log-likelihood",
@@ -51,19 +57,21 @@ summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, m
   metric.len <- 22
   predictions <- coef.fitted_dlm(object, eval_t = T_len, lag = lag, pred.cred = pred.cred, eval.pred = FALSE, eval.metric = FALSE)
 
+  flag.dynamic <- object$dynamic
+
   distr.names <- lapply(object$outcomes, function(x) {
     x$name
   })
   distr.names.len <- max(sapply(names(distr.names), nchar))
 
   coef.label <- if (lag < 0) {
-    "smoothed"
+    " (smoothed)"
   } else if (lag == 0) {
-    "filtered"
+    paste0(" (filtered) at time ", t)
   } else if (lag == 1) {
-    "one-step-ahead prediction"
+    paste0(" (one-step-ahead prediction) at time ", t)
   } else {
-    paste0(lag, "-steps-ahead prediction")
+    paste0(" (", lag, "-steps-ahead prediction) at time ", t)
   }
 
   metric.label <- if (metric.lag < 0) {
@@ -107,6 +115,7 @@ summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, m
     p.val.str
   )
 
+  metric.log.like = format(round(metric.log.like, 5), justify = "l", scientific = FALSE)
   metric.vals <- ifelse(abs(metric.vals) < 0.00001 | abs(metric.vals) > 1e5,
     format(metric.vals, digits = 4, justify = "l", scientific = TRUE),
     format(round(metric.vals, 5), justify = "l", scientific = FALSE)
@@ -117,14 +126,28 @@ summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, m
     "Fitted DGLM with ", length(object$outcomes), " outcomes.\n\n",
     "distributions:\n",
     paste0("    ", names(distr.names), ": ", distr.names, "\n", collapse = ""), "\n",
-    "Coeficients (", coef.label, ") at time ", t, ":\n",
-    paste(format(" ", width = len.names, justify = "l"), "Estimate", "Std. Error", "  t value", "Pr(>|t|)"), "\n",
-    paste(var.labels, mean.coef, std.coef, t.coef, p.val.str, status, "\n", collapse = ""),
+    if (any(!flag.dynamic)) {
+      paste0(
+        "Static coeficients", coef.label, ":\n",
+        paste(format(" ", width = len.names, justify = "l"), "Estimate", "Std. Error", "  t value", "Pr(>|t|)"), "\n",
+        paste(var.labels[!flag.dynamic], mean.coef[!flag.dynamic],
+          std.coef[!flag.dynamic], t.coef[!flag.dynamic],
+          p.val.str[!flag.dynamic], status[!flag.dynamic], "\n",
+          collapse = ""
+        ),
+        "---\n",
+        "Signif. codes:  0 \xe2\x80\x98***\xe2\x80\x99 0.001 \xe2\x80\x98**\xe2\x80\x99 0.01 \xe2\x80\x98*\xe2\x80\x99 0.05 \xe2\x80\x98.\xe2\x80\x99 0.1 \xe2\x80\x98 \xe2\x80\x99 1\n\n"
+      )
+    } else {
+      "---\nNo static coeficients.\n"
+    },
     "---\n",
-    "Signif. codes:  0 \xe2\x80\x98***\xe2\x80\x99 0.001 \xe2\x80\x98**\xe2\x80\x99 0.01 \xe2\x80\x98*\xe2\x80\x99 0.05 \xe2\x80\x98.\xe2\x80\x99 0.1 \xe2\x80\x98 \xe2\x80\x99 1\n\n",
-    "---\n",
+    "See the coef.fitted_dlm for the coeficients with temporal dynamic.\n\n",
     metric.label, "\n",
-    paste0(paste0(metric.names, ": ", metric.vals), collapse = "\n"), "\n",
+    paste0(paste0(metric.names[1], ": ", metric.log.like), collapse = "\n"), "\n",
+    paste0(paste0(metric.names[2:3], ": ",
+                  sapply(1:2,function(i){paste(metric.vals[i,], collapse = "    ")})
+                  ), collapse = "\n"), "\n",
     "---"
   ))
 }

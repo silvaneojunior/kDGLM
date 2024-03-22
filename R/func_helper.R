@@ -120,7 +120,7 @@ var_decomp <- function(S) {
 ginv <- function(S) {
   S <- as.matrix(S)
   Chol.decomp <- var_decomp(S)
-  flags <- diag(Chol.decomp) > 1e-5
+  flags <- diag(Chol.decomp) > 1e-8
   if (!all(flags)) {
     inv <- S * 0
     inv[flags, flags] <- chol2inv(Chol.decomp[flags, flags])
@@ -345,17 +345,23 @@ rowQuantile <- function(X, q) {
 #'
 #' @keywords internal
 f_root <- function(f, df, start, tol = 1e-8, n.max = 1000) {
+  k <- length(start)
+  S <- tol * diag(k)
   x.root <- start
   fx <- f(x.root)
-  dfx <- df(x.root)
+  dfx <- df(x.root) + S
   error <- max(abs(fx))
   count <- 0
   while (error >= tol && count < n.max) {
     count <- count + 1
+    # print('#####################')
+    # print(det(dfx))
+    # print(fx)
     change <- solve(dfx, -fx)
+    # print(change)
     x.root <- x.root + change
     fx <- f(x.root)
-    dfx <- df(x.root)
+    dfx <- df(x.root) + S
     error <- max(abs(fx))
   }
   if (count >= n.max) {
@@ -382,10 +388,12 @@ f_root <- function(f, df, start, tol = 1e-8, n.max = 1000) {
 #'
 #' @keywords internal
 f_joint_root <- function(f, start, tol = 1e-8, n.max = 1000) {
+  k <- length(start)
+  S <- 0.001 * diag(k)
   x.root <- start
   fx.joint <- f(x.root)
   fx <- fx.joint[[1]]
-  dfx <- fx.joint[[2]]
+  dfx <- fx.joint[[2]] + S
   error <- max(abs(fx))
   count <- 0
   while (error >= tol && count < n.max) {
@@ -394,7 +402,7 @@ f_joint_root <- function(f, start, tol = 1e-8, n.max = 1000) {
     x.root <- x.root + change
     fx.joint <- f(x.root)
     fx <- fx.joint[[1]]
-    dfx <- fx.joint[[2]]
+    dfx <- fx.joint[[2]] + S
     error <- max(abs(fx))
   }
   if (count >= n.max) {

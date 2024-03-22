@@ -4,6 +4,7 @@
 #'
 #' @param block dlm_block object: The structural block.
 #' @param var.index integer: The index of the variables from which to set the prior.
+#' @param weights
 #'
 #' @return A dlm_block object with the desired prior.
 #'
@@ -23,11 +24,15 @@
 #'
 #' @references
 #'    \insertAllCited{}
-zero_sum_prior <- function(block, var.index = 1:block$n) {
-  transf <- matrix(-1 / block$n, block$n, block$n)
+zero_sum_prior <- function(block, var.index = 1:block$n, weights = rep(1, length(var.index))) {
+  n <- length(var.index)
+  weights <- weights / sum(weights)
+  transf <- matrix(-weights, n, n)
   diag(transf) <- 1 + diag(transf)
+
+
   block$a1[var.index] <- block$a1[var.index] - mean(block$a1[var.index])
-  block$R1[var.index, var.index] <- transf %*% block$R1[var.index, var.index] %*% transf
+  block$R1[var.index, var.index] <- t(transf) %*% block$R1[var.index, var.index] %*% transf
   for (i in 1:block$t) {
     D <- block$D[var.index, var.index, i]
     d <- D[D != 0]
@@ -36,7 +41,7 @@ zero_sum_prior <- function(block, var.index = 1:block$n) {
     }
     block$D[var.index, var.index, i] <- mean(d)
     block$D[-var.index, var.index, i] <- block$D[var.index, -var.index, i] <- 0
-    block$h[var.index, i] <- block$h[, i] - mean(block$h[var.index, i])
+    block$h[var.index, i] <- block$h[var.index, i] - mean(block$h[var.index, i])
     block$H[var.index, var.index, i] <- transf %*% block$H[var.index, var.index, i] %*% transf
     block$H[-var.index, var.index, i] <- block$H[var.index, -var.index, i] <- 0
   }

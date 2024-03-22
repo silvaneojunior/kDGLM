@@ -39,14 +39,18 @@ base_block <- function(..., order, name,
   }
 
   if (length(D) == 1) {
-    D <- array(D, c(order, order, t))
+    D.base <- diag(order)
+    diag(D.base) <- D
+    D <- array(D.base, c(order, order, t))
   } else if (is.vector(D)) {
     if (length(D) == order) {
       placeholder <- diag(order)
       diag(placeholder) <- D
       D <- array(placeholder, c(order, order, t))
     } else {
-      D <- array(D, c(length(D), order, order)) |> aperm(c(3, 2, 1))
+      D <- sapply(D, function(x) {
+        diag(order) * x
+      }, simplify = "array")
     }
   } else if (is.matrix(D)) {
     D <- array(D, c(dim(D)[1], dim(D)[2], t))
@@ -119,6 +123,7 @@ base_block <- function(..., order, name,
         stop("Error: Predictor value is equal to 'const', but 'const' is a reserved name. Choose another label.")
       }
     } else {
+      values[[name.var]]=ifelse(is.na(values[[name.var]]),0,values[[name.var]])
       FF[1, i, ] <- values[[name.var]]
       if (any(values[[name.var]] != max(values[[name.var]]))) {
         count.regr <- count.regr + 1

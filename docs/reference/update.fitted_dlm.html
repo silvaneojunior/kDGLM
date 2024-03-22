@@ -28,7 +28,7 @@
     <a class="dropdown-item" href="../articles/structures.html">Creation of model structures</a>
     <a class="dropdown-item" href="../articles/outcomes.html">Creation of model outcomes</a>
     <a class="dropdown-item" href="../articles/fitting.html">Fitting and analysing models</a>
-    <a class="dropdown-item" href="../articles/example1.html">Applied example: Space-time model hospital admissions from gastroenteritis</a>
+    <a class="dropdown-item" href="../articles/example1.html">Applied example: Space-time model for hospital admissions from gastroenteritis</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
@@ -103,17 +103,20 @@ If an offset is necessary for updating, it should be passed along with the obser
 <span class="r-in"><span><span class="va">season</span> <span class="op">&lt;-</span> <span class="fu"><a href="harmonic_block.html">harmonic_block</a></span><span class="op">(</span>rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, period <span class="op">=</span> <span class="fl">12</span>, D <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Only first 100 observations (for the sake of the example)</span></span></span>
-<span class="r-in"><span><span class="va">outcome</span> <span class="op">&lt;-</span> <span class="fu"><a href="Poisson.html">Poisson</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="st">"rate"</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">outcome</span> <span class="op">&lt;-</span> <span class="fu"><a href="Poisson.html">Poisson</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="st">"rate"</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassager</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in Poisson(lambda = "rate", data = c(AirPassager)[1:100]):</span> object 'AirPassager' not found</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">fitted.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">level</span>, <span class="va">season</span>,</span></span>
 <span class="r-in"><span>  AirPassengers <span class="op">=</span> <span class="va">outcome</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in fit_model(level, season, AirPassengers = outcome):</span> object 'outcome' not found</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">updated.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">fitted.data</span>, AirPassengers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span><span class="op">[</span><span class="fl">101</span><span class="op">:</span><span class="fl">144</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">updated.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">fitted.data</span>, AirPassager <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassager</span><span class="op">)</span><span class="op">[</span><span class="fl">101</span><span class="op">:</span><span class="fl">144</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in update(fitted.data, AirPassager = list(data = c(AirPassager)[101:144])):</span> object 'fitted.data' not found</span>
 <span class="r-in"><span><span class="co"># If a offset was present, the user should pass its value when updating</span></span></span>
 <span class="r-in"><span><span class="co"># updated.fit=update(fitted.data,</span></span></span>
-<span class="r-in"><span><span class="co">#                     AirPassengers=list(</span></span></span>
-<span class="r-in"><span><span class="co">#                      data=c(AirPassengers)[101:144],</span></span></span>
+<span class="r-in"><span><span class="co">#                     AirPassager=list(</span></span></span>
+<span class="r-in"><span><span class="co">#                      data=c(AirPassager)[101:144],</span></span></span>
 <span class="r-in"><span><span class="co">#                      offset= ... ))</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
