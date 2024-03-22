@@ -11,7 +11,8 @@ Gamma(
   beta = NA,
   sigma = NA,
   data,
-  offset = as.matrix(data)^0
+  offset = as.matrix(data)^0,
+  alt.method = FALSE
 )
 }
 \arguments{

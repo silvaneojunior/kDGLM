@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{dlm_coef}(
   x,
-  var = rownames(x$mt),
+  var = rownames(x$mt)[x$dynamic],
   cutoff = floor(t/10),
   pred.cred = 0.95,
   plot.pkg = "auto",

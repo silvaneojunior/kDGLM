@@ -39,14 +39,17 @@ base_block <- function(..., order, name,
   }
 
   if (length(D) == 1) {
-    D <- array(D, c(order, order, t))
+    D.base <- diag(order) * D
+    D <- array(D.base, c(order, order, t))
   } else if (is.vector(D)) {
     if (length(D) == order) {
       placeholder <- diag(order)
       diag(placeholder) <- D
       D <- array(placeholder, c(order, order, t))
     } else {
-      D <- array(D, c(length(D), order, order)) |> aperm(c(3, 2, 1))
+      D <- sapply(D, function(x) {
+        diag(order) * x
+      }, simplify = "array")
     }
   } else if (is.matrix(D)) {
     D <- array(D, c(dim(D)[1], dim(D)[2], t))

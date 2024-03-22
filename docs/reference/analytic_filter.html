@@ -28,7 +28,7 @@
     <a class="dropdown-item" href="../articles/structures.html">Creation of model structures</a>
     <a class="dropdown-item" href="../articles/outcomes.html">Creation of model outcomes</a>
     <a class="dropdown-item" href="../articles/fitting.html">Fitting and analysing models</a>
-    <a class="dropdown-item" href="../articles/example1.html">Applied example: Space-time model hospital admissions from gastroenteritis</a>
+    <a class="dropdown-item" href="../articles/example1.html">Applied example: Space-time model for hospital admissions from gastroenteritis</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
@@ -89,7 +89,7 @@
 
 
 <dt>FF</dt>
-<dd><p>array: A 3D-array containing the planning matrix at each time. Its dimension should be n x k x t, where n is the number of latent variables, k is the number of linear predictors in the model and t is the time series length.</p></dd>
+<dd><p>array: A 3D-array containing the planning matrix at each time. Its dimension should be n x k x t, where n is the number of latent states, k is the number of linear predictors in the model and t is the time series length.</p></dd>
 
 
 <dt>FF.labs</dt>
@@ -97,7 +97,7 @@
 
 
 <dt>G</dt>
-<dd><p>array: A 3D-array containing the evolution matrix at each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.</p></dd>
+<dd><p>array: A 3D-array containing the evolution matrix at each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.</p></dd>
 
 
 <dt>G.labs</dt>
@@ -105,7 +105,7 @@
 
 
 <dt>D</dt>
-<dd><p>array: A 3D-array containing the discount factor matrix at each time. Its dimension should be n x n x t, where n is the number of latent variables and t is the time series length.</p></dd>
+<dd><p>array: A 3D-array containing the discount factor matrix at each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.</p></dd>
 
 
 <dt>h</dt>
@@ -121,21 +121,21 @@
 
 
 <dt>monitoring</dt>
-<dd><p>numeric: A vector of flags indicating which latent variables should be monitored.</p></dd>
+<dd><p>numeric: A vector of flags indicating which latent states should be monitored.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A list containing the following values:</p><ul><li><p>mt matrix: The filtered mean of the latent variables for each time. Dimensions are n x t.</p></li>
-<li><p>Ct array: A 3D-array containing the filtered covariance matrix of the latent variable for each time. Dimensions are n x n x t.</p></li>
-<li><p>at matrix: The one-step-ahead mean of the latent variables at each time. Dimensions are n x t.</p></li>
-<li><p>Rt array: A 3D-array containing the one-step-ahead covariance matrix for latent variables at each time. Dimensions are n x n x t.</p></li>
+<p>A list containing the following values:</p><ul><li><p>mt matrix: The filtered mean of the latent states for each time. Dimensions are n x t.</p></li>
+<li><p>Ct array: A 3D-array containing the filtered covariance matrix of the latent states for each time. Dimensions are n x n x t.</p></li>
+<li><p>at matrix: The one-step-ahead mean of the latent states at each time. Dimensions are n x t.</p></li>
+<li><p>Rt array: A 3D-array containing the one-step-ahead covariance matrix for latent states at each time. Dimensions are n x n x t.</p></li>
 <li><p>ft matrix: The one-step-ahead mean of the linear predictors at each time. Dimensions are k x t.</p></li>
 <li><p>Qt array: A 3D-array containing the one-step-ahead covariance matrix for linear predictors at each time. Dimensions are k x k x t.</p></li>
 <li><p>ft.star matrix: The filtered mean of the linear predictors for each time. Dimensions are k x t.</p></li>
-<li><p>Qt.star array: A 3D-array containing the linear predictors matrix of the latent variable for each time. Dimensions are k x k x t.</p></li>
+<li><p>Qt.star array: A 3D-array containing the linear predictors matrix of the latent state for each time. Dimensions are k x k x t.</p></li>
 <li><p>FF array: The same as the argument (same values).</p></li>
 <li><p>G matrix: The same as the argument (same values).</p></li>
 <li><p>G.labs matrix: The same as the argument (same values).</p></li>

@@ -193,10 +193,6 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA) {
     structure$FF <- array(structure$FF, c(structure$n, structure$k, structure$t), dimnames = dimnames(structure$FF))
     structure$FF.labs <- matrix(structure$FF.labs, structure$n, structure$k)
   }
-  structure$G[, , 1] <- diag(structure$n)
-  structure$D[, , 1] <- 1
-  structure$h[, 1] <- 0
-  structure$H[, , 1] <- 0
   if (t != structure$t) {
     stop(paste0("Error: outcome does not have the same time length as structure: got ", t, " from outcome, expected ", structure$t))
   }
@@ -252,6 +248,14 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA) {
       ] <- intervention$G
     }
   }
+  G <- structure$G
+  D <- structure$D
+  h <- structure$h
+  H <- structure$H
+  G[, , 1] <- diag(structure$n)
+  D[, , 1] <- 1
+  h[, 1] <- 0
+  H[, , 1] <- 0
 
   model <- analytic_filter(
     outcomes = outcomes,
@@ -259,14 +263,26 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA) {
     R1 = structure$R1,
     FF = structure$FF,
     FF.labs = structure$FF.labs,
-    G = structure$G,
+    G = G,
     G.labs = structure$G.labs,
-    D = structure$D,
-    h = structure$h,
-    H = structure$H,
+    D = D,
+    h = h,
+    H = H,
     p.monit = p.monit,
     monitoring = structure$monitoring
   )
+
+  flags.dynamic <- rep(FALSE, structure$n)
+  flags.dynamic <- flags.dynamic | sapply(1:structure$n, function(i) {
+    any(model$G[i, -i, ] != 0) | any(model$G[i, i, ] != 1)
+  })
+  flags.dynamic <- flags.dynamic | sapply(1:structure$n, function(i) {
+    any(model$h[i, ] != 0)
+  })
+  flags.dynamic <- flags.dynamic | sapply(1:structure$n, function(i) {
+    any(model$W[i, i, ] > 0)
+  })
+
   if (smooth) {
     model <- smoothing(model)
   }
@@ -287,6 +303,7 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA) {
   model$monitoring <- structure$monitoring
   model$structure <- structure
   model$period <- structure$period
+  model$dynamic <- flags.dynamic
   class(model) <- "fitted_dlm"
 
   return(model)
@@ -694,11 +711,14 @@ forecast.fitted_dlm <- function(object, t = 1,
       )
       par(mar = config$mar)
     } else {
+      # fix GeomRibbon
+      # ggplot2::GeomRibbon$handle_na <- function(data, params) {  data }
+
       names(colors) <- names(fills) <- series.names
       plt.obj <- ggplot2::ggplot(plot.data, ggplot2::aes_string(x = "Time")) +
-        ggplot2::geom_line(ggplot2::aes_string(y = "Prediction", linetype = "type", color = "Serie")) +
-        ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper", fill = "Serie", group = "group.ribbon"), alpha = 0.25, color = NA) +
-        ggplot2::geom_point(ggplot2::aes_string(y = "Observation", shape = "shape.point", color = "Serie"), alpha = 0.5) +
+        ggplot2::geom_line(ggplot2::aes_string(y = "Prediction", linetype = "type", color = "Serie"), na.rm = TRUE) +
+        ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper", fill = "Serie", group = "group.ribbon"), alpha = 0.25, color = NA, na.rm = TRUE) +
+        ggplot2::geom_point(ggplot2::aes_string(y = "Observation", shape = "shape.point", color = "Serie"), alpha = 0.5, na.rm = TRUE) +
         ggplot2::scale_fill_manual("", values = fills, na.value = NA) +
         ggplot2::scale_color_manual("", values = colors, na.value = NA) +
         ggplot2::scale_linetype_manual("", values = c("solid", "dashed")) +
@@ -1157,7 +1177,6 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
     if (eval.pred) {
       for (outcome in object$outcomes) {
         r.cur <- outcome$r
-
         r.seq <- (r.acum + 1):(r.acum + r.cur)
         t.index <- i - init.t + 1
 
@@ -1185,31 +1204,40 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
           pred.cred,
           parms = outcome$parms
         )
-        out.ref <- t(outcome$data)[, i, drop = FALSE]
-        if (object$period < object$t) {
-          mase.coef <- colMeans(abs(diff(outcome$data, object$period)))
-        } else if (object$t > 1) {
-          mase.coef <- colMeans(abs(diff(outcome$data, 1)))
-        } else {
-          mase.coef <- outcome$data[1, ]
-        }
 
 
         pred[r.seq, t.index] <- prediction$pred
         var.pred[r.seq, r.seq, t.index] <- prediction$var.pred
         icl.pred[r.seq, t.index] <- prediction$icl.pred
         icu.pred[r.seq, t.index] <- prediction$icu.pred
-        log.like[t.index] <- log.like[t.index] + sum(prediction$log.like, na.rm = TRUE)
-        mae[t.index] <- mae[t.index] + sum(abs(out.ref - prediction$pred))
-        rae[t.index] <- rae[t.index] + sum(abs(out.ref - prediction$pred) / ifelse(out.ref == 0, 1, out.ref))
-        mse[t.index] <- mse[t.index] + sum((out.ref - prediction$pred)**2)
-        interval.score[t.index] <- interval.score[t.index] +
-          sum((prediction$icu.pred - prediction$icl.pred) +
-            2 / (1 - pred.cred) * (prediction$icl.pred - out.ref) * (out.ref < prediction$icl.pred) +
-            2 / (1 - pred.cred) * (out.ref - prediction$icu.pred) * (out.ref > prediction$icu.pred))
-        r.acum <- r.acum + r.cur
 
-        mase[t.index] <- mase[t.index] + mean(abs(out.ref - prediction$pred) / mase.coef) / r
+        if (!any(is.na(outcome$data[i, , drop = FALSE]))) {
+          out.ref <- t(outcome$data)[, i, drop = FALSE]
+          if (object$period * max(lag, 1) < object$t) {
+            mase.coef <- colMeans(abs(diff(outcome$data, lag = object$period * max(lag, 1))), na.rm = TRUE)
+          } else if (object$t > 1) {
+            mase.coef <- colMeans(abs(diff(outcome$data, lag = max(lag, 1))), na.rm = TRUE)
+          } else {
+            mase.coef <- outcome$data[1, ]
+          }
+          log.like[t.index] <- log.like[t.index] + sum(prediction$log.like, na.rm = TRUE)
+          mae[t.index] <- mae[t.index] + sum(abs(out.ref - prediction$pred))
+          rae[t.index] <- rae[t.index] + sum(abs(out.ref - prediction$pred) / ifelse(out.ref == 0, 1, out.ref))
+          mse[t.index] <- mse[t.index] + sum((out.ref - prediction$pred)**2)
+          interval.score[t.index] <- interval.score[t.index] +
+            sum((prediction$icu.pred - prediction$icl.pred) +
+              2 / (1 - pred.cred) * (prediction$icl.pred - out.ref) * (out.ref < prediction$icl.pred) +
+              2 / (1 - pred.cred) * (out.ref - prediction$icu.pred) * (out.ref > prediction$icu.pred))
+
+
+          mase[t.index] <- mase[t.index] + mean(abs(out.ref - prediction$pred) / mase.coef) / r
+        } else {
+          log.like[t.index] <-
+            mae[t.index] <- rae[t.index] <- mse[t.index] <-
+            interval.score[t.index] <-
+            mase[t.index] <- NA
+        }
+        r.acum <- r.acum + r.cur
       }
     }
   }
@@ -1269,7 +1297,8 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
     mse = mse[time.flags, drop = FALSE],
     interval.score = interval.score[time.flags, drop = FALSE],
     conj.param = conj.param.list,
-    lag = true.lag
+    lag = true.lag,
+    dynamic = object$dynamic
   )
 
   class(output) <- "dlm_coef"

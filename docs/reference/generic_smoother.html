@@ -28,7 +28,7 @@
     <a class="dropdown-item" href="../articles/structures.html">Creation of model structures</a>
     <a class="dropdown-item" href="../articles/outcomes.html">Creation of model outcomes</a>
     <a class="dropdown-item" href="../articles/fitting.html">Fitting and analysing models</a>
-    <a class="dropdown-item" href="../articles/example1.html">Applied example: Space-time model hospital admissions from gastroenteritis</a>
+    <a class="dropdown-item" href="../articles/example1.html">Applied example: Space-time model for hospital admissions from gastroenteritis</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
@@ -64,19 +64,19 @@
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>mt</dt>
-<dd><p>matrix: A matrix containing the filtered mean of the latent variables at each time. Each row should represent one variable.</p></dd>
+<dd><p>matrix: A matrix containing the filtered mean of the latent states at each time. Each row should represent one variable.</p></dd>
 
 
 <dt>Ct</dt>
-<dd><p>array: A 3D-array representing the filtered covariance matrix of the latent variables at each time. The third dimension should represent the time index.</p></dd>
+<dd><p>array: A 3D-array representing the filtered covariance matrix of the latent states at each time. The third dimension should represent the time index.</p></dd>
 
 
 <dt>at</dt>
-<dd><p>matrix: A matrix containing the one-step-ahead mean of the latent variables at each time based upon the filtered mean. Each row should represent one variable.</p></dd>
+<dd><p>matrix: A matrix containing the one-step-ahead mean of the latent states at each time based upon the filtered mean. Each row should represent one variable.</p></dd>
 
 
 <dt>Rt</dt>
-<dd><p>array: A 3D-array representing the one-step-ahead covariance matrix of the latent variables at each time based upon the filtered covariance matrix. The third dimension should represent the time index.</p></dd>
+<dd><p>array: A 3D-array representing the one-step-ahead covariance matrix of the latent states at each time based upon the filtered covariance matrix. The third dimension should represent the time index.</p></dd>
 
 
 <dt>G</dt>
@@ -91,7 +91,7 @@
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A list containing the smoothed mean (mts) and covariance (Cts) of the latent variables at each time. Their dimension follows, respectively, the dimensions of mt and Ct.</p>
+<p>A list containing the smoothed mean (mts) and covariance (Cts) of the latent states at each time. Their dimension follows, respectively, the dimensions of mt and Ct.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

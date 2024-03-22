@@ -190,11 +190,13 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
       }
 
       if (any(null.flags)) {
-        weight <- ((t - 1) / t) * diag(D.p)
+        D.mat <- diag(D.p)
+        weight <- (((t - 1) / t)) * D.mat
+        # weight <- D.mat
         m2 <- last.m %*% t(last.m) + last.C
         # m2=last.C*0
         # diag(m2)=diag(last.C)+last.m**2
-        noise.est <- weight * H.prev + (1 - weight) * m2
+        noise.est <- (weight * H.prev + (1 - weight) * m2) # /(1-(1-weight)**t)
         D.p.inv[null.flags] <- 1
         H.now[null.flags] <- noise.est[null.flags]
       }
