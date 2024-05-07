@@ -75,6 +75,7 @@ Poisson <- function(lambda, data, offset = as.matrix(data)**0) {
     t = t,
     offset = matrix(offset, t, r),
     data = matrix(data, t, r),
+    na.condition = any.na,
     convert.mat.canom = convert.mat.canom,
     convert.mat.default = convert.mat.default,
     convert.canom.flag = FALSE,

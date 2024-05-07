@@ -24,8 +24,8 @@ The approximation is the best in the sense that it minimizes the KL divergence f
 Other {auxiliary functions for a Poisson outcome}: 
 \code{\link{convert_Normal_Poisson}()},
 \code{\link{poisson_pred}()},
-\code{\link{update_Poisson_alt}()},
-\code{\link{update_Poisson}()}
+\code{\link{update_Poisson}()},
+\code{\link{update_Poisson_alt}()}
 }
 \concept{{auxiliary functions for a Poisson outcome}}
 \keyword{internal}

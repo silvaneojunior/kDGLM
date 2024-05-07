@@ -111,13 +111,17 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
   k <- dim(FF)[2]
 
 
-  na.flag <- rep(FALSE, T_len)
-  for (outcome in outcomes) {
-    data.i <- outcome$data
-    offset.i <- outcome$offset
-    na.flag.i <- rowSums(is.na(data.i) | is.na(offset.i) | (offset.i == 0))
+  na.flag <- rep(TRUE, T_len)
+  for (outcome.name in names(outcomes)) {
+    outcome <- outcomes[[outcome.name]]
+    na.condition <- outcome$na.condition
+    data <- outcome$data
+    offset <- outcome$offset
+    outcomes[[outcome.name]]$na.flag <- sapply(1:T_len, function(i) {
+      na.condition(data[i, ], offset[i, ])
+    })
 
-    na.flag <- na.flag | na.flag.i
+    na.flag <- na.flag & outcomes[[outcome.name]]$na.flag
   }
   D[, , na.flag] <- 0
 
@@ -225,7 +229,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
           outcome <- outcomes[[outcome.name]]
 
           offset.step <- outcome$offset[t, ]
-          if (!na.flag[t]) {
+          if (!outcome$na.flag[t]) {
             pred.index <- match(outcome$pred.names, pred.names)
             ft.canom <- ft.step[pred.index, , drop = FALSE]
             Qt.canom <- Qt.step[pred.index, pred.index, drop = FALSE]
@@ -278,7 +282,8 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
       pred.index <- match(outcome$pred.names, pred.names)
 
       offset.step <- outcome$offset[t, ]
-      if (!na.flag[t]) {
+      data.step <- outcome$data[t, ]
+      if (!outcome$na.flag[t]) {
         lin.pred <- calc_lin_pred(mt.step, Ct.step, FF.step, FF.labs, pred.names, pred.index)
         ft.step.part <- lin.pred$ft
         Qt.step.part <- lin.pred$Qt
@@ -292,10 +297,11 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
         offset.pred <- outcome$apply_offset(ft.step.part, Qt.step.part, offset.step)
         ft.step.part <- offset.pred$ft
         Qt.step.part <- offset.pred$Qt
+
         conj.prior <- outcome$conj_distr(ft.step.part, Qt.step.part, parms = outcome$parms)
         conj.post <- outcome$update(conj.prior,
           ft = ft.step.part, Qt = Qt.step.part,
-          y = outcome$data[t, ], parms = outcome$parms
+          y = data.step, parms = outcome$parms
         )
         if (outcome$alt.method) {
           norm.post <- conj.post

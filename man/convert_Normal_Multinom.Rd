@@ -22,8 +22,8 @@ The approximation is the best in the sense that it minimizes the KL divergence f
 Other {auxiliary functions for a Multinomial outcome}: 
 \code{\link{convert_Multinom_Normal}()},
 \code{\link{multnom_pred}()},
-\code{\link{update_Multinom_alt}()},
-\code{\link{update_Multinom}()}
+\code{\link{update_Multinom}()},
+\code{\link{update_Multinom_alt}()}
 }
 \concept{{auxiliary functions for a Multinomial outcome}}
 \keyword{internal}

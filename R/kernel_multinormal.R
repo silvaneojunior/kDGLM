@@ -79,15 +79,48 @@ convert_multi_Normal_NG <- function(conj.param, parms = list()) {
 #' @keywords internal
 update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
   # parms=outcome$parms
-  # ft.up=level$a1
-  # Qt.up=level$R1
-  # ft_star=array(NA,c(5,5))
-  # Qt_star=array(NA,c(5,5,5))
+
+  # y=c(1,NA,8,NA,4)
+  # r=length(y)
+  # k=r + r * (r + 1) / 2
+  # ft=rep(0,k) |> matrix(k,1)
+  # Qt=diag(k)
+
+  # parms=list(mu.index=1:5,
+  #            var.index=1:5+5,
+  #            var.index=(2*5+1):(5 + 5 * (5 + 1) / 2),
+  #            alt.method=TRUE
+  #            )
+
   #
   # for(index in 1:5){
   #   ft=ft.up
   #   Qt=Qt.up
   # y=outcome$data[index,]
+
+  r <- length(y)
+
+  flags <- is.na(y)
+  y.index <- c((1:r)[!flags], (1:r)[flags])
+  y <- y[y.index]
+  r.valid <- sum(!flags)
+
+  Var <- matrix(NA, r, r)
+  Var.index <- lower.tri(Var)
+  Var[Var.index] <- 1:sum(Var.index)
+  Var[t(Var.index)] <- t(Var)[t(Var.index)]
+  Var <- Var[y.index, y.index]
+
+  index.order <- c(
+    (1:r)[!flags], (1:r)[flags],
+    (1:r)[!flags] + r, (1:r)[flags] + r,
+    Var[Var.index] + 2 * r
+  )
+  index.reorder <- order(index.order)
+  # print(index.order)
+
+  ft <- ft[index.order, ]
+  Qt <- Qt[index.order, index.order]
 
   mu.index <- parms$mu.index
   var.index <- parms$var.index
@@ -101,6 +134,14 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
   k <- r + r * (r + 1) / 2
   vec.r <- 1:(r**2)
 
+  mu.index <- seq_len(r)
+  var.index <- mu.index + r
+  cor.index <- (2 * r + 1):k
+
+  # lower.index <- matrix(seq_len(r**2), r, r)[Var]
+  # upper.index <- t(matrix(seq_len(r**2), r, r))[Var]
+
+
   ft.up <- ft
   Qt.up <- Qt
 
@@ -110,7 +151,8 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
   Qt.now <- Qt.up[c(1, r + 1), c(1, r + 1)]
 
   if (parms$alt.method) {
-    post <- update_NG_alt(param, ft.now, Qt.now, y[1])
+    # post <- update_NG_alt(param, ft.now, Qt.now, y[1])
+    post <- update_NG_gauss(param, ft.now, Qt.now, y[1])
   } else {
     param <- convert_NG_Normal(ft.now, Qt.now)
     up.param <- update_NG(param, ft.now, Qt.now, y[1])
@@ -128,8 +170,8 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
   ft.up <- ft.up + At %*% (ft.post - ft.now)
   Qt.up <- Qt.up + At %*% (Qt.post - Qt.now) %*% At.t
 
-  if (r > 1) {
-    for (i in 2:r) {
+  if (r.valid > 1) {
+    for (i in 2:(r.valid)) {
       {      x <- c(ft.up)
         rho <- matrix(0, r, r)
         rho[upper.index] <- rho[lower.index] <- tanh(x[cor.index])
@@ -233,7 +275,8 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
       ####################################
 
       if (parms$alt.method) {
-        post <- update_NG_alt(param, ft.now, Qt.now, y[i])
+        # post <- update_NG_alt(param, ft.now, Qt.now, y[i])
+        post <- update_NG_gauss(param, ft.now, Qt.now, y[i])
       } else {
         param <- convert_NG_Normal(ft.now, Qt.now)
         up.param <- update_NG(param, ft.now, Qt.now, y[i])
@@ -261,6 +304,10 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
   # }
 
 
+  ft.up <- ft.up[index.reorder, ]
+  Qt.up <- Qt.up[index.reorder, index.reorder]
+
+  # print(ft.up)
 
   return(list("ft" = ft.up, "Qt" = Qt.up))
 }
@@ -419,7 +466,7 @@ multi_normal_gamma_pred <- function(conj.param, outcome = NULL, parms = list(), 
   }
   if (like.flag) {
     outcome <- matrix(outcome, t, r)
-    warning("The log-likelihood is not being calculated properly. Each outcome is computed independently.")
+    # warning("The log-likelihood is not being calculated properly. Each outcome is computed independently.")
     log.like <- colSums(dt((outcome - mu0) / s, nu, log = TRUE) - log(s))
   } else {
     log.like <- NULL

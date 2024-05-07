@@ -164,7 +164,6 @@ plot.fitted_dlm <- function(x, outcomes = names(x$outcomes), pred.cred = 0.95, l
     par(mar = config$mar)
     plt <- NULL
   } else {
-
     plt <- ggplot2::ggplot() +
       ggplot2::geom_ribbon(data = eval, na.rm = TRUE, ggplot2::aes_string(x = "Time", fill = "Serie", ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25) +
       ggplot2::geom_line(data = eval, na.rm = TRUE, ggplot2::aes_string(x = "Time", color = "Serie", y = "Prediction", linetype = "'Fitted values'")) +
@@ -266,6 +265,8 @@ plot.dlm_coef <- function(x, var = rownames(x$mt)[x$dynamic], cutoff = floor(t /
   t <- dim(x$mt)[2]
   var.labels <- rownames(x$mt)
   pred.names <- rownames(x$ft)
+
+  print(var)
 
   flags.var <- (sapply(var, function(x) {
     grepl(x, var.labels)

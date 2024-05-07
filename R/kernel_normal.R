@@ -354,6 +354,7 @@ Normal <- function(mu, V = NA, Tau = NA, Sigma = NA, Sd = NA, n0 = NA, d0 = NA, 
   distr$k <- k
   distr$l <- k
   distr$t <- t
+  distr$na.condition <- all.na
   distr$offset <- matrix(offset, t, r)
   distr$data <- matrix(data, t, r)
   distr$convert.mat.canom <- convert.mat.canom
@@ -523,6 +524,7 @@ convert_Normal_Gamma_Normal <- function(ft, Qt, parms = list()) {
   #   alpha,
   #   tol = 1e-15
   # )$root
+  # beta <- exp(digamma(alpha) - ft[2, ])
   beta <- exp(digamma(alpha) - ft[2, ])
 
   c0 <- beta / (Qt[1, 1] * alpha)
@@ -662,6 +664,98 @@ update_NG2 <- function(conj.param, ft, Qt, y, parms = list()) {
 #' @references
 #'    \insertAllCited{}
 update_NG_alt <- function(conj.param, ft, Qt, y, parms = list()) {
+  f0 <- ft
+  S0 <- ginv(Qt)
+  k <- 2
+
+  conj.param <- convert_NG_Normal(ft, Qt)
+  proxy <- update_NG(conj.param, ft, Qt, y)
+  norm.param <- convert_Normal_NG(conj.param, y)
+  f1 <- norm.param$ft
+
+  log.like <- function(x) {
+    mu <- x[1]
+    log.tau <- x[2]
+    tau <- exp(log.tau)
+
+    -0.5 * tau * ((y - mu)**2) + 0.5 * log.tau - 0.5 * t(x - f0) %*% S0 %*% (x - f0)
+  }
+
+  d1.log.like <- function(x) {
+    mu <- x[1]
+    log.tau <- x[2]
+    tau <- exp(log.tau)
+
+    # -0.5*tau*((y-mu)**2)+0.5*log.tau
+    c(tau * (y - mu), -0.5 * tau * ((y - mu)**2) + 0.5) - S0 %*% (x - f0)
+  }
+
+  d1.log.like <- function(x) {
+    mu <- x[1]
+    log.tau <- x[2]
+    tau <- exp(log.tau)
+
+    # -0.5*tau*((y-mu)**2)+0.5*log.tau
+    c(tau * (y - mu), -0.5 * tau * ((y - mu)**2) + 0.5) - S0 %*% (x - f0)
+  }
+
+  d2.log.like <- function(x) {
+    mu <- x[1]
+    tau <- exp(x[2])
+    log.tau <- x[2]
+
+    cross <- tau * (y - mu)
+
+    mat <- matrix(c(-tau, cross, cross, -0.5 * tau * ((y - mu)**2)), 2, 2) - S0
+
+    return(mat)
+  }
+  mode <- f_root(d1.log.like, d2.log.like, f1)$root
+  H <- d2.log.like(mode)
+  S <- ginv(-H)
+
+  #######################################################
+
+  m1 <- mode
+
+  for (i in 1:2) {
+    c <- mode[i] - 20 * sqrt(S[i, i])
+
+    log.like2 <- function(x) {
+      mu <- x[1]
+      log.tau <- x[2]
+      tau <- exp(log.tau)
+
+      log(x[i] - c) + log.like(x)
+    }
+
+    d1.log.like2 <- function(x) {
+      deriv <- rep(0, k)
+      deriv[i] <- 1 / abs(x[i] - c)
+
+      d1.log.like(x) + deriv
+    }
+
+    d2.log.like2 <- function(x) {
+      deriv <- matrix(0, k, k)
+      deriv[i, i] <- -1 / ((x[i] - c)**2)
+
+      d2.log.like(x) + deriv
+    }
+
+    mode2 <- f_root(d1.log.like2, d2.log.like2, mode)$root
+    H2 <- d2.log.like2(mode2)
+    S2 <- ginv(-H2)
+    m1[i] <- sqrt(det(S2) / det(S)) * exp(log.like2(mode2) - log.like(mode)) + c
+  }
+
+  ft <- m1
+  Qt <- S
+  return(list("ft" = ft, "Qt" = Qt))
+}
+
+
+update_NG_gauss <- function(conj.param, ft, Qt, y, parms = list()) {
   # ft = c(-0.291027, -2.451121)
   # Qt = matrix(c(1.728035e-01, -1.199923e-03, -1.199923e-03,  2.461883e-05),2,2)
   # y=-1.234201
@@ -744,6 +838,71 @@ update_NG_alt <- function(conj.param, ft, Qt, y, parms = list()) {
     ft <- mode
     Qt <- S
   }
+
+  return(list("ft" = ft, "Qt" = Qt))
+}
+
+
+#' update_NG_alt
+#'
+#' Calculate the (approximated) posterior parameter for the linear predictors, assuming that the observed values came from a Normal model from which the mean and the log precision have prior distribution in the Normal family.
+#'
+#' @param conj.param list: A vector containing the parameters of the Normal-Gamma (mu0,c0,alpha,beta). Not used in the alternative method.
+#' @param ft numeric: A vector representing the means from the normal distribution.
+#' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution.
+#' @param y numeric: A vector containing the observations.
+#' @param parms list: A list of extra known parameters of the distribution. Not used in this kernel.
+#'
+#' @return The parameters of the posterior distribution.
+#' @importFrom stats dnorm dlnorm
+#' @importFrom cubature cubintegrate
+#' @keywords internal
+#' @family {auxiliary functions for a Normal outcome}
+#'
+#' @details
+#'
+#' For evaluating the posterior parameters, we use a modified version of the method proposed in \insertCite{ArtigokParametrico;textual}{kDGLM}.
+#'
+#' For the details about the implementation see  \insertCite{ArtigoPacote;textual}{kDGLM}.
+#'
+#' For the detail about the modification of the method proposed in \insertCite{ArtigokParametrico;textual}{kDGLM}, see \insertCite{ArtigoAltMethod;textual}{kDGLM}.
+#'
+#' @references
+#'    \insertAllCited{}
+update_NG_alt2 <- function(conj.param, ft, Qt, y, parms = list()) {
+  r <- length(ft)
+  k <- r * (r + 1) / 2 + r
+
+
+  upper.flags <- upper.tri(Sigma)
+  rho.index <- (2 * r + 1):k
+
+  log.like.func <- function(x) {
+    m <- x[1:r]
+    s <- x[1:r + r]
+    S <- diag(s)
+    S[upper.flags] <- x[rho.index]
+    S[t(upper.flags)] <- x[rho.index]
+    eig.S <- eigen(S)
+    ori.eigen <- Re(eig.S$values)
+    eig.S$values <- exp(-Re(eig.S$values))
+    S <- Re(eig.S$vectors) %*% diag(eig.S$values) %*% t(Re(eig.S$vectors))
+
+    fx <- c(-0.5 * crossprod(Y[, 1] - m, S) %*% (Y[, 1] - m) + 0.5 * sum(ori.eigen) - 0.5 * crossprod(x - ft, Qt) %*% (x - ft))
+  }
+
+  d1.log.like <- function(x) {
+    c(calculus::derivative(log.like.func, x))
+  }
+  d2.log.like <- function(x) {
+    calculus::hessian(log.like.func, x)
+  }
+
+  mode <- f_root(d1.log.like, d2.log.like, start = ft)$root
+  H <- d2.log.like(mode)
+  S <- ginv(-H)
+  ft <- mode
+  Qt <- S
 
   return(list("ft" = ft, "Qt" = Qt))
 }

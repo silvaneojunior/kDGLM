@@ -274,7 +274,7 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA) {
 
   flags.dynamic <- rep(FALSE, structure$n)
 
-  ref.G=ifelse(is.na(model$G),pi,model$G)
+  ref.G <- ifelse(is.na(model$G), pi, model$G)
   flags.dynamic <- flags.dynamic | sapply(1:structure$n, function(i) {
     any(ref.G[i, -i, ] != 0) | any(ref.G[i, i, ] != 1)
   })
@@ -284,10 +284,6 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA) {
   flags.dynamic <- flags.dynamic | sapply(1:structure$n, function(i) {
     any(model$W[i, i, ] > 0)
   })
-
-  if (smooth) {
-    model <- smoothing(model)
-  }
 
   r <- sum(sapply(model$outcomes, function(x) {
     x$r
@@ -306,6 +302,21 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA) {
   model$structure <- structure
   model$period <- structure$period
   model$dynamic <- flags.dynamic
+
+  rownames(model$mt) <- rownames(model$Ct) <- colnames(model$Ct) <-
+    rownames(model$at) <- rownames(model$Rt) <- colnames(model$Rt) <-
+    model$var.labels
+
+  names(model$a1) <- rownames(model$R1) <- colnames(model$R1) <-
+    model$var.labels
+
+  rownames(model$ft) <- rownames(model$Qt) <- colnames(model$Qt) <-
+    colnames(model$FF)
+
+  if (smooth) {
+    model <- smoothing(model)
+  }
+
   class(model) <- "fitted_dlm"
 
   return(model)
@@ -323,6 +334,8 @@ smoothing <- function(model) {
     smoothed <- generic_smoother(model$mt, model$Ct, model$at, model$Rt, model$G, model$G.labs)
     model$mts <- smoothed$mts
     model$Cts <- smoothed$Cts
+
+    rownames(model$mts) <- rownames(model$Cts) <- colnames(model$Cts) <- model$var.labels
 
     model$smooth <- TRUE
   } else {
@@ -473,7 +486,7 @@ forecast.fitted_dlm <- function(object, t = 1,
   }
   dim.H <- dim(H)
   if (is.null(H)) {
-    H <- array(object$W[, , t_last], c(n, n, t))
+    H <- array(0, c(n, n, t))
     # H[, , -1] <- 0
   } else {
     if (all(dim.H == 1)) {
@@ -488,11 +501,11 @@ forecast.fitted_dlm <- function(object, t = 1,
   if (any(dim(H) != c(n, n, t))) {
     stop(paste0("Error: H has wrong dimesions. Expected ", paste(n, n, t, sep = "x"), ". Got ", paste(dim(H), colapse = "x")))
   }
-  #####
 
   a1 <- object$mt[, t_last]
   R1 <- object$Ct[, , t_last]
   D <- object$W[, , t_last] - object$H[, , t_last]
+  # D <- object$W[, , t_last]*0
 
   m1 <- matrix(NA, n, t)
   C1 <- array(NA, c(n, n, t))
@@ -984,17 +997,17 @@ update.fitted_dlm <- function(object, ...) {
     monitoring = object$monitoring
   )
 
-  object$mt <- cbind(object$mt, new.data$mt)
+  object$mt <- matrix(c(object$mt, new.data$mt), c(n, t.max + t_last), dimnames = dimnames(object$mt))
   object$Ct <- array(c(object$Ct, new.data$Ct), c(n, n, t.max + t_last), dimnames = dimnames(object$Ct))
-  object$at <- cbind(object$at, new.data$at)
+  object$at <- matrix(c(object$at, new.data$at), c(n, t.max + t_last), dimnames = dimnames(object$at))
   object$Rt <- array(c(object$Rt, new.data$Rt), c(n, n, t.max + t_last), dimnames = dimnames(object$Rt))
-  object$ft <- cbind(object$ft, new.data$ft)
+  object$ft <- matrix(c(object$ft, new.data$ft), c(k, t.max + t_last), dimnames = dimnames(object$ft))
   object$Qt <- array(c(object$Qt, new.data$Qt), c(k, k, t.max + t_last), dimnames = dimnames(object$Qt))
   object$ft.star <- cbind(object$ft.star, new.data$ft.star)
   object$Qt.star <- array(c(object$Qt.star, new.data$Qt.star), c(k, k, t.max + t_last), dimnames = dimnames(object$Qt.star))
   object$D <- array(c(object$D, new.data$D), c(n, n, t.max + t_last), dimnames = dimnames(object$D))
   object$H <- array(c(object$H, new.data$H), c(n, n, t.max + t_last), dimnames = dimnames(object$H))
-  object$h <- cbind(object$h, h)
+  object$h <- matrix(c(object$h, new.data$h), c(n, t.max + t_last), dimnames = dimnames(object$h))
   object$W <- array(c(object$W, new.data$W), c(n, n, t.max + t_last), dimnames = dimnames(object$W))
   object$FF <- array(c(object$FF, new.data$FF), c(n, k, t.max + t_last), dimnames = dimnames(object$FF))
   object$G <- array(c(object$G, new.data$G), c(n, n, t.max + t_last), dimnames = dimnames(object$G))
@@ -1018,7 +1031,7 @@ update.fitted_dlm <- function(object, ...) {
 #' Predictions can be made with smoothed values, with filtered values or h-steps ahead.
 #'
 #' @param object fitted_dlm: The fitted model to be use for evaluation.
-#' @param eval_t numeric: A vector of positive integers indicating the time index from which to extract predictions. The default is to extract to evaluate the model at all observed times.
+#' @param t.eval numeric: A vector of positive integers indicating the time index from which to extract predictions. The default is to extract to evaluate the model at all observed times.
 #' @param lag integer: The relative offset for forecast. Values for time t will be calculated based on the filtered values of time t-h. If lag is negative, then the smoothed distribution for the latent states will be used.
 #' @param pred.cred numeric: The credibility level for the C.I..
 #' @param eval.pred boolean: A flag indicating if the predictions should be calculated.
@@ -1028,10 +1041,10 @@ update.fitted_dlm <- function(object, ...) {
 #' @return A list containing:
 #' \itemize{
 #'    \item data data.frame: A table with the model evaluated at each observed time.
-#'    \item mt matrix: The mean of the latent states at each time. Dimensions are n x t, where t is the size of eval_t and n is the number of latent states.
-#'    \item Ct array: A 3D-array containing the covariance matrix of the latent states at each time. Dimensions are n x n x t, where t is the size of eval_t and n is the number of latent states.
-#'    \item ft matrix: The mean of the linear predictor at each time. Dimensions are k x t, where t is the size of eval_t and k is the number of linear predictors.
-#'    \item Qt array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t, where t is the size of eval_t and k is the number of linear predictors.
+#'    \item mt matrix: The mean of the latent states at each time. Dimensions are n x t, where t is the size of t.eval and n is the number of latent states.
+#'    \item Ct array: A 3D-array containing the covariance matrix of the latent states at each time. Dimensions are n x n x t, where t is the size of t.eval and n is the number of latent states.
+#'    \item ft matrix: The mean of the linear predictor at each time. Dimensions are k x t, where t is the size of t.eval and k is the number of linear predictors.
+#'    \item Qt array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t, where t is the size of t.eval and k is the number of linear predictors.
 #'    \item log.like, mae, mase, rae, mse, interval.score: The metric value at each time.
 #'    \item conj.param list: A list containing, for each outcome, a data.frame with the parameter of the conjugated distribution at each time.
 #' }
@@ -1057,7 +1070,7 @@ update.fitted_dlm <- function(object, ...) {
 #' var.vals <- coef(fitted.data)
 #'
 #' @family {auxiliary functions for fitted_dlm objects}
-coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.cred = 0.95, eval.pred = FALSE, eval.metric = FALSE, ...) {
+coef.fitted_dlm <- function(object, t.eval = seq_len(object$t), lag = -1, pred.cred = 0.95, eval.pred = FALSE, eval.metric = FALSE, ...) {
   if (round(lag) != lag) {
     stop(paste0("Error: lag should be a integer. Got ", lag, "."))
   }
@@ -1096,16 +1109,16 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
     }
   }
 
-  if (min(eval_t) < 1) {
+  if (min(t.eval) < 1) {
     warning("Cannot evaluate parameters before time 1.")
-    eval_t <- eval_t[eval_t - lag >= 1]
+    t.eval <- t.eval[t.eval - lag >= 1]
   }
-  if (max(eval_t) > t_last) {
+  if (max(t.eval) > t_last) {
     warning("Cannot evaluate parameters after last observation.")
-    eval_t <- eval_t[eval_t <= t_last]
+    t.eval <- t.eval[t.eval <= t_last]
   }
-  init.t <- min(eval_t)
-  final.t <- max(eval_t)
+  init.t <- min(t.eval)
+  final.t <- max(t.eval)
   len.t <- final.t - init.t + 1
 
   FF <- object$FF
@@ -1124,15 +1137,16 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
 
   conj.param.list <- list()
   out.mat <- matrix(0, r, len.t)
-  r.start=0
+  r.start <- 0
+
   for (outcome.name in names(object$outcomes)) {
     conj.param.list[[outcome.name]] <- matrix(NA, len.t, length(object$outcomes[[outcome.name]]$param.names)) |> as.data.frame()
     names(conj.param.list[[outcome.name]]) <- object$outcomes[[outcome.name]]$param.names
     row.names(conj.param.list[[outcome.name]]) <- init.t:final.t
 
-    r.cur=object$outcomes[[outcome.name]]$r
-    out.mat[1:r.cur+r.start,]=t(object$outcomes[[outcome.name]]$data[init.t:final.t,])
-    r.start=r.start+r.cur
+    r.cur <- object$outcomes[[outcome.name]]$r
+    out.mat[1:r.cur + r.start, ] <- t(object$outcomes[[outcome.name]]$data[init.t:final.t, ])
+    r.start <- r.start + r.cur
   }
 
   D <- object$D
@@ -1166,7 +1180,8 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
     lin.pred <- calc_lin_pred(
       next.step$at |> matrix(n, 1),
       next.step$Rt, FF[, , i] |> matrix(n, k, dimnames = list(NULL, pred.names)),
-      FF.labs, pred.names
+      FF.labs, pred.names,
+      pred.index = 1:k
     )
 
     mt.pred[, i - init.t + 1] <- next.step$at
@@ -1182,7 +1197,6 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
         t.index <- i - init.t + 1
 
         pred.index <- match(outcome$pred.names, object$pred.names)
-        r_i <- length(pred.index)
 
         cur.step <- outcome$apply_offset(lin.pred$ft[pred.index, , drop = FALSE], lin.pred$Qt[pred.index, pred.index, drop = FALSE], outcome$offset[i, ])
 
@@ -1211,25 +1225,40 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
         var.pred[r.seq, r.seq, t.index] <- prediction$var.pred
         icl.pred[r.seq, t.index] <- prediction$icl.pred
         icu.pred[r.seq, t.index] <- prediction$icu.pred
-        log.like[t.index] <- log.like[t.index]+prediction$log.like
+        log.like[t.index] <- log.like[t.index] + sum(prediction$log.like, na.rm = TRUE)
         r.acum <- r.acum + r.cur
       }
     }
   }
 
-  mae=mse=mase=interval.score=matrix(NA,len.t,r)
-  if(eval.pred){
-      mae[,] <- t(abs(out.mat-pred))
-      mse[,] <- t((out.mat-pred)**2)
-      interval.score[,] <- t((icu.pred - icl.pred) +
-              2 / (1 - pred.cred) * (icl.pred - out.mat) * (out.mat < icl.pred) +
-              2 / (1 - pred.cred) * (out.mat - icu.pred) * (out.mat > icu.pred))
+  mae <- mse <- mase <- interval.score <- matrix(NA, len.t, r)
+  if (eval.pred) {
+    mae[, ] <- t(abs(out.mat - pred))
+    mse[, ] <- t((out.mat - pred)**2)
+    interval.score[, ] <- t((icu.pred - icl.pred) +
+      2 / (1 - pred.cred) * (icl.pred - out.mat) * (out.mat < icl.pred) +
+      2 / (1 - pred.cred) * (out.mat - icu.pred) * (out.mat > icu.pred))
 
-      if(object$period * max(lag, 1) < object$t){
-        for(i in 1:r){
-          mase[,i] <- mae[,i]/(out.mat[i,]  |>  diff(lag=object$period * max(lag, 1)) |>  abs() |>  mean(na.rm=TRUE))
-        }
+    if (object$period * max(lag, 1) < object$t) {
+      for (i in 1:r) {
+        mase[, i] <- mae[, i] / (out.mat[i, ] |> diff(lag = object$period * max(lag, 1)) |> abs() |> mean(na.rm = TRUE))
       }
+    }
+  }
+
+  mae <- mse <- mase <- interval.score <- matrix(NA, len.t, r)
+  if (eval.pred) {
+    mae[, ] <- t(abs(out.mat - pred))
+    mse[, ] <- t((out.mat - pred)**2)
+    interval.score[, ] <- t((icu.pred - icl.pred) +
+      2 / (1 - pred.cred) * (icl.pred - out.mat) * (out.mat < icl.pred) +
+      2 / (1 - pred.cred) * (out.mat - icu.pred) * (out.mat > icu.pred))
+
+    if (object$period * max(lag, 1) < object$t) {
+      for (i in 1:r) {
+        mase[, i] <- mae[, i] / (out.mat[i, ] |> diff(lag = object$period * max(lag, 1)) |> abs() |> mean(na.rm = TRUE))
+      }
+    }
   }
 
   r.acum <- 0
@@ -1249,7 +1278,7 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
   }
 
   time.index.final <- init.t:final.t
-  time.flags <- time.index.final %in% eval_t
+  time.flags <- time.index.final %in% t.eval
 
 
   serie.names <- as.factor(c(sapply(out.names, function(x) {
@@ -1268,7 +1297,7 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
   rownames(mt.pred) <- rownames(Ct.pred) <- colnames(Ct.pred) <- object$var.labels
   rownames(ft.pred) <- rownames(Qt.pred) <- colnames(Qt.pred) <- object$pred.names
 
-  metrics=list(
+  metrics <- list(
     log.like = if (smoothed.log.like & eval.metric) {
       # object$mts[,]=ref.mt
       # object$Cts[,,]=ref.Ct
@@ -1276,20 +1305,21 @@ coef.fitted_dlm <- function(object, eval_t = seq_len(object$t), lag = -1, pred.c
     } else {
       log.like[time.flags, drop = FALSE]
     },
-    mae = mae[time.flags,, drop = FALSE],
-    mase = mase[time.flags,, drop = FALSE],
-    mse = mse[time.flags,, drop = FALSE],
-    interval.score = interval.score[time.flags,, drop = FALSE])
+    mae = mae[time.flags, , drop = FALSE],
+    mase = mase[time.flags, , drop = FALSE],
+    mse = mse[time.flags, , drop = FALSE],
+    interval.score = interval.score[time.flags, , drop = FALSE]
+  )
 
   output <- list(
-    data = data[data$Time %in% eval_t, ],
+    data = data[data$Time %in% t.eval, ],
     mt = mt.pred[, time.flags, drop = FALSE],
     Ct = Ct.pred[, , time.flags, drop = FALSE],
     ft = ft.pred[, time.flags, drop = FALSE],
     Qt = Qt.pred[, , time.flags, drop = FALSE],
     conj.param = conj.param.list,
     lag = true.lag,
-    metrics=metrics,
+    metrics = metrics,
     dynamic = object$dynamic
   )
 
@@ -1356,7 +1386,9 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
   }
 
   mt.sample <- array(NA, c(n, t.len, sample.size))
+  rownames(mt.sample) <- model$var.labels
   ft.sample <- array(NA, c(k, t.len, sample.size))
+  rownames(ft.sample) <- colnames(model$FF)
 
   mt.sample_i <- rmvnorm(sample.size, mt[, t.len], Ct[, , t.len])
   FF.step <- FF[, , t.len]
@@ -1398,6 +1430,7 @@ dlm_sampling <- function(model, sample.size, filt.distr = FALSE) {
     param.sample_i <- outcomes[[outcome.name]]$inv_link(ft.sample_i_out)
 
     outcomes[[outcome.name]]$param.sample <- array(NA, c(outcomes[[outcome.name]]$l, t.len, sample.size))
+    row.names(outcomes[[outcome.name]]$param.sample) <- colnames(model$FF)
     outcomes[[outcome.name]]$param.sample[, t.len, ] <- param.sample_i
   }
   mt.sample[, t.len, ] <- mt.sample_i
@@ -1640,13 +1673,13 @@ search_model <- function(..., search.grid, condition = "TRUE", metric = "log.lik
 
     r <- length(fitted.model$outcomes)
     metric <- tolower(metric)
-    predictions <- coef.fitted_dlm(fitted.model, eval_t = (metric.cutoff + 1):T_len, lag = lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = TRUE)
+    predictions <- coef.fitted_dlm(fitted.model, t.eval = (metric.cutoff + 1):T_len, lag = lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = TRUE)
 
-    search.data$log.like[i] <- sum(predictions$metrics$log.like,na.rm=TRUE)
+    search.data$log.like[i] <- sum(predictions$metrics$log.like, na.rm = TRUE)
     # search.data$mae[i] <- mean(predictions$metrics$mae,na.rm=TRUE)
     # search.data$mse[i] <- mean(predictions$metrics$mse,na.rm=TRUE)
-    search.data$mase[i] <- mean(predictions$metrics$mase,na.rm=TRUE)
-    search.data$interval.score[i] <- mean(predictions$metrics$interval.score,na.rm=TRUE)
+    search.data$mase[i] <- mean(predictions$metrics$mase, na.rm = TRUE)
+    search.data$interval.score[i] <- mean(predictions$metrics$interval.score, na.rm = TRUE)
     if (save.models) {
       label <- paste(names(search.data[i, ])[1:(vals.size - 3)], "=", search.data[i, 1:(vals.size - 3)], collapse = "; ")
       models[[label]] <- fitted.model

@@ -22,8 +22,8 @@ The approximation is the best in the sense that it minimizes the KL divergence f
 Other {auxiliary functions for a Gamma outcome with known shape}: 
 \code{\link{convert_Gamma_Normal}()},
 \code{\link{gamma_pred}()},
-\code{\link{update_Gamma_alt}()},
-\code{\link{update_Gamma}()}
+\code{\link{update_Gamma}()},
+\code{\link{update_Gamma_alt}()}
 }
 \concept{{auxiliary functions for a Gamma outcome with known shape}}
 \keyword{internal}

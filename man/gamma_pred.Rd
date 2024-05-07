@@ -34,8 +34,8 @@ In this scenario, the marginal distribution of the data is Beta prime with param
 Other {auxiliary functions for a Gamma outcome with known shape}: 
 \code{\link{convert_Gamma_Normal}()},
 \code{\link{convert_Normal_Gamma}()},
-\code{\link{update_Gamma_alt}()},
-\code{\link{update_Gamma}()}
+\code{\link{update_Gamma}()},
+\code{\link{update_Gamma_alt}()}
 }
 \concept{{auxiliary functions for a Gamma outcome with known shape}}
 \keyword{internal}

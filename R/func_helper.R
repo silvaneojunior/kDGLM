@@ -476,3 +476,12 @@ lcm <- function(x) {
     return(lcm(c(x[1], lcm(x[-1]))))
   }
 }
+
+# na.conditions
+
+all.na <- function(data, offset) {
+  all(is.na(data) | is.na(offset) | offset == 0)
+}
+any.na <- function(data, offset) {
+  any(is.na(data) | is.na(offset) | offset == 0)
+}

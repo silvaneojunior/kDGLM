@@ -91,6 +91,7 @@ Multinom <- function(p, data, offset = as.matrix(data)**0, base.class = NULL) {
     update = update_Multinom,
     smoother = generic_smoother,
     calc_pred = multnom_pred,
+    na.condition = any.na,
     apply_offset = function(ft, Qt, offset) {
       t <- dim(ft)[2]
       offset <- matrix(offset, r, t)
@@ -500,5 +501,117 @@ update_Multinom_alt <- function(conj.param, ft, Qt, y, parms = list()) {
   mode <- f_root(d1.log.like, d2.log.like, start = f.start)$root
   H <- d2.log.like(mode)
   S <- ginv(-H)
-  return(list("ft" = matrix(mode, length(mode), 1), "Qt" = S))
+
+  m1 <- mode
+
+  for (i in 1:(r - 1)) {
+    c <- mode[i] - 20000 * sqrt(S[i, i])
+
+
+    log.like2 <- function(x) {
+      p0 <- c(exp(x), 1)
+      p <- p0 / sum(p0)
+
+      log(x[i] - c) + sum(y * log(p)) - 0.5 * t(x - f0) %*% S0 %*% (x - f0)
+    }
+
+    d1.log.like2 <- function(x) {
+      deriv <- rep(0, k)
+      deriv[i] <- 1 / abs(x[i] - c)
+
+      p0 <- c(x, 0)
+      p0 <- p0 - max(p0)
+      p0 <- exp(p0)
+      p <- p0 / sum(p0)
+
+      y[-r] - n * p[-r] +
+        -S0 %*% (x - f0) + deriv
+    }
+
+    d2.log.like2 <- function(x) {
+      deriv <- matrix(0, k, k)
+      deriv[i, i] <- -1 / ((x[i] - c)**2)
+
+      p0 <- c(x, 0)
+      p0 <- p0 - max(p0)
+      p0 <- exp(p0)
+      p <- p0 / sum(p0)
+      pre.mat <- diag(r - 1)
+      diag(pre.mat) <- p[-r]
+
+      mat <- n * (p[-r] %*% t(p[-r])) - n * pre.mat +
+        -S0 + deriv
+      mat
+    }
+
+    mode2 <- f_root(d1.log.like2, d2.log.like2, start = mode)$root
+    H2 <- d2.log.like(mode2)
+    S2 <- ginv(-H2)
+    m1[i] <- sqrt(det(S2) / det(S)) * exp(log.like2(mode2) - log.like(mode)) + c
+  }
+
+
+  return(list("ft" = matrix(m1, length(m1), 1), "Qt" = S))
+}
+
+update_Multinom_alt_like <- function(conj.param, ft, Qt, y, parms = list()) {
+  y <- y + 0.001
+  f0 <- ft
+  S0 <- ginv(Qt)
+  n <- sum(y)
+  r <- length(y)
+
+  p <- y / n
+  m <- log(p[-r] / p[r])
+  V <- -n * (diag(-p[-r]) + p[-r] %*% t(p[-r]))
+  S <- solve(S)
+
+  S1 <- solve(V + S0)
+  m1 <- S1 %*% (V %*% m + S0 %*% f0)
+
+  return(list("ft" = matrix(m1, length(m1), 1), "Qt" = S1))
+}
+
+update_Multinom_quadra <- function(conj.param, ft, Qt, y, parms = list()) {
+  f0 <- ft
+  S0 <- ginv(Qt)
+  n <- sum(y)
+  r <- length(y)
+  k <- r - 1
+
+  c <- lgamma(n + 1) - sum(lgamma(y + 1))
+
+  sol <- update_Multinom_alt(conj.param, ft, Qt, y)
+
+  f <- function(x) {
+    l <- dim(x)[2]
+    y_mat <- matrix(y[-r], k, l)
+    f0_mat <- matrix(f0, k, l)
+    error0 <- (x - f0_mat)
+    fx <- exp(colSums(y_mat * x) - n * log(1 + colSums(exp(x))) + c - 0.5 * colSums(error0 * (S0 %*% error0)))
+    fx_mat <- matrix(fx, k, l, byrow = TRUE)
+    outcome <- rbind(fx, x * fx_mat)
+    for (i in 1:k) {
+      for (j in 1:i) {
+        outcome <- rbind(outcome, x[i, ] * x[j, ] * fx)
+      }
+    }
+    outcome
+  }
+  vals <- cubature::cubintegrate(f, sol$ft - 12 * sqrt(diag(sol$Qt)), sol$ft + 12 * sqrt(diag(sol$Qt)), fDim = (k) * (k + 1) / 2 + k + 1, nVec = 1000)$integral
+
+  c1 <- vals[1]
+  m1 <- vals[1:k + 1] / c1
+  S1 <- matrix(NA, k, k)
+
+  index <- k + 1
+  for (i in 1:k) {
+    for (j in 1:i) {
+      index <- index + 1
+      S1[i, j] <- vals[index] / c1 - m1[i] * m1[j]
+      S1[j, i] <- S1[i, j]
+    }
+  }
+
+  return(list("ft" = matrix(m1, length(m1), 1), "Qt" = S1))
 }

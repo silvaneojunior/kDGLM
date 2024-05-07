@@ -32,7 +32,7 @@ summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, m
   k <- object$k
   T_len <- object$t
   predictions <- coef.fitted_dlm(object, eval_t = (metric.cutoff + 1):T_len, lag = metric.lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = TRUE)
-  metric.log.like=sum(predictions$metrics$log.like, na.rm = TRUE)
+  metric.log.like <- sum(predictions$metrics$log.like, na.rm = TRUE)
 
   # metric.vals <- rbind(
   #   colMeans(predictions$metrics$interval.score, na.rm = TRUE),
@@ -115,7 +115,7 @@ summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, m
     p.val.str
   )
 
-  metric.log.like = format(round(metric.log.like, 5), justify = "l", scientific = FALSE)
+  metric.log.like <- format(round(metric.log.like, 5), justify = "l", scientific = FALSE)
   metric.vals <- ifelse(abs(metric.vals) < 0.00001 | abs(metric.vals) > 1e5,
     format(metric.vals, digits = 4, justify = "l", scientific = TRUE),
     format(round(metric.vals, 5), justify = "l", scientific = FALSE)
@@ -145,9 +145,12 @@ summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, m
     "See the coef.fitted_dlm for the coeficients with temporal dynamic.\n\n",
     metric.label, "\n",
     paste0(paste0(metric.names[1], ": ", metric.log.like), collapse = "\n"), "\n",
-    paste0(paste0(metric.names[2:3], ": ",
-                  sapply(1:2,function(i){paste(metric.vals[i,], collapse = "    ")})
-                  ), collapse = "\n"), "\n",
+    paste0(paste0(
+      metric.names[2:3], ": ",
+      sapply(1:2, function(i) {
+        paste(metric.vals[i, ], collapse = "    ")
+      })
+    ), collapse = "\n"), "\n",
     "---"
   ))
 }

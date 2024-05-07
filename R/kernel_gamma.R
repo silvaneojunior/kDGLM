@@ -36,11 +36,11 @@
 #'
 #' @references
 #'    \insertAllCited{}
-Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, offset = as.matrix(data)**0) {
-  if (any(data < 0)) {
+Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, offset = as.matrix(data)**0, alt.method = FALSE) {
+  if (min(data, na.rm = TRUE) < 0) {
     stop("Error: data must be a positive vector/matrix.")
   }
-  alt.method <- FALSE
+  # alt.method <- FALSE
   data <- as.matrix(data)
 
   # phi=deparse(substitute(phi))[[1]] |> check.expr()
@@ -139,6 +139,7 @@ Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, of
   distr$k <- k
   distr$l <- k
   distr$t <- t
+  distr$na.condition <- any.na
   distr$offset <- matrix(offset, t, r)
   distr$data <- matrix(data, t, r)
   distr$convert.canom.flag <- convert.canom.flag
@@ -307,75 +308,63 @@ gamma_pred <- function(conj.param, outcome = NULL, parms = list(), pred.cred = 0
 #' @references
 #'    \insertAllCited{}
 update_FGamma_alt <- function(conj.param, ft, Qt, y, parms) {
-  # ft=c(0,0)
-  # Qt=diag(2)
-  # Qt[2,2]=2
-  # y=6.063814
+  # ft=c(0.239272,5.890467)
+  # Qt=matrix(c(0.0077122716 ,0.0001218896 ,0.0001218896 ,0.0457326357),2,2)
+  # y=394.5424
 
-  if (all(diag(Qt) <= 0.1)) {
-    # print("hey!")
-    f0 <- ft
-    S0 <- ginv(Qt)
+  f0 <- ft
+  S0 <- ginv(Qt)
+  r <- 1
+  k <- 2
 
-    d1.log.like <- function(x) {
-      phi <- exp(x[1])
-      mu <- exp(x[2])
-      # print(x)
+  # ft_holder=ft[2]
+  # ft[2]=0
+  # y=exp(log(y)-ft_holder)
+  # print('#######################')
+  # print(y)
+  # print(ft)
+  # print(Qt)
 
-      c(
-        (log(phi) + 1 - log(mu) - digamma(phi) + log(y) - y / mu) * phi,
-        (-phi / mu + phi * y / (mu**2)) * mu
-      ) - S0 %*% (x - f0)
-    }
+  # proxy=update_FGamma_alt2(conj.param, ft, Qt, y, parms)
+  # print('#######################')
+  # f1=proxy$ft
+  # Q1=proxy$Qt
 
-    d2.inv <- function(x) {
-      phi <- exp(x[1])
-      mu <- exp(x[2])
+  if (!(all(diag(Qt) <= 0.1)) | TRUE) {
+    # error0 <- (ft - f0)
+    # l.phi=ft[1]
+    # l.mu=ft[2]
+    # phi=exp(l.phi)
+    # mu=exp(l.mu)
+    #
+    # # phi=200
+    # l.phi=log(phi)
+    # lgamma(phi)-
+    #   (0.5*log(2*pi*(phi-1))+(phi-1)*log(phi-1)-phi+1)
+    # c= phi * (l.phi - l.mu) - lgamma(phi) + (phi - 1) * log(y) - phi * y / mu - 0.5 * colSums(error0 * (S0 %*% error0))
 
-      cross <- (-1 + y / mu) * phi
-
-      mat <- matrix(
-        c(
-          (log(phi) + 1 - log(mu) - digamma(phi) + log(y) - y / mu + 1 - phi * trigamma(phi)) * phi,
-          cross,
-          cross,
-          (-1 + y / mu + 1 - 2 * y / mu) * phi
-        ),
-        2, 2
-      ) - S0
-      return(mat)
-    }
-
-    mean <- c(f0[1], log(y))
-
-    tau <- -d2.inv(mean) - S0
-
-    f.start <- ginv(tau + S0) %*% (tau %*% mean + S0 %*% f0)
-    # f.start=c(0.2286328,1.1518655)
-
-    mode <- f_root(d1.log.like, d2.inv, f.start)$root
-    # print(d2.inv(f0))
-    # mode <- rootSolve::multiroot(d1.log.like, f.start)$root
-    H <- d2.inv(mode)
-    S <- ginv(-H)
-  } else {
     f <- function(x) {
+      l <- dim(x)[2]
+      f0_mat <- matrix(f0, k, l)
+
+      # l.phi <- log(x[1, ])
+      # l.mu <- log(x[2, ])
+      # phi <- x[1, ]
+      # mu <- x[2, ]
+      # error0 <- (log(x) - f0_mat)
+      #
+      # log.prob <- phi * (l.phi - l.mu) - lgamma(phi) + (phi - 1) * log(y) - phi * y / mu - 0.5 * colSums(error0 * (S0 %*% error0))-l.phi-l.mu
+
       l.phi <- x[1, ]
       l.mu <- x[2, ]
       phi <- exp(x[1, ])
       mu <- exp(x[2, ])
+      error0 <- (x - f0_mat)
 
-      # l.phi=log(x[1,])
-      # l.mu=log(x[2,])
-      # phi=x[1,]
-      # mu=x[2,]
-      # print(y)
-      # print(dgamma(y, phi, phi / mu, log = TRUE))
+      log.prob <- phi * (l.phi - l.mu) - lgamma(phi) + (phi - 1) * log(y) - phi * y / mu - 0.5 * colSums(error0 * (S0 %*% error0))
 
-      # phi*(l.phi-l.mu)-lgamma(phi)+phi*log(y)-phi*y/mu
-
-      # prob <- exp(dgamma(y, phi, phi / mu, log = TRUE) + dmvnorm(t(x), ft, Qt, logged = TRUE))
-      prob <- exp(phi * (l.phi - l.mu) - lgamma(phi) + phi * log(y) - phi * y / mu + dmvnorm(t(x), ft, Qt))
+      # print(log.prob)
+      prob <- exp(log.prob)
 
 
       rbind(
@@ -389,13 +378,412 @@ update_FGamma_alt <- function(conj.param, ft, Qt, y, parms) {
       )
     }
 
-    # val <- cubintegrate(f, c(exp(mu2-6*sqrt(sigma2))), c(exp(mu2+6*sqrt(sigma2))), fDim = 7, nVec = 1000)$integral
-    val <- cubintegrate(f, c(-Inf, -Inf), c(Inf, Inf), fDim = 7, nVec = 1000)$integral
-    mode <- matrix(val[2:3] / val[1], 2, 1)
-    S <- matrix(val[4:7], 2, 2) / val[1] - mode %*% t(mode)
+
+    # val <- cubintegrate(f, f1-12*sqrt(diag(Q1)), f1+12*sqrt(diag(Q1)), fDim = 7, nVec = 1000)$integral
+    val <- cubintegrate(f, ft - 12 * sqrt(diag(Qt)), ft + 12 * sqrt(diag(Qt)), fDim = 7, nVec = 1000)$integral
+    # val <- cubintegrate(f, c(0,0), c(Inf, Inf), fDim = 7, nVec = 1000)$integral
+    f1 <- matrix(val[2:3] / val[1], 2, 1)
+    Q1 <- matrix(val[4:7], 2, 2) / val[1] - f1 %*% t(f1)
+  }
+  # print('############################')
+  # print(ft)
+  # print(Qt)
+  # print(f1)
+  # print(Q1)
+  # print(det(Q1))
+
+  # f1[2]=f1[2]+ft_holder
+  return(list("ft" = matrix(f1, 2, 1), "Qt" = Q1))
+}
+
+update_FGamma_alt2 <- function(conj.param, ft, Qt, y, parms) {
+  # ft=c(4.62420600115334,1.81291376843498)
+  # Qt=matrix(c(0.447478530627857 ,0.0541984460532653,0.0541984460532653,0.0115208378361857),2,2)
+  # y=9.23999977111816
+
+
+  f0 <- ft
+  S0 <- ginv(Qt)
+  k <- length(ft)
+
+  a1 <- c(f0[1], log(y))
+  phi <- exp(a1[1])
+  mu <- exp(a1[2])
+  R1 <- -matrix(c(
+    phi * (1 + (a1[1] - a1[2]) - digamma(phi) + log(y) - y / mu) + phi * (1 - trigamma(phi) * phi),
+    (-1 + y / mu) * phi,
+    (-1 + y / mu) * phi,
+    -phi * y / mu
+  ), 2, 2)
+
+  S1 <- R1 + S0
+  f1 <- ginv(S1) %*% (R1 %*% a1 + S0 %*% f0)
+
+  log.like <- function(x) {
+    phi <- exp(x[1])
+    mu <- exp(x[2])
+
+    phi * (x[1] - x[2]) - lgamma(phi) + (phi - 1) * log(y) - phi * y / mu - 0.5 * crossprod(x - f0, S0) %*% (x - f0)
   }
 
-  return(list("ft" = matrix(mode, 2, 1), "Qt" = S))
+  d1.log.like <- function(x) {
+    phi <- exp(x[1])
+    mu <- exp(x[2])
+
+    c(
+      phi * (1 + (x[1] - x[2]) - digamma(phi) + log(y) - y / mu),
+      -phi + phi * y / mu
+    ) +
+      -S0 %*% (x - f0)
+  }
+
+  d2.log.like <- function(x) {
+    phi <- exp(x[1])
+    mu <- exp(x[2])
+
+    mat <- matrix(c(
+      phi * (1 + (x[1] - x[2]) - digamma(phi) + log(y) - y / mu) + phi * (1 - trigamma(phi) * phi),
+      (-1 + y / mu) * phi,
+      (-1 + y / mu) * phi,
+      -phi * y / mu
+    ), 2, 2) +
+      -S0
+    mat
+  }
+
+  start <- f1
+
+  # cat('a\r')
+  mode <- f_root(d1.log.like, d2.log.like, start = start)$root
+  # print('a - done')
+  H <- d2.log.like(mode)
+  S <- ginv(-H)
+
+
+  m1 <- mode
+  for (i in 1:k) {
+    c <- mode[i] - 12 * sqrt(S[i, i])
+    log.like2 <- function(x) {
+      log(x[i] - c) + log.like(x)
+    }
+
+    d1.log.like2 <- function(x) {
+      deriv <- rep(0, k)
+      deriv[i] <- 1 / abs(x[i] - c)
+
+      d1.log.like(x) + deriv
+    }
+
+    d2.log.like2 <- function(x) {
+      deriv <- matrix(0, k, k)
+      deriv[i, i] <- -1 / ((x[i] - c)**2)
+
+      d2.log.like(x) + deriv
+    }
+
+    # cat('b\r')
+    mode2 <- c(f_root(d1.log.like2, d2.log.like2, start = start)$root)
+    # print('b - done')
+    H2 <- d2.log.like(mode2)
+    S2 <- ginv(-H2)
+    m1[i] <- sqrt(det(S2) / det(S)) * exp(log.like2(mode2) - log.like(mode)) + c
+  }
+
+  S1 <- S
+  return(list("ft" = matrix(m1, length(mode), 1), "Qt" = S1))
+}
+
+
+update_FGamma_alt3 <- function(conj.param, ft, Qt, y, parms) {
+  # ft=c(0,0)
+  # Qt=matrix(c(1 ,0,0,1),2,2)
+  # y=10
+
+  f0 <- ft
+  S0 <- ginv(Qt)
+
+  phi <- 2
+  parms <- list(phi = phi)
+  conj.param <- convert_Gamma_Normal(ft[2], Qt[2, 2], parms = parms)
+  updated.param <- update_Gamma(conj.param, ft, Qt, y, parms = parms)
+  norm.param <- convert_Normal_Gamma(updated.param, parms = parms)
+
+  f1 <- c(log(phi), norm.param$ft)
+  # print(log(y))
+  # print(f1)
+  # print('#######################')
+
+  log.like <- function(x) {
+    phi <- exp(x[1])
+    mu <- exp(x[2])
+
+    phi * (x[1] - x[2]) - lgamma(phi) + (phi - 1) * log(y) - phi * y / mu - 0.5 * crossprod(x - f0, S0) %*% (x - f0) - log(2 * pi) + 0.5 * log(det(S0))
+  }
+
+  # test=rnorm(2,0,3)
+  # dgamma(y,exp(test[1]),exp(test[1]-test[2]),log=TRUE)+dmvnorm(test,ft,Qt)
+  # log.like(test)
+
+  d1.log.like <- function(x) {
+    phi <- exp(x[1])
+    mu <- exp(x[2])
+
+    c(
+      phi * (1 + (x[1] - x[2]) - digamma(phi) + log(y) - y / mu),
+      -phi + phi * y / mu
+    ) +
+      -S0 %*% (x - f0)
+  }
+
+  d2.log.like <- function(x) {
+    phi <- exp(x[1])
+    mu <- exp(x[2])
+
+    mat <- matrix(c(
+      phi * (1 + (x[1] - x[2]) - digamma(phi) + log(y) - y / mu) + phi * (1 - trigamma(phi) * phi),
+      (-1 + y / mu) * phi,
+      (-1 + y / mu) * phi,
+      -phi * y / mu
+    ), 2, 2) +
+      -S0
+    mat
+  }
+
+  start <- f1
+
+  # cat('a\r')
+  mode <- f_root(d1.log.like, d2.log.like, start = start)$root
+  # print('a - done')
+  H <- d2.log.like(mode)
+  S <- ginv(-H)
+
+  m1 <- mode
+  S1 <- S
+  # print('##########################')
+  return(list("ft" = matrix(m1, length(mode), 1), "Qt" = S1))
+}
+
+update_FGamma_alt4 <- function(conj.param, ft, Qt, y, parms) {
+  # ft=c(21.294409,5.916771)
+  # Qt=matrix(c(1.992732e+01,6.267117e-07,6.267117e-07,3.110475e+00),2,2)
+  # # y=382.1781
+  # ft=c(9.903488,5.939825)
+  # Qt=matrix(c(3.983737,0,0,0.0001803521),2,2)
+  # y=382.1781
+  #
+  print(ft)
+  print(Qt)
+  print(y)
+
+  # ft_holder=ft[2]
+  # ft[2]=0
+  # y=exp(log(y)-ft_holder)
+
+  f0 <- ft
+  S0 <- ginv(Qt)
+  k <- length(ft)
+
+  ################ Mode phi ################
+
+  marg.fx <- function(x) {
+    phi <- exp(x)
+    rho <- Qt[1, 2] / sqrt(Qt[1, 1] * Qt[2, 2])
+
+    f1 <- ft[2] + sqrt(Qt[2, 2] / Qt[1, 1]) * rho * (phi - ft[1])
+    Q1 <- (1 - rho**2) * Qt[2, 2]
+
+    alpha <- 1 / (-3 + 3 * sqrt(1 + 2 * Q1 / 3))
+    beta <- alpha * exp(f1 - Q1 / 2)
+    l.fx <- phi * log(phi) - lgamma(phi) + (phi - 1) * log(y) + lgamma(phi + alpha) - (phi + alpha) * log(phi * y + beta) +
+      -0.5 * ((x - ft[1])**2) / Qt[1, 1]
+
+
+    d1.l.fx <- (log(phi) + 1 - digamma(phi) + log(y) + digamma(phi + alpha) - log(phi * y + beta) - y * (phi + alpha) / (phi * y + beta)) * phi - (x - ft[1]) / Qt[1, 1]
+    d2.l.fx <-
+      (1 / phi +
+        -trigamma(phi) +
+        trigamma(phi + alpha) +
+        -y / (phi * y + beta) +
+        -y * ((phi * y + beta) - (phi + alpha) * y) / ((phi * y + beta)**2)) * (phi**2) +
+      (log(phi) + 1 - digamma(phi) + log(y) + digamma(phi + alpha) - log(phi * y + beta) - y * (phi + alpha) / (phi * y + beta)) * phi +
+      -1 / Qt[1, 1]
+
+    return(c(l.fx, d1.l.fx, d2.l.fx))
+  }
+
+  # phi=log(rgamma(1,1,1))
+  # calculus::derivative(function(x){marg.fx(x)[2]},var=phi)
+  # marg.fx(phi)[3]
+
+  phi.mode <- f_joint_root(function(x) {
+    marg.fx(x)[2:3]
+  }, start = 0)$root
+
+  ################ Mode mu ################
+  phi <- exp(phi.mode)
+  rho <- Qt[1, 2] / sqrt(Qt[1, 1] * Qt[2, 2])
+
+  f1 <- ft[2] + sqrt(Qt[2, 2] / Qt[1, 1]) * rho * (phi - ft[1])
+  Q1 <- (1 - rho**2) * Qt[2, 2]
+
+  cond.fx <- function(x, phi) {
+    mu <- exp(x)
+    l.fx <-
+      -phi * x +
+      -phi * y / mu +
+      -0.5 * ((x - f1)**2) / Q1
+
+
+    d1.l.fx <- -phi + phi * y / mu - (x - f1) / Q1
+    d2.l.fx <-
+      -phi * y / mu +
+      -1 / Qt[1, 1]
+
+    return(c(l.fx, d1.l.fx, d2.l.fx))
+  }
+  # mu=log(rgamma(1,1,1))
+  # calculus::derivative(function(x){cond.fx(x)[2]},var=mu)
+  # cond.fx(mu)[3]
+
+  mu.mode <- f_joint_root(function(x) {
+    cond.fx(x, phi)[2:3]
+  }, start = 0)$root
+
+  ############## phi,mu mode ##############
+  log.like <- function(x) {
+    phi <- exp(x[1])
+    mu <- exp(x[2])
+
+    phi * (x[1] - x[2]) - lgamma(phi) + (phi - 1) * log(y) - phi * y / mu - 0.5 * crossprod(x - f0, S0) %*% (x - f0)
+  }
+
+  d1.log.like <- function(x) {
+    phi <- exp(x[1])
+    mu <- exp(x[2])
+
+    phi * (1 + (x[1] - x[2]) - digamma(phi) + log(y) - y / mu) +
+      -S0[1, 1] %*% (x[1] - f0[1])
+  }
+
+  d2.log.like <- function(x) {
+    phi <- exp(x[1])
+    mu <- exp(x[2])
+
+    phi * (1 + (x[1] - x[2]) - digamma(phi) + log(y) - y / mu) + phi * (1 - trigamma(phi) * phi) +
+      -S0[1, 1]
+  }
+
+  mode <- c(phi.mode, mu.mode)
+
+
+  for (i in 1:5) {
+    phi.mode <- f_root(
+      function(x) {
+        d1.log.like(c(x, mu.mode))
+      },
+      function(x) {
+        d2.log.like(c(x, mu.mode))
+      },
+      start = phi.mode
+    )$root
+    phi <- exp(phi.mode)
+    mu.mode <- f_joint_root(function(x) {
+      cond.fx(x, phi)[2:3]
+    }, start = mu.mode)$root
+    mode <- c(phi.mode, mu.mode)
+  }
+
+  d1.log.like <- function(x) {
+    phi <- exp(x[1])
+    mu <- exp(x[2])
+
+    c(
+      phi * (1 + (x[1] - x[2]) - digamma(phi) + log(y) - y / mu),
+      -phi + phi * y / mu
+    ) +
+      -S0 %*% (x - f0)
+  }
+
+  d2.log.like <- function(x) {
+    phi <- exp(x[1])
+    mu <- exp(x[2])
+
+    mat <- matrix(c(
+      phi * (1 + (x[1] - x[2]) - digamma(phi) + log(y) - y / mu) + phi * (1 - trigamma(phi) * phi),
+      (-1 + y / mu) * phi,
+      (-1 + y / mu) * phi,
+      -phi * y / mu
+    ), 2, 2) +
+      -S0
+    mat
+  }
+
+  mode <- f_root(d1.log.like, d2.log.like, start = mode)$root
+  H <- d2.log.like(mode)
+  S <- ginv(-H)
+
+  m1 <- mode
+  for (i in 1:k) {
+    c <- mode[i] - 12 * sqrt(S[i, i])
+    log.like2 <- function(x) {
+      log(x[i] - c) + log.like(x)
+    }
+
+    d1.log.like2 <- function(x) {
+      deriv <- rep(0, k)
+      deriv[i] <- 1 / abs(x[i] - c)
+
+      d1.log.like(x) + deriv
+    }
+
+    d2.log.like2 <- function(x) {
+      deriv <- matrix(0, k, k)
+      deriv[i, i] <- -1 / ((x[i] - c)**2)
+
+      d2.log.like(x) + deriv
+    }
+
+    # cat('b\r')
+    mode2 <- c(f_root(d1.log.like2, d2.log.like2, start = mode)$root)
+    # print('b - done')
+    H2 <- d2.log.like(mode2)
+    S2 <- ginv(-H2)
+    m1[i] <- sqrt(det(S2) / det(S)) * exp(log.like2(mode2) - log.like(mode)) + c
+  }
+
+  m2 <- m1
+  for (i in 1:k) {
+    c <- mode[i] - 12 * sqrt(S[i, i])
+    log.like2 <- function(x) {
+      2 * log(abs(x[i])) + log.like(x)
+    }
+
+    d1.log.like2 <- function(x) {
+      deriv <- rep(0, k)
+      deriv[i] <- 2 / x[i]
+
+      d1.log.like(x) + deriv
+    }
+
+    d2.log.like2 <- function(x) {
+      deriv <- matrix(0, k, k)
+      deriv[i, i] <- -2 / (x[i]**2)
+
+      d2.log.like(x) + deriv
+    }
+
+    # cat('b\r')
+    mode2 <- c(f_root(d1.log.like2, d2.log.like2, start = mode)$root)
+    # print('b - done')
+    H2 <- d2.log.like(mode2)
+    S2 <- ginv(-H2)
+    m2[i] <- sqrt(det(S2) / det(S)) * exp(log.like2(mode2) - log.like(mode))
+  }
+
+  S1 <- S
+
+  # m1[2]=m1[2]+ft_holder
+  return(list("ft" = matrix(m1, length(mode), 1), "Qt" = S1))
 }
 
 #' Fgamma_pred_alt
@@ -454,11 +842,12 @@ Fgamma_pred_alt <- function(conj.param, outcome = NULL, parms = list(), pred.cre
       log.like <- rep(NA, t)
     }
 
-    N <- 5000
-    # sample <- matrnorm(N, k,seed=round(runif(1)*1e15))
+    N <- 50000
+    # sample <- t(matrnorm(N, k,seed=round(runif(1)*1e15)))
     for (i in seq_len(t)) {
       ft.i <- rmvnorm(N, ft[, i], Qt[, , i])
-      sample.y <- rgamma(N, exp(ft.i[, 1]), exp(ft.i[, 1] - ft.i[, 2]))
+      # ft.i <- rmvnorm(N, ft[, i], Qt[, , i],norm.x=sample)
+      sample.y <- rgamma(N, exp(ft.i[1, ]), exp(ft.i[1, ] - ft.i[2, ]))
       if (pred.flag) {
         pred[, i] <- mean(sample.y)
         var.pred[, , i] <- var(sample.y)
@@ -471,7 +860,7 @@ Fgamma_pred_alt <- function(conj.param, outcome = NULL, parms = list(), pred.cre
         l.mu <- ft.i[2, ]
         mu <- exp(l.mu)
 
-        log.like.list <- phi * (l.phi - l.mu) - lgamma(phi) + phi * log(outcome[, i]) - phi * outcome[, i] / mu
+        log.like.list <- phi * (l.phi - l.mu) - lgamma(phi) + (phi - 1) * log(outcome[, i]) - phi * outcome[, i] / mu
         max.log.like <- max(log.like.list)
         like.list <- exp(log.like.list - max.log.like)
         log.like[i] <- log(mean(like.list)) + max.log.like

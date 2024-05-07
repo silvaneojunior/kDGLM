@@ -36,6 +36,7 @@ Other {auxiliary functions for a Normal outcome}:
 \code{\link{multi_normal_gamma_pred}()},
 \code{\link{update_NG_alt2}()},
 \code{\link{update_NG_alt}()},
+\code{\link{update_NG_alt2}()},
 \code{\link{update_Normal}()}
 }
 \concept{{auxiliary functions for a Normal outcome}}

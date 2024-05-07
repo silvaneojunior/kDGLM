@@ -34,8 +34,8 @@ In this scenario, the marginal distribution of the data is Negative Binomial wit
 Other {auxiliary functions for a Poisson outcome}: 
 \code{\link{convert_Normal_Poisson}()},
 \code{\link{convert_Poisson_Normal}()},
-\code{\link{update_Poisson_alt}()},
-\code{\link{update_Poisson}()}
+\code{\link{update_Poisson}()},
+\code{\link{update_Poisson_alt}()}
 }
 \concept{{auxiliary functions for a Poisson outcome}}
 \keyword{internal}

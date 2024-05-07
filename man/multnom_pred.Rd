@@ -34,8 +34,8 @@ In this scenario, the marginal distribution of the data is Dirichlet-Multinomial
 Other {auxiliary functions for a Multinomial outcome}: 
 \code{\link{convert_Multinom_Normal}()},
 \code{\link{convert_Normal_Multinom}()},
-\code{\link{update_Multinom_alt}()},
-\code{\link{update_Multinom}()}
+\code{\link{update_Multinom}()},
+\code{\link{update_Multinom_alt}()}
 }
 \concept{{auxiliary functions for a Multinomial outcome}}
 \keyword{internal}

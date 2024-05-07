@@ -123,7 +123,10 @@ base_block <- function(..., order, name,
         stop("Error: Predictor value is equal to 'const', but 'const' is a reserved name. Choose another label.")
       }
     } else {
-      values[[name.var]]=ifelse(is.na(values[[name.var]]),0,values[[name.var]])
+      if (any(is.infinite(values[[name.var]]))) {
+        stop("Error: Cannot have a infinite valued covariate.")
+      }
+      values[[name.var]] <- ifelse(is.na(values[[name.var]]), 0, values[[name.var]])
       FF[1, i, ] <- values[[name.var]]
       if (any(values[[name.var]] != max(values[[name.var]]))) {
         count.regr <- count.regr + 1
