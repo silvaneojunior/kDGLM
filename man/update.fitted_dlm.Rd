@@ -28,28 +28,27 @@ level <- polynomial_block(rate = 1, order = 2, D = 0.95)
 season <- harmonic_block(rate = 1, order = 2, period = 12, D = 0.975)
 
 # Only first 100 observations (for the sake of the example)
-outcome <- Poisson(lambda = "rate", data = c(AirPassager)[1:100])
+outcome <- Poisson(lambda = "rate", data = c(AirPassengers)[1:100])
 
 fitted.data <- fit_model(level, season,
   AirPassengers = outcome
 )
 
-updated.fit <- update(fitted.data, AirPassager = list(data = c(AirPassager)[101:144]))
+updated.fit <- update(fitted.data, AirPassengers = list(data = c(AirPassengers)[101:144]))
 # If a offset was present, the user should pass its value when updating
 # updated.fit=update(fitted.data,
-#                     AirPassager=list(
-#                      data=c(AirPassager)[101:144],
+#                     AirPassengers=list(
+#                      data=c(AirPassengers)[101:144],
 #                      offset= ... ))
 
 }
 \seealso{
-Other {auxiliary functions for fitted_dlm objects}: 
+Other auxiliary functions for fitted_dlm objects: 
 \code{\link{coef.fitted_dlm}()},
-\code{\link{dlm_sampling}()},
 \code{\link{eval_dlm_norm_const}()},
 \code{\link{fit_model}()},
 \code{\link{forecast.fitted_dlm}()},
-\code{\link{search_model}()},
+\code{\link{simulate.fitted_dlm}()},
 \code{\link{smoothing}()}
 }
-\concept{{auxiliary functions for fitted_dlm objects}}
+\concept{auxiliary functions for fitted_dlm objects}

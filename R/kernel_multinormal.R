@@ -12,7 +12,8 @@
 #'
 #' @return The parameters of the conjugated distribution of the linear predictor.
 #' @keywords internal
-#' @family {auxiliary functions for a Normal outcome}
+#'
+#' @family auxiliary functions for a Normal outcome
 convert_multi_NG_Normal <- function(ft, Qt, parms) {
   k <- length(ft)
   r <- -3 / 2 + sqrt(9 / 4 + 2 * k)
@@ -152,7 +153,7 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
 
   if (parms$alt.method) {
     # post <- update_NG_alt(param, ft.now, Qt.now, y[1])
-    post <- update_NG_gauss(param, ft.now, Qt.now, y[1])
+    # post <- update_NG_gauss(param, ft.now, Qt.now, y[1])
   } else {
     param <- convert_NG_Normal(ft.now, Qt.now)
     up.param <- update_NG(param, ft.now, Qt.now, y[1])
@@ -276,7 +277,7 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
 
       if (parms$alt.method) {
         # post <- update_NG_alt(param, ft.now, Qt.now, y[i])
-        post <- update_NG_gauss(param, ft.now, Qt.now, y[i])
+        # post <- update_NG_gauss(param, ft.now, Qt.now, y[i])
       } else {
         param <- convert_NG_Normal(ft.now, Qt.now)
         up.param <- update_NG(param, ft.now, Qt.now, y[i])
@@ -418,7 +419,8 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
 #' @importFrom stats qt dt
 #' @importFrom Rfast data.frame.to_matrix
 #' @keywords internal
-#' @family {auxiliary functions for a Normal outcome}
+#'
+#' @family auxiliary functions for a Normal outcome
 multi_normal_gamma_pred <- function(conj.param, outcome = NULL, parms = list(), pred.cred = 0.95) {
   pred.flag <- !is.na(pred.cred)
   like.flag <- !is.null(outcome)

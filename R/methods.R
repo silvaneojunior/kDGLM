@@ -5,6 +5,8 @@
 #' @param x A fitted_dlm object.
 #' @param ... Arguments passed to summary.fitted_dlm
 #'
+#' @return No return value, called to print a summary of the fitted kDGLM model.
+#'
 #' @export
 #' @keywords internal
 #' @seealso \code{\link{summary.fitted_dlm}}
@@ -18,6 +20,8 @@ print.fitted_dlm <- function(x, ...) {
 #'
 #' @param x A dlm_distr object.
 #' @param ... Arguments passed to summary.dlm_distr
+#'
+#' @return No return value, called to print a summary of a kDGLM outcome.
 #'
 #' @export
 #' @keywords internal
@@ -33,6 +37,8 @@ print.dlm_distr <- function(x, ...) {
 #' @param x A dlm_block object.
 #' @param ... Arguments passed to summary.dlm_block
 #'
+#' @return No return value, called to print a summary of a kDGLM structure.
+#'
 #' @export
 #' @keywords internal
 #' @seealso \code{\link{summary.dlm_block}}
@@ -46,6 +52,8 @@ print.dlm_block <- function(x, ...) {
 #'
 #' @param x A searched_dlm object.
 #' @param ... Arguments passed to summary.searched_dlm
+#'
+#' @return No return value, called to print a summary of a searched_dlm object.
 #'
 #' @export
 #' @keywords internal
@@ -63,6 +71,17 @@ print.searched_dlm <- function(x, ...) {
 #'
 #' @importFrom stats coefficients
 #'
+#' @return A list containing:
+#' \itemize{
+#'    \item data data.frame: A table with the model evaluated at each observed time.
+#'    \item theta.mean matrix: The mean of the latent states at each time. Dimensions are n x t, where t is the size of t.eval and n is the number of latent states.
+#'    \item theta.cov array: A 3D-array containing the covariance matrix of the latent states at each time. Dimensions are n x n x t, where t is the size of t.eval and n is the number of latent states.
+#'    \item lambda.mean matrix: The mean of the linear predictor at each time. Dimensions are k x t, where t is the size of t.eval and k is the number of linear predictors.
+#'    \item lambda.cov array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t, where t is the size of t.eval and k is the number of linear predictors.
+#'    \item log.like, mae, mase, rae, mse, interval.score: The metric value at each time.
+#'    \item conj.param list: A list containing, for each outcome, a data.frame with the parameter of the conjugated distribution at each time.
+#' }
+#'
 #' @export
 #' @keywords internal
 #' @seealso \code{\link{coef.fitted_dlm}}
@@ -77,6 +96,8 @@ coefficients.fitted_dlm <- function(object, ...) {
 #'
 #' @param e1 A dlm_block.
 #' @param e2 A dlm_block.
+#'
+#' @return The combined blocks as a dlm_block.
 #'
 #' @export
 #' @keywords internal
@@ -93,6 +114,8 @@ coefficients.fitted_dlm <- function(object, ...) {
 #' @param e1 A dlm_block (if e2 is an integer) or an integer (if e2 is a dlm_block).
 #' @param e2 An integer (if e1 is an dlm_block) or a dlm_block (if e1 is an integer).
 #'
+#' @return The combined replicated blocks as a dlm_block.
+#'
 #' @export
 #' @keywords internal
 #' @seealso \code{\link{block_mult}}
@@ -104,29 +127,18 @@ coefficients.fitted_dlm <- function(object, ...) {
   }
 }
 
-#' Forecasting from an object
-#'
-#' The functions allow producing forecasts based on the provided object. This method is the same as the generics package (version 0.1.3.9000).
-#'
-#' @param object A model for which forecasts are required.
-#' @param ... Other arguments passed to methods
-#'
-#' @author Hadley Wickham, \email{hadley@@rstudio.com}; Max Kuhn, \email{max@@rstudio.com}; Davis Vaughan, \email{davis@@rstudio.com}; RStudio.
-#' @seealso [generics package](https://github.com/r-lib/generics)
-#'
-#' @details
-#' MIT License
-#' Copyright (c) 2020 RStudio
-#'
-#' Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-#'
-#' The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-#'
-#' THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-#'
-#'
+#' @importFrom generics specify
 #' @export
-#' @keywords internal
-forecast <- function(object, ...) {
-  UseMethod("forecast")
-}
+generics::specify
+
+#' @importFrom stats simulate
+#' @export
+stats::simulate
+
+#' @importFrom generics forecast
+#' @export
+generics::forecast
+
+#' @importFrom generics fit
+#' @export
+generics::fit

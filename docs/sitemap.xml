@@ -49,9 +49,6 @@
     <loc>/reference/array_transp.html</loc>
   </url>
   <url>
-    <loc>/reference/AR_block.html</loc>
-  </url>
-  <url>
     <loc>/reference/base_block.html</loc>
   </url>
   <url>
@@ -136,10 +133,10 @@
     <loc>/reference/eval_dlm_prior.html</loc>
   </url>
   <url>
-    <loc>/reference/Fgamma_pred_alt.html</loc>
+    <loc>/reference/fit_model.html</loc>
   </url>
   <url>
-    <loc>/reference/fit_model.html</loc>
+    <loc>/reference/fit_model_single.html</loc>
   </url>
   <url>
     <loc>/reference/forecast.fitted_dlm.html</loc>
@@ -244,6 +241,9 @@
     <loc>/reference/print.searched_dlm.html</loc>
   </url>
   <url>
+    <loc>/reference/reexports.html</loc>
+  </url>
+  <url>
     <loc>/reference/regression_block.html</loc>
   </url>
   <url>
@@ -253,13 +253,16 @@
     <loc>/reference/rowQuantile.html</loc>
   </url>
   <url>
-    <loc>/reference/search_model.html</loc>
-  </url>
-  <url>
     <loc>/reference/set.block.value.html</loc>
   </url>
   <url>
+    <loc>/reference/simulate.fitted_dlm.html</loc>
+  </url>
+  <url>
     <loc>/reference/smoothing.html</loc>
+  </url>
+  <url>
+    <loc>/reference/specify.dlm_block.html</loc>
   </url>
   <url>
     <loc>/reference/summary.dlm_block.html</loc>
@@ -274,25 +277,19 @@
     <loc>/reference/summary.searched_dlm.html</loc>
   </url>
   <url>
+    <loc>/reference/TF_block.html</loc>
+  </url>
+  <url>
     <loc>/reference/times-.dlm_block.html</loc>
   </url>
   <url>
     <loc>/reference/update.fitted_dlm.html</loc>
   </url>
   <url>
-    <loc>/reference/update_FGamma_alt.html</loc>
-  </url>
-  <url>
     <loc>/reference/update_Gamma.html</loc>
   </url>
   <url>
-    <loc>/reference/update_Gamma_alt.html</loc>
-  </url>
-  <url>
     <loc>/reference/update_Multinom.html</loc>
-  </url>
-  <url>
-    <loc>/reference/update_Multinom_alt.html</loc>
   </url>
   <url>
     <loc>/reference/update_multi_NG_correl.html</loc>
@@ -304,19 +301,10 @@
     <loc>/reference/update_NG2.html</loc>
   </url>
   <url>
-    <loc>/reference/update_NG_alt.html</loc>
-  </url>
-  <url>
-    <loc>/reference/update_NG_alt2.html</loc>
-  </url>
-  <url>
     <loc>/reference/update_Normal.html</loc>
   </url>
   <url>
     <loc>/reference/update_Poisson.html</loc>
-  </url>
-  <url>
-    <loc>/reference/update_Poisson_alt.html</loc>
   </url>
   <url>
     <loc>/reference/var_decomp.html</loc>

@@ -31,11 +31,10 @@ The data is assumed to have Poisson distribution with its mean having distributi
 In this scenario, the marginal distribution of the data is Negative Binomial with a as the dispersion parameter and b/(b+1) as the probability.
 }
 \seealso{
-Other {auxiliary functions for a Poisson outcome}: 
+Other auxiliary functions for a Poisson outcome: 
 \code{\link{convert_Normal_Poisson}()},
 \code{\link{convert_Poisson_Normal}()},
-\code{\link{update_Poisson}()},
-\code{\link{update_Poisson_alt}()}
+\code{\link{update_Poisson}()}
 }
-\concept{{auxiliary functions for a Poisson outcome}}
+\concept{auxiliary functions for a Poisson outcome}
 \keyword{internal}

@@ -11,6 +11,9 @@
 
 \item{e2}{An integer (if e1 is an dlm_block) or a dlm_block (if e1 is an integer).}
 }
+\value{
+The combined replicated blocks as a dlm_block.
+}
 \description{
 Define product operator for class dlm_block.
 This method is wrapper for the block_mult function.

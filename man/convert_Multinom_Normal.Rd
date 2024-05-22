@@ -21,11 +21,10 @@ Calculate the parameters of the Dirichlet that best approximates the given log-N
 The approximation is the best in the sense that it minimizes the KL divergence from the log-Normal to the Dirichlet.
 }
 \seealso{
-Other {auxiliary functions for a Multinomial outcome}: 
+Other auxiliary functions for a Multinomial outcome: 
 \code{\link{convert_Normal_Multinom}()},
 \code{\link{multnom_pred}()},
-\code{\link{update_Multinom}()},
-\code{\link{update_Multinom_alt}()}
+\code{\link{update_Multinom}()}
 }
-\concept{{auxiliary functions for a Multinomial outcome}}
+\concept{auxiliary functions for a Multinomial outcome}
 \keyword{internal}

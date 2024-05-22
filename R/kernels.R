@@ -195,7 +195,8 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
 
       if (any(null.flags)) {
         D.mat <- diag(D.p)
-        weight <- (((t - 1) / t)) * D.mat
+        # weight <- (((t - 1) / t)) * D.mat
+        weight <- D.mat
         # weight <- D.mat
         m2 <- last.m %*% t(last.m) + last.C
         # m2=last.C*0

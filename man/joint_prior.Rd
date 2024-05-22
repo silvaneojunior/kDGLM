@@ -41,8 +41,8 @@ polynomial_block(mu = 1, D = 0.95) |>
 \insertAllCited{}
 }
 \seealso{
-Other {auxiliary functions for defining priors}.: 
+Other auxiliary functions for defining priors.: 
 \code{\link{CAR_prior}()},
 \code{\link{zero_sum_prior}()}
 }
-\concept{{auxiliary functions for defining priors}.}
+\concept{auxiliary functions for defining priors.}

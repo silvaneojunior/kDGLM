@@ -1,4 +1,4 @@
-# kDGLM: a R package for Bayesian analysis of Generalized Dynamic Linear Models
+# kDGLM: An R package for Bayesian analysis of Generalized Dynamic Linear Models
 
 Welcome to the `kDGLM` GitHub repository! `kDGLM` is an innovative R package tailored for Bayesian analysis of Generalized Dynamic Linear Models (GDLM), catering to both uni- and multivariate exponential families. This package is your go-to tool for sequential inference on time series data, offering a broad spectrum of functionalities including fitting, smoothing, monitoring, and feed-forward interventions.
 
@@ -23,6 +23,7 @@ Before installing kDGLM, ensure you have the following dependencies installed in
 - `extraDistr` >= 1.9.1
 - `cubature` >= 2.1.0
 - `Rfast` >= 2.0.8
+- `generics` >= 0.1.3
 
 Additionally, for an enhanced plotting experience, we recommend installing the `ggplot2` and `plotly` packages, which augment the built-in plot methods provided by `kDGLM`.
 
@@ -53,7 +54,7 @@ To test if the package is working properly, execute the following code exemple:
 
  outcome <- Poisson(lambda = "rate", data = data)
 
- fitted.data <- fit_model(level, season,
+ fitted.data <- fit(level, season,
    AirPassengers = outcome
  )
  summary(fitted.data)
@@ -61,7 +62,7 @@ To test if the package is working properly, execute the following code exemple:
 plot(fitted.data, plot.pkg = "base")
 ```
 
-Refer to the [vignettes](https://silvaneojunior.github.io/kDGLM/) for detailed usage instructions. Also see the documentation of the `fit_model` function for basic examples for each type of outcome the `kDGLM` package offers.
+Refer to the [vignettes](https://silvaneojunior.github.io/kDGLM/) for detailed usage instructions. Also see the documentation of the `fit` method for basic examples for each type of outcome the `kDGLM` package offers.
 
 # Contributing
 
@@ -70,7 +71,6 @@ We welcome contributions! If you're interested in improving kDGLM, please consid
 # Acknowledgements
 
 - Raíra Marotta, who gently provided the base code for the initial versions.
-- [Hadley Wickham](hadley@rstudio.com), [Max Kuhn](max@rstudio.com), [Davis Vaughan](davis@rstudio.com) and RStudio, authors of the "[generics](https://github.com/r-lib/generics)" package, from which code from the generic "forecast" method was taken.
 
 # Contact
-For support or to provide feedback, please contact [Silvaneo dos Santos](silvaneo@dme.ufrj.br) or open an issue on the GitHub repository.
+For support or to provide feedback, please contact [Silvaneo dos Santos Jr.](mailto:silvaneo@dme.ufrj.br) or open an issue on the GitHub repository.

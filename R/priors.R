@@ -4,7 +4,7 @@
 #'
 #' @param block dlm_block object: The structural block.
 #' @param var.index integer: The index of the variables from which to set the prior.
-#' @param weights
+#' @param weights numeric: A vector indicating which linear transformation of the data is 0 with probability 1. Default is equivalent to a zero-sum restriction.
 #'
 #' @return A dlm_block object with the desired prior.
 #'
@@ -20,7 +20,7 @@
 #' The discount factor must be the same for all variables whose prior is being modified.
 #' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
 #'
-#' @family {auxiliary functions for defining priors}.
+#' @family auxiliary functions for defining priors.
 #'
 #' @references
 #'    \insertAllCited{}
@@ -89,8 +89,9 @@ zero_sum_prior <- function(block, var.index = 1:block$n, weights = rep(1, length
 #'
 #' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
 #'
-#' @seealso auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{AR_block}}
-#' @family {auxiliary functions for defining priors}.
+#' @seealso Auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{TF_block}}.
+#'
+#' @family auxiliary functions for defining priors.
 #'
 #' @references
 #'    \insertAllCited{}
@@ -159,7 +160,7 @@ CAR_prior <- function(block, adj.matrix, scale, rho, var.index = 1:block$n) {
 #' The discount factor must be the same for all variables whose prior is being modified.
 #' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
 #'
-#' @family {auxiliary functions for defining priors}.
+#' @family auxiliary functions for defining priors.
 #'
 #' @importFrom Rfast colAny
 #'

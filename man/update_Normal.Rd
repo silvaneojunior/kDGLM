@@ -15,7 +15,7 @@ update_Normal(conj.param, ft, Qt, y, parms)
 
 \item{y}{numeric: A vector containing the observations.}
 
-\item{parms}{list: A list of extra known parameters of the distribution. For this kernel, parms should containing the covariance matrix parameter (Sigma) for the observational Normal model.}
+\item{parms}{list: A list of extra known parameters of the distribution. For this kernel, parms should containing the covariance matrix parameter (V) for the observational Normal model.}
 }
 \value{
 The parameters of the posterior distribution.
@@ -24,12 +24,10 @@ The parameters of the posterior distribution.
 Calculate posterior parameter for the Normal, assuming that the observed values came from a Normal model from which the covariance is known and the prior distribution for the mean vector have Normal distribution
 }
 \seealso{
-Other {auxiliary functions for a Normal outcome}: 
+Other auxiliary functions for a Normal outcome: 
 \code{\link{convert_multi_NG_Normal}()},
 \code{\link{multi_normal_gamma_pred}()},
-\code{\link{normal_pred}()},
-\code{\link{update_NG_alt2}()},
-\code{\link{update_NG_alt}()}
+\code{\link{normal_pred}()}
 }
-\concept{{auxiliary functions for a Normal outcome}}
+\concept{auxiliary functions for a Normal outcome}
 \keyword{internal}

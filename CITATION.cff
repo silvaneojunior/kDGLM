@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "dos Santos"
+  given-names: "Silvaneo Vieira"
+  name-suffix: "Junior"
+- family-names: "Alves"
+  given-names: "Mariane Branco"
+- family-names: "Migon"
+  given-names: "Hélio dos Santos"
+title: "Bayesian analysis of Dynamic Generialized Linear Models"
+url: "https://github.com/silvaneojunior/kDGLM"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "dos Santos"
+    given-names: "Silvaneo Vieira"
+    name-suffix: "Junior"
+  - family-names: "Alves"
+    given-names: "Mariane Branco"
+  - family-names: "Migon"
+    given-names: "Hélio dos Santos"
+  doi: "10.48550/arXiv.2403.13069"
+  title: "kDGLM: An R package for Bayesian analysis of Generalized Dynamic Linear Models"
+  year: 2024

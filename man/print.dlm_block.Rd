@@ -11,6 +11,9 @@
 
 \item{...}{Arguments passed to summary.dlm_block}
 }
+\value{
+No return value, called to print a summary of a kDGLM structure.
+}
 \description{
 This method is wrapper for the summary.dlm_block function.
 }

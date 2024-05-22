@@ -5,6 +5,8 @@
 #' @param vec A vector or matrix.
 #' @param val The value to replace NULL with.
 #'
+#' @return A vector or matrix with the same dimensions as the input, where any NULL values have been replaced by the specified val argument.
+#'
 #' @export
 #' @keywords internal
 if.null <- function(vec, val) {
@@ -13,10 +15,12 @@ if.null <- function(vec, val) {
 
 #' if.na
 #'
-#' This function is wrapper for ifelse(is.na(.),.,.)
+#' This function is wrapper for ifelse(is.na(vec),vec,val)
 #'
 #' @param vec A vector or matrix.
 #' @param val The value to replace NA with.
+#'
+#' @return A vector or matrix with the same dimensions as the input, where any NA values have been replaced by the specified val argument.
 #'
 #' @export
 #' @keywords internal
@@ -27,10 +31,12 @@ if.na <- function(vec, val) {
 
 #' if.nan
 #'
-#' This function is wrapper for ifelse(is.nan(.),.,.)
+#' This function is wrapper for ifelse(is.nan(vec),vec,val)
 #'
 #' @param vec A vector or matrix.
 #' @param val The value to replace NaN with.
+#'
+#' @return A vector or matrix with the same dimensions as the input, where any NaN values have been replaced by the specified val argument.
 #'
 #' @export
 #' @keywords internal
@@ -155,6 +161,8 @@ ginv <- function(S) {
 #' @param mu Vector: The mean vector
 #' @param Sigma Matrix: The Covariance matrix.
 #'
+#' @importFrom stats dnorm
+#'
 #' @keywords internal
 dmvnorm <- function(x, mu, Sigma) {
   Sigma <- as.matrix(Sigma)
@@ -208,6 +216,7 @@ dmvnorm <- function(x, mu, Sigma) {
 #' @param Sigma matrix: The Covariance matrix.
 #'
 #' @importFrom Rfast matrnorm
+#' @importFrom stats runif
 #'
 #' @keywords internal
 rmvnorm <- function(n, mu, Sigma,
@@ -479,9 +488,9 @@ lcm <- function(x) {
 
 # na.conditions
 
-all.na <- function(data, offset) {
+all_na <- function(data, offset) {
   all(is.na(data) | is.na(offset) | offset == 0)
 }
-any.na <- function(data, offset) {
+any_na <- function(data, offset) {
   any(is.na(data) | is.na(offset) | offset == 0)
 }

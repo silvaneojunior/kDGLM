@@ -62,9 +62,8 @@ Creates the structure for a polynomial block with desired order.
 }
 \details{
 For the ..., D, H, a1 and R1 arguments, the user may set one or more of its values as a string.
-By doing so, the user will leave the block partially undefined and it can no longer be used in the \code{\link{fit_model}} function.
-Instead, the user must use the \code{\link{search_model}} function to search the best hyper parameters among a defined range of possible values.
-See the \code{\link{search_model}} function for details on its usage.
+By doing so, the user will leave the block partially undefined.
+The user must then pass the undefined parameter values as named arguments to the \code{\link{fit_model}} function. Also, multiple values can be passed, allowing for a sensitivity analysis for the value of this parameter.
 
 For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
 
@@ -89,8 +88,8 @@ level.3 <- polynomial_block(alpha1 = 1, alpha2 = 1, order = 2)
 \seealso{
 \code{\link{fit_model}}
 
-Other {auxiliary functions for structural blocks}: 
-\code{\link{AR_block}()},
+Other auxiliary functions for structural blocks: 
+\code{\link{TF_block}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},
@@ -98,7 +97,7 @@ Other {auxiliary functions for structural blocks}:
 \code{\link{intervention}()},
 \code{\link{noise_block}()},
 \code{\link{regression_block}()},
-\code{\link{set.block.value}()},
+\code{\link{specify.dlm_block}()},
 \code{\link{summary.dlm_block}()}
 }
-\concept{{auxiliary functions for structural blocks}}
+\concept{auxiliary functions for structural blocks}

@@ -19,11 +19,10 @@ Calculates the parameters of the log-Normal that best approximates the given Inv
 The approximation is the best in the sense that it minimizes the KL divergence from the Inverse-Gamma to the log-Normal
 }
 \seealso{
-Other {auxiliary functions for a Gamma outcome with known shape}: 
+Other auxiliary functions for a Gamma outcome with known shape: 
 \code{\link{convert_Gamma_Normal}()},
 \code{\link{gamma_pred}()},
-\code{\link{update_Gamma}()},
-\code{\link{update_Gamma_alt}()}
+\code{\link{update_Gamma}()}
 }
-\concept{{auxiliary functions for a Gamma outcome with known shape}}
+\concept{auxiliary functions for a Gamma outcome with known shape}
 \keyword{internal}

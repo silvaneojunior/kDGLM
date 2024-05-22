@@ -6,7 +6,7 @@
 \usage{
 \method{plot}{dlm_coef}(
   x,
-  var = rownames(x$mt)[x$dynamic],
+  var = rownames(x$theta.mean)[x$dynamic],
   cutoff = floor(t/10),
   pred.cred = 0.95,
   plot.pkg = "auto",
@@ -53,7 +53,9 @@ plot(model.coef)$plot
 \seealso{
 \code{\link{fit_model}},\code{\link{coef}}
 
-Other {auxiliary visualization functions for the fitted_dlm class}: 
-\code{\link{plot.fitted_dlm}()}
+Other auxiliary visualization functions for the fitted_dlm class: 
+\code{\link{plot.fitted_dlm}()},
+\code{\link{summary.fitted_dlm}()},
+\code{\link{summary.searched_dlm}()}
 }
-\concept{{auxiliary visualization functions for the fitted_dlm class}}
+\concept{auxiliary visualization functions for the fitted_dlm class}

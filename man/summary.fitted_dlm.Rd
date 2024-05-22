@@ -29,6 +29,9 @@
 
 \item{...}{Extra arguments passed to the coef method.#'}
 }
+\value{
+No return value, called to print a summary of the fitted kDGLM model.
+}
 \description{
 Prints a report for a fitted_dlm object.
 }
@@ -48,7 +51,9 @@ summary(fitted.data)
 
 }
 \seealso{
-Other {auxiliary visualization functions for the fitted.dlm class}: 
+Other auxiliary visualization functions for the fitted_dlm class: 
+\code{\link{plot.dlm_coef}()},
+\code{\link{plot.fitted_dlm}()},
 \code{\link{summary.searched_dlm}()}
 }
-\concept{{auxiliary visualization functions for the fitted.dlm class}}
+\concept{auxiliary visualization functions for the fitted_dlm class}

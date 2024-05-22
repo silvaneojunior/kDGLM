@@ -11,6 +11,9 @@
 
 \item{...}{Arguments passed to summary.searched_dlm}
 }
+\value{
+No return value, called to print a summary of a searched_dlm object.
+}
 \description{
 This method is wrapper for the block_superpos function.
 }

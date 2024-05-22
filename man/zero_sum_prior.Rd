@@ -15,7 +15,7 @@ zero_sum_prior(
 
 \item{var.index}{integer: The index of the variables from which to set the prior.}
 
-\item{weights}{}
+\item{weights}{numeric: A vector indicating which linear transformation of the data is 0 with probability 1. Default is equivalent to a zero-sum restriction.}
 }
 \value{
 A dlm_block object with the desired prior.
@@ -39,8 +39,8 @@ polynomial_block(mu = 1, D = 0.95) |>
 \insertAllCited{}
 }
 \seealso{
-Other {auxiliary functions for defining priors}.: 
+Other auxiliary functions for defining priors.: 
 \code{\link{CAR_prior}()},
 \code{\link{joint_prior}()}
 }
-\concept{{auxiliary functions for defining priors}.}
+\concept{auxiliary functions for defining priors.}

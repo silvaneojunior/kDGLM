@@ -6,9 +6,11 @@
 \usage{
 \method{plot}{fitted_dlm}(
   x,
-  outcomes = names(x$outcomes),
+  outcomes = NULL,
+  latent.states = NULL,
+  linear.predictors = NULL,
   pred.cred = 0.95,
-  lag = 1,
+  lag = NA,
   cutoff = floor(x$t/10),
   plot.pkg = "auto",
   ...
@@ -18,6 +20,10 @@
 \item{x}{fitted_dlm object: A fitted DGLM.}
 
 \item{outcomes}{character: The name of the outcomes to plot.}
+
+\item{latent.states}{character: The name of the latent states to plot.}
+
+\item{linear.predictors}{character: The name of the linear predictors to plot.}
 
 \item{pred.cred}{numeric: The credibility value for the credibility interval.}
 
@@ -53,7 +59,9 @@ plot(fitted.data, plot.pkg = "base")
 \seealso{
 \code{\link{fit_model}}
 
-Other {auxiliary visualization functions for the fitted_dlm class}: 
-\code{\link{plot.dlm_coef}()}
+Other auxiliary visualization functions for the fitted_dlm class: 
+\code{\link{plot.dlm_coef}()},
+\code{\link{summary.fitted_dlm}()},
+\code{\link{summary.searched_dlm}()}
 }
-\concept{{auxiliary visualization functions for the fitted_dlm class}}
+\concept{auxiliary visualization functions for the fitted_dlm class}

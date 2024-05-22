@@ -14,7 +14,7 @@ A data frame with 4212 rows and 4 variables:
 }
 }
 \source{
-Admissions: \url{https://opendatasus.saude.gov.br/}
+Admissions: \url{https://datasus.saude.gov.br/informacoes-de-saude-tabnet/}
 
 Population: \url{https://www.ibge.gov.br/estatisticas/sociais/populacao.html}
 }

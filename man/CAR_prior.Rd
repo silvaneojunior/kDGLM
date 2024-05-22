@@ -55,10 +55,10 @@ polynomial_block(mu = 1, D = 0.95) |>
 \insertAllCited{}
 }
 \seealso{
-auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{AR_block}}
+Auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{TF_block}}.
 
-Other {auxiliary functions for defining priors}.: 
+Other auxiliary functions for defining priors.: 
 \code{\link{joint_prior}()},
 \code{\link{zero_sum_prior}()}
 }
-\concept{{auxiliary functions for defining priors}.}
+\concept{auxiliary functions for defining priors.}

@@ -4,14 +4,39 @@
 \alias{fit_model}
 \title{Fitting kDGLM models}
 \usage{
-fit_model(..., smooth = TRUE, p.monit = NA)
+fit_model(
+  ...,
+  smooth = TRUE,
+  p.monit = NA,
+  condition = "TRUE",
+  metric = "log.like",
+  lag = 1,
+  pred.cred = 0.95,
+  metric.cutoff = NA,
+  save.models = FALSE,
+  silent = FALSE
+)
 }
 \arguments{
-\item{...}{dlm_block or dlm_distr objects: The structural blocks of the model (dlm_block objects), alongside the model outcomes (dlm_distr object). All block must be completely defined.}
+\item{...}{dlm_block or dlm_distr objects or named values: The structural blocks of the model (dlm_block objects), alongside the model outcomes (dlm_distr object). If at least one block is undefined, the user must also provide its value in this argument (see last example).}
 
 \item{smooth}{boolean: A flag indicating if the smoothed distribution for the latent states should be calculated.}
 
-\item{p.monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.}
+\item{p.monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic. Only used when performing sensitivity analysis.}
+
+\item{condition}{character: A character defining which combinations of undefined hyper parameter should be tested. See example for details. Only used when performing sensitivity analysis.}
+
+\item{metric}{character: The name of the metric to use for model selection. One of log-likelihood for the one-step-ahead prediction ("log.like"), Mean Absolute Scaled Error ("mase") \insertCite{mase}{kDGLM} or Interval Score ("interval.score") \insertCite{interval_score}{kDGLM}.  Only used when performing sensitivity analysis.}
+
+\item{lag}{integer: The number of steps ahead used for the prediction when calculating the metrics. If lag<0, predictions are made using the smoothed distribution of the latent states.  Only used when performing sensitivity analysis.}
+
+\item{pred.cred}{numeric: A number between 0 and 1 (not included) indicating the credibility interval for predictions. If not within the valid range of values, 0.95 will be used. Only used when performing sensitivity analysis.}
+
+\item{metric.cutoff}{integer: The number of observations to ignore when calculating the metrics. Default is 1/10 of the number of observations (rounded down). Only used when performing sensitivity analysis.}
+
+\item{save.models}{boolean: A flag indicating if all evaluated models should be saved. If FALSE, only the best model (according to the chosen metric) will be saved. Only used when performing sensitivity analysis.}
+
+\item{silent}{boolean: A flag indicating if a progress bar should be printed. Only used when performing sensitivity analysis.}
 }
 \value{
 A fitted_dlm object.
@@ -98,23 +123,38 @@ fitted.data <- fit_model(structure, corn = outcome)
 summary(fitted.data)
 plot(fitted.data, plot.pkg = "base")
 
+##################################################################
+\donttest{
+# Sensitivity analysis
+data <- c(AirPassengers)
+
+level <- polynomial_block(rate = 1, order = 2, D = "D.level")
+season <- harmonic_block(rate = "sazo.effect", order = 2, period = 12, D = "D.sazo")
+
+outcome <- Poisson(lambda = "rate", data = data)
+
+fit_model(level, season, outcome,
+  sazo.effect = c(0, 1),
+  D.level = c(seq.int(0.8, 1, l = 11)),
+  D.sazo = c(seq.int(0.95, 1, l = 11)),
+  condition = "sazo.effect==1 | D.sazo==1"
+)
+}
+
 }
 \seealso{
 auxiliary functions for creating outcomes \code{\link{Poisson}}, \code{\link{Multinom}}, \code{\link{Normal}}, \code{\link{Gamma}}, \code{\link{Dirichlet}}
 
-auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{AR_block}}
+auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{TF_block}}
 
 auxiliary functions for defining priors \code{\link{zero_sum_prior}}, \code{\link{CAR_prior}}
 
-auxiliary function for choosing hyper parameters \code{\link{search_model}}.
-
-Other {auxiliary functions for fitted_dlm objects}: 
+Other auxiliary functions for fitted_dlm objects: 
 \code{\link{coef.fitted_dlm}()},
-\code{\link{dlm_sampling}()},
 \code{\link{eval_dlm_norm_const}()},
 \code{\link{forecast.fitted_dlm}()},
-\code{\link{search_model}()},
+\code{\link{simulate.fitted_dlm}()},
 \code{\link{smoothing}()},
 \code{\link{update.fitted_dlm}()}
 }
-\concept{{auxiliary functions for fitted_dlm objects}}
+\concept{auxiliary functions for fitted_dlm objects}

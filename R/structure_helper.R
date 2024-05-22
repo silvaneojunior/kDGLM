@@ -50,7 +50,7 @@ base_block <- function(..., order, name,
     } else {
       D <- sapply(D, function(x) {
         diag(order) * x
-      }, simplify = "array")
+      }, simplify = "array") |> array(dim = c(order, order, length(D)))
     }
   } else if (is.matrix(D)) {
     D <- array(D, c(dim(D)[1], dim(D)[2], t))
@@ -244,9 +244,8 @@ base_block <- function(..., order, name,
 #' @details
 #'
 #' For the ..., D, H, a1 and R1 arguments, the user may set one or more of its values as a string.
-#' By doing so, the user will leave the block partially undefined and it can no longer be used in the \code{\link{fit_model}} function.
-#' Instead, the user must use the \code{\link{search_model}} function to search the best hyper parameters among a defined range of possible values.
-#' See the \code{\link{search_model}} function for details on its usage.
+#' By doing so, the user will leave the block partially undefined.
+#' The user must then pass the undefined parameter values as named arguments to the \code{\link{fit_model}} function. Also, multiple values can be passed, allowing for a sensitivity analysis for the value of this parameter.
 #'
 #' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
 #'
@@ -255,7 +254,7 @@ base_block <- function(..., order, name,
 #' For the details about dynamic regression models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
 #'
 #' @seealso \code{\link{fit_model}}
-#' @family {auxiliary functions for structural blocks}
+#' @family auxiliary functions for structural blocks
 #'
 #'
 #' @references
@@ -355,9 +354,8 @@ polynomial_block <- function(..., order = 1, name = "Var.Poly",
 #' @details
 #'
 #' For the ..., D, H, a1 and R1 arguments, the user may set one or more of its values as a string.
-#' By doing so, the user will leave the block partially undefined and it can no longer be used in the \code{\link{fit_model}} function.
-#' Instead, the user must use the \code{\link{search_model}} function to search the best hyper parameters among a defined range of possible values.
-#' See the \code{\link{search_model}} function for details on its usage.
+#' By doing so, the user will leave the block partially undefined.
+#' The user must then pass the undefined parameter values as named arguments to the \code{\link{fit_model}} function. Also, multiple values can be passed, allowing for a sensitivity analysis for the value of this parameter.
 #'
 #' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
 #'
@@ -366,7 +364,8 @@ polynomial_block <- function(..., order = 1, name = "Var.Poly",
 #' For the details about dynamic regression models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
 #'
 #' @seealso \code{\link{fit_model}}
-#' @family {auxiliary functions for structural blocks}
+#'
+#' @family auxiliary functions for structural blocks
 #'
 #'
 #' @references
@@ -463,16 +462,16 @@ harmonic_block <- function(..., period, order = 1, name = "Var.Sazo",
 #' @details
 #'
 #' For the ..., D, H, a1 and R1 arguments, the user may set one or more of its values as a string.
-#' By doing so, the user will leave the block partially undefined and it can no longer be used in the \code{\link{fit_model}} function.
-#' Instead, the user must use the \code{\link{search_model}} function to search the best hyper parameters among a defined range of possible values.
-#' See the \code{\link{search_model}} function for details on its usage.
+#' By doing so, the user will leave the block partially undefined.
+#' The user must then pass the undefined parameter values as named arguments to the \code{\link{fit_model}} function. Also, multiple values can be passed, allowing for a sensitivity analysis for the value of this parameter.
 #'
 #' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
 #'
 #' For the details about dynamic regression models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
 #'
 #' @seealso \code{\link{fit_model}}
-#' @family {auxiliary functions for structural blocks}
+#'
+#' @family auxiliary functions for structural blocks
 #'
 #'
 #' @references
@@ -515,7 +514,7 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #'
 #' Creates the structure for a Auto Regressive (AR) block (see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapter 9) with desired order.
 #' As the package suppose that the structure of the model is linear, a linearization is applied to the evolution equation, as described in \insertCite{WestHarr-DLM;textual}{kDGLM}, chapter 13.
-#' This block also supports Transfer Functions, being necessary to specify the associated pulse when calling the AR_block function (see arg.).
+#' This block also supports Transfer Functions, being necessary to specify the associated pulse when calling the TF_block function (see arg.).
 #'
 #' @param ... Named values for the planning matrix.
 #' @param order Positive integer: The order of the AR block.
@@ -566,17 +565,16 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #' @examples
 #'
 #' #### AR block ####
-#' AR_block(mu = 1, order = 2, noise.disc = 0.9)
+#' TF_block(mu = 1, order = 2, noise.disc = 0.9)
 #'
 #' #### Transfer function ####
-#' AR_block(mu = 1, pulse = beaver1$activ, order = 1, noise.disc = 0.9)
+#' TF_block(mu = 1, pulse = beaver1$activ, order = 1, noise.disc = 0.9)
 #'
 #' @details
 #'
 #' For the ..., noise.var, noise.disc, D, H, a1, R1, a1, R1, a1.pulse, R1.pulse, D.pulse, h.pulse, H.pulse arguments, the user may set one or more of its values as a string.
-#' By doing so, the user will leave the block partially undefined and it can no longer be used in the \code{\link{fit_model}} function.
-#' Instead, the user must use the \code{\link{search_model}} function to search the best hyper parameters among a defined range of possible values.
-#' See the \code{\link{search_model}} function for details on its usage.
+#' By doing so, the user will leave the block partially undefined.
+#' The user must then pass the undefined parameter values as named arguments to the \code{\link{fit_model}} function. Also, multiple values can be passed, allowing for a sensitivity analysis for the value of this parameter.
 #'
 #' For the details about the implementation see \insertCite{ArtigoPacote;textual}{kDGLM}.
 #'
@@ -587,11 +585,12 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #' For the details about dynamic regression models in the context of DLM's, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
 #'
 #' @seealso \code{\link{fit_model}}
-#' @family {auxiliary functions for structural blocks}
+#'
+#' @family auxiliary functions for structural blocks
 #'
 #' @references
 #'    \insertAllCited{}
-AR_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0, name = "Var.AR", AR.support = "free",
+TF_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0, name = "Var.AR", AR.support = "free",
                      h = 0, a1 = 0, R1 = 4, monitoring = TRUE,
                      D.coef = 1, h.coef = 0, H.coef = 0, a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)), monitoring.coef = rep(FALSE, order),
                      D.pulse = 1, h.pulse = 0, H.pulse = 0, a1.pulse = 0, R1.pulse = 4, monitoring.pulse = FALSE) {
@@ -741,7 +740,8 @@ AR_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
 #' For the details about dynamic regression models in the context of DLMs, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
 #'
 #' @seealso \code{\link{fit_model}}
-#' @family {auxiliary functions for structural blocks}
+#'
+#' @family auxiliary functions for structural blocks
 #'
 #' @references
 #'    \insertAllCited{}
@@ -802,7 +802,7 @@ noise_block <- function(..., name = "Noise",
 #' Additional details can be found in \insertCite{WestHarr-DLM;textual}{kDGLM}, section 6.2.
 #'
 #'
-#' @family {auxiliary functions for structural blocks}
+#' @family auxiliary functions for structural blocks
 #'
 #' @references
 #'    \insertAllCited{}
@@ -932,7 +932,7 @@ block_superpos <- function(...) {
 #' # Short way
 #' final.block <- 5 * polynomial_block(alpha = 1, order = 1)
 #'
-#' @family {auxiliary functions for structural blocks}
+#' @family auxiliary functions for structural blocks
 block_mult <- function(block, k) {
   block.list <- list()
   size.total <- floor(log10(k)) + 1
@@ -967,7 +967,7 @@ block_mult <- function(block, k) {
 #'
 #' final.block <- block_rename(2 * base.block, c("mu", "sigma"))
 #'
-#' @family {auxiliary functions for structural blocks}
+#' @family auxiliary functions for structural blocks
 block_rename <- function(block, pred.names) {
   if (!inherits(block, "dlm_block")) {
     stop("Error: The block argument is not a dlm_block object.")
@@ -1022,7 +1022,8 @@ block_rename <- function(block, pred.names) {
 #' )
 #'
 #' plot(fitted.data, plot.pkg = "base")
-#' @family {auxiliary functions for structural blocks}
+#'
+#' @family auxiliary functions for structural blocks
 intervention <- function(block, time, var.index = 1:block$n, FF = NULL, D = NULL, h = NULL, H = NULL, G = NULL) {
   block$interventions <- append(
     block$interventions,
@@ -1031,11 +1032,11 @@ intervention <- function(block, time, var.index = 1:block$n, FF = NULL, D = NULL
   block
 }
 
-#' set.block.value
+#' Specify method for dlm blocks
 #'
 #' Sets the values of undefined parameters in a block to those passed by the user.
 #'
-#' @param block dlm_block: A undefined dlm_block object from which the undefined parameters shall be substituted.
+#' @param x dlm_block: A undefined dlm_block object from which the undefined parameters shall be substituted.
 #' @param ... A set of named values for each unknown parameter.
 #'
 #' @return The initual block, but with the undefined parameters set to the chosen values.
@@ -1044,52 +1045,54 @@ intervention <- function(block, time, var.index = 1:block$n, FF = NULL, D = NULL
 #' @examples
 #'
 #' season <- harmonic_block(rate = 1, period = 12, D = "D.sazo") |>
-#'   set.block.value(D.sazo = 0.975)
-#' @family {auxiliary functions for structural blocks}
-set.block.value <- function(block, ...) {
+#'   specify(D.sazo = 0.975)
+#'
+#' @family auxiliary functions for structural blocks
+specify.dlm_block <- function(x, ...) {
   var.value <- list(...)
   for (name in names(var.value)) {
-    block$FF[array(block$FF.labs == name, c(block$n, block$k, block$t))] <- var.value[[name]]
-    block$FF.labs[block$FF.labs == name] <- "Covariate"
-    block$D[block$D == name] <- var.value[[name]]
-    block$H[block$H == name] <- var.value[[name]]
-    block$a1[block$a1 == name] <- var.value[[name]]
-    block$R1[block$R1 == name] <- var.value[[name]]
-    block$G[block$G == name] <- var.value[[name]]
-    block$scale[block$scale == name] <- var.value[[name]]
+    value <- var.value[[name]]
+    x$FF[array(x$FF.labs == name, c(x$n, x$k, x$t))] <- value
+    x$FF.labs[x$FF.labs == name] <- "Covariate"
+    x$D[x$D == name] <- value
+    x$H[x$H == name] <- value
+    x$a1[x$a1 == name] <- value
+    x$R1[x$R1 == name] <- value
+    x$G[x$G == name] <- value
+    x$scale[x$scale == name] <- value
   }
 
-  FF <- array(as.numeric(block$FF), c(block$n, block$k, block$t), dimnames = list(NULL, block$pred.names, NULL))
-  D <- array(as.numeric(block$D), c(block$n, block$n, block$t))
-  H <- array(as.numeric(block$H), c(block$n, block$n, block$t))
-  a1 <- as.numeric(block$a1)
-  R1 <- matrix(as.numeric(block$R1), block$n, block$n)
-  G <- array(as.numeric(block$G), c(block$n, block$n, block$t))
-  scale <- as.numeric(block$scale)
+  FF <- array(as.numeric(x$FF), c(x$n, x$k, x$t), dimnames = list(NULL, x$pred.names, NULL))
+  D <- array(as.numeric(x$D), c(x$n, x$n, x$t))
+  H <- array(as.numeric(x$H), c(x$n, x$n, x$t))
+  a1 <- as.numeric(x$a1)
+  R1 <- matrix(as.numeric(x$R1), x$n, x$n)
+  G <- array(as.numeric(x$G), c(x$n, x$n, x$t))
+  scale <- as.numeric(x$scale)
   if (all(!is.na(FF))) {
-    block$FF <- FF
+    x$FF <- FF
   }
   if (all(!is.na(D))) {
-    block$D <- D
+    x$D <- D
   }
   if (all(!is.na(H))) {
-    block$H <- H
+    x$H <- H
   }
   if (all(!is.na(a1))) {
-    block$a1 <- a1
+    x$a1 <- a1
   }
   if (all(!is.na(R1))) {
-    block$R1 <- R1
+    x$R1 <- R1
     if (all(!is.na(scale))) {
-      block$scale <- scale
-      scale.mat <- diag(block$n) * sqrt(scale)
+      x$scale <- scale
+      scale.mat <- diag(x$n) * sqrt(scale)
       diag(scale.mat) <- sqrt(scale)
-      block$R1 <- scale.mat %*% R1 %*% scale.mat
+      x$R1 <- scale.mat %*% R1 %*% scale.mat
     }
   }
-  if (all(!is.na(G) | array(block$G.labs != "const", c(block$n, block$n, block$t)))) {
-    block$G <- G
+  if (all(!is.na(G) | array(x$G.labs != "const", c(x$n, x$n, x$t)))) {
+    x$G <- G
   }
-  block$status <- check.block.status(block)
-  return(block)
+  x$status <- check.block.status(x)
+  return(x)
 }

@@ -19,7 +19,7 @@ A data frame with 65404 rows and 7 variables:
 }
 }
 \source{
-\url{https://opendatasus.saude.gov.br/}
+\url{https://datasus.saude.gov.br/informacoes-de-saude-tabnet/}
 }
 \usage{
 noticeSARI

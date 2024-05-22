@@ -24,11 +24,10 @@ The parameters of the posterior distribution.
 Calculate posterior parameter for the Inverse-Gamma, assuming that the observed values came from a Gamma model from which the shape parameter (phi) is known and the mean (mu) have prior distribution Inverse-Gamma.
 }
 \seealso{
-Other {auxiliary functions for a Gamma outcome with known shape}: 
+Other auxiliary functions for a Gamma outcome with known shape: 
 \code{\link{convert_Gamma_Normal}()},
 \code{\link{convert_Normal_Gamma}()},
-\code{\link{gamma_pred}()},
-\code{\link{update_Gamma_alt}()}
+\code{\link{gamma_pred}()}
 }
-\concept{{auxiliary functions for a Gamma outcome with known shape}}
+\concept{auxiliary functions for a Gamma outcome with known shape}
 \keyword{internal}

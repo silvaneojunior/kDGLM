@@ -37,8 +37,8 @@ final.block <- polynomial_block(alpha1 = 1, order = 1) +
 \insertAllCited{}
 }
 \seealso{
-Other {auxiliary functions for structural blocks}: 
-\code{\link{AR_block}()},
+Other auxiliary functions for structural blocks: 
+\code{\link{TF_block}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{harmonic_block}()},
@@ -46,7 +46,7 @@ Other {auxiliary functions for structural blocks}:
 \code{\link{noise_block}()},
 \code{\link{polynomial_block}()},
 \code{\link{regression_block}()},
-\code{\link{set.block.value}()},
+\code{\link{specify.dlm_block}()},
 \code{\link{summary.dlm_block}()}
 }
-\concept{{auxiliary functions for structural blocks}}
+\concept{auxiliary functions for structural blocks}

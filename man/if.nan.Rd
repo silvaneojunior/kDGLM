@@ -11,7 +11,10 @@ if.nan(vec, val)
 
 \item{val}{The value to replace NaN with.}
 }
+\value{
+A vector or matrix with the same dimensions as the input, where any NaN values have been replaced by the specified val argument.
+}
 \description{
-This function is wrapper for ifelse(is.nan(.),.,.)
+This function is wrapper for ifelse(is.nan(vec),vec,val)
 }
 \keyword{internal}

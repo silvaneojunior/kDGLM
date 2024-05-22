@@ -30,8 +30,8 @@ final.block <- block_rename(2 * base.block, c("mu", "sigma"))
 
 }
 \seealso{
-Other {auxiliary functions for structural blocks}: 
-\code{\link{AR_block}()},
+Other auxiliary functions for structural blocks: 
+\code{\link{TF_block}()},
 \code{\link{block_mult}()},
 \code{\link{block_superpos}()},
 \code{\link{harmonic_block}()},
@@ -39,7 +39,7 @@ Other {auxiliary functions for structural blocks}:
 \code{\link{noise_block}()},
 \code{\link{polynomial_block}()},
 \code{\link{regression_block}()},
-\code{\link{set.block.value}()},
+\code{\link{specify.dlm_block}()},
 \code{\link{summary.dlm_block}()}
 }
-\concept{{auxiliary functions for structural blocks}}
+\concept{auxiliary functions for structural blocks}

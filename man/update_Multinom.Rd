@@ -24,11 +24,10 @@ The parameters of the posterior distribution.
 Calculate posterior parameter for the Dirichlet, assuming that the observed values came from a Multinomial model from which the number of trials is known and the prior distribution for the probabilities of each category have joint distribution Dirichlet.
 }
 \seealso{
-Other {auxiliary functions for a Multinomial outcome}: 
+Other auxiliary functions for a Multinomial outcome: 
 \code{\link{convert_Multinom_Normal}()},
 \code{\link{convert_Normal_Multinom}()},
-\code{\link{multnom_pred}()},
-\code{\link{update_Multinom_alt}()}
+\code{\link{multnom_pred}()}
 }
-\concept{{auxiliary functions for a Multinomial outcome}}
+\concept{auxiliary functions for a Multinomial outcome}
 \keyword{internal}

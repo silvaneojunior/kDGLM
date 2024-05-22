@@ -11,6 +11,9 @@ if.null(vec, val)
 
 \item{val}{The value to replace NULL with.}
 }
+\value{
+A vector or matrix with the same dimensions as the input, where any NULL values have been replaced by the specified val argument.
+}
 \description{
 This function is wrapper for ifelse(is.null(.),.,.)
 }

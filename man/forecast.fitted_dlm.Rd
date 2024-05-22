@@ -30,11 +30,22 @@ A list containing:
    \item data data.frame: A data frame contain the mean, variance and credibility intervals for the outcomes, including both the observed data and the predictions for future observations.
    \item forecast data.frame: Same as data, but restricted to predictions for future observations.
    \item outcomes list: A named list containing predictions for each outcome. Each element of this list is a list containing predictions (mean, variance and credibility intervals), the distribution of the linear predictor for the parameter of the observational model and the parameters of the predictive distribution (if available).
-   \item mt matrix: A matrix with the values for the latent states at each time. Dimensions are n x t, where n is the number of latent states
-   \item Ct array: A 3D-array with the covariance of the latent states at each time. Dimensions are n x n x t, where n is the number of latent predictors.
-   \item ft matrix: A matrix with the values for the linear predictors at each time. Dimensions are k x t, where k is the number of linear predictors
-   \item Qt array: A 3D-array with the covariance of the linear predictors at each time. Dimensions are k x k x t, where k is the number of linear predictors.
+   \item theta.mean matrix: A matrix with the values for the latent states at each time. Dimensions are n x t, where n is the number of latent states
+   \item theta.cov array: A 3D-array with the covariance of the latent states at each time. Dimensions are n x n x t, where n is the number of latent predictors.
+   \item lambda.mean matrix: A matrix with the values for the linear predictors at each time. Dimensions are k x t, where k is the number of linear predictors
+   \item lambda.cov array: A 3D-array with the covariance of the linear predictors at each time. Dimensions are k x k x t, where k is the number of linear predictors.
    \item plot (if so chosen): A plotly or ggplot object.
+}
+
+A list containing:
+\itemize{
+   \item data data.frame: A table with the model evaluated at each observed time, plus the forecasted period.
+   \item forecast data.frame: A table with the model evaluated at the forecasted period.
+   \item outcomes list: A list containing the parameters of the predictive distribution for each outcome at the forecasted period.
+   \item theta.mean matrix: The mean of the latent states at each forecasted time. Dimensions are n x t.forecast, where t.forecast is the size of the forecast windows and n is the number of latent states.
+   \item theta.cov array: A 3D-array containing the covariance matrix of the latent states  at each forecasted time. Dimensions are n x n x t.forecast, where t.forecast is the size of the forecast windows and n is the number of latent states.
+   \item lambda.mean matrix: The mean of the linear predictor at each forecasted time. Dimensions are k x t.forecast, where t.forecast is the size of the forecast windows and k is the number of linear predictors.
+   \item lambda.cov array: A 3D-array containing the covariance matrix for the linear predictor at each forecasted time. Dimensions are k x k x t.forecast, where t.forecast is the size of the forecast windows and k is the number of linear predictors.
 }
 }
 \description{
@@ -72,13 +83,12 @@ forecast(fitted.data, 24,
 
 }
 \seealso{
-Other {auxiliary functions for fitted_dlm objects}: 
+Other auxiliary functions for fitted_dlm objects: 
 \code{\link{coef.fitted_dlm}()},
-\code{\link{dlm_sampling}()},
 \code{\link{eval_dlm_norm_const}()},
 \code{\link{fit_model}()},
-\code{\link{search_model}()},
+\code{\link{simulate.fitted_dlm}()},
 \code{\link{smoothing}()},
 \code{\link{update.fitted_dlm}()}
 }
-\concept{{auxiliary functions for fitted_dlm objects}}
+\concept{auxiliary functions for fitted_dlm objects}

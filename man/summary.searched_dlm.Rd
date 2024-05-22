@@ -9,12 +9,17 @@
 \arguments{
 \item{object}{A searched_dlm object.}
 }
+\value{
+No return value, called to print a summary of a searched_dlm object.
+}
 \description{
 Prints a report for a searched_dlm object.
 }
 \seealso{
-Other {auxiliary visualization functions for the fitted.dlm class}: 
+Other auxiliary visualization functions for the fitted_dlm class: 
+\code{\link{plot.dlm_coef}()},
+\code{\link{plot.fitted_dlm}()},
 \code{\link{summary.fitted_dlm}()}
 }
-\concept{{auxiliary visualization functions for the fitted.dlm class}}
+\concept{auxiliary visualization functions for the fitted_dlm class}
 \keyword{internal}

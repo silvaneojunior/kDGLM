@@ -13,6 +13,8 @@
 #' @export
 #' @importFrom stats pnorm
 #'
+#' @return No return value, called to print a summary of the fitted kDGLM model.
+#'
 #' @examples
 #'
 #' data <- c(AirPassengers)
@@ -27,11 +29,11 @@
 #' )
 #' summary(fitted.data)
 #'
-#' @family {auxiliary visualization functions for the fitted.dlm class}
+#' @family auxiliary visualization functions for the fitted_dlm class
 summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, metric.cutoff = floor(object$t / 10), pred.cred = 0.95, ...) {
   k <- object$k
   T_len <- object$t
-  predictions <- coef.fitted_dlm(object, eval_t = (metric.cutoff + 1):T_len, lag = metric.lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = TRUE)
+  predictions <- coef.fitted_dlm(object, t.eval = (metric.cutoff + 1):T_len, lag = metric.lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = TRUE)
   metric.log.like <- sum(predictions$metrics$log.like, na.rm = TRUE)
 
   # metric.vals <- rbind(
@@ -55,7 +57,7 @@ summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, m
     "Mean Squared Error"
   )
   metric.len <- 22
-  predictions <- coef.fitted_dlm(object, eval_t = T_len, lag = lag, pred.cred = pred.cred, eval.pred = FALSE, eval.metric = FALSE)
+  predictions <- coef.fitted_dlm(object, t.eval = T_len, lag = lag, pred.cred = pred.cred, eval.pred = FALSE, eval.metric = FALSE)
 
   flag.dynamic <- object$dynamic
 
@@ -89,8 +91,8 @@ summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, m
   var.labels <- format(object$var.labels, width = len.names, justify = "l")
 
 
-  mean.coef <- predictions$mt[, 1]
-  var.mat <- predictions$Ct[, , 1]
+  mean.coef <- predictions$theta.mean[, 1]
+  var.mat <- predictions$theta.cov[, , 1]
   if (length(var.mat) == 1) {
     std.coef <- sqrt(abs(var.mat))
   } else {
@@ -164,9 +166,11 @@ summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, m
 #' @rdname summary.dlm_distr
 #' @export
 #'
+#' @return No return value, called to print a summary of a kDGLM outcome.
+#'
 #' @keywords internal
-#' @family {auxiliary functions for a creating outcomes}
-#' @family {Reports for dlm_distr objects.}
+#' @family auxiliary functions for a creating outcomes
+#' @family Reports for dlm_distr objects.
 summary.dlm_distr <- function(object, ...) {
   cat(paste0(
     object$name, " distribution.\n\nUnknown parameters: \n",
@@ -189,10 +193,12 @@ summary.dlm_distr <- function(object, ...) {
 #'
 #' @param object A dlm_block object.
 #'
+#' @return No return value, called to print a summary of a kDGLM structure.
+#'
 #' @rdname summary.dlm_block
 #' @export
 #' @keywords internal
-#' @family {auxiliary functions for structural blocks}
+#' @family auxiliary functions for structural blocks
 summary.dlm_block <- function(object, ...) {
   block.names <- names(object$var.names)
 
@@ -238,10 +244,12 @@ summary.dlm_block <- function(object, ...) {
 #'
 #' @param object A searched_dlm object.
 #'
+#' @return No return value, called to print a summary of a searched_dlm object.
+#'
 #' @rdname summary.searched_dlm
 #' @export
 #' @keywords internal
-#' @family {auxiliary visualization functions for the fitted.dlm class}
+#' @family auxiliary visualization functions for the fitted_dlm class
 summary.searched_dlm <- function(object, ...) {
   print(object$search.data[1:5, ])
   summary(object$model)

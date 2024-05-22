@@ -11,6 +11,9 @@
 
 \item{e2}{A dlm_block.}
 }
+\value{
+The combined blocks as a dlm_block.
+}
 \description{
 Define add operator for class dlm_block.
 This method is wrapper for the block_superpos function.

@@ -36,7 +36,8 @@
 #' For the details about the implementation see  \insertCite{ArtigoPacote;textual}{kDGLM}.
 #'
 #' @seealso \code{\link{fit_model}}
-#' @family {auxiliary functions for a creating outcomes}
+#'
+#' @family auxiliary functions for a creating outcomes
 #'
 #' @references
 #'    \insertAllCited{}
@@ -75,7 +76,7 @@ Poisson <- function(lambda, data, offset = as.matrix(data)**0) {
     t = t,
     offset = matrix(offset, t, r),
     data = matrix(data, t, r),
-    na.condition = any.na,
+    na.condition = any_na,
     convert.mat.canom = convert.mat.canom,
     convert.mat.default = convert.mat.default,
     convert.canom.flag = FALSE,
@@ -85,9 +86,9 @@ Poisson <- function(lambda, data, offset = as.matrix(data)**0) {
   class(distr) <- "dlm_distr"
   distr$alt.method <- alt.method
 
-  if (alt.method) {
-    distr$update <- update_Poisson_alt
-  }
+  # if (alt.method) {
+  #   distr$update <- update_Poisson_alt
+  # }
 
   return(distr)
 }
@@ -103,7 +104,8 @@ Poisson <- function(lambda, data, offset = as.matrix(data)**0) {
 #'
 #' @return The parameters of the conjugated distribution of the linear predictor.
 #' @keywords internal
-#' @family {auxiliary functions for a Poisson outcome}
+#'
+#' @family auxiliary functions for a Poisson outcome
 convert_Poisson_Normal <- function(ft, Qt, parms) {
   # diag(Qt)=ifelse(diag(Qt)<0,0,diag(Qt))
   if (length(ft) > 1) {
@@ -127,7 +129,8 @@ convert_Poisson_Normal <- function(ft, Qt, parms) {
 #'
 #' @return The parameters of the Normal distribution of the linear predictor.
 #' @keywords internal
-#' @family {auxiliary functions for a Poisson outcome}
+#'
+#' @family auxiliary functions for a Poisson outcome
 convert_Normal_Poisson <- function(conj.param, parms) {
   alpha <- conj.param$alpha
   beta <- conj.param$beta
@@ -156,7 +159,8 @@ convert_Normal_Poisson <- function(conj.param, parms) {
 #'
 #' @return The parameters of the posterior distribution.
 #' @keywords internal
-#' @family {auxiliary functions for a Poisson outcome}
+#'
+#' @family auxiliary functions for a Poisson outcome
 update_Poisson <- function(conj.param, ft, Qt, y, parms) {
   alpha <- conj.param$alpha
   beta <- conj.param$beta
@@ -187,7 +191,8 @@ update_Poisson <- function(conj.param, ft, Qt, y, parms) {
 #'
 #' @importFrom stats rgamma rnorm rpois dpois qnbinom dnbinom var quantile
 #' @keywords internal
-#' @family {auxiliary functions for a Poisson outcome}
+#'
+#' @family auxiliary functions for a Poisson outcome
 poisson_pred <- function(conj.param, outcome = NULL, parms = list(), pred.cred = 0.95) {
   pred.flag <- !is.na(pred.cred)
   like.flag <- !is.null(outcome)
@@ -271,113 +276,4 @@ poisson_pred <- function(conj.param, outcome = NULL, parms = list(), pred.cred =
     "icu.pred" = icu.pred,
     "log.like" = log.like
   ))
-}
-
-#### Alternative Method ####
-
-#' update_Poisson_alt
-#'
-#' Calculate the (approximated) posterior parameter for the linear predictors, assuming that the observed values came from a Poisson model from which the rate parameter have prior distribution in the log-Normal family.
-#'
-#' @param conj.param list: A vector containing the parameters of the Gamma (alpha,beta). Not used in the alternative method.
-#' @param y numeric: A vector containing the observations.
-#' @param ft numeric: A vector representing the means from the normal distribution.
-#' @param Qt matrix: A matrix representing the covariance matrix of the normal distribution.
-#' @param parms list: A list of extra known parameters of the distribution. Not used in this kernel.
-#'
-#' @importFrom cubature cubintegrate
-#' @importFrom stats dlnorm
-#'
-#' @return The parameters of the posterior distribution.
-#' @keywords internal
-#' @family {auxiliary functions for a Poisson outcome}
-#'
-#' @details
-#'
-#' For evaluating the posterior parameters, we use a modified version of the method proposed in \insertCite{ArtigokParametrico;textual}{kDGLM}.
-#'
-#' For computational efficiency, we also use a Laplace approximations to obtain the first and second moments of the posterior \insertCite{@see @TierneyKadane1 and @TierneyKadane2 }{kDGLM}.
-#'
-#' For the details about the implementation see  \insertCite{ArtigoPacote;textual}{kDGLM}.
-#'
-#' For the detail about the modification of the method proposed in \insertCite{ArtigokParametrico;textual}{kDGLM}, see \insertCite{ArtigoAltMethod;textual}{kDGLM}.
-#'
-#' @references
-#'    \insertAllCited{}
-update_Poisson_alt <- function(conj.param, ft, Qt, y, parms) {
-  if (TRUE) {
-    # y=156
-    # ft=-4.868097
-    # Qt=5.568841
-    # print('a')
-    # print(y)
-    # print(ft)
-    # print(Qt)
-
-    if (y > 0) {
-      S <- 1 / y
-      f0 <- (log(y) / S + ft / Qt) / (1 / S + 1 / Qt)
-    } else {
-      f0 <- ft
-    }
-
-    df <- function(x) {
-      # x*y-exp(x)-0.5*((x-ft)**2)/Qt
-      y - exp(x) - (x - ft) / Qt
-    }
-    ddf <- function(x) {
-      # x*y-exp(x)-0.5*((x-ft)**2)/Qt
-      -exp(x) - 1 / Qt
-    }
-    solve <- f_root(df, ddf, start = f0)
-    m <- solve$root
-    S <- -1 / ddf(m)
-    ft <- matrix(m, 1, 1)
-    Qt <- matrix(S, 1, 1)
-  } else {
-    c.val <- 0
-    f <- function(x) {
-      log.prob <- y * log(x) - x + dlnorm(x, ft, sqrt(Qt), log = TRUE)
-
-      prob <- exp(log.prob - c.val)
-
-      rbind(
-        prob,
-        log(x) * prob,
-        (log(x)**2) * prob
-      )
-    }
-    #
-    # if (y > 0) {
-    #   S <- 1 / y
-    #   l.f0 <- (log(y) / S + ft / Qt) / (1 / S + 1 / Qt)
-    #   Q0 <- 1 / (1 / S + 1 / Qt)
-    #
-    #   f0 <- exp(l.f0)
-    #   c.val <- c(y * l.f0 - f0 + dlnorm(f0, ft, sqrt(Qt), log = TRUE))
-    #   # c.val <- c(y * l.f0 - f0 + dnorm(l.f0, ft, sqrt(Qt), log = TRUE))
-    #   # c.val=1
-    # } else {
-    #   f0 <- 1
-    #   l.f0 <- 0
-    #   Q0 <- Qt
-    #   c.val <- c(-exp(ft) + dlnorm(exp(ft), ft, sqrt(Qt), log = TRUE))
-    #   # c.val <- c(- exp(ft) + dnorm(ft, ft, sqrt(Qt), log = TRUE))
-    # }
-    # print(ft)
-    # print(Qt)
-    # print(l.f0)
-    # print(Q0)
-
-    # val <- cubintegrate(f, c(l.f0-8*sqrt(Q0)), c(l.f0+8*sqrt(Q0)), fDim = 3, nVec = 1000)$integral
-    # val <- cubintegrate(f, c(0), c(exp(l.f0 + 8 * sqrt(Q0))), fDim = 3, nVec = 1000)$integral
-    val <- cubintegrate(f, c(0), c(1e6), fDim = 3, nVec = 1000)$integral
-    ft <- matrix(val[2] / val[1], 1, 1)
-    Qt <- matrix(val[3], 1, 1) / val[1] - ft**2
-    # print(cubintegrate(f, c(l.f0 - 8 * sqrt(Q0)), c(l.f0 + 8 * sqrt(Q0)), fDim = 3, nVec = 1000))
-    # print(ft)
-    # print(Qt)
-  }
-
-  return(list("ft" = ft, "Qt" = Qt))
 }

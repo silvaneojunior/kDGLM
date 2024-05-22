@@ -58,8 +58,8 @@ noise_block(mu = 1, D = 0.99, R1 = 1e-2)
 \seealso{
 \code{\link{fit_model}}
 
-Other {auxiliary functions for structural blocks}: 
-\code{\link{AR_block}()},
+Other auxiliary functions for structural blocks: 
+\code{\link{TF_block}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},
@@ -67,7 +67,7 @@ Other {auxiliary functions for structural blocks}:
 \code{\link{intervention}()},
 \code{\link{polynomial_block}()},
 \code{\link{regression_block}()},
-\code{\link{set.block.value}()},
+\code{\link{specify.dlm_block}()},
 \code{\link{summary.dlm_block}()}
 }
-\concept{{auxiliary functions for structural blocks}}
+\concept{auxiliary functions for structural blocks}

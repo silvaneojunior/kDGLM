@@ -4,34 +4,16 @@
 \alias{Normal}
 \title{Normal outcome for kDGLM models}
 \usage{
-Normal(
-  mu,
-  V = NA,
-  Tau = NA,
-  Sigma = NA,
-  Sd = NA,
-  n0 = NA,
-  d0 = NA,
-  delta = 1,
-  data
-)
+Normal(mu, V = NA, Tau = NA, Sd = NA, data)
 }
 \arguments{
 \item{mu}{character: Name of the linear predictor associated with the mean parameter of the Normal distribution. The parameter is treated as unknown and equal to the associated linear predictor.}
 
-\item{V}{character or numeric: If V is a character, it is interpreted as the names of the linear predictors associated with the variance parameter of the Normal distribution. If V is numeric, the variance is considered known and equal to the value of V, otherwise, the variance is considered unknown and equal to the exponential of the linear predictor informed in V. If the outcome is a Multivariate Normal, then V must be a matrix and, if the variance is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise V is treated as the covariance matrix. The user cannot specify V with Sigma, Tau, Sd, n0 or d0.}
+\item{V}{character or numeric: If V is a character, it is interpreted as the names of the linear predictors associated with the variance parameter of the Normal distribution. If V is numeric, the variance is considered known and equal to the value of V, otherwise, the variance is considered unknown and equal to the exponential of the linear predictor informed in V. If the outcome is a Multivariate Normal, then V must be a matrix and, if the variance is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise V is treated as the covariance matrix. The user cannot specify V with Tau or Sd.}
 
-\item{Tau}{character or numeric: If Tau is a character, it is interpreted as the names of the linear predictors associated with the precisions parameter of the Normal distribution. If Tau is numeric, the precision is considered known and equal to the value of Tau, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed in Tau. If the outcome is a Multivariate Normal, then Tau must be a matrix and, if the precision is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise Tau is treated as the precision matrix. The user cannot specify Tau with V, Sigma, Sd, n0 or d0.}
+\item{Tau}{character or numeric: If Tau is a character, it is interpreted as the names of the linear predictors associated with the precisions parameter of the Normal distribution. If Tau is numeric, the precision is considered known and equal to the value of Tau, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed in Tau. If the outcome is a Multivariate Normal, then Tau must be a matrix and, if the precision is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise Tau is treated as the precision matrix. The user cannot specify Tau with V or Sd.}
 
-\item{Sigma}{character or numeric: If Sigma is a character, it is interpreted as the names of the linear predictors associated with the variance parameter of the Normal distribution. If Sigma is numeric, the variance is considered known and equal to the value of Sigma, otherwise, the variance is considered unknown and equal to the exponential of the linear predictor informed in Sigma. If the outcome is a Multivariate Normal, then Sigma must be a matrix and, if the variance is unknown, the elements outside its main diagonal are treated as the linear predictor associated with the correlation between each coordinate of the outcome, otherwise Sigma is treated as the covariance matrix. The user cannot specify Sigma with V, Tau, Sd, n0 or d0.}
-
-\item{Sd}{character or numeric: If Sd is a character, it is interpreted as the names of the linear predictors associated with the standard deviation parameter of the Normal distribution. If Sd is numeric, the standard deviation is considered known and equal to the value of Sd, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed by in Sd. If the outcome is a Multivariate Normal, then Tau must be a matrix and the elements outside its main diagonal are treated as the correlation (or the name of the linear predictor associated) between each coordinate of the outcome. The user cannot specify Sd with V, Tau, Sigma, n0 or d0.}
-
-\item{n0}{numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify n0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.}
-
-\item{d0}{numeric: The parameter for the Gamma prior for the observational precision. The user cannot specify d0 with V, Tau, Sigma, or Sd. This option is meant only for didactic reasons, we discourage its usage.}
-
-\item{delta}{numeric: The discount factor for the observational variance. This option is meant only for didactic reasons, we discourage its usage.}
+\item{Sd}{character or numeric: If Sd is a character, it is interpreted as the names of the linear predictors associated with the standard deviation parameter of the Normal distribution. If Sd is numeric, the standard deviation is considered known and equal to the value of Sd, otherwise, the precision is considered unknown and equal to the exponential of the linear predictor informed by in Sd. If the outcome is a Multivariate Normal, then Tau must be a matrix and the elements outside its main diagonal are treated as the correlation (or the name of the linear predictor associated) between each coordinate of the outcome. The user cannot specify Sd with V or Tau.}
 
 \item{data}{numeric: Values of the observed data.}
 }
@@ -43,7 +25,7 @@ Creates an outcome with Normal distribution with the chosen parameters (can only
 }
 \details{
 If V/Sigma/Tau/Sd is a string, we use the method proposed in \insertCite{ArtigokParametrico;textual}{kDGLM}.
-Otherwise, if V/Sigma/Tau/Sd is numeric or n0 and d0 are not NA, we follow the theory presented in \insertCite{WestHarr-DLM;textual}{kDGLM}.
+Otherwise, if V/Sigma/Tau/Sd is numeric, we follow the theory presented in \insertCite{WestHarr-DLM;textual}{kDGLM}.
 
 For the details about the implementation see  \insertCite{ArtigoPacote;textual}{kDGLM}.
 }
@@ -79,10 +61,10 @@ plot(fitted.data, plot.pkg = "base")
 \seealso{
 \code{\link{fit_model}}
 
-Other {auxiliary functions for a creating outcomes}: 
+Other auxiliary functions for a creating outcomes: 
 \code{\link{Gamma}()},
 \code{\link{Multinom}()},
 \code{\link{Poisson}()},
 \code{\link{summary.dlm_distr}()}
 }
-\concept{{auxiliary functions for a creating outcomes}}
+\concept{auxiliary functions for a creating outcomes}

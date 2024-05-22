@@ -11,7 +11,7 @@ normal_pred(conj.param, outcome = NULL, parms = list(), pred.cred = 0.95)
 
 \item{outcome}{numeric or matrix (optional): The observed values at the current time. Not used in this function.}
 
-\item{parms}{list: A list of extra parameters for the model. For this function, it must contain the observational covariance matrix, Sigma.}
+\item{parms}{list: A list of extra parameters for the model. For this function, it must contain the observational covariance matrix, V}
 
 \item{pred.cred}{numeric: the desired credibility for the credibility interval.}
 }
@@ -31,13 +31,10 @@ The data is assumed to have Normal distribution with known variance and its mean
 In this scenario, the marginal distribution of the data is also Normal.
 }
 \seealso{
-Other {auxiliary functions for a Normal outcome}: 
+Other auxiliary functions for a Normal outcome: 
 \code{\link{convert_multi_NG_Normal}()},
 \code{\link{multi_normal_gamma_pred}()},
-\code{\link{update_NG_alt2}()},
-\code{\link{update_NG_alt}()},
-\code{\link{update_NG_alt2}()},
 \code{\link{update_Normal}()}
 }
-\concept{{auxiliary functions for a Normal outcome}}
+\concept{auxiliary functions for a Normal outcome}
 \keyword{internal}

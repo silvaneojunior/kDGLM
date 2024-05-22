@@ -4,6 +4,8 @@
 #'
 #' @param x fitted_dlm object: A fitted DGLM.
 #' @param outcomes character: The name of the outcomes to plot.
+#' @param latent.states character: The name of the latent states to plot.
+#' @param linear.predictors character: The name of the linear predictors to plot.
 #' @param pred.cred numeric: The credibility value for the credibility interval.
 #' @param lag integer: The number of steps ahead to be used for prediction. If lag<0, the smoothed distribution is used and, if lag==0, the filtered interval.score is used.
 #' @param cutoff integer: The number of initial steps that should be skipped in the plot. Usually, the model is still learning in the initial steps, so the predictions are not reliable.
@@ -15,6 +17,7 @@
 #' @rdname plot.fitted_dlm
 #' @export
 #' @importFrom grDevices rainbow
+#' @importFrom Rfast colAny rowAny
 #' @import graphics
 #' @import grDevices
 #'
@@ -33,8 +36,13 @@
 #' plot(fitted.data, plot.pkg = "base")
 #'
 #' @seealso \code{\link{fit_model}}
-#' @family {auxiliary visualization functions for the fitted_dlm class}
-plot.fitted_dlm <- function(x, outcomes = names(x$outcomes), pred.cred = 0.95, lag = 1, cutoff = floor(x$t / 10), plot.pkg = "auto", ...) {
+#'
+#' @family auxiliary visualization functions for the fitted_dlm class
+plot.fitted_dlm <- function(x, outcomes = NULL, latent.states = NULL, linear.predictors = NULL, pred.cred = 0.95, lag = NA, cutoff = floor(x$t / 10), plot.pkg = "auto", ...) {
+  if (is.null(outcomes) & is.null(latent.states) & is.null(linear.predictors)) {
+    outcomes <- names(x$outcomes)
+  }
+
   if (plot.pkg == "auto") {
     plot.pkg <- if (requireNamespace("plotly", quietly = TRUE) & requireNamespace("ggplot2", quietly = TRUE)) {
       "plotly"
@@ -45,22 +53,97 @@ plot.fitted_dlm <- function(x, outcomes = names(x$outcomes), pred.cred = 0.95, l
     }
   }
   t_last <- x$t
-  eval <- coef.fitted_dlm(x, eval_t = cutoff:t_last, lag = lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = FALSE)$data
-  outcome.names <- unique(eval$Serie)
+  outcome.names <- sapply(names(x$outcomes), function(name) {
+    paste0(name, x$outcomes[[name]]$sufix)
+  })
+  theta.names <- x$var.labels
+  lambda.names <- x$pred.names
 
-  flags.outcomes <- (sapply(outcomes, function(x) {
-    grepl(x, outcome.names)
-  }) |> matrix(length(outcome.names), length(outcomes)) |> rowSums()) > 0
+  if (!is.null(outcomes)) {
+    flags.outcomes <- (sapply(outcomes, function(x) {
+      grepl(x, outcome.names, ignore.case = TRUE)
+    }) |> matrix(length(outcome.names), length(outcomes)) |> rowSums()) > 0
+  } else {
+    flags.outcomes <- rep(FALSE, length(outcome.names))
+  }
 
-  if (!any(flags.outcomes)) {
+  if (!is.null(latent.states)) {
+    flags.theta <- (sapply(latent.states, function(x) {
+      grepl(x, theta.names, ignore.case = TRUE)
+    }) |> matrix(length(theta.names), length(latent.states)) |> rowSums()) > 0
+  } else {
+    flags.theta <- rep(FALSE, length(theta.names))
+  }
+
+  if (!is.null(linear.predictors)) {
+    flags.lambda <- (sapply(linear.predictors, function(x) {
+      grepl(x, lambda.names, ignore.case = TRUE)
+    }) |> matrix(length(lambda.names), length(linear.predictors)) |> rowSums()) > 0
+  } else {
+    flags.lambda <- rep(FALSE, length(lambda.names))
+  }
+
+  if (!any(colAny(flags.outcomes) | colAny(flags.theta) | colAny(flags.lambda))) {
     stop(paste0("Error: Invalid outcome selection. Got '", outcomes, "', expected one of the following:\n", paste0(outcome.names, collapse = "\n")))
   }
 
+  if (is.na(lag)) {
+    if (all(!flags.outcomes)) {
+      lag <- -1
+    } else {
+      lag <- 1
+    }
+  }
+
+  coefs <- coef.fitted_dlm(x, t.eval = (cutoff + 1):t_last, lag = lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = FALSE)
+  eval <- coefs$data
+
   outcomes.labels <- outcome.names[flags.outcomes]
+  theta.labels <- theta.names[flags.theta]
+  lambda.labels <- lambda.names[flags.lambda]
 
   eval <- eval[eval$Serie %in% outcomes.labels, ]
 
-  obs.na.rm <- eval$Observation[!is.na(eval$Observation)]
+  var.labels <- c(theta.labels, lambda.labels)
+  size <- sum(flags.theta) + sum(flags.lambda)
+  seq.time <- (cutoff + 1):t_last
+
+  if (size > 0) {
+    m1 <- rbind(
+      coefs$theta.mean[flags.theta, , drop = FALSE],
+      coefs$lambda.mean[flags.lambda, , drop = FALSE]
+    ) |>
+      t()
+    std.mat.var <- coefs$theta.cov[flags.theta, flags.theta, , drop = FALSE] |>
+      apply(3, diag) |>
+      sqrt() |>
+      matrix(sum(flags.theta), t_last - cutoff) |>
+      t()
+    std.mat.pred <- coefs$lambda.cov[flags.lambda, flags.lambda, , drop = FALSE] |>
+      apply(3, diag) |>
+      sqrt() |>
+      matrix(sum(flags.lambda), t_last - cutoff) |>
+      t()
+    std.mat <- cbind(std.mat.var, std.mat.pred)
+
+    lim.i <- m1 + qnorm((1 - pred.cred) / 2) * std.mat
+    lim.s <- m1 + qnorm(1 - (1 - pred.cred) / 2) * std.mat
+
+    eval <- rbind(
+      eval,
+      data.frame(
+        Time = sort(rep(seq.time, size)),
+        Serie = rep(var.labels, length(seq.time)),
+        Observation = 2 * NA,
+        Prediction = m1 |> t() |> c(),
+        Variance = std.mat**2 |> t() |> c(),
+        C.I.lower = lim.i |> t() |> c(),
+        C.I.upper = lim.s |> t() |> c()
+      )
+    )
+  }
+
+  obs.na.rm <- c(eval$Observation[!is.na(eval$Observation)], eval$Prediction)
   max.value <- evaluate_max(obs.na.rm - min(obs.na.rm))[[3]] + min(obs.na.rm)
   min.value <- -evaluate_max(-(obs.na.rm - max(obs.na.rm)))[[3]] + max(obs.na.rm)
 
@@ -104,7 +187,9 @@ plot.fitted_dlm <- function(x, outcomes = names(x$outcomes), pred.cred = 0.95, l
     count.spaces <- ceiling(n.series / 4)
     font.cm <- 0.35
 
-    config <- par()
+    oldpar <- par(no.readonly = TRUE)
+    on.exit(par(oldpar))
+
     layout(
       mat = matrix(c(1, 2, 3), 3, 1),
       heights = c(
@@ -161,13 +246,12 @@ plot.fitted_dlm <- function(x, outcomes = names(x$outcomes), pred.cred = 0.95, l
       cex = 0.75,
       ncol = min(4, ceiling(n.series / count.spaces))
     )
-    par(mar = config$mar)
     plt <- NULL
   } else {
     plt <- ggplot2::ggplot() +
       ggplot2::geom_ribbon(data = eval, na.rm = TRUE, ggplot2::aes_string(x = "Time", fill = "Serie", ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25) +
       ggplot2::geom_line(data = eval, na.rm = TRUE, ggplot2::aes_string(x = "Time", color = "Serie", y = "Prediction", linetype = "'Fitted values'")) +
-      ggplot2::geom_point(data = eval, na.rm = TRUE, ggplot2::aes_string(x = "Time", color = "Serie", y = "Observation", shape = '"Observation"'), alpha = 0.5) +
+      ggplot2::geom_point(data = eval[!is.na(eval$Observation), ], na.rm = TRUE, ggplot2::aes_string(x = "Time", color = "Serie", y = "Observation", shape = '"Observation"'), alpha = 0.5) +
       ggplot2::scale_linetype_manual("", values = linetypes) +
       ggplot2::scale_shape_manual("", values = shapes) +
       ggplot2::scale_fill_manual("", na.value = NA, values = fills) +
@@ -187,27 +271,36 @@ plot.fitted_dlm <- function(x, outcomes = names(x$outcomes), pred.cred = 0.95, l
       if (!requireNamespace("plotly", quietly = TRUE)) {
         warning("The plotly package is required for plotly plots.")
       } else {
-        plt <- plotly::ggplotly(plt + ggplot2::scale_y_continuous(plotly::TeX("Y_t"))) |> plotly::config(mathjax = "cdn")
+        plt <- plotly::ggplotly(plt + ggplot2::ylab(plotly::TeX("Y_t"))) |> plotly::config(mathjax = "cdn")
 
         for (i in (1:n.series) - 1) {
-          plt$x$data[[i + 1]]$legendgroup <-
-            plt$x$data[[i + 1 + n.series]]$legendgroup <-
-            plt$x$data[[i + 1]]$name <-
-            plt$x$data[[i + 1 + n.series]]$name <- paste0(sort(series.names)[i + 1], ": fitted values")
+          if (sort(series.names)[i + 1] %in% c(outcome.names, "Detected changes")) {
+            plt$x$data[[i + 1]]$legendgroup <-
+              plt$x$data[[i + 1 + n.series]]$legendgroup <-
+              plt$x$data[[i + 1]]$name <-
+              plt$x$data[[i + 1 + n.series]]$name <- paste0(sort(series.names)[i + 1], ": fitted values")
 
-          plt$x$data[[i + 1]]$showlegend <- FALSE
+            plt$x$data[[i + 1]]$showlegend <- FALSE
 
-          plt$x$data[[i + 1 + 2 * n.series]]$legendgroup <-
-            plt$x$data[[i + 1 + 2 * n.series]]$name <- paste0(sort(series.names)[i + 1], ": observations")
+            plt$x$data[[i + 1 + 2 * n.series]]$legendgroup <-
+              plt$x$data[[i + 1 + 2 * n.series]]$name <- paste0(sort(series.names)[i + 1], ": observations")
+          } else {
+            plt$x$data[[i + 1]]$showlegend <- FALSE
+            plt$x$data[[i + 1]]$legendgroup <-
+              plt$x$data[[i + 1 + n.series]]$legendgroup <-
+              plt$x$data[[i + 1]]$name <-
+              plt$x$data[[i + 1 + n.series]]$name <- paste0(sort(series.names)[i + 1])
+          }
         }
         n <- length(plt$x$data)
         if (n %% 3 == 1) {
+          plt$x$data[[n]]$showlegend <- FALSE
           plt$x$data[[n]]$legendgroup <-
             plt$x$data[[n]]$name <- "Detected changes"
         }
       }
     } else {
-      plt <- plt + ggplot2::scale_y_continuous(expression(Y[t]))
+      plt <- plt + ggplot2::ylab(expression(Y[t]))
     }
     return(plt)
   }
@@ -250,8 +343,8 @@ plot.fitted_dlm <- function(x, outcomes = names(x$outcomes), pred.cred = 0.95, l
 #' plot(model.coef)$plot
 #'
 #' @seealso \code{\link{fit_model}},\code{\link{coef}}
-#' @family {auxiliary visualization functions for the fitted_dlm class}
-plot.dlm_coef <- function(x, var = rownames(x$mt)[x$dynamic], cutoff = floor(t / 10), pred.cred = 0.95, plot.pkg = "auto", ...) {
+#' @family auxiliary visualization functions for the fitted_dlm class
+plot.dlm_coef <- function(x, var = rownames(x$theta.mean)[x$dynamic], cutoff = floor(t / 10), pred.cred = 0.95, plot.pkg = "auto", ...) {
   if (plot.pkg == "auto") {
     plot.pkg <- if (requireNamespace("plotly", quietly = TRUE) & requireNamespace("ggplot2", quietly = TRUE)) {
       "plotly"
@@ -262,17 +355,15 @@ plot.dlm_coef <- function(x, var = rownames(x$mt)[x$dynamic], cutoff = floor(t /
     }
   }
 
-  t <- dim(x$mt)[2]
-  var.labels <- rownames(x$mt)
-  pred.names <- rownames(x$ft)
-
-  print(var)
+  t <- dim(x$theta.mean)[2]
+  var.labels <- rownames(x$theta.mean)
+  pred.names <- rownames(x$lambda.mean)
 
   flags.var <- (sapply(var, function(x) {
-    grepl(x, var.labels)
+    grepl(x, var.labels, ignore.case = TRUE)
   }) |> matrix(length(var.labels), length(var)) |> rowSums()) > 0
   flags.pred <- (sapply(var, function(x) {
-    grepl(x, pred.names)
+    grepl(x, pred.names, ignore.case = TRUE)
   }) |> matrix(length(pred.names), length(var)) |> rowSums()) > 0
 
   if (!any(flags.var) & !any(flags.pred)) {
@@ -286,16 +377,16 @@ plot.dlm_coef <- function(x, var = rownames(x$mt)[x$dynamic], cutoff = floor(t /
   seq.time <- (cutoff + 1):t
 
   m1 <- rbind(
-    x$mt[flags.var, seq.time, drop = FALSE],
-    x$ft[flags.pred, seq.time, drop = FALSE]
+    x$theta.mean[flags.var, seq.time, drop = FALSE],
+    x$lambda.mean[flags.pred, seq.time, drop = FALSE]
   ) |>
     t()
-  std.mat.var <- x$Ct[flags.var, flags.var, seq.time, drop = FALSE] |>
+  std.mat.var <- x$theta.cov[flags.var, flags.var, seq.time, drop = FALSE] |>
     apply(3, diag) |>
     sqrt() |>
     matrix(sum(flags.var), t - cutoff) |>
     t()
-  std.mat.pred <- x$Qt[flags.pred, flags.pred, seq.time, drop = FALSE] |>
+  std.mat.pred <- x$lambda.cov[flags.pred, flags.pred, seq.time, drop = FALSE] |>
     apply(3, diag) |>
     sqrt() |>
     matrix(sum(flags.pred), t - cutoff) |>
@@ -359,7 +450,9 @@ plot.dlm_coef <- function(x, var = rownames(x$mt)[x$dynamic], cutoff = floor(t /
     count.spaces <- ceiling(n.var / 4)
     font.cm <- 0.35
 
-    config <- par()
+    oldpar <- par(no.readonly = TRUE)
+    on.exit(par(oldpar))
+
     layout(
       mat = matrix(c(1, 2, 3), 3, 1),
       heights = c(
@@ -409,7 +502,6 @@ plot.dlm_coef <- function(x, var = rownames(x$mt)[x$dynamic], cutoff = floor(t /
       x = 0.5, xjust = 0.5, y = 1, inset = 0, cex = 0.75, bty = "n",
       ncol = min(4, ceiling(n.var / count.spaces))
     )
-    par(mar = config$mar)
     plt <- NULL
   } else {
     # fix GeomRibbon

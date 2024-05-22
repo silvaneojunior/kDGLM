@@ -1,7 +1,8 @@
 ---
-title: "Applied example: Space-time model for hospital admissions from gastroenteritis"
-output: rmdformats::readthedown
+title: "Space-time model hospital admissions from gastroenteritis"
+output: html_vignette
 bibliography: '`r system.file("REFERENCES.bib", package="kDGLM")`'
+csl: '`r system.file("apalike.csl", package="kDGLM")`'
 link-citations: TRUE
 urlcolor: blue
 linkcolor: green
@@ -14,27 +15,90 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
-  comment = ""
+  comment = "",
+  fig.width = 7,
+  fig.height = 5
 )
 
 library(kDGLM)
 # devtools::load_all()
 ```
 
-In this example we model number of hospital admissions from gastroenteritis in Brazil from 2010 to 2022. Our package provides the `gatroBR` dataset with the pertinent data for our models, which includes:
+<style>
+body {
+text-align: justify}
+</style>
 
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+
+# Table of contents
+
+<ol>
+<li><details><summary>[Introduction:](intro.html) ></summary>
+  <ul>
+  <li>[Introduction](intro.html#introduction)
+  <li>[Notation](intro.html#notation)
+  </ul></details>
+  </li>
+<li><details><summary>[Creating the model structure:](structures.html) ></summary>
+  <ul>
+  <li>[A structure for polynomial trend models](structures.html#a-structure-for-polynomial-trend-models)
+  <li>[A structure for dynamic regression models](structures.html#a-structure-for-dynamic-regression-models)
+  <li>[A structure for harmonic trend models](structures.html#a-structure-for-harmonic-trend-models)
+  <li>[A structure for autoregresive models](structures.html#a-structure-for-autoregresive-models)
+  <li>[A structure for overdispersed models](structures.html#a-structure-for-overdispersed-models)
+  <li>[Handling multiple structural blocks](structures.html#handling-multiple-structural-blocks)
+  <li>[Handling multiple linear predictors](structures.html#handling-multiple-linear-predictors)
+  <li>[Handling unknown components in the planning matrix $F_t$](structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
+  <li>[Special priors](structures.html#special-priors)
+  </ul></details>
+  </li>
+<li><details><summary>[Creating the model outcome:](outcomes.html) > </summary>
+  <ul>
+  <li>[Normal case](outcomes.html#normal-case)
+  <li>[Poisson case](outcomes.html#poisson-case)
+  <li>[Gamma case](outcomes.html#gamma-case)
+  <li>[Multinomial case](outcomes.html#multinomial-case)
+  <li>[Handling multiple outcomes](outcomes.html#handling-multiple-outcomes)
+  </ul></details>
+  </li>
+<li><details><summary>[Fitting and analysing models:](fitting.html) > </summary>
+  <ul>
+  <li>[Filtering and smoothing](fitting.html#filtering-and-smoothing)
+  <li>[Extracting components](fitting.html#extracting-components)
+  <li>[Forecasting](fitting.html#forecasting)
+  <li>[Intervention and monitoring](fitting.html#intervention-and-monitoring)
+  <li>[Tools for sensibility analysis](fitting.html#tools-for-sensibility-analysis)
+  <li>[Sampling and hyper parameter estimation](fitting.html#sampling-and-hyper-parameter-estimation)
+  </ul></details>
+  </li>
+<li><details><summary>Advanced examples:> </summary><ul>
+  <li>[Space-time model hospital admissions from gastroenteritis](example1.html)
+  </details>
+</ul></li>
+</ol>
+
+# Applied example: Space-time model for hospital admissions from gastroenteritis
+
+
+In this example we model number of hospital admissions from gastroenteritis in Brazil from 2010 to 2022 [@datasus_data]. The **kDGLM** package provides the `gatroBR` dataset with the pertinent data for our models, which includes:
 
  - UF: The abbreviated state name.
  - Date: The date of the observation. Note that the day is only a placeholder, as we are dealing with monthly reports.
  - Admissions: The number hospital admissions that were reported in that combination of state and date.
- - The estimated population in that combination of state and date (to be used as a offset). 
+ - Population: The estimated population in that combination of state and date (to be used as a offset). 
 
-Supplementary informations can be found in the documentation (see `help(gastroBR)`).
+
+Supplementary information can be found in the documentation (see `help(gastroBR)`)).
 
 # Initial model: Total hospital admissions
 
+We start the analysis with a model for the total number of hospital admissions over time in Brazil, i.e., a temporal model that does not consider the hospital admissions on each state.
 
-We will start with a model for the total number of hospital admissions over time in Brazil, i.e., a temporal model that does not considers the effects of each state.
 
 ```{r echo=FALSE}
 data.year <- data.frame(
@@ -53,7 +117,8 @@ plot(data.year$Date, log10(data.year$Admissions / data.year$Population),
 )
 ```
 
-Notice that theres a consistent trend of (log) linear decay of the rate of hospital admissions over time, until April of 2020, when there is an abrupt reduction of hospital admission duo to the pandemic of COVID-19, which is then followed by what seems to be a return to the previous level (more observations would be necessary to be sure). We can also note that the data has a clear seasonal pattern, which have a period of 12 months (1 year).
+
+From the figure above we can see that there is a consistent trend of (log) linear decay of the rate of hospital admissions over time, until April of 2020, when there is an abrupt reduction of hospital admission due to the pandemic of COVID-19 [@covid_reduc], which is then followed by what seems to be a return to the previous level, although more observations would be necessary to be sure. We can also note that the data has a clear seasonal pattern, with a period of $12$ months.
 
 We begin with a very simply model. Let $Y_t$ be the total number of hospital admissions on Brazil at time $t$. Assume that:
 
@@ -90,11 +155,16 @@ Then we fit the model:
 
 ```{r echo=TRUE}
 fitted.model <- fit_model(structure, outcome)
+```
+
+Finally, we can see how our model performed with the \code{summary} and \code{plot} methods:
+
+```{r echo=TRUE}
 summary(fitted.model)
 plot(fitted.model, plot.pkg = "base")
 ```
 
-Clearly the model described above is too simply to explain the data, in particular, it does not take into account any form of seasonal pattern. Let us proceed then by assuming the following model:
+Clearly the model described above is too simple to describe the data. In particular, it does not take into account any form of seasonal pattern. Let us proceed then by assuming the following model:
 
 $$
 \begin{aligned}
@@ -102,13 +172,16 @@ Y_t|\eta_t &\sim Poisson(\eta_t)\\
 \ln{\eta_t}&=\lambda_t=\theta_{1,t}+\theta_{3,t}\\
 \theta_{1,t}&=\theta_{1,t-1}+\theta_{2,t-1}+\omega_{1,t}\\
 \theta_{2,t}&=\theta_{2,t-1}+\omega_{2,t},\\
-\begin{bmatrix}\theta_{3,t}\\\theta_{4,t}\end{bmatrix}&=R\begin{bmatrix}\theta_{3,t}\\\theta_{4,t}\end{bmatrix}+\begin{bmatrix}\omega_{3,t}\\\omega_{4,t}\end{bmatrix}
+\begin{bmatrix}\theta_{3,t}\\\theta_{4,t}\end{bmatrix}&=R\begin{bmatrix}\theta_{3,t}\\\theta_{4,t}\end{bmatrix}+\begin{bmatrix}\omega_{3,t}\\\omega_{4,t}\end{bmatrix}\\
+R&=\begin{bmatrix}
+\cos(\frac{2\pi}{12})  &\sin(\frac{2\pi}{12})\\
+-\sin(\frac{2\pi}{12}) & \cos(\frac{2\pi}{12})\end{bmatrix}
 \end{aligned}
 $$
 
 Where $R$ is a rotation matrix with angle $\frac{2\pi}{12}$, such that $R^{12}$ is equal to the identity matrix.
 
-To define the structure of that model we can use the `harmonic_block` function alongside the `polynomial_block`  function:
+To define the structure of that model we can use the `harmonic_block` function alongside the `polynomial_block` function:
 
 ```{r echo=TRUE}
 structure <- polynomial_block(
@@ -126,15 +199,20 @@ Then we fit the model (using the previously defined outcome):
 
 ```{r echo=TRUE}
 fitted.model <- fit_model(structure, outcome)
+```
+
+
+```{r echo=TRUE}
 summary(fitted.model)
 plot(fitted.model, plot.pkg = "base")
 ```
 
-Notice that this change significantly improves all metrics provided by the model summary, which indicates that we are going in the right direction. We leave as an exercise for the reader to test different orders for the harmonic block.
 
-The previous model could capture the mean behavior of the series reasonably well, still, two deficiencies of that model standout: First, the overconfidence in the predictions, evidenced by the particularly thin credibility interval; And second, the difficulty the model had to adapt to the pandemic period.
+Notice that this change significantly improves all metrics provided by the model summary, which indicates that we are going in the right direction. We encourage the reader to test different orders for the harmonic block.
 
-The first problem comes from the fact that we are using a Poisson model, which implies that $Var[Y_t|\eta_t]=\mathbb{E}[Y_t|\eta_t]$, which means that $Var[Y_t]=\mathbb{E}[Var[Y_t|\eta_t]]+Var[\mathbb{E}[Y_t|\eta_t]]=\mathbb{E}[\eta_t]+Var[\eta_t]$. For latter observations we expect that $Var[\eta_t]$ to be relatively small, as such, the variance of $Y_t$ should be very close to its mean after a reasonable amount of observations. In this scenario, the coefficient of variation, defined as $\frac{\sqrt{Var[Y_t]}}{\mathbb{E}[Y_t]}$ goes to $0$ as $\mathbb{E}[Y_t]$ grows, in particular, for data in the scale we are working with in this particular problem, we would expect a very low coefficient of variation if the Poisson model were adequate, but that is not what we observe. This phenomena is called *overdipersion* and is a well known problem in literature. To solve it, we can include a block representing a white noise that is added to the linear predictor at each time, but does not affect previous or future observation, so as to capture the overdipersion. In this case, we will assume the following model:
+The previous model could capture the mean behavior of the series reasonably well. However, two deficiencies of that model standout: first, the overconfidence in the predictions, evidenced by the particularly thin credibility interval; nnd second, the difficulty the model had to adapt to the pandemic period.
+
+The first problem comes from the fact that we are using a Poisson model, which implies that $Var[Y_t|\eta_t]=\mathbb{E}[Y_t|\eta_t]$, which means that $Var[Y_t]=\mathbb{E}[Var[Y_t|\eta_t]]+Var[\mathbb{E}[Y_t|\eta_t]]=\mathbb{E}[\eta_t]+Var[\eta_t]$. For latter observations we expect  $Var[\eta_t]$ to be relatively small; as such, the variance of $Y_t$ should be very close to its mean after a reasonable amount of observations. In this scenario, the coefficient of variation, defined as $\frac{\sqrt{Var[Y_t]}}{\mathbb{E}[Y_t]}$ goes to $0$ as $\mathbb{E}[Y_t]$ grows, in particular, for data in the scale we are working with in this particular problem, we would expect a very low coefficient of variation if the Poisson model were adequate, but that is not what we observe. This phenomena is called \textit{overdipersion} and is a well known problem in literature \citep[for example]{sari2021handling}. To solve it, we can include a block representing a white noise that is added to the linear predictor at each time, but does not affect previous or future observation, so as to capture the overdipersion. In this case, we will assume the following model:
 
 $$
 \begin{aligned}
@@ -147,7 +225,7 @@ Y_t|\eta_t &\sim Poisson(\eta_t)\\
 \end{aligned}
 $$
 
-This structure can be defined using the `noise_block` function, alongside the previously used functions:
+This structure can be defined using the \code{noise_block} function, alongside the previously used functions:
 
 ```{r echo=TRUE}
 structure <- polynomial_block(
@@ -161,9 +239,9 @@ structure <- polynomial_block(
   noise_block(rate = 1, name = "Noise")
 ```
 
-For the second problem, that of slow adaptation after the start of the pandemic. The ideal approach would be to make an intervention, increasing the uncertainty about the latent states at the beginning of the pandemic period and allowing our model to quickly adapt to the new scenario [see @WestHarr-DLM,chapter 11]. We recommend this approach when we already expect a change of behavior in a certain time, even before looking at the data (which is exactly the case). Still, for didactic purposes, we will first present how the automated monitoring can also be used to solve this same problem. In general, we recommend the automated monitoring approach when we do **not** known if or **when** a change of behavior happened before looking at the data, i.e., we do not known of any particular event that we expect to impact our outcome.
+For the second problem, that of slow adaptation after the start of the pandemic. The ideal approach would be to make an intervention, increasing the uncertainty about the latent states at the beginning of the pandemic period and allowing our model to quickly adapt to the new scenario [see @WestHarr-DLM, Chapter 11]. We recommend this approach when we already expect a change of behavior in a certain time, even before looking at the data (which is exactly the case). Still, for didactic purposes, we will first present how the automated monitoring can also be used to solve this same problem. In general, we recommend the automated monitoring approach when we do **not** known if or **when** a change of behavior happened before looking at the data, i.e., we do not known of any particular event that we expect to impact our outcome.
 
-Following what was presented in the subsection about automated monitoring, we can use the following code to fit our model: 
+Following what was presented in the Subsection [Intervention and monitoring](fitting.html#intervention-and-monitoring), we can use the following code to fit our model: 
 
 ```{r echo=TRUE}
 structure <- polynomial_block(
@@ -177,19 +255,18 @@ structure <- polynomial_block(
   noise_block(rate = 1, name = "Noise")
 ```
 
-Notice that we set the `monitoring` of the `polynomial_block` to `c(TRUE,TRUE)`. By default, the `polynomial_block` function only enable the monitoring of its first component (the level), but, by the previous plot, it is very clear that the pandemic affected both the level and the slope of the average number of hospital admissions, as such, we would like to monitor both parameters.
+Notice that we set the `monitoring` of the `polynomial_block` to `c(TRUE,TRUE)`. By default, the `polynomial_block` function only activates the monitoring of its first component (the level), but, by the visual analysis made at the beginning, it is clear that the pandemic affected both the level and the slope of the average number of hospital admissions, as such, we would like to monitor both parameters.
 
 ```{r echo=TRUE}
 # To activate the automated monitoring it is enough to set the p.monit argument to a valid value
 fitted.model <- fit_model(structure, outcome, p.monit = 0.05)
 summary(fitted.model)
 plot(fitted.model, plot.pkg = "base")
-plot(fitted.model, lag = -1, plot.pkg = "base")
 ```
 
-The summary presented above shows a massive improvement in the comparison metrics with the new changes introduced, moreover, the automated monitoring detected the exact moment where the series $Y_t$ changed behavior, which allowed the model to immediately adapt to the pandemic period.
+The summary presented above shows a massive improvement in the comparison metrics with the new changes introduced. Moreover, we can see that the automated monitoring detected the exact moment where the series $Y_t$ changed behavior, which allowed the model to immediately adapt to the pandemic period.
 
-One aspect of the model that may bother the reader is the exceedingly high uncertainty at the first observations. This behavior is duo to our approach to the estimation of the variance of the white noise introduced by the `noise_block` function (see the associated documentation for details), which can be a bit too sensitive to bad prior specification at the initial steps. As such, we highly recommend the user to do a sensibility analysis to choose the initial variance of the white noise:
+One aspect of the model that may bother the reader is the exceedingly high uncertainty at the first observations. This behavior is duo to our approach to the estimation of the variance of the white noise introduced by the `noise_block` function [see @ArtigoMultivar and the associated documentation for details], which can be a bit too sensitive to bad prior specification at the initial steps. As such, we highly recommend the user to perform a sensitivity analysis to choose the initial variance of the white noise:
 
 ```{r, results='hide'}
 structure <- polynomial_block(
@@ -205,22 +282,30 @@ structure <- polynomial_block(
 structure <- structure |>
   intervention(time = 124, var.index = c(1:2), D = 0.005)
 
-search.model <- search_model(
+search.model <- fit_model(
   structure, outcome,
   lag = -1, # Using the model likelihood (f(y|M)) as the comparisson metric.
-  search.grid = list(H = seq.int(0, 0.1, l = 101))
+  H = seq.int(0, 0.1, l = 101)
 )
 fitted.model <- search.model$model
-summary(fitted.model)
-plot(fitted.model, plot.pkg = "base")
-plot(fitted.model, lag = -1, plot.pkg = "base")
 ```
 
 Notice that, this time around, we chose to  make an intervention at the beginning of the pandemic, instead of an automated approach. As mentioned before, this approach is preferable in this scenario, since we were aware that the pandemic would affect our outcome before even looking at the data.
 
-Again, the new changes improve the comparison metrics even further, leading to the conclusion that our last model is the best among those presented until now. We highly encourage the reader to run this example and experiment with some of the options our package offers, but that were not explored, such as changing the discount factors used in each block, the order of the blocks, adding/removing structural components, etc..
+```{r}
+summary(fitted.model)
+```
 
-As a last side note, the user may not like the approach of choosing a specific value for the initial variance of the white noise introduced by the `noise_block`. Indeed, one may wish to define a prior distribution for this parameter and estimate it along with the others. While we will not detail this approach for the sake of brevity (since our package does not support it directly), we would like to point out that we do offer tools to facilitate this procedure:
+
+Again, the new changes improve the comparison metrics even further, leading to the conclusion that our last model is the best among those presented until now. We highly encourage the reader to run this example and experiment with some of the options the **kDGLM** package offers, but that were not explored, such as changing the discount factors used in each block, the order of the blocks, adding/removing structural components, etc..
+
+
+```{r}
+plot(fitted.model, plot.pkg = "base")
+```
+
+
+As a last side note, the user may not like the approach of choosing a specific value for the initial variance of the white noise introduced by the `noise_block`. Indeed, one may wish to define a prior distribution for this parameter and estimate it along with the others. While we will not detail this approach for the sake of brevity (since it is not directly supported), we would like to point out that we do offer tools to facilitate this procedure:
 
 ```{r}
 search.result <- search.model$search.data[order(search.model$search.data$H), ]
@@ -237,11 +322,9 @@ plot(H.vals, fx,
 )
 ```
 
-
-
 # Advanced model: Hospital admissions by state
 
-For this model, we need the geographic information about Brazil, as such, we will use some auxiliary packages, namely `geobr`, `tidyverse`, `sf` and `spdep`, although the `kDGLM` package does not depend on them:
+For this model, we need the geographic information about Brazil, as such, we will use some auxiliary packages, namely **geobr**, **tidyverse**, **sf** and **spdep**, although the **kDGLM** package does not depend on them:
   
 ```{r message=FALSE, warning=FALSE}
 require(geobr)
@@ -279,55 +362,6 @@ plot.data <- br.base |>
   theme(legend.position = "bottom"))
 ```
 
-First lets evaluate if there is any evidence of spacial autocorrelation within our data. For that, following common practices in literature, we proceed by applying Moran's test for each year and then to total number of admissions:
-
-```{r}
-for (ano in 2010:2022) {
-  ref.br <- br.base |>
-    left_join(
-      gastroBR |>
-        filter(format(Date, "%Y") == as.character(ano)) |>
-        select(UF, Population, Admissions) |>
-        group_by(UF) |>
-        summarize(
-          Population = mean(Population),
-          Admissions = sum(Admissions)
-        ) |>
-        rename(abbrev_state = UF),
-      by = "abbrev_state"
-    )
-
-  moran.test <- moran.test(
-    log10(ref.br$Admissions / ref.br$Population),
-    ref.br |> poly2nb() |> nb2listw()
-  )$p.value
-
-  print(paste0(ano, " - ", round(moran.test, 4)))
-}
-
-ref.br <- br.base |>
-  left_join(
-    gastroBR |>
-      select(UF, Population, Admissions) |>
-      group_by(UF) |>
-      summarize(
-        Population = mean(Population),
-        Admissions = sum(Admissions)
-      ) |>
-      rename(abbrev_state = UF),
-    by = "abbrev_state"
-  )
-
-moran.test <- moran.test(
-  log10(ref.br$Admissions / ref.br$Population),
-  ref.br |> poly2nb() |> nb2listw()
-)$p.value
-
-print(paste0("Total", " - ", round(moran.test, 4)))
-```
-
-As we had hoped, we have significant evidence of spatial autocorrelation in several years and for the total. Here we are not **formally** applying Moran's test, but instead looking at its result to get some intuition about the problem. 
-
 Now we proceed to fitting the model itself. Let $Y_{it}$ be the number of hospital admissions by gastroenteritis at time $t$ on region $i$, we will assume the following model:
 
 $$
@@ -338,24 +372,28 @@ Y_{it}|\eta_{it} &\sim Poisson(\eta_{it})\\
 \theta_{2,t}&= \theta_{2,t-1}+\omega_{2,t},\\
 \begin{bmatrix}u_{i,t}\\ v_{i,t}\end{bmatrix} &= R \begin{bmatrix}u_{i,t-1}\\ v_{i,t-1}\end{bmatrix} + \begin{bmatrix} \omega^{u}_{i,t}\\ \omega^{u}_{i,t}\end{bmatrix},\\
 \epsilon_t & \sim \mathcal{N}(0,\sigma_t^2),\\
-S_{1,1},...,S_{r,1} & \sim CAR(100),
+S_{1,1},...,S_{r,1} & \sim CAR(\tau), 
 \end{aligned}
 $$
 where $r=27$ is the number of areas within our dataset.
 
-Notice that we are assuming a very similar model to that which was used in subsection \ref{initial_model}, but here we have a common effect (or a global effect) $\theta_{1,t}$ that equally affects all regions, and a local effect $S_{i,t}$ that only affects region $i$ and evolves smoothly though time. Here we chose a vague CAR prior [@AlexCar] for $S_{i,t}$.
+Currently, the **kDGLM** package does not offer support for sequential estimation of $\tau$, the parameter associated with the CAR prior. A study is being developed to address this limitation. For now, we opt to conduct a sensitivity analysis to determine an optimal value for $tau$ using the tools presented in Subsection [Tools for sensitivity analysis](fitting.html#tools-for-sensitivity-analysis). The optimal value found was $\tau=0.005$.
 
-The proposed model can be fitted using the following code.
+Alternatively, if real-time inference is not a priority for the analyst, a complete posterior for $\tau$ can be obtained by adapting the code from Subsection [Sampling and hyper parameter estimation](fitting.html#sampling-and-hyper-parameter-estimation), without incurring a high computational cost.
 
-```{r}
-adj.matrix <- ref.br |>
+Notice that we are assuming a very similar model to that which was used in the initial_model, but here we have a common effect (or a global effect) $\theta_{1,t}$ that equally affects all regions, and a local effect $S_{i,t}$ that only affects region $i$ and evolves smoothly though time. Here we chose a vague CAR prior [@AlexCar; @banerjee2014hierarchical] for $S_{i,t}$.
+
+The proposed model can be fitted using the following code:
+
+```{r, results='hide'}
+adj.matrix <- br.base |>
   poly2nb() |>
   nb2mat(style = "B")
 
-CAR.structure <- polynomial_block(rate = 1, D = 0.8, name = "CAR") |>
+CAR.structure <- polynomial_block(rate = 1, D = 0.9, name = "CAR") |>
   block_mult(27) |>
   block_rename(levels(gastroBR$UF)) |>
-  CAR_prior(scale = 9, rho = 1, adj.matrix = adj.matrix)
+  CAR_prior(scale = "Scale", rho = 1, adj.matrix = adj.matrix)
 
 shared.structure <- polynomial_block(
   RO = 1, AC = 1, AM = 1, RR = 1, PA = 1, AP = 1,
@@ -375,25 +413,27 @@ base.structure <- (harmonic_block(rate = 1, order = 1, period = 12, D = 0.98, na
 
 inputs <- list(shared.structure, CAR.structure, base.structure)
 for (uf in levels(gastroBR$UF)) {
-  reg.data <- gastroBR %>% filter(UF == uf)
+  reg.data <- gastroBR |> filter(UF == uf)
   inputs[[uf]] <- Poisson(lambda = uf, data = reg.data$Admissions, offset = reg.data$Population)
 }
-fitted.data <- do.call(fit_model, inputs)
+inputs$Scale <- 10**seq.int(-5, 1, l = 21)
+model.search <- do.call(fit_model, inputs)
+fitted.model <- model.search$model
 ```
 
 
-```{r fig.height=18, fig.width=8, fig.cap='The time series of hospital admissions by gastroenteritis of some Brazilian states from 2010 to 2022. Notice that the proposed model can capture the general behavior of all series, while simultaneously capturing the dependence between regions through the shared component $\\theta_{1,t}$ and the local effects $S_i$.'}
-(plot(fitted.data, lag = -1, plot.pkg = "ggplot2") +
-  facet_wrap(~Serie, ncol = 3, scale = "free_y") +
+```{r fig.height=10, fig.width=7, warning=FALSE, fig.cap='The time series of hospital admissions by gastroenteritis of some Brazilian states from 2010 to 2022. Notice that the proposed model can capture the general behavior of all series, while simultaneously capturing the dependence between regions through the shared component $\\theta_{1,t}$ and the local effects $S_i$.'}
+(plot(fitted.model, outcomes = c("MG", "SP", "ES", "RJ", "CE", "BA", "RS", "SC", "AM", "AC"), lag = 1, plot.pkg = "ggplot2") +
+  scale_color_manual("", values = rep("black", 10)) +
+  scale_fill_manual("", values = rep("black", 10)) +
+  facet_wrap(~Serie, ncol = 2, scale = "free_y") +
   coord_cartesian(ylim = c(NA, NA)) +
-  scale_color_manual("", values = rep("black", 27)) +
-  scale_fill_manual("", values = rep("black", 27)) +
   guides(color = "none", fill = "none") +
   theme(legend.position = "top"))
 ```
 
 ```{r eval=FALSE, fig.height=12, include=FALSE}
-(plot(fitted.data, outcomes = c("MG", "SP", "ES", "RJ", "CE", "BA", "RS", "SC", "AM", "AC"), lag = -1, plot.pkg = "ggplot2") +
+(plot(fitted.model, outcomes = c("MG", "SP", "ES", "RJ", "CE", "BA", "RS", "SC", "AM", "AC"), lag = -1, plot.pkg = "ggplot2") +
   scale_color_manual("", values = rep("black", 10)) +
   scale_fill_manual("", values = rep("black", 10)) +
   facet_wrap(~Serie, ncol = 2, scale = "free_y") +
@@ -401,19 +441,15 @@ fitted.data <- do.call(fit_model, inputs)
   guides(color = "none", fill = "none") +
   theme(legend.position = "top")) |> save.fig(file = "vignettes/plot23.pdf")
 ```
-
-```{r eval=FALSE, include=FALSE}
-plot(coef(fitted.data), "CAR")
-```
-
+ 
 
 ```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE, echo=TRUE}
-CAR.var.index <- which(grepl("CAR", fitted.data$var.labels))
+CAR.var.index <- which(grepl("CAR", fitted.model$var.labels))
 get_map <- function(index) {
   plot.data <-
     cbind(
       Date = gastroBR$Date[index],
-      Effect = fitted.data$mts[1, index] + fitted.data$mts[CAR.var.index, index],
+      Effect = fitted.model$mts[1, index] + fitted.model$mts[CAR.var.index, index],
       br.base
     )
 
@@ -424,18 +460,18 @@ get_map <- function(index) {
     theme_void())
 }
 
-for (i in 1:fitted.data$t) {
+for (i in 1:fitted.model$t) {
   get_map(index = i)
 }
 ```
 
 ```{r message=FALSE, warning=FALSE, eval=FALSE, include=FALSE}
-CAR.var.index <- which(grepl("CAR", fitted.data$var.labels))
+CAR.var.index <- which(grepl("CAR", fitted.model$var.labels))
 get_map <- function(index) {
   plot.data <-
     cbind(
       Date = gastroBR$Date[index],
-      Effect = fitted.data$mts[1, index] + fitted.data$mts[CAR.var.index, index],
+      Effect = fitted.model$mts[1, index] + fitted.model$mts[CAR.var.index, index],
       br.base
     )
 
@@ -452,8 +488,8 @@ get_map <- function(index) {
 }
 
 
-my_maps <- paste0("~/temp/m_", formatC(1:fitted.data$t, width = 3, flag = "0"), ".png")
-for (i in seq.int(1, fitted.data$t, 6)) {
+my_maps <- paste0("~/temp/m_", formatC(1:fitted.model$t, width = 3, flag = "0"), ".png")
+for (i in seq.int(1, fitted.model$t, 6)) {
   get_map(index = i)
   ggsave(my_maps[i], width = 4, height = 4)
 }
@@ -463,8 +499,8 @@ for (i in seq.int(1, fitted.data$t, 6)) {
 ```{r eval=FALSE, include=FALSE}
 max <- -Inf
 min <- Inf
-for (i in 1:fitted.data$t) {
-  cur <- fitted.data$mts[1, i] + fitted.data$mts[CAR.var.index, i]
+for (i in 1:fitted.model$t) {
+  cur <- fitted.model$mts[1, i] + fitted.model$mts[CAR.var.index, i]
   max <- max(max, cur)
   min <- min(min, cur)
 }
@@ -473,7 +509,7 @@ min
 ```
 
 ```{r message=FALSE, warning=FALSE, fig.cap='The $\\log_{10}$ hospital admissions rate by gastroenteritis in Brazilian states at 4 key moments: (a) January of 2010, were our data begins; (b) March of 2020, the month were the first case of COVID-19 was registered in Brazil and before public response; (c) April of 2020, the first month of the pandemic period; and (d) December of 2022, the end of the period of study and roughly 2 years after the beginning of the pandemic. Notice that from (a) to (b) 10 years had passed and we see that a steady and smoothly yearly reductions of hospital admissions led to a significantly reduction of the rate of hospital. In contrast, from (b) to (c), only 1 month had passed, but we see a reduction that, proportionally, is event greater than from (a) to (b). Lastly, from (c) to (d), after roughly 2 years, the rate of hospital admissions seems to be going back to what was seen in (c).'}
-CAR.var.index <- which(grepl("CAR", fitted.data$var.labels))
+smoothed.values <- coef(fitted.model)
 plot.data <- data.frame()
 labels <- list(
   "2010-01-01" = "(a) January, 2010",
@@ -487,7 +523,7 @@ for (date in c("2010-01-01", "2020-03-01", "2020-04-01", "2022-12-01")) {
     plot.data,
     cbind(
       Date = labels[[date]],
-      Effect = fitted.data$mts[1, index] + fitted.data$mts[CAR.var.index, index],
+      Effect = smoothed.values$lambda.mean[order(order(levels(reg.data$UF))), index] / log(10),
       br.base
     )
   )
@@ -496,8 +532,8 @@ for (date in c("2010-01-01", "2020-03-01", "2020-04-01", "2022-12-01")) {
 (ggplot() +
   geom_sf(data = plot.data, aes(fill = Effect)) +
   facet_wrap(~Date, strip.position = "bottom") +
-  scale_fill_distiller("log rate of admissions\nper habitant",
-    limits = c(-12.7, -7.7),
+  scale_fill_distiller("$\\log_{10}$ rate",
+    limits = c(-6, -3),
     palette = "RdYlBu",
     labels = ~ round(., 2)
   ) +
@@ -505,7 +541,57 @@ for (date in c("2010-01-01", "2020-03-01", "2020-04-01", "2022-12-01")) {
   theme(legend.position = "bottom"))
 ```
 
-Finally, about the computational cost, the initial model (that for the total number of hospital admissions over time) took about $0.11s$ to fit and the advanced model took $4.24s$, which is within the expected range, since the final model has $27$ outcomes and $110$ latent states that, when we consider that they all had temporal dynamic, yields $17.160$ parameters, from which our package computes the joint distribution. 
+
+```{r message=FALSE, warning=FALSE}
+labels <- list(
+  "2015-01-01" = "January, 2015",
+  "2019-12-01" = "December, 2019"
+)
+plot.data <- data.frame()
+for (date in c("2015-01-01", "2019-12-01")) {
+  index <- min(which(gastroBR$Date == date))
+
+  forecast.vals <- coef(fitted.model, lag = 3, t.eval = index, eval.pred = TRUE)
+
+  mean.pred <- forecast.vals$data$Prediction
+  reg.data <- gastroBR %>%
+    filter(Date == date) %>%
+    mutate(Tx = log10(Admissions / Population))
+
+  plot.data <- rbind(
+    plot.data,
+    cbind(
+      Date = labels[[date]],
+      Effect = log10(mean.pred) - log10(reg.data$Population),
+      br.base,
+      Label = "Prediction"
+    )
+  )
+  plot.data <- rbind(
+    plot.data,
+    cbind(
+      Date = labels[[date]],
+      Effect = reg.data$Tx, br.base,
+      Label = "Observed"
+    )
+  )
+}
+plot.data$Label <- factor(plot.data$Label, levels = unique(plot.data$Label))
+
+(ggplot() +
+  geom_sf(data = plot.data, aes(fill = Effect)) +
+  facet_wrap(Label ~ Date, strip.position = "bottom") +
+  scale_fill_distiller("log10 rate",
+    limits = c(-5.5, -3.5),
+    palette = "RdYlBu",
+    labels = ~ round(., 2)
+  ) +
+  theme_void() +
+  theme(legend.position = "bottom"))
+```
+Since there are $27$ regions, with $156$ observations each, it is not reasonably to show how our model performed for every combination of date and location. We will limit ourselves to show some regions at all times and all regions at some times The reader may use the code provided in this document or in the vignette to fit this model and do a thoroughly examination of the results. Moreover, here we focus only in the usage of the **kDGLM** package and not in the epidemiological aspect of the results.
+
+Finally, about the computational cost, the initial model (that for the total number of hospital admissions over time) took about $0.11s$ to fit and the advanced model took $4.24s$, which is within the expected range, since the final model has $27$ outcomes and $110$ latent states that, when we consider that they all had temporal dynamic, yields $17.160$ parameters, from which the joint distribution is obtained. 
 
 # References
 

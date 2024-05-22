@@ -29,7 +29,7 @@
 #'   \item{occured}{The total number of cases reported (at any time).}
 #'   ...
 #' }
-#' @source \url{https://opendatasus.saude.gov.br/}
+#' @source \url{https://datasus.saude.gov.br/informacoes-de-saude-tabnet/}
 "noticeSARI"
 
 #' Hospital admissions from gastroenteritis in Brazil
@@ -43,7 +43,7 @@
 #'   \item{Admissions}{The number hospital admissions.}
 #'   \item{Population}{The estimated population.}
 #' }
-#' @source Admissions: \url{https://opendatasus.saude.gov.br/}
+#' @source Admissions: \url{https://datasus.saude.gov.br/informacoes-de-saude-tabnet/}
 #' @source Population: \url{https://www.ibge.gov.br/estatisticas/sociais/populacao.html}
 "gastroBR"
 

@@ -6,7 +6,7 @@
 \usage{
 \method{coef}{fitted_dlm}(
   object,
-  eval_t = seq_len(object$t),
+  t.eval = seq_len(object$t),
   lag = -1,
   pred.cred = 0.95,
   eval.pred = FALSE,
@@ -17,7 +17,7 @@
 \arguments{
 \item{object}{fitted_dlm: The fitted model to be use for evaluation.}
 
-\item{eval_t}{numeric: A vector of positive integers indicating the time index from which to extract predictions. The default is to extract to evaluate the model at all observed times.}
+\item{t.eval}{numeric: A vector of positive integers indicating the time index from which to extract predictions. The default is to extract to evaluate the model at all observed times.}
 
 \item{lag}{integer: The relative offset for forecast. Values for time t will be calculated based on the filtered values of time t-h. If lag is negative, then the smoothed distribution for the latent states will be used.}
 
@@ -33,10 +33,10 @@
 A list containing:
 \itemize{
    \item data data.frame: A table with the model evaluated at each observed time.
-   \item mt matrix: The mean of the latent states at each time. Dimensions are n x t, where t is the size of eval_t and n is the number of latent states.
-   \item Ct array: A 3D-array containing the covariance matrix of the latent states at each time. Dimensions are n x n x t, where t is the size of eval_t and n is the number of latent states.
-   \item ft matrix: The mean of the linear predictor at each time. Dimensions are k x t, where t is the size of eval_t and k is the number of linear predictors.
-   \item Qt array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t, where t is the size of eval_t and k is the number of linear predictors.
+   \item theta.mean matrix: The mean of the latent states at each time. Dimensions are n x t, where t is the size of t.eval and n is the number of latent states.
+   \item theta.cov array: A 3D-array containing the covariance matrix of the latent states at each time. Dimensions are n x n x t, where t is the size of t.eval and n is the number of latent states.
+   \item lambda.mean matrix: The mean of the linear predictor at each time. Dimensions are k x t, where t is the size of t.eval and k is the number of linear predictors.
+   \item lambda.cov array: A 3D-array containing the covariance matrix for the linear predictor at each time. Dimensions are k x k x t, where t is the size of t.eval and k is the number of linear predictors.
    \item log.like, mae, mase, rae, mse, interval.score: The metric value at each time.
    \item conj.param list: A list containing, for each outcome, a data.frame with the parameter of the conjugated distribution at each time.
 }
@@ -58,19 +58,16 @@ fitted.data <- fit_model(level, season,
   AirPassengers = outcome
 )
 
-# var.vals <- coefficients(fitted.data)
-# Or
 var.vals <- coef(fitted.data)
 
 }
 \seealso{
-Other {auxiliary functions for fitted_dlm objects}: 
-\code{\link{dlm_sampling}()},
+Other auxiliary functions for fitted_dlm objects: 
 \code{\link{eval_dlm_norm_const}()},
 \code{\link{fit_model}()},
 \code{\link{forecast.fitted_dlm}()},
-\code{\link{search_model}()},
+\code{\link{simulate.fitted_dlm}()},
 \code{\link{smoothing}()},
 \code{\link{update.fitted_dlm}()}
 }
-\concept{{auxiliary functions for fitted_dlm objects}}
+\concept{auxiliary functions for fitted_dlm objects}

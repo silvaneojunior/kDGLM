@@ -24,11 +24,10 @@ The parameters of the posterior distribution.
 Calculate posterior parameter for the Gamma, assuming that the observed values came from a Poisson model from which the rate parameter (lambda) have prior distribution Gamma.
 }
 \seealso{
-Other {auxiliary functions for a Poisson outcome}: 
+Other auxiliary functions for a Poisson outcome: 
 \code{\link{convert_Normal_Poisson}()},
 \code{\link{convert_Poisson_Normal}()},
-\code{\link{poisson_pred}()},
-\code{\link{update_Poisson_alt}()}
+\code{\link{poisson_pred}()}
 }
-\concept{{auxiliary functions for a Poisson outcome}}
+\concept{auxiliary functions for a Poisson outcome}
 \keyword{internal}

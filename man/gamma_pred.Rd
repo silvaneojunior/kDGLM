@@ -31,11 +31,10 @@ The data is assumed to have Gamma distribution with known shape parameter phi an
 In this scenario, the marginal distribution of the data is Beta prime with parameters phi, alpha, beta / phi.
 }
 \seealso{
-Other {auxiliary functions for a Gamma outcome with known shape}: 
+Other auxiliary functions for a Gamma outcome with known shape: 
 \code{\link{convert_Gamma_Normal}()},
 \code{\link{convert_Normal_Gamma}()},
-\code{\link{update_Gamma}()},
-\code{\link{update_Gamma_alt}()}
+\code{\link{update_Gamma}()}
 }
-\concept{{auxiliary functions for a Gamma outcome with known shape}}
+\concept{auxiliary functions for a Gamma outcome with known shape}
 \keyword{internal}

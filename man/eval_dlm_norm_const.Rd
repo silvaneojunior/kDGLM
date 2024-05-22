@@ -30,16 +30,16 @@ fitted.data <- fit_model(level, season,
   AirPassengers = outcome
 )
 eval_dlm_norm_const(fitted.data)
+
 }
 \seealso{
-Other {auxiliary functions for fitted_dlm objects}: 
+Other auxiliary functions for fitted_dlm objects: 
 \code{\link{coef.fitted_dlm}()},
-\code{\link{dlm_sampling}()},
 \code{\link{fit_model}()},
 \code{\link{forecast.fitted_dlm}()},
-\code{\link{search_model}()},
+\code{\link{simulate.fitted_dlm}()},
 \code{\link{smoothing}()},
 \code{\link{update.fitted_dlm}()}
 }
-\concept{{auxiliary functions for fitted_dlm objects}}
+\concept{auxiliary functions for fitted_dlm objects}
 \keyword{internal}

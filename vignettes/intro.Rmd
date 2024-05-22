@@ -1,7 +1,8 @@
 ---
-title: "Notation"
-output: rmdformats::readthedown
+title: "Introduction"
+output: html_vignette
 bibliography: '`r system.file("REFERENCES.bib", package="kDGLM")`'
+csl: '`r system.file("apalike.csl", package="kDGLM")`'
 link-citations: TRUE
 urlcolor: blue
 linkcolor: green
@@ -18,60 +19,69 @@ knitr::opts_chunk$set(
 )
 ```
 
+<style>
+body {
+text-align: justify}
+</style>
 
-<!-- # Table of contents -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
 
-<!-- <ol> -->
-<!-- <li><details><summary>[Introduction:](intro.html) ></summary> -->
-<!--   <ul> -->
-<!--   <li>[Introduction](intro.html#introduction) -->
-<!--   <li>[Notation](intro.html#notation) -->
-<!--   </ul></details> -->
-<!--   </li> -->
-<!-- <li><details><summary>[Creating the model structure:](structures.html) ></summary> -->
-<!--   <ul> -->
-<!--   <li>[A structure for polynomial trend models](structures.html#a-structure-for-polynomial-trend-models) -->
-<!--   <li>[A structure for dynamic regression models](structures.html#a-structure-for-dynamic-regression-models) -->
-<!--   <li>[A structure for harmonic trend models](structures.html#a-structure-for-harmonic-trend-models) -->
-<!--   <li>[A structure for autoregresive models](structures.html#a-structure-for-autoregresive-models) -->
-<!--   <li>[A structure for overdispersed models](structures.html#a-structure-for-overdispersed-models) -->
-<!--   <li>[Handling multiple structural blocks](structures.html#handling-multiple-structural-blocks) -->
-<!--   <li>[Handling multiple linear predictors](structures.html#handling-multiple-linear-predictors) -->
-<!--   <li>[Handling unknown components in the planning matrix $F_t$](structures.html#handling-unknown-components-in-the-planning-matrix-f_t) -->
-<!--   <li>[Special priors](structures.html#special-priors) -->
-<!--   </ul></details> -->
-<!--   </li>   -->
+# Table of contents
 
-<!-- <li><details><summary>[Creating the model outcome:](outcomes.html) > </summary> -->
-<!--   <ul> -->
-<!--   <li>[Normal case](outcomes.html#normal-case) -->
-<!--   <li>[Poisson case](outcomes.html#poisson-case) -->
-<!--   <li>[Gamma case](outcomes.html#gamma-case) -->
-<!--   <li>[Multinomial case](outcomes.html#multinomial-case) -->
-<!--   <li>[Handling multiple outcomes](outcomes.html#handling-multiple-outcomes) -->
-<!--   </ul></details> -->
-<!--   </li> -->
-<!-- <li><details><summary>[Fitting and analysing models:](fitting.html) > </summary> -->
-<!--   <ul> -->
-<!--   <li>[Filtering and smoothing](fitting.html#filtering-and-smoothing) -->
-<!--   <li>[Extracting components](fitting.html#extracting-components) -->
-<!--   <li>[Forecasting](fitting.html#forecasting) -->
-<!--   <li>[Intervention and monitoring](fitting.html#intervention-and-monitoring) -->
-<!--   <li>[Tools for sensibility analysis](fitting.html#tools-for-sensibility-analysis) -->
-<!--   <li>[Sampling and hyper parameter estimation](fitting.html#sampling-and-hyper-parameter-estimation) -->
-<!--   </ul></details> -->
-<!--   </li> -->
-<!-- <li><details><summary>Advanced examples:> </summary><ul> -->
-<!--   <li>[Space-time model hospital admissions from gastroenteritis](example1.html) -->
-<!--   </details> -->
-<!-- </ul></li> -->
-<!-- </ol> -->
+<ol>
+<li><details><summary>[Introduction:](intro.html) ></summary>
+  <ul>
+  <li>[Introduction](intro.html#introduction)
+  <li>[Notation](intro.html#notation)
+  </ul></details>
+  </li>
+<li><details><summary>[Creating the model structure:](structures.html) ></summary>
+  <ul>
+  <li>[A structure for polynomial trend models](structures.html#a-structure-for-polynomial-trend-models)
+  <li>[A structure for dynamic regression models](structures.html#a-structure-for-dynamic-regression-models)
+  <li>[A structure for harmonic trend models](structures.html#a-structure-for-harmonic-trend-models)
+  <li>[A structure for autoregresive models](structures.html#a-structure-for-autoregresive-models)
+  <li>[A structure for overdispersed models](structures.html#a-structure-for-overdispersed-models)
+  <li>[Handling multiple structural blocks](structures.html#handling-multiple-structural-blocks)
+  <li>[Handling multiple linear predictors](structures.html#handling-multiple-linear-predictors)
+  <li>[Handling unknown components in the planning matrix $F_t$](structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
+  <li>[Special priors](structures.html#special-priors)
+  </ul></details>
+  </li>
+<li><details><summary>[Creating the model outcome:](outcomes.html) > </summary>
+  <ul>
+  <li>[Normal case](outcomes.html#normal-case)
+  <li>[Poisson case](outcomes.html#poisson-case)
+  <li>[Gamma case](outcomes.html#gamma-case)
+  <li>[Multinomial case](outcomes.html#multinomial-case)
+  <li>[Handling multiple outcomes](outcomes.html#handling-multiple-outcomes)
+  </ul></details>
+  </li>
+<li><details><summary>[Fitting and analysing models:](fitting.html) > </summary>
+  <ul>
+  <li>[Filtering and smoothing](fitting.html#filtering-and-smoothing)
+  <li>[Extracting components](fitting.html#extracting-components)
+  <li>[Forecasting](fitting.html#forecasting)
+  <li>[Intervention and monitoring](fitting.html#intervention-and-monitoring)
+  <li>[Tools for sensitivity analysis](fitting.html#tools-for-sensitivity-analysis)
+  <li>[Sampling and hyper parameter estimation](fitting.html#sampling-and-hyper-parameter-estimation)
+  </ul></details>
+  </li>
+<li><details><summary>Advanced examples:> </summary><ul>
+  <li>[Space-time model hospital admissions from gastroenteritis](example1.html)
+  </details>
+</ul></li>
+</ol>
 
 # Introduction
 
 This vignette is intended as an introduction to the usage of the kDGLM package, which offers routines for Bayesian analysis of Dynamic Generalized Linear Models, including fitting (filtering and smoothing), forecasting, sampling, intervention and automated monitoring, following the theory developed and/or explored in @Kalman_filter_origins, @WestHarr-DLM and @ArtigokParametrico.
 
-In this document we will focus exclusively in the usage of the package and will only briefly mention the theory behind these models and only with the intention of highlighting the notation. We highly recommend all users to read the theoretical work in which we based this package.
+In this document we will focus exclusively in the usage of the package and will only briefly mention the theory behind these models and only with the intention of highlighting the notation. We highly recommend all users to read the theoretical work [@ArtigoPacote] in which we based this package.
 
 This document is organized in the following order: 
 
@@ -83,41 +93,144 @@ This document is organized in the following order:
 
 # Notation
 
-Let us assume that the user is interested in analyzing a Time Series $\{Y_t\}_{t=1}^T$ which can be described by the following model:
 
-$$
-\begin{align}
-Y_t|\eta_t &\sim \mathcal{F}\left(\eta_t\right),\\
-g(\eta_t) &=\lambda_{t}=F_t'\theta_t,\\
-\theta_t&=G_t\theta_{t-1}+\omega_t,\\
-\omega_t &\sim \mathcal{N}_n(h_t,W_t),
-\end{align}
-$$
-where:
+In this section, we assume the user's interest lies in analyzing a Time Series $\{\vec{Y}_t\}_{t=1}^T$, which adheres to the model described by \cite{ArtigokParametrico}:
 
-- $\theta_t$ are the unknown parameter of interest;
-- $\mathcal{F}$ is a probability distribution in the Exponential Family and indexed by $\eta_t$;
-- $g$, called the link function, is a pre-specified function (in this package, each choice of $\mathcal{F}$ will have a pre-determined $g$);
-- $F_t$, called the design matrix, is a (mostly) known matrix specified by the user;
-- $G_t$, called the evolution matrix, is a (mostly) known matrix specified by the user;
-- $h_t$, called drift, is a known vector specified by the user. In general, we have $h_t=0$, except when making interventions on the model [see @WestHarr-DLM, chapter 11];
-- $W_t$ is a known covariance matrix specified by the user;
-- $n$ is the dimension of $\theta_t$ (we will always consider that $\theta_t$ has the same dimension for all $t$).
+\begin{equation}
+\begin{aligned}
+\vec{Y}_t|\vec{\eta}_t &\sim \mathcal{F}\left(\vec{\eta}_t\right),\\
+g(\vec{\eta}_t) &=\vec{\lambda}_{t}=F_t'\vec{\theta}_t,\\
+\vec{\theta}_t&=G_t\vec{\theta}_{t-1}+\vec{\omega}_t,\\
+\vec{\omega}_t &\sim \mathcal{N}_n(\vec{h}_t,W_t),
+\end{aligned}
+\end{equation}
 
-Also, following the notation in @WestHarr-DLM, we will define $\mathcal{D}_t$ as the information one has after the first $t$ observations, such that $\mathcal{D}_t=\mathcal{D}_{t-1}\cup\{Y_t\}$ (for now, let us assume that there is no external source of information beside $Y_t$ itself) and $\mathcal{D}_0$ denotes the information we have about the process $\{Y_t\}^T_{t=1}$ *prior* to observing the data.
+The model comprises:
 
-For the specification of $W_t$, we follow the ideas presented @WestHarr-DLM, section 6.3, such that we define $W_t=Var[G_t\theta_{t-1}|\mathcal{D}_{t-1}] \odot (1-D_t) \oslash D_t + H_t$, where:
 
-- $D_t$ (called the discount matrix) is a matrix of values between $0$ and $1$ (including $1$, but excluding $0$);
-- $\odot$ is the Hadamard product (i.e., element-wise product);
-- $\oslash$ is the Hadamard division (i.e., element-wise division);
-- $H_t$ is a known matrix specified by the user.
+ - $\vec{Y}_t=(Y_{1,t},...,Y_{r,t})'$, the outcome, is an $r$-dimensional vector of observed variable.
+ - $\vec{\theta}_t=(\theta_{1,t},...,\theta_{n,t})'$, representing the unknown parameters (latent states), is an $n$-dimensional vector, consistently dimensioned across observations.
+ - $\vec{\lambda}_t=(\lambda_{1,t},...,\lambda_{k,t})'$, the linear predictors, is a $k$-dimensional vector indicating the linear transformation of the latent states. As per \cite{ArtigokParametrico}, $\vec{\lambda}_t$ is assumed to be (approximately) Normally distributed at all times and directly corresponds to the observational parameters $\vec{\eta}_t$, through a one-to-one correspondence $g$.
+ - $\vec{\eta}_t=(\eta_{1,t},...,\eta_{l,t})'$, the observational parameters, is an $l$-dimensional vector defining the model's observational aspects. Typically, $l=k$, but this may not hold in some special cases, such as in the Multinomial model, where $k=l-1$.
+ - $\mathcal{F}$, a distribution from the Exponential Family indexed by $\vec{\eta}_t$. Pre-determines the values $k$ and $l$, along with the link function $g$.
+ - $g$, the link function, establishes a one-to-one correspondence between $\vec{\lambda}_t$ and $\vec{\eta}_t$.
+ - $F_t$, the design matrix, is a user-defined, mostly known,  matrix of size $k \times n$.
+ - $G_t$, the evolution matrix, is a user-defined, mostly known,  matrix of size $n \times n$.
+ - $\vec{h}_t=(h_{1,t},...,h_{n,t})'$, the drift, is a known $n$-dimensional vector, typically set to $\vec{0}$ except for model interventions (refer to subsection \ref{intervention}).
+ - $W_t$, a known covariance matrix of size $n \times n$, is specified by the user.
  
-Notice that this specification implies that $Var[\theta_{t}|\mathcal{D}_{t-1}]=Var[G_t\theta_{t-1}|\mathcal{D}_{t-1}] \oslash D_t + H_t$, such that, if all entries of $D_t$ are equal to $1$, then $Var[\theta_{t}|\mathcal{D}_{t-1}]=Var[G_t\theta_{t-1}|\mathcal{D}_{t-1}]+H_t$. If also all entries of $H_t$ are equal to $0$, then $Var[\theta_{t}|\mathcal{D}_{t-1}]=Var[G_t\theta_{t-1}|\mathcal{D}_{t-1}]$ (i.e. $\theta_t$ is a deterministic transformation of $\theta_{t-1}$), such that our model becomes equivalent to a Generalized Linear Model.
 
-Notice that we **did not** make any assumptions on the dimension of $Y_t$ or $\eta_t$, indeed, the range of applications of this package covers both time series of vectors (as in the Multinomial case) and/or with multiple unknown parameters (as in the Normal with unknown variance case).
+Per \cite{WestHarr-DLM}, we define $\mathcal{D}_t$ as the cumulative information after observing the first $t$ data points, with $\mathcal{D}_0$ denoting pre-observation knowledge of the process $\{Y_t\}^T_{t=1}$.
 
-Naturally, the manual specification of all the structural components of the model can be quite tiresome. With that in mind, our package offers a wide and ever expanding set of auxiliary functions that aim to help the user to specify the structure of a model. In the next section we will explore some of those tools.
+The specification of $W_t$ follows \cite{WestHarr-DLM}, section 6.3,  where $W_t=Var[G_t\theta_{t-1}|\mathcal{D}_{t-1}] \odot (1-D_t) \oslash D_t + H_t$. Here, $D_t$ (the discount matrix) is an $n \times n$ matrix with values between $0$ and $1$, $\odot$ represents the Hadamard product, and $\oslash$ signifies Hadamard division. $H_t$ is another known $n \times n$ matrix specified by the user. This formulation implies that if $D_t$ entries are all $1$, and $H_t$ entries are all $0$, the model equates to a Generalized Linear Model. 
+
+A prototypical example within the general model framework is the Poisson model augmented with a dynamic level featuring linear growth and a single covariate $X$:
+
+\begin{equation}
+\begin{aligned}
+Y_t|\eta_t &\sim \mathcal{P}\left(\eta_t\right),\\
+ln(\eta_t) &=\lambda_{t}=\mu_t+\beta_t X_t,\\
+\mu_t&=\mu_{t-1}+\beta_{t-1}+\omega_{\mu,t},\\
+\nu_t&=\nu_{t-1}+\omega_{\nu,t},\\
+\beta_t&=\beta_{t-1}+\omega_{\beta,t},\\
+\omega_{\mu,t},\omega_{\nu,t},\omega_{\beta,t} &\sim \mathcal{N}_3(\vec{0},W_t),
+\end{aligned}
+\end{equation}
+
+In this model, $\mathcal{F}$ denotes the Poisson distribution; the model dimensions are $r=k=l=1$; the state vector $\theta_t$ is $(\mu_t,\nu_t,\beta_t)'$ with dimension $n=3$; the link function $g$ is the natural logarithm; and the matrices $F_t$ and $G_t$ are defined as:
+
+$$
+F_t=\begin{bmatrix}
+    1 \\
+    0 \\
+    X_t 
+\end{bmatrix} \quad
+G_t=\begin{bmatrix}
+    1 & 1 & 0 \\
+    0 & 1 & 0 \\
+    0 & 0 & 1 
+\end{bmatrix}
+$$
+
+Consider now a Normal model with unknown mean $\eta_{1,t}$ and unknown precision $\eta_{2,t}$:
+
+\begin{equation}
+\begin{aligned}
+Y_t|\eta_t &\sim \mathcal{N}\left(\eta_{1,t},\eta_{2,t}^{-1}\right),\\
+\eta_{1,t} &=\lambda_{1,t}=\mu_{1,t}+\beta_t X_t,\\
+ln(\eta_{2,t}) &=\lambda_{2,t}=\mu_{2,t},\\
+\mu_{1,t}&=\mu_{1,t-1}+\beta_{t-1}+\omega_{\mu_1,t},\\
+\nu_t&=\nu_{t-1}+\omega_{\nu,t},\\
+\beta_t&=\beta_{t-1}+\omega_{\beta,t},\\
+\mu_{2,t}&=\phi_{t-1}\mu_{2,t-1}+\omega_{\mu_2,t},\\
+\phi_{t}&=\phi_{t-1}+\omega_{\phi,t},\\
+\omega_{\mu_1,t},\omega_{\nu,t},\omega_{\mu,t},\omega_{\beta,t},\omega_{\phi,t} &\sim \mathcal{N}_5(\vec{0},W_t),
+\end{aligned}
+\end{equation}
+
+For this case, $\mathcal{F}$ represents the Normal distribution; the model dimensions are $r=1$ and $k=l=2$; the state vector $\theta_t$ is $(\mu_{1,t},\nu_t,\beta_t,\mu_{2,t},\phi_t)'$ with dimension $n=5$; the link function $g$ and matrices $F_t$, $G_t$ are:
+
+$$
+g\left(\begin{bmatrix}
+    x_1 \\
+    x_2
+\end{bmatrix}\right)= \begin{bmatrix}
+    x_1 \\
+    \ln(x_2)
+\end{bmatrix}\quad
+F_t=\begin{bmatrix}
+    1 & 0 \\
+    0 & 0\\
+    X_t & 0 \\
+    0 & 1 \\
+    0 & 0
+\end{bmatrix} \quad
+G_t=\begin{bmatrix}
+    1 & 1 & 0 & 0 & 0\\
+    0 & 1 & 0 & 0 & 0\\
+    0 & 0 & 1 & 0 & 0\\
+    0 & 0¨& 0 & \phi & 0\\
+    0 & 0¨& 0 & 0 & 1
+\end{bmatrix}
+$$
+
+This configuration introduces $l=2$ observational parameters, necessitating $k=2$ linear predictors. The first linear predictor pertains to the location parameter of the Normal distribution and includes a linear growth model and the covariate $X_t$. The second linear predictor, associated with the precision parameter, models log precision as an autoregressive (AR) process. We express this model in terms of an Extended Kalman Filter [@WestHarr-DLM; @Kalman_filter_origins]. This formulation aligns with the concept of a traditional Stochastic Volatility model, as highlighted by @ArtigokParametrico.
+
+Both the Normal and Poisson models illustrate univariate cases. However, the general model also accommodates multivariate outcomes, such as in the multinomial case. Consider a vector of counts $\vec{Y}_t=(Y_{1,t},Y_{2,t},Y_{3,t},Y_{4,t},Y_{5,t})'$, with $Y_{i,T} \in \mathbb{Z}$ and $N_t=\sum_{i=1}^{5}Y_{i,t}$. The model is:
+
+\begin{equation}
+\begin{aligned}
+\vec{Y}_{5,t}|N_t,\vec{\eta}_{t} &\sim Multinomial\left(N_t,\vec{\eta}_{t}\right),\\
+\ln\left(\frac{\eta_{i,t}}{\eta_{5,t}}\right) &=\lambda_{1,t}=\mu_{i,t},i=1,...,4\\
+\mu_{i,t}&=\mu_{i,t-1}+\omega_{\mu_i,t},i=1,...,4\\
+\omega_{\mu_1,t},\omega_{\mu_2,t},\omega_{\mu_3,t},\omega_{\mu_4,t} &\sim \mathcal{N}_4(\vec{0},W_t),
+\end{aligned}
+\end{equation}
+
+In this multinomial model, $\mathcal{F}$ is the Multinomial distribution; the model dimensions are $r=5$, $l=5$ and $k=4$; the state vector $\theta_t$ is $(\mu_{1,t},\mu_{2,t},\mu_{3,t},\mu_{4,t})'$; $F_t$ and $G_t$ are identity matrices of size $4\times 4$; and the link function $g$ maps $\mathbb{R}^5$ in $\mathbb{R}^{4}$ as:
+
+$$
+g\left(\begin{bmatrix}
+    x_1 \\
+    x_2 \\
+    x_3 \\
+    x_4 \\
+    x_5
+\end{bmatrix}\right)= \begin{bmatrix}
+    \ln\left(\frac{x_1}{x_5}\right) \\
+    \ln\left(\frac{x_2}{x_5}\right) \\
+    \ln\left(\frac{x_3}{x_5}\right) \\
+    \ln\left(\frac{x_4}{x_5}\right)
+\end{bmatrix}
+$$
+
+Note that in the Multinomial distribuition, $\eta_i\ge 0, \forall i$ and $\sum_{i=1}^{5} \eta_i=1$. Thus, only $k=l-1$ linear predictors are necessary to describe this model.
+
+It's important to emphasize that while we have chosen to illustrate simple model structures, such as a random walk in the log odds for each outcome, neither the general model framework nor the **kDGLM** package restricts to these configurations. Analysts have the flexibility to tailor models to their specific contexts, including the incorporation of additional latent states to enhance outcome explanation.
+
+Lastly, this general model framework can be extended to encompass multiple outcome models. For further details, see [Handling multiple outcomes](outcomes.html#handling-multiple-outcomes).
+
+Given the complexity of manually specifying all model components, the **kDGLM** package includes a range of auxiliary functions to simplify this process. The subsequent section delves into these tools.
 
 # References
 

@@ -11,8 +11,7 @@ Gamma(
   beta = NA,
   sigma = NA,
   data,
-  offset = as.matrix(data)^0,
-  alt.method = FALSE
+  offset = as.matrix(data)^0
 )
 }
 \arguments{
@@ -57,10 +56,10 @@ plot(fitted.data, plot.pkg = "base")
 \seealso{
 \code{\link{fit_model}}
 
-Other {auxiliary functions for a creating outcomes}: 
+Other auxiliary functions for a creating outcomes: 
 \code{\link{Multinom}()},
 \code{\link{Normal}()},
 \code{\link{Poisson}()},
 \code{\link{summary.dlm_distr}()}
 }
-\concept{{auxiliary functions for a creating outcomes}}
+\concept{auxiliary functions for a creating outcomes}

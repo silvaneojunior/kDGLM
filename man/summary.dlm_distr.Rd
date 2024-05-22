@@ -9,16 +9,19 @@
 \arguments{
 \item{object}{A dlm_distr object.}
 }
+\value{
+No return value, called to print a summary of a kDGLM outcome.
+}
 \description{
 Prints a report for a dlm_distr object.
 }
 \seealso{
-Other {auxiliary functions for a creating outcomes}: 
+Other auxiliary functions for a creating outcomes: 
 \code{\link{Gamma}()},
 \code{\link{Multinom}()},
 \code{\link{Normal}()},
 \code{\link{Poisson}()}
 }
-\concept{{Reports for dlm_distr objects.}}
-\concept{{auxiliary functions for a creating outcomes}}
+\concept{Reports for dlm_distr objects.}
+\concept{auxiliary functions for a creating outcomes}
 \keyword{internal}

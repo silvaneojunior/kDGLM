@@ -11,6 +11,9 @@
 
 \item{...}{Arguments passed to summary.fitted_dlm}
 }
+\value{
+No return value, called to print a summary of the fitted kDGLM model.
+}
 \description{
 This method is wrapper for the summary.fitted_dlm methdd.
 }

@@ -9,12 +9,15 @@
 \arguments{
 \item{object}{A dlm_block object.}
 }
+\value{
+No return value, called to print a summary of a kDGLM structure.
+}
 \description{
 Prints a report for a dlm_block object.
 }
 \seealso{
-Other {auxiliary functions for structural blocks}: 
-\code{\link{AR_block}()},
+Other auxiliary functions for structural blocks: 
+\code{\link{TF_block}()},
 \code{\link{block_mult}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},
@@ -23,7 +26,7 @@ Other {auxiliary functions for structural blocks}:
 \code{\link{noise_block}()},
 \code{\link{polynomial_block}()},
 \code{\link{regression_block}()},
-\code{\link{set.block.value}()}
+\code{\link{specify.dlm_block}()}
 }
-\concept{{auxiliary functions for structural blocks}}
+\concept{auxiliary functions for structural blocks}
 \keyword{internal}

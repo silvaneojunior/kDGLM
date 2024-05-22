@@ -19,11 +19,10 @@ Calculate the parameters of the log-Normal that best approximates the given Gamm
 The approximation is the best in the sense that it minimizes the KL divergence from the Gamma to the log-Normal
 }
 \seealso{
-Other {auxiliary functions for a Poisson outcome}: 
+Other auxiliary functions for a Poisson outcome: 
 \code{\link{convert_Poisson_Normal}()},
 \code{\link{poisson_pred}()},
-\code{\link{update_Poisson}()},
-\code{\link{update_Poisson_alt}()}
+\code{\link{update_Poisson}()}
 }
-\concept{{auxiliary functions for a Poisson outcome}}
+\concept{auxiliary functions for a Poisson outcome}
 \keyword{internal}

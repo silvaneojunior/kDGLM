@@ -11,6 +11,9 @@
 
 \item{...}{Arguments passed to summary.dlm_distr}
 }
+\value{
+No return value, called to print a summary of a kDGLM outcome.
+}
 \description{
 This method is wrapper for the summary.dlm_distr function.
 }

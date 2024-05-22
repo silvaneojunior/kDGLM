@@ -22,13 +22,10 @@ The approximation is the best in the sense that it minimizes the KL divergence f
 In this approach, we suppose that the first entry of the multivariate normal represents the mean of the observed data and the second represent the log variance.
 }
 \seealso{
-Other {auxiliary functions for a Normal outcome}: 
+Other auxiliary functions for a Normal outcome: 
 \code{\link{multi_normal_gamma_pred}()},
 \code{\link{normal_pred}()},
-\code{\link{update_NG_alt2}()},
-\code{\link{update_NG_alt}()},
-\code{\link{update_NG_alt2}()},
 \code{\link{update_Normal}()}
 }
-\concept{{auxiliary functions for a Normal outcome}}
+\concept{auxiliary functions for a Normal outcome}
 \keyword{internal}
