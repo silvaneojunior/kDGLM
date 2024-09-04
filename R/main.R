@@ -219,7 +219,7 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, condition = "TRUE", metr
       init <- Sys.time()
       for (i in seq_len(vals.nums)) {
         time.past <- Sys.time() - init
-        raw.perc <- i / vals.nums
+        raw.perc <- (i - 1) / vals.nums
         perc <- round(100 * raw.perc, 2)
         n.bar <- round(50 * raw.perc)
         if (!silent) {
@@ -227,9 +227,12 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, condition = "TRUE", metr
             "\r[", paste0(rep("=", n.bar), collapse = ""),
             paste0(rep(" ", 50 - n.bar), collapse = ""), "] - ",
             perc,
-            "% - ETA - ",
-            round(as.numeric((1 - raw.perc) * time.past / raw.perc, units = "mins"), 2),
-            " minutes                 "
+            "% - ETA - ", if (i == 1) {
+              "NA"
+            } else {
+              paste0(round(as.numeric((1 - raw.perc) * time.past / raw.perc, units = "mins"), 2), " minutes")
+            },
+            ""
           ))
         }
         structure <- do.call(function(...) {
@@ -407,6 +410,12 @@ fit_model_single <- function(structure, outcomes, smooth = TRUE, p.monit = NA) {
   D <- structure$D
   h <- structure$h
   H <- structure$H
+
+  G.1 <- G[, , 1]
+  D.1 <- D[, , 1]
+  h.1 <- h[, 1]
+  H.1 <- H[, , 1]
+
   G[, , 1] <- diag(structure$n)
   D[, , 1] <- 1
   h[, 1] <- 0
@@ -426,6 +435,12 @@ fit_model_single <- function(structure, outcomes, smooth = TRUE, p.monit = NA) {
     p.monit = p.monit,
     monitoring = structure$monitoring
   )
+
+
+  model$G[, , 1] <- G.1
+  model$D[, , 1] <- D.1
+  model$h[, 1] <- h.1
+  model$H[, , 1] <- H.1
 
   flags.dynamic <- rep(FALSE, structure$n)
 
@@ -1579,15 +1594,16 @@ simulate.fitted_dlm <- function(object, nsim, seed = NULL, lag = -1, ...) {
       for (t in (t.len - 1):1) {
         mt.now <- theta.mean[, t]
         Ct.now <- theta.var[, , t]
-        at.now <- object$at[, t + 1]
-        Rt.now <- object$Rt[, , t + 1]
+
+        at.next <- object$at[, t + 1]
+        Rt.next <- object$Rt[, , t + 1]
 
         G.ref <- calc_current_G(mt.now, Ct.now, G[, , t + 1], G.labs)$G
-        simple.Rt.inv <- Ct.now %*% crossprod(G.ref, ginv(Rt.now))
+        simple.Rt.inv <- Ct.now %*% crossprod(G.ref, ginv(Rt.next))
         simple.Rt.inv.t <- transpose(simple.Rt.inv)
 
-        mts <- mt.now + simple.Rt.inv %*% (theta.last - at.now)
-        Cts <- Ct.now - simple.Rt.inv %*% Rt.now %*% simple.Rt.inv.t
+        mts <- mt.now + simple.Rt.inv %*% (theta.last - at.next)
+        Cts <- Ct.now - simple.Rt.inv %*% Rt.next %*% simple.Rt.inv.t
 
         theta.last <- rmvnorm(nsim, rep(0, n), Cts) + mts
         theta.sample[, t, ] <- theta.last

@@ -45,6 +45,7 @@ zero_sum_prior <- function(block, var.index = 1:block$n, weights = rep(1, length
     block$H[var.index, var.index, i] <- transf %*% block$H[var.index, var.index, i] %*% transf
     block$H[-var.index, var.index, i] <- block$H[var.index, -var.index, i] <- 0
   }
+  block$status <- check.block.status(block)
   return(block)
 }
 
@@ -108,9 +109,13 @@ CAR_prior <- function(block, adj.matrix, scale, rho, var.index = 1:block$n) {
   R <- (D.mat - adj.matrix)
   R1 <- ((1 - rho) * diag(k) + rho * R)
 
+  sum.var <- sum(block$R1[var.index, var.index])
   R1_decomp <- eigen(R1)
+  var.cols <- apply(R1_decomp$vector, 2, var)
+  index <- which(var.cols == min(var.cols))
 
-  R1_decomp$values <- ifelse(R1_decomp$values < 1e-6, 0, 1 / R1_decomp$values)
+  R1_decomp$values[index] <- 1 / (sum.var * (R1_decomp$vector[1, index]**2))
+  R1_decomp$values <- 1 / R1_decomp$values
   R1 <- R1_decomp$vector %*% diag(R1_decomp$values) %*% t(R1_decomp$vector)
 
   if (is.character(scale)) {
@@ -134,6 +139,7 @@ CAR_prior <- function(block, adj.matrix, scale, rho, var.index = 1:block$n) {
     block$H[var.index, var.index, i] <- transf %*% block$H[var.index, var.index, i] %*% transf
     block$H[-var.index, var.index, i] <- block$H[var.index, -var.index, i] <- 0
   }
+  block$status <- check.block.status(block)
 
   return(block)
 }
@@ -186,5 +192,6 @@ joint_prior <- function(block, var.index = 1:block$n, a1 = block$a1[var.index], 
   if (any(flags)) {
     block$G.labs[colAny(flags), colAny(flags)] <- "noise.disc"
   }
+  block$status <- check.block.status(block)
   return(block)
 }

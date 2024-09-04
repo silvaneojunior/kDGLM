@@ -138,7 +138,3 @@ stats::simulate
 #' @importFrom generics forecast
 #' @export
 generics::forecast
-
-#' @importFrom generics fit
-#' @export
-generics::fit

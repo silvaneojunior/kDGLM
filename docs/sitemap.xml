@@ -112,9 +112,6 @@
     <loc>/reference/create_G.html</loc>
   </url>
   <url>
-    <loc>/reference/dlm_sampling.html</loc>
-  </url>
-  <url>
     <loc>/reference/dmvnorm.html</loc>
   </url>
   <url>
@@ -140,9 +137,6 @@
   </url>
   <url>
     <loc>/reference/forecast.fitted_dlm.html</loc>
-  </url>
-  <url>
-    <loc>/reference/forecast.html</loc>
   </url>
   <url>
     <loc>/reference/f_joint_root.html</loc>
@@ -251,9 +245,6 @@
   </url>
   <url>
     <loc>/reference/rowQuantile.html</loc>
-  </url>
-  <url>
-    <loc>/reference/set.block.value.html</loc>
   </url>
   <url>
     <loc>/reference/simulate.fitted_dlm.html</loc>

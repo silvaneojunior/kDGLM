@@ -6,7 +6,6 @@
 \alias{specify}
 \alias{simulate}
 \alias{forecast}
-\alias{fit}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -14,7 +13,7 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{generics}{\code{\link[generics]{fit}}, \code{\link[generics]{forecast}}, \code{\link[generics]{specify}}}
+  \item{generics}{\code{\link[generics]{forecast}}, \code{\link[generics]{specify}}}
 
   \item{stats}{\code{\link[stats]{simulate}}}
 }}

@@ -390,9 +390,10 @@ adj.matrix <- br.base |>
   poly2nb() |>
   nb2mat(style = "B")
 
-CAR.structure <- polynomial_block(rate = 1, D = 0.9, name = "CAR") |>
+CAR.structure <- polynomial_block(rate = 1, D = 0.98, name = "CAR") |>
   block_mult(27) |>
   block_rename(levels(gastroBR$UF)) |>
+  zero_sum_prior() |>
   CAR_prior(scale = "Scale", rho = 1, adj.matrix = adj.matrix)
 
 shared.structure <- polynomial_block(
@@ -401,7 +402,7 @@ shared.structure <- polynomial_block(
   PE = 1, AL = 1, SE = 1, BA = 1, MG = 1, ES = 1,
   RJ = 1, SP = 1, PR = 1, SC = 1, RS = 1, MS = 1,
   MT = 1, GO = 1, DF = 1,
-  order = 2, D = c(0.95, 0.975),
+  order = 2, D = c(0.95, 0.95),
   name = "Common"
 ) |>
   intervention(time = 124, var.index = c(1:2), D = 0.005)
@@ -416,9 +417,15 @@ for (uf in levels(gastroBR$UF)) {
   reg.data <- gastroBR |> filter(UF == uf)
   inputs[[uf]] <- Poisson(lambda = uf, data = reg.data$Admissions, offset = reg.data$Population)
 }
-inputs$Scale <- 10**seq.int(-5, 1, l = 21)
+# inputs$Scale <- 10**seq.int(-5, 1, l = 21)
+inputs$Scale <- 0.01
 model.search <- do.call(fit_model, inputs)
-fitted.model <- model.search$model
+# fitted.model <- model.search$model
+fitted.model <- model.search
+```
+
+```{r}
+plot(fitted.model)
 ```
 
 
