@@ -4,3 +4,4 @@
 ^extra$
 ^docs$
 ^_pkgdown.yml$
+^CITATION.cff$

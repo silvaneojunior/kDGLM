@@ -2,6 +2,7 @@
 % Please edit documentation in R/structure_helper.R
 \name{harmonic_block}
 \alias{harmonic_block}
+\alias{har}
 \title{Structural blocks for seasonal trends and regressions}
 \usage{
 harmonic_block(
@@ -16,6 +17,8 @@ harmonic_block(
   R1 = 4,
   monitoring = rep(FALSE, order * 2)
 )
+
+har(period, order = 1, D = 0.98, a1 = 0, R1 = 4, name = "Var.Sazo")
 }
 \arguments{
 \item{...}{Named values for the planning matrix.}

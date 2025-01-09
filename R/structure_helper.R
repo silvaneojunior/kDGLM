@@ -256,6 +256,7 @@ base_block <- function(..., order, name,
 #' @seealso \code{\link{fit_model}}
 #' @family auxiliary functions for structural blocks
 #'
+#' @rdname polynomial_block
 #'
 #' @references
 #'    \insertAllCited{}
@@ -367,6 +368,7 @@ polynomial_block <- function(..., order = 1, name = "Var.Poly",
 #'
 #' @family auxiliary functions for structural blocks
 #'
+#' @rdname harmonic_block
 #'
 #' @references
 #'    \insertAllCited{}
@@ -413,6 +415,7 @@ harmonic_block <- function(..., period, order = 1, name = "Var.Sazo",
 #' Creates a block for a (dynamic) regression for a covariate X_t.
 #'
 #' @param ... Named values for the planning matrix.
+#' @param X Vector or scalar: An argument providing the values of the covariate X_t.
 #' @param max.lag Non-negative integer: An optional argument providing the maximum lag for the explanatory variables. If a positive value is provided, this block will create additional latent states to measure the lagged effect of X_t up until the given value. See \insertCite{WestHarr-DLM;textual}{kDGLM}, subsection 9.2.2 item (3).
 #' @param zero.fill boolean: A Boolean indicating if the block should fill the initial delay values with 0's. If TRUE and max.lag is positive, the block assumes that X_t=0 for all t<1. If FALSE, the block assumes the user will provide X_t for all t, such that X_t will have size t+propagation_size
 #' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
@@ -471,6 +474,7 @@ harmonic_block <- function(..., period, order = 1, name = "Var.Sazo",
 #'
 #' @seealso \code{\link{fit_model}}
 #'
+#' @rdname regression_block
 #' @family auxiliary functions for structural blocks
 #'
 #'
@@ -521,6 +525,7 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #' @param noise.var Non-negative scalar: The variance of the white noise added to the latent state.
 #' @param noise.disc Vector or scalar: The value for the discount factor associated with the current latent state. If noise.disc is a vector, it should have size t and it is interpreted as the discount factor at each observed time. If D is a scalar, the same discount will be used for all observation.
 #' @param pulse Vector or scalar: An optional argument providing the values for the pulse for a Transfer Function. Default is 0 (no Transfer Function).
+#' @param X Vector or scalar: An argument providing the values for the pulse for a Transfer Function.
 #' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
 #' @param AR.support String: Either "constrained" or "free" (default). If AR.support is "constrained", then the AR coefficients will be forced to be on the interval (-1,1), otherwise, the coefficients will be unrestricted. Beware that, under no restriction on the coefficients, there is no guarantee that the estimated coefficients will imply in a stationary process, furthermore, if the order of the AR block is greater than 1. As such the restriction of the coefficients support is only available for AR blocks with order equal to 1.
 #' @param h Vector or scalar: A drift to be add in the states after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a vector, it should have size t, and each value will be applied in their respective time. If a scalar, the passed value will be used for all observations.
@@ -587,6 +592,8 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #' @seealso \code{\link{fit_model}}
 #'
 #' @family auxiliary functions for structural blocks
+#'
+#' @rdname tf_block
 #'
 #' @references
 #'    \insertAllCited{}
@@ -740,6 +747,8 @@ TF_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
 #' For the details about dynamic regression models in the context of DLMs, see \insertCite{WestHarr-DLM;textual}{kDGLM}, chapters 6 and 9.
 #'
 #' @seealso \code{\link{fit_model}}
+#'
+#' @rdname noise_block
 #'
 #' @family auxiliary functions for structural blocks
 #'
@@ -1095,4 +1104,38 @@ specify.dlm_block <- function(x, ...) {
   }
   x$status <- check.block.status(x)
   return(x)
+}
+
+#' @rdname harmonic_block
+#' @export
+har <- function(period, order = 1, D = 0.98, a1 = 0, R1 = 4, name = "Var.Sazo") {
+  harmonic_block(mu = 1, period = period, order = order, D = D, a1 = a1, R1 = R1, name = name)
+}
+#' @rdname regression_block
+#' @export
+reg <- function(X, max.lag = 0, zero.fill = TRUE, D = 0.95, a1 = 0, R1 = 9, name = "Var.Reg") {
+  regression_block(mu = X, max.lag = max.lag, zero.fill = zero.fill, D = D, a1 = a1, R1 = R1, name = name)
+}
+#' @rdname polynomial_block
+#' @export
+pol <- function(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly") {
+  polynomial_block(mu = 1, order = order, D = D, a1 = a1, R1 = R1, name = name)
+}
+#' @rdname tf_block
+#' @export
+AR <- function(order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, a1.coef = NULL, R1.coef = NULL, name = "Var.AR") {
+  TF_block(mu = 1, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, a1.coef = a1.coef, R1.coef = R1.coef, name = name)
+}
+#' @rdname tf_block
+#' @export
+TF <- function(X, order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, a1.coef = NULL, R1.coef = NULL, a1.pulse = 0, R1.pulse = 4, name = "Var.AR") {
+  TF_block(
+    mu = 1, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, a1.coef = a1.coef, R1.coef = R1.coef,
+    pulse = X, a1.pulse = a1.pulse, R1.pulse = R1.pulse, name = name
+  )
+}
+#' @rdname noise_block
+#' @export
+noise <- function(name = "Noise", D = 0.99, R1 = 0.1, H = 0) {
+  noise_block(mu = 1, D = D, R1 = R1, H = H, name = name)
 }

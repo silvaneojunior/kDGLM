@@ -139,6 +139,9 @@
     <loc>/reference/forecast.fitted_dlm.html</loc>
   </url>
   <url>
+    <loc>/reference/formula.to.structure.html</loc>
+  </url>
+  <url>
     <loc>/reference/f_joint_root.html</loc>
   </url>
   <url>
@@ -179,6 +182,9 @@
   </url>
   <url>
     <loc>/reference/joint_prior.html</loc>
+  </url>
+  <url>
+    <loc>/reference/kdglm.html</loc>
   </url>
   <url>
     <loc>/reference/lcm.html</loc>
@@ -268,7 +274,7 @@
     <loc>/reference/summary.searched_dlm.html</loc>
   </url>
   <url>
-    <loc>/reference/TF_block.html</loc>
+    <loc>/reference/tf_block.html</loc>
   </url>
   <url>
     <loc>/reference/times-.dlm_block.html</loc>

@@ -195,8 +195,9 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
 
       if (any(null.flags)) {
         D.mat <- diag(D.p)
-        # weight <- (((t - 1) / t)) * D.mat
-        weight <- D.mat
+        weight <- (((t - 1) / t)) * D.mat
+        # weight <- (((t-1) / t))
+        # weight <- D.mat
         # weight <- D.mat
         m2 <- last.m %*% t(last.m) + last.C
         # m2=last.C*0
@@ -242,7 +243,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
             ft.canom <- offset.pred$ft
             Qt.canom <- offset.pred$Qt
             conj.prior <- outcome$conj_distr(ft.canom, Qt.canom, parms = outcome$parms)
-            log.like <- log.like + outcome$calc_pred(conj.prior, outcome$data[t, ], parms = outcome$parms, pred.cred = NA)$log.like
+            log.like <- log.like + outcome$calc_pred(conj.prior, outcome$data[t, ], parms = outcome$parms, pred.cred = NA)$log.like |> sum()
           }
         }
 
@@ -254,15 +255,15 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
     if (!is.na(p.monit)) {
       log.like.null[t] <- models$null.model$log.like
       log.like.alt[t] <- models$alt.model$log.like
-      bayes.factor <- sum(log.like.null[t:(t - monit.win + 1)] +
-        -log.like.alt[t:(t - monit.win + 1)]) |>
+      bayes.factor <- sum(log.like.null[(t - monit.win + 1):t] +
+        -log.like.alt[(t - monit.win + 1):t], na.rm = TRUE) |>
         if.nan(0)
 
       if (monit.win > 0) {
         if (bayes.factor < threshold) {
           model <- models$alt.model
           conj.prior <- models$alt.model$conj.prior
-          monit.win <- -6
+          monit.win <- -6 # The -6 is to avoid consecutive interventions. After a intervention is done, you have to wait 5 observations before the next one.
           alt.flags[t] <- 1
         } else if (bayes.factor > 0) {
           monit.win <- 0

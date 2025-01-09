@@ -2,6 +2,7 @@
 % Please edit documentation in R/structure_helper.R
 \name{polynomial_block}
 \alias{polynomial_block}
+\alias{pol}
 \title{Structural blocks for polynomial trends and regressions}
 \usage{
 polynomial_block(
@@ -15,6 +16,8 @@ polynomial_block(
   R1 = c(9, rep(1, order - 1)),
   monitoring = c(TRUE, rep(FALSE, order - 1))
 )
+
+pol(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly")
 }
 \arguments{
 \item{...}{Named values for the planning matrix.}

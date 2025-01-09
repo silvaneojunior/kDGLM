@@ -126,9 +126,12 @@ polynomial_block(...,
   a1 = 0, R1 = c(9, rep(1, order - 1)),
   monitoring = c(TRUE, rep(FALSE, order - 1))
 )
+
+# When used in a formula
+pol(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly")
 ```
 
-Recall the notation introduced in Section [Notation](intro.html#notation) and revisited at the beginning of this vignette. The `polynomial_block` function will create a structural block based on @WestHarr-DLM, chapter 7. This involves the creation of a latent vector $\vec{\theta}_t=(\theta_{1,t},...,\theta_{n,t})'$, such that:
+Recall the notation introduced in Section [Notation](intro.html#notation) and revisited at the beginning of this vignette. The `polynomial_block` function will create a structural block based on @WestHarr-DLM, chapter 7. The `pol` function is a simplified version meant to be used inside formulas in the `kdglm` function and has the same syntax as the `polynomial_block` function. This involves the creation of a latent vector $\vec{\theta}_t=(\theta_{1,t},...,\theta_{n,t})'$, such that:
 
 \begin{equation}
 \begin{aligned}
@@ -273,9 +276,12 @@ regression_block(...,
   R1 = 9,
   monitoring = rep(FALSE, max.lag + 1)
 )
+
+# When used in a formula
+reg(X, max.lag = 0, zero.fill = TRUE, D = 0.95, a1 = 0, R1 = 9, name = "Var.Reg")
 ```
 
-The `regression_block` function creates a structural block for a dynamic regression with covariate $X_t$, as specified in @WestHarr-DLM, chapter 9. When `max.lag` is equal to $0$, this function can be see as a wrapper for the `polynomial_block` function with order equal to $1$. When `max.lag` is greater or equal to $1$, the `regression_block` function is equivalent to the superposition of several `polynomial_block` functions with order equal to $1$. Specifically, if the linear predictor $\lambda_t$ is associated with this block, we can describe its structure with the following equations:
+The `regression_block` function creates a structural block for a dynamic regression with covariate $X_t$, as specified in @WestHarr-DLM, chapter 9. The `reg` function is a simplified version meant to be used inside formulas in the `kdglm` function and has the same syntax as the `regression_block` function. When `max.lag` is equal to $0$, this function can be see as a wrapper for the `polynomial_block` function with order equal to $1$. When `max.lag` is greater or equal to $1$, the `regression_block` function is equivalent to the superposition of several `polynomial_block` functions with order equal to $1$. Specifically, if the linear predictor $\lambda_t$ is associated with this block, we can describe its structure with the following equations:
 
 $$
 \begin{equation}
@@ -352,6 +358,9 @@ harmonic_block(
   R1 = 4,
   monitoring = rep(FALSE, order * 2)
 )
+
+# When used in a formula
+har(period, order = 1, D = 0.98, a1 = 0, R1 = 4, name = "Var.Sazo")
 ```
 
 This function will creates a structural block based on  @WestHarr-DLM, chapter 8, i.e., it creates a latent vector $\theta_t=(\theta_{1,t},\theta_{2,t},...,\theta_{2\times order-1,t},\theta_{2\times order,t})'$, so that:
@@ -432,6 +441,12 @@ TF_block(
   H.pulse = 0,
   monitoring.pulse = NA
 )
+
+# When used in a formula
+TF(X, order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, a1.coef = NULL, R1.coef = NULL, a1.pulse = 0, R1.pulse = 4, name = "Var.AR")
+
+# Wrapper for the autoregressive structure
+AR(order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, a1.coef = NULL, R1.coef = NULL, name = "Var.AR")
 ```
 
 This function creates a structural block based on  @WestHarr-DLM, chapter 9, i.e., it creates a latent state vector $\theta_t$, an autoregressive (AR) coefficient vector $\phi_t=(\phi_{1,t},...,\phi_{order, t})'$ and a pulse coefficient vector $\rho_t=(\rho_{1,t},...,\rho_{l,t})'$, where $l$ is the number of pulses (discussed later on) so that:
@@ -603,6 +618,9 @@ $$
 
 ```{r eval=FALSE, include=TRUE}
 noise_block(..., name = "Noise", D = 0.99, R1 = 1)
+
+# When used in a formula
+noise(name = "Noise", D = 0.99, R1 = 0.1, H = 0)
 ```
 
 This function will creates a sequence of **independent** latent variables $\epsilon_1,...,\epsilon_t$ based on the discussions presented in @ArtigoMultivar, such that:

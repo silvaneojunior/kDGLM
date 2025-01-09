@@ -2,9 +2,12 @@
 % Please edit documentation in R/structure_helper.R
 \name{noise_block}
 \alias{noise_block}
+\alias{noise}
 \title{noise_block}
 \usage{
 noise_block(..., name = "Noise", D = 0.99, R1 = 0.1, H = 0)
+
+noise(name = "Noise", D = 0.99, R1 = 0.1, H = 0)
 }
 \arguments{
 \item{...}{Named values for the planning matrix.}

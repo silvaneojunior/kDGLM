@@ -2,6 +2,7 @@
 % Please edit documentation in R/structure_helper.R
 \name{regression_block}
 \alias{regression_block}
+\alias{reg}
 \title{Structural blocks for regressions}
 \usage{
 regression_block(
@@ -15,6 +16,16 @@ regression_block(
   a1 = 0,
   R1 = 9,
   monitoring = rep(FALSE, max.lag + 1)
+)
+
+reg(
+  X,
+  max.lag = 0,
+  zero.fill = TRUE,
+  D = 0.95,
+  a1 = 0,
+  R1 = 9,
+  name = "Var.Reg"
 )
 }
 \arguments{
@@ -37,6 +48,8 @@ regression_block(
 \item{R1}{Matrix, vector or scalar: The prior covariance matrix for the latent states associated with this block at time 1. If R1 is a matrix, its dimensions should be n x n. If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.}
 
 \item{monitoring}{Vector: A vector of flags indicating which variables should be monitored (if automated monitoring is used). Its size should be n. The default is that no variable should be monitored.}
+
+\item{X}{Vector or scalar: An argument providing the values of the covariate X_t.}
 }
 \value{
 A dlm_block object containing the following values:

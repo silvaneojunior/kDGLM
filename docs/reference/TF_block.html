@@ -3,7 +3,7 @@
 , chapter 9) with desired order.
 As the package suppose that the structure of the model is linear, a linearization is applied to the evolution equation, as described in West and Harrison (1997)
 , chapter 13.
-This block also supports Transfer Functions, being necessary to specify the associated pulse when calling the TF_block function (see arg.)."><title>Structural blocks for auto regressive trends and regressions — TF_block • kDGLM</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Structural blocks for auto regressive trends and regressions — TF_block"><meta property="og:description" content="Creates the structure for a Auto Regressive (AR) block (see West and Harrison (1997)
+This block also supports Transfer Functions, being necessary to specify the associated pulse when calling the TF_block function (see arg.)."><title>Structural blocks for auto regressive trends and regressions — TF_block • kDGLM</title><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet"><script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous"><!-- bootstrap-toc --><script src="https://cdn.jsdelivr.net/gh/afeld/bootstrap-toc@v1.0.1/dist/bootstrap-toc.min.js" integrity="sha256-4veVQbu7//Lk5TSmc7YV48MxtMy98e26cf5MrgZYnwo=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js" integrity="sha512-7O5pXpc0oCRrxk8RUfDYFgn0nO1t+jLuIOQdOMRp4APB7uZ4vSjspzp5y6YDtDs4VzUSTbWzBFZ/LKJhnyFOKw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- search --><script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/6.4.6/fuse.js" integrity="sha512-zv6Ywkjyktsohkbp9bb45V6tEMoWhzFzXis+LrMehmJZZSys19Yxf1dopHx7WzIKxr5tK2dVcYmaCk2uqdjF4A==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/autocomplete.js/0.38.0/autocomplete.jquery.min.js" integrity="sha512-GU9ayf+66Xx2TmpxqJpliWbT5PiGYxpaG8rfnBEk1LL8l1KGkRShhngwdXK1UgqhAzWpZHSiYPc09/NwDQIGyg==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js" integrity="sha512-5CYOlHXGh6QpOFA/TeTylKLWfB3ftPsde7AnmhuitiTX4K5SqCLBeKro6sPS8ilsz1Q4NRx3v8Ko2IBiszzdww==" crossorigin="anonymous"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Structural blocks for auto regressive trends and regressions — TF_block"><meta property="og:description" content="Creates the structure for a Auto Regressive (AR) block (see West and Harrison (1997)
 , chapter 9) with desired order.
 As the package suppose that the structure of the model is linear, a linearization is applied to the evolution equation, as described in West and Harrison (1997)
 , chapter 13.
@@ -14,11 +14,11 @@ This block also supports Transfer Functions, being necessary to specify the asso
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light" data-bs-theme="light"><div class="container">
     
     <a class="navbar-brand me-2" href="../index.html">kDGLM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,7 +57,7 @@ This block also supports Transfer Functions, being necessary to specify the asso
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Structural blocks for auto regressive trends and regressions</h1>
       <small class="dont-index">Source: <a href="https://github.com/silvaneojunior/kDGLM/blob/HEAD/R/structure_helper.R" class="external-link"><code>R/structure_helper.R</code></a></small>
-      <div class="d-none name"><code>TF_block.Rd</code></div>
+      <div class="d-none name"><code>tf_block.Rd</code></div>
     </div>
 
     <div class="ref-description section level2">
@@ -94,6 +94,31 @@ This block also supports Transfer Functions, being necessary to specify the asso
 <span>  a1.pulse <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  R1.pulse <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  monitoring.pulse <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">AR</span><span class="op">(</span></span>
+<span>  order <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  noise.var <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  noise.disc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  a1 <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  R1 <span class="op">=</span> <span class="fl">9</span>,</span>
+<span>  a1.coef <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  R1.coef <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  name <span class="op">=</span> <span class="st">"Var.AR"</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">TF</span><span class="op">(</span></span>
+<span>  <span class="va">X</span>,</span>
+<span>  order <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  noise.var <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  noise.disc <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  a1 <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  R1 <span class="op">=</span> <span class="fl">9</span>,</span>
+<span>  a1.coef <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  R1.coef <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  a1.pulse <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  R1.pulse <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  name <span class="op">=</span> <span class="st">"Var.AR"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -189,6 +214,10 @@ This block also supports Transfer Functions, being necessary to specify the asso
 
 <dt>monitoring.pulse</dt>
 <dd><p>Vector: A vector of flags indicating which pulse coefficients should be monitored (if automated monitoring is used). Its size should be n, where n is the number of pulses. The default is that no pulse coefficient should be monitored.</p></dd>
+
+
+<dt>X</dt>
+<dd><p>Vector or scalar: An argument providing the values for the pulse for a Transfer Function.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -298,11 +327,11 @@ ISBN 0387947256.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p></p><p>Developed by Silvaneo Vieira dos Santos Junior, Mariane Branco Alves, Hélio dos Santos Migon.</p>
+  <p>Developed by Silvaneo Vieira dos Santos Junior, Mariane Branco Alves, Hélio dos Santos Migon.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.9.</p>
 </div>
 
     </footer></div>

@@ -2,6 +2,8 @@
 % Please edit documentation in R/structure_helper.R
 \name{TF_block}
 \alias{TF_block}
+\alias{AR}
+\alias{TF}
 \title{Structural blocks for auto regressive trends and regressions}
 \usage{
 TF_block(
@@ -28,6 +30,31 @@ TF_block(
   a1.pulse = 0,
   R1.pulse = 4,
   monitoring.pulse = FALSE
+)
+
+AR(
+  order = 1,
+  noise.var = NULL,
+  noise.disc = NULL,
+  a1 = 0,
+  R1 = 9,
+  a1.coef = NULL,
+  R1.coef = NULL,
+  name = "Var.AR"
+)
+
+TF(
+  X,
+  order = 1,
+  noise.var = NULL,
+  noise.disc = NULL,
+  a1 = 0,
+  R1 = 9,
+  a1.coef = NULL,
+  R1.coef = NULL,
+  a1.pulse = 0,
+  R1.pulse = 4,
+  name = "Var.AR"
 )
 }
 \arguments{
@@ -76,6 +103,8 @@ TF_block(
 \item{R1.pulse}{Matrix, vector or scalar: The prior covariance matrix for the coefficients associated with the pulses at time 1. If R1.pulse is a matrix, its dimensions should be n x n, where n is the number of pulses. If R1.pulse is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1.pulse in the diagonal.}
 
 \item{monitoring.pulse}{Vector: A vector of flags indicating which pulse coefficients should be monitored (if automated monitoring is used). Its size should be n, where n is the number of pulses. The default is that no pulse coefficient should be monitored.}
+
+\item{X}{Vector or scalar: An argument providing the values for the pulse for a Transfer Function.}
 }
 \value{
 A dlm_block object containing the following values:

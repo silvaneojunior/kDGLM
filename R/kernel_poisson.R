@@ -42,7 +42,7 @@
 #' @references
 #'    \insertAllCited{}
 Poisson <- function(lambda, data, offset = as.matrix(data)**0) {
-  if (any(ceiling(data) != floor(data))) {
+  if (any(ceiling(data) != floor(data), na.rm = TRUE)) {
     stop("Error: data must be an intenger vector/matrix.")
   }
   alt.method <- FALSE
@@ -164,6 +164,7 @@ convert_Normal_Poisson <- function(conj.param, parms) {
 update_Poisson <- function(conj.param, ft, Qt, y, parms) {
   alpha <- conj.param$alpha
   beta <- conj.param$beta
+
   alpha <- alpha + y
   beta <- beta + 1
   return(list("alpha" = alpha, "beta" = beta))

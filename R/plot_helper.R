@@ -61,7 +61,7 @@ plot.fitted_dlm <- function(x, outcomes = NULL, latent.states = NULL, linear.pre
 
   if (!is.null(outcomes)) {
     flags.outcomes <- (sapply(outcomes, function(x) {
-      grepl(x, outcome.names, ignore.case = TRUE)
+      grepl(tolower(x), tolower(outcome.names), fixed = TRUE)
     }) |> matrix(length(outcome.names), length(outcomes)) |> rowSums()) > 0
   } else {
     flags.outcomes <- rep(FALSE, length(outcome.names))
@@ -69,7 +69,7 @@ plot.fitted_dlm <- function(x, outcomes = NULL, latent.states = NULL, linear.pre
 
   if (!is.null(latent.states)) {
     flags.theta <- (sapply(latent.states, function(x) {
-      grepl(x, theta.names, ignore.case = TRUE)
+      grepl(tolower(x), tolower(theta.names), fixed = TRUE)
     }) |> matrix(length(theta.names), length(latent.states)) |> rowSums()) > 0
   } else {
     flags.theta <- rep(FALSE, length(theta.names))
@@ -77,7 +77,7 @@ plot.fitted_dlm <- function(x, outcomes = NULL, latent.states = NULL, linear.pre
 
   if (!is.null(linear.predictors)) {
     flags.lambda <- (sapply(linear.predictors, function(x) {
-      grepl(x, lambda.names, ignore.case = TRUE)
+      grepl(tolower(x), tolower(lambda.names), fixed = TRUE)
     }) |> matrix(length(lambda.names), length(linear.predictors)) |> rowSums()) > 0
   } else {
     flags.lambda <- rep(FALSE, length(lambda.names))
@@ -360,10 +360,10 @@ plot.dlm_coef <- function(x, var = rownames(x$theta.mean)[x$dynamic], cutoff = f
   pred.names <- rownames(x$lambda.mean)
 
   flags.var <- (sapply(var, function(x) {
-    grepl(x, var.labels, ignore.case = TRUE)
+    grepl(tolower(x), tolower(var.labels), fixed = TRUE)
   }) |> matrix(length(var.labels), length(var)) |> rowSums()) > 0
   flags.pred <- (sapply(var, function(x) {
-    grepl(x, pred.names, ignore.case = TRUE)
+    grepl(tolower(x), tolower(pred.names), fixed = TRUE)
   }) |> matrix(length(pred.names), length(var)) |> rowSums()) > 0
 
   if (!any(flags.var) & !any(flags.pred)) {
