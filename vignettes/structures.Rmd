@@ -343,6 +343,75 @@ legend("topright", legend = c("True value", "Mean", "C.I. 95%"), lty = c(2, 1, 2
 
 The detailed theory behind the structure discussed in this section can be found in chapters 6 and 9 from @WestHarr-DLM.
 
+# A structure for free-form seaonal trend models
+
+```{r eval=FALSE, include=TRUE}
+ffs_block(
+  ...,
+  period,
+  name = "Var.FFS",
+  D = 1,
+  h = 0,
+  H = 0,
+  a1 = 0,
+  R1 = 4,
+  monitoring = rep(FALSE, order * 2)
+)
+
+# When used in a formula
+ffs(period, order = 1, D = 0.98, a1 = 0, R1 = 4, name = "Var.FFS")
+```
+
+This function will creates a structural block based on  @WestHarr-DLM, chapter 8, i.e., it creates a latent vector $\theta_t=(\theta_{1,t},...,\theta_{p,t})'$, so that:
+
+$$
+\begin{equation}
+\begin{aligned}
+\theta_{i,t} = \theta_{i+1,t}\\
+\theta_{1,1},...,\theta_{2 \times order,1}&\sim \mathcal{N}_{2\times order}(a_1,R_1),\\
+\omega_{1,t},...,\omega_{2 \times order,t}&\sim \mathcal{N}_{2\times order}(0,W_t),\\
+\end{aligned}
+\end{equation}
+$$
+where $W_t=Var[\theta_t|\mathcal{D}_{t-1}]\odot (1-D_t) \oslash D_t+H_t$ and $w=\frac{2\pi}{period}$.
+
+Notice that the user does not need to specify the matrix $G_t$, since it is implicitly determined by the order and the period of the harmonic block, being a block diagonal matrix where each block is a rotation matrix for an angle multiple of $w$, such that, if `period` is an integer, $G_t^{period}=I$. Notice that, when `period` is an integer, it represents the length of the seasonal cycle. For instance, if we have a time series with monthly observations and we believe this series to have an annual pattern, then we would set the `period` for the harmonic block to be equal to $12$ (the number of observations until the cycle "resets"). For details about the order of the harmonic block and the representation of seasonal patterns with Fourier Series, see  @WestHarr-DLM, chapter 8.
+
+The natural usage of this block is for specifying harmonic trends for the model, but it can also be used for explanatory variables with seasonal effect on the linear predictor, for that, see the usage of the `regression_block` and `polynomial_block` functions.
+
+Here we present a simply usage example for a harmonic block with period $12$:
+
+```{r eval=FALSE, include=TRUE}
+mean_block <- harmonic_block(
+  eta = 1,
+  period = 12,
+  D = 0.975
+)
+```
+
+Bellow we present a plot of a Poisson model with such structure:
+
+```{r include=FALSE}
+# Poisson case
+T <- 60
+w <- 2 * pi / 12
+data <- rpois(T, exp(1.5 * cos(w * 1:T)))
+```
+
+
+```{r echo=FALSE, results='hide'}
+season <- harmonic_block(rate = 1, period = 12, D = 0.975)
+
+outcome <- Poisson(lambda = "rate", data = data)
+
+fitted.data <- fit_model(season, outcome)
+
+plot(fitted.data, lag = -1, plot.pkg = "base")
+```
+
+
+The detailed theory behind the structure discussed in this section can be found in chapters 6, 8 and 9 from @WestHarr-DLM.
+
 # A structure for harmonic trend models
 
 ```{r eval=FALSE, include=TRUE}

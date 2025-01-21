@@ -66,7 +66,6 @@ Other auxiliary functions for fitted_dlm objects:
 \code{\link{eval_dlm_norm_const}()},
 \code{\link{fit_model}()},
 \code{\link{forecast.fitted_dlm}()},
-\code{\link{kdglm}()},
 \code{\link{simulate.fitted_dlm}()},
 \code{\link{smoothing}()},
 \code{\link{update.fitted_dlm}()}
