@@ -126,7 +126,7 @@ var_decomp <- function(S) {
 ginv <- function(S) {
   S <- as.matrix(S)
   Chol.decomp <- var_decomp(S)
-  flags <- diag(Chol.decomp) > 1e-8
+  flags <- diag(Chol.decomp) > 1e-6
   if (!all(flags)) {
     inv <- S * 0
     inv[flags, flags] <- chol2inv(Chol.decomp[flags, flags])
@@ -135,6 +135,7 @@ ginv <- function(S) {
   }
   return(inv)
 }
+# ginv <- MASS::ginv
 # ginv <- function(S) {
 #   Chol.decomp <- cholesky(S)
 #   if (prod(diag(Chol.decomp), na.rm = TRUE) < 1e-12 || any(is.na(Chol.decomp))) {

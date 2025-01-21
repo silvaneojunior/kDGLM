@@ -37,11 +37,11 @@
 #'
 #' @references
 #'    \insertAllCited{}
-Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, offset = as.matrix(data)**0) {
+Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, offset = as.matrix(data)**0,alt.method=FALSE) {
   if (min(data, na.rm = TRUE) < 0) {
     stop("Error: data must be a positive vector/matrix.")
   }
-  alt.method <- FALSE
+  # alt.method <- FALSE
   data <- as.matrix(data)
 
   # phi=deparse(substitute(phi))[[1]] |> check.expr()
@@ -126,13 +126,13 @@ Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, of
       param.names = c("n", "k", "tau", "theta")
     )
 
-    # if (alt.method) {
-    #   distr$conj_distr <- format_ft
-    #   distr$norm_distr <- format_param
-    #   distr$update <- update_FGamma_alt
-    #   distr$calc_pred <- Fgamma_pred_alt
-    #   distr$param.names <- generic_param_names(k)
-    # }
+    if (alt.method) {
+      distr$conj_distr <- format_ft
+      distr$norm_distr <- format_param
+      # distr$update <- update_FGamma_alt
+      # distr$calc_pred <- Fgamma_pred_alt
+      distr$param.names <- generic_param_names(k)
+    }
   }
 
   distr$pred.names <- pred.names
