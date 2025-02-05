@@ -23,18 +23,19 @@ harmonic_block(
 ffs_block(
   ...,
   period,
+  sum.zero = FALSE,
   name = "Var.FFS",
   D = 1,
   h = 0,
   H = 0,
   a1 = 0,
-  R1 = 9,
+  R1 = 4,
   monitoring = FALSE
 )
 
-har(period, order = 1, D = 0.98, a1 = 0, R1 = 4, name = "Var.Sazo")
+har(period, order = 1, D = 0.98, a1 = 0, R1 = 4, name = "Var.Sazo", X = 1)
 
-ffs(period, D = 0.95, a1 = 0, R1 = 9, name = "Var.FFS")
+ffs(period, D = 0.95, a1 = 0, R1 = 9, name = "Var.FFS", X = 1)
 }
 \arguments{
 \item{...}{Named values for the planning matrix.}
@@ -56,6 +57,10 @@ ffs(period, D = 0.95, a1 = 0, R1 = 9, name = "Var.FFS")
 \item{R1}{Matrix, vector or scalar: The prior covariance matrix for the latent states associated with this block at time 1. If R1 is a matrix, its dimensions should be period x period. If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.}
 
 \item{monitoring}{Bool: A indicator if the first latent state should be monitored (if automated monitoring is used).}
+
+\item{sum.zero}{Bool: If true, all latent states will add to 0 and will have a correlated temporal evolution. If false, the first observation is considered the base line level and the states will represent the deviation from the baseline.}
+
+\item{X}{Vector or scalar: An argument providing the values of the covariate X_t.}
 }
 \value{
 A dlm_block object containing the following values:

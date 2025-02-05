@@ -7,7 +7,7 @@
 \usage{
 noise_block(..., name = "Noise", D = 0.99, R1 = 0.1, H = 0)
 
-noise(name = "Noise", D = 0.99, R1 = 0.1, H = 0)
+noise(name = "Noise", D = 0.99, R1 = 0.1, H = 0, X = 1)
 }
 \arguments{
 \item{...}{Named values for the planning matrix.}
@@ -19,6 +19,8 @@ noise(name = "Noise", D = 0.99, R1 = 0.1, H = 0)
 \item{R1}{scalar: The prior variance of the noise.}
 
 \item{H}{scalar: The variance of the noise. If both D and H are specified, the value of D is ignored.}
+
+\item{X}{Vector or scalar: An argument providing the values of the covariate X_t.}
 }
 \value{
 A dlm_block object containing the following values:

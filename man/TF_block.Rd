@@ -38,23 +38,25 @@ AR(
   noise.disc = NULL,
   a1 = 0,
   R1 = 9,
-  a1.coef = NULL,
-  R1.coef = NULL,
-  name = "Var.AR"
+  a1.coef = c(1, rep(0, order - 1)),
+  R1.coef = c(1, rep(0.25, order - 1)),
+  name = "Var.AR",
+  X = 1
 )
 
 TF(
-  X,
+  pulse,
   order = 1,
   noise.var = NULL,
   noise.disc = NULL,
   a1 = 0,
   R1 = 9,
-  a1.coef = NULL,
-  R1.coef = NULL,
+  a1.coef = c(1, rep(0, order - 1)),
+  R1.coef = c(1, rep(0.25, order - 1)),
   a1.pulse = 0,
   R1.pulse = 4,
-  name = "Var.AR"
+  name = "Var.AR",
+  X = 1
 )
 }
 \arguments{
@@ -104,7 +106,7 @@ TF(
 
 \item{monitoring.pulse}{Vector: A vector of flags indicating which pulse coefficients should be monitored (if automated monitoring is used). Its size should be n, where n is the number of pulses. The default is that no pulse coefficient should be monitored.}
 
-\item{X}{Vector or scalar: An argument providing the values for the pulse for a Transfer Function.}
+\item{X}{Vector or scalar: An argument providing the values of the covariate X_t.}
 }
 \value{
 A dlm_block object containing the following values:

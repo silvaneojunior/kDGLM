@@ -4,7 +4,14 @@
 \alias{CAR_prior}
 \title{CAR prior}
 \usage{
-CAR_prior(block, adj.matrix, scale, rho, var.index = 1:block$n)
+CAR_prior(
+  block,
+  adj.matrix,
+  scale,
+  rho,
+  sum.zero = FALSE,
+  var.index = 1:block$n
+)
 }
 \arguments{
 \item{block}{dlm_block object: The structural block.}
@@ -14,6 +21,8 @@ CAR_prior(block, adj.matrix, scale, rho, var.index = 1:block$n)
 \item{scale}{numeric: The tau parameter for the CAR model (see references).}
 
 \item{rho}{numeric: The rho parameter for the CAR model (see references).}
+
+\item{sum.zero}{Bool: If true, all latent states will add to 0.}
 
 \item{var.index}{integer: The index of the variables from which to set the prior.}
 }

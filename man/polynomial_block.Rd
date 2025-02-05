@@ -17,7 +17,7 @@ polynomial_block(
   monitoring = c(TRUE, rep(FALSE, order - 1))
 )
 
-pol(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly")
+pol(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly", X = 1)
 }
 \arguments{
 \item{...}{Named values for the planning matrix.}
@@ -37,6 +37,8 @@ pol(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly")
 \item{R1}{Matrix, vector or scalar: The prior covariance matrix for the latent states associated with this block at time 1. If R1 is a matrix, its dimensions should be n x n. If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.}
 
 \item{monitoring}{Vector: A vector of flags indicating which variables should be monitored (if automated monitoring is used). Its size should be n. The default is that only the first order component of this structure should be monitored.}
+
+\item{X}{Vector or scalar: An argument providing the values of the covariate X_t.}
 }
 \value{
 A dlm_block object containing the following values:

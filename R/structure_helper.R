@@ -54,7 +54,7 @@ base_block <- function(..., order, name,
     }
   } else if (is.matrix(D)) {
     D <- array(D, c(dim(D)[1], dim(D)[2], t))
-  } else if (length(dim(D)) == 3 & dim(D)[3]==1) {
+  } else if (length(dim(D)) == 3 & dim(D)[3] == 1) {
     D <- array(D, c(dim(D)[1], dim(D)[2], t))
   }
   t <- if (t == 1) {
@@ -188,7 +188,8 @@ base_block <- function(..., order, name,
     "monitoring" = monitoring,
     "interventions" = list(),
     "type" = "Basic",
-    "scale" = rep(1, order)
+    "scale" = rep(1, order),
+    "direction" = diag(order)
   )
   class(block) <- "dlm_block"
   block$status <- check.block.status(block)
@@ -421,6 +422,7 @@ harmonic_block <- function(..., period, order = 1, name = "Var.Sazo",
 #'
 #' @param ... Named values for the planning matrix.
 #' @param X Vector or scalar: An argument providing the values of the covariate X_t.
+#' @param sum.zero Bool: If true, all latent states will add to 0 and will have a correlated temporal evolution. If false, the first observation is considered the base line level and the states will represent the deviation from the baseline.
 #' @param period Positive integer: The size of the seasonal cycle. This block has one latent state for each element of the cycle, such that the number of latent states n is equal to the period.
 #' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
 #' @param D Vector or scalar: The values for the discount factors associated with the first latent state (the current effect) at each time. If D is a vector, it should have size t and it is interpreted as the discount factor at each observed time. If D is a scalar, the same discount will be used at all times.
@@ -478,13 +480,13 @@ harmonic_block <- function(..., period, order = 1, name = "Var.Sazo",
 #'
 #' @family auxiliary functions for structural blocks
 #'
-#' @rdname harmonic_block
+#' @rdname ffs_block
 #'
 #' @references
 #'    \insertAllCited{}
-ffs_block <- function(..., period, name = "Var.FFS",
+ffs_block <- function(..., period, sum.zero = FALSE, name = "Var.FFS",
                       D = 1, h = 0, H = 0,
-                      a1 = 0, R1 = 9,
+                      a1 = 0, R1 = 4,
                       monitoring = FALSE) {
   if (period == 1) {
     stop("The seasonal cycle must have at least size 2.")
@@ -504,7 +506,7 @@ ffs_block <- function(..., period, name = "Var.FFS",
   block.aux <-
     do.call(
       function(...) {
-        base_block(..., order = period - 1, name = name, a1 = 0, R1 = 1, D = D, h = 0, H = 0, monitoring = rep(FALSE, period - 1))
+        base_block(..., order = period - 1, name = name, a1 = 0, R1 = 1, D = 1, h = 0, H = 0, monitoring = rep(FALSE, period - 1))
       },
       dummy.var
     )
@@ -512,7 +514,16 @@ ffs_block <- function(..., period, name = "Var.FFS",
   block <- (block.state + block.aux)
   block$a1 <- a1
   block$R1 <- R1
-  block <- block |> zero_sum_prior()
+  if (sum.zero) {
+    block$D[, , ] <- D
+    block <- block |> zero_sum_prior()
+  } else {
+    A <- diag(period)
+    A[, 1] <- A[, 1] - 1
+    R1 <- diag(7) * 9
+    block$a1 <- A %*% block$a1
+    block$R1 <- A %*% block$R1 %*% t(A)
+  }
 
   G <- matrix(0, period, period)
   G[-period, -1] <- diag(period - 1)
@@ -989,6 +1000,7 @@ block_superpos <- function(...) {
   position <- 1
   monitoring <- c()
   scale <- c()
+  direction <- diag(0, n, n)
   interventions <- list()
   status <- "defined"
   for (block in blocks) {
@@ -1005,7 +1017,8 @@ block_superpos <- function(...) {
     a1 <- c(a1, block$a1)
     R1[current.range, current.range] <- block$R1
     monitoring <- append(monitoring, block$monitoring)
-    scale <- append(scale, block$scale)
+    scale <- c(scale, block$scale)
+    direction[current.range, current.range] <- block$direction
     if (length(block$interventions) > 0) {
       for (i in 1:length(block$interventions)) {
         block$interventions[[i]]$var.index <- block$interventions[[i]]$var.index + position - 1
@@ -1036,7 +1049,8 @@ block_superpos <- function(...) {
     "monitoring" = monitoring,
     "interventions" = interventions,
     "type" = "Mixed",
-    "scale" = scale
+    "scale" = scale,
+    "direction" = direction
   )
   class(block) <- "dlm_block"
   block$status <- check.block.status(block)
@@ -1215,9 +1229,8 @@ specify.dlm_block <- function(x, ...) {
     x$R1 <- R1
     if (all(!is.na(scale))) {
       x$scale <- scale
-      scale.mat <- diag(x$n) * sqrt(scale)
-      diag(scale.mat) <- sqrt(scale)
-      x$R1 <- scale.mat %*% R1 %*% scale.mat
+      scale.mat <- x$direction %*% diag(scale, ncol = x$n, nrow = x$n) %*% t(x$direction)
+      x$R1 <- scale.mat %*% R1 %*% t(scale.mat)
     }
   }
   if (all(!is.na(G) | array(x$G.labs != "const", c(x$n, x$n, x$t)))) {
@@ -1229,12 +1242,12 @@ specify.dlm_block <- function(x, ...) {
 
 #' @rdname harmonic_block
 #' @export
-har <- function(period, order = 1, D = 0.98, a1 = 0, R1 = 4, name = "Var.Sazo",X=1) {
+har <- function(period, order = 1, D = 0.98, a1 = 0, R1 = 4, name = "Var.Sazo", X = 1) {
   harmonic_block(mu = X, period = period, order = order, D = D, a1 = a1, R1 = R1, name = name)
 }
-#' @rdname harmonic_block
+#' @rdname ffs_block
 #' @export
-ffs <- function(period, D = 0.95, a1 = 0, R1 = 9, name = "Var.FFS",X=1) {
+ffs <- function(period, D = 0.95, a1 = 0, R1 = 9, name = "Var.FFS", X = 1) {
   harmonic_block(mu = X, period = period, D = D, a1 = a1, R1 = R1, name = name)
 }
 #' @rdname regression_block
@@ -1244,12 +1257,12 @@ reg <- function(X, max.lag = 0, zero.fill = TRUE, D = 0.95, a1 = 0, R1 = 9, name
 }
 #' @rdname polynomial_block
 #' @export
-pol <- function(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly",X=1) {
+pol <- function(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly", X = 1) {
   polynomial_block(mu = X, order = order, D = D, a1 = a1, R1 = R1, name = name)
 }
 #' @rdname tf_block
 #' @export
-AR <- function(order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)), name = "Var.AR",X=1) {
+AR <- function(order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)), name = "Var.AR", X = 1) {
   TF_block(mu = X, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, a1.coef = a1.coef, R1.coef = R1.coef, name = name)
 }
 #' @rdname tf_block
@@ -1257,7 +1270,7 @@ AR <- function(order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, a
 TF <- function(pulse, order = 1, noise.var = NULL, noise.disc = NULL,
                a1 = 0, R1 = 9,
                a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)),
-               a1.pulse = 0, R1.pulse = 4, name = "Var.AR",X=1) {
+               a1.pulse = 0, R1.pulse = 4, name = "Var.AR", X = 1) {
   TF_block(
     mu = X, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, a1.coef = a1.coef, R1.coef = R1.coef,
     pulse = pulse, a1.pulse = a1.pulse, R1.pulse = R1.pulse, name = name
@@ -1265,6 +1278,6 @@ TF <- function(pulse, order = 1, noise.var = NULL, noise.disc = NULL,
 }
 #' @rdname noise_block
 #' @export
-noise <- function(name = "Noise", D = 0.99, R1 = 0.1, H = 0,X=1) {
+noise <- function(name = "Noise", D = 0.99, R1 = 0.1, H = 0, X = 1) {
   noise_block(mu = X, D = D, R1 = R1, H = H, name = name)
 }

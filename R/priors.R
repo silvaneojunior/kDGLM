@@ -37,9 +37,9 @@ zero_sum_prior <- function(block, var.index = 1:block$n, weights = rep(1, length
     D <- block$D[var.index, var.index, i]
     d <- D[D != 0]
     if (min(d) != max(d)) {
-      warning("Not all latent states have the same discount factor. All values will be set to the average value.")
+      warning("Not all latent states have the same discount factor. All values will be set to the minimum.")
     }
-    block$D[var.index, var.index, i] <- mean(d)
+    block$D[var.index, var.index, i] <- min(d)
     block$D[-var.index, var.index, i] <- block$D[var.index, -var.index, i] <- 0
     block$h[var.index, i] <- block$h[var.index, i] - mean(block$h[var.index, i])
     block$H[var.index, var.index, i] <- transf %*% block$H[var.index, var.index, i] %*% transf
@@ -58,6 +58,7 @@ zero_sum_prior <- function(block, var.index = 1:block$n, weights = rep(1, length
 #' @param scale numeric: The tau parameter for the CAR model (see references).
 #' @param rho numeric: The rho parameter for the CAR model (see references).
 #' @param var.index integer: The index of the variables from which to set the prior.
+#' @param sum.zero Bool: If true, all latent states will add to 0.
 #' @return A dlm_block object with the desired prior.
 #'
 #' @importFrom Rfast is.symmetric
@@ -96,7 +97,7 @@ zero_sum_prior <- function(block, var.index = 1:block$n, weights = rep(1, length
 #'
 #' @references
 #'    \insertAllCited{}
-CAR_prior <- function(block, adj.matrix, scale, rho, var.index = 1:block$n) {
+CAR_prior <- function(block, adj.matrix, scale, rho, sum.zero = FALSE, var.index = 1:block$n) {
   if (dim(adj.matrix)[1] != length(var.index)) {
     stop("Error: Number of regions must be equal to the number of variables.")
   }
@@ -105,24 +106,34 @@ CAR_prior <- function(block, adj.matrix, scale, rho, var.index = 1:block$n) {
   if (!is.symmetric(adj.matrix)) {
     stop("Error: adj.matrix is not symmetric.")
   }
+  rho <- 0.99
+
   D.mat <- diag(rowSums(adj.matrix))
   R <- (D.mat - adj.matrix)
   R1 <- ((1 - rho) * diag(k) + rho * R)
-
-  sum.var <- sum(block$R1[var.index, var.index])
   R1_decomp <- eigen(R1)
-  var.cols <- apply(R1_decomp$vector, 2, var)
-  index <- which(var.cols == min(var.cols))
+  index <- which(R1_decomp$values <= 1 - rho + 1e-12)
 
-  R1_decomp$values[index] <- 1 / (sum.var * (R1_decomp$vector[1, index]**2))
-  R1_decomp$values <- 1 / R1_decomp$values
-  R1 <- R1_decomp$vector %*% diag(R1_decomp$values) %*% t(R1_decomp$vector)
+  car.vectors <- R1_decomp$vector
+  fixed.vectors <- R1_decomp$vector[, index]
 
-  if (is.character(scale)) {
-    block$scale[var.index] <- scale
+  car.values <- diag(1 / R1_decomp$values)
+  car.values[index, index] <- t(fixed.vectors) %*% block$R1[var.index, var.index] %*% fixed.vectors
+
+  R1 <- car.vectors %*% car.values %*% t(car.vectors)
+
+  scale.values <- rep(1, k)
+  scale.values[-index] <- scale
+  scale.directions <- car.vectors
+
+  if (is.numeric(scale)) {
+    scale.mat <- scale.directions %*% diag(scale.values, ncol = k, nrow = k) %*% t(scale.directions)
+    R1 <- scale.mat %*% R1 %*% t(scale.mat)
   } else {
-    R1 <- R1 * scale
+    block$scale[var.index] <- scale.values
+    block$direction[var.index, var.index] <- scale.directions
   }
+
   block$a1[var.index] <- block$a1[var.index] - mean(block$a1[var.index])
   block$R1[var.index, var.index] <- R1
   transf <- matrix(-1 / k, k, k)
