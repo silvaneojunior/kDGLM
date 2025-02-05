@@ -80,7 +80,7 @@ MathJax.Hub.Config({
 
 # Introduction
 
-This vignette is intended as an introduction to the usage of the `kdglm` package, which offers routines for Bayesian analysis of Dynamic Generalized Linear Models, including fitting (filtering and smoothing), forecasting, sampling, intervention and automated monitoring, following the theory developed and/or explored in @Kalman_filter_origins, @WestHarr-DLM and @ArtigokParametrico.
+This vignette is intended as an introduction to the usage of the **kDGLM** package, which offers routines for Bayesian analysis of Dynamic Generalized Linear Models, including fitting (filtering and smoothing), forecasting, sampling, intervention and automated monitoring, following the theory developed and/or explored in @Kalman_filter_origins, @WestHarr-DLM and @ArtigokParametrico.
 
 In this document we will focus exclusively in the usage of the package and will only briefly mention the theory behind these models and only with the intention of highlighting the notation. We highly recommend all users to read the theoretical work [@ArtigoPacote] in which we based this package.
 
@@ -227,42 +227,40 @@ $$
 
 Note that in the Multinomial distribuition, $\eta_i\ge 0, \forall i$ and $\sum_{i=1}^{5} \eta_i=1$. Thus, only $k=l-1$ linear predictors are necessary to describe this model.
 
-It's important to emphasize that while we have chosen to illustrate simple model structures, such as a random walk in the log odds for each outcome, neither the general model framework nor the `kdglm` package restricts to these configurations. Analysts have the flexibility to tailor models to their specific contexts, including the incorporation of additional latent states to enhance outcome explanation.
+It's important to emphasize that while we have chosen to illustrate simple model structures, such as a random walk in the log odds for each outcome, neither the general model framework nor the **kDGLM** package restricts to these configurations. Analysts have the flexibility to tailor models to their specific contexts, including the incorporation of additional latent states to enhance outcome explanation.
 
 Lastly, this general model framework can be extended to encompass multiple outcome models. For further details, see [Handling multiple outcomes](outcomes.html#handling-multiple-outcomes).
 
-Given the complexity of manually specifying all model components, the `kdglm` package includes a range of auxiliary functions to simplify this process. The subsequent section delves into these tools.
+Given the complexity of manually specifying all model components, the **kDGLM** package includes a range of auxiliary functions to simplify this process. The subsequent section delves into these tools.
 
 # Single outcome models
 
-The `kdglm` package supports the joint modelling of multiple time series, each with it own structure and distribution (see [Handling multiple outcomes](outcomes.html#handling-multiple-outcomes)). This flexibility comes with a somewhat complex syntax, designed to allow analysts to meticulously define every aspect of the model. While we have aimed to create an intuitive yet powerful syntax, we recognize that it may feel overwhelming for new users. To address this, the `kdglm` package also provides a simplified syntax, similar to the `lm` and `glm` functions native to **R**. This simplified approach supports single-outcome models with any of the supported distributions, while still allowing for complex dynamic structures in all parameters of the observational distribution.
+The **kDGLM** package supports the joint modelling of multiple time series, each with it own structure and distribution (see [Handling multiple outcomes](outcomes.html#handling-multiple-outcomes)). This flexibility comes with a somewhat complex syntax, designed to allow analysts to meticulously define every aspect of the model. While we have aimed to create an intuitive yet powerful syntax, we recognize that it may feel overwhelming for new users. To address this, the **kDGLM** package also provides a simplified syntax, similar to the **lm** and **glm** functions native to **R**. This simplified approach supports single-outcome models with any of the supported distributions, while still allowing for complex dynamic structures in all parameters of the observational distribution.
 
 Lets consider the classic \cite{boxjen76} airline data, which is comprised of monthly totals of international airline passengers, from 1949 to 1960. We can adjust a simple Time Series model using the following code:
 
 ```{r}
 fitted.data <- kdglm(c(AirPassengers) ~ 1, family = Poisson)
-{
-  plot(fitted.data, plot.pkg = "base")
-} |> save.fig(file = "~/Workbench/kDGLM/extra/artigo/plot30.pdf")
+plot(fitted.data)
 ```
 
-Detail about the `plot` method can be found in [Filtering and smoothing](fitting.html#Filtering-and-smoothing), for now we focus only on the usage of the `kdglm` function. By the default, the intercept of a model is considered dynamic in a discount factor of $0.95$. One can specify the details of the intercept using the `pol` function inside the formula:
+Detail about the `plot` method can be found in [Filtering and smoothing](fitting.html#Filtering-and-smoothing), for now we focus only on the usage of the **kdglm** function. By the default, the intercept of a model is considered dynamic in a discount factor of $0.95$. One can specify the details of the intercept using the `pol` function inside the formula:
 
 ```{r}
 fitted.data <- kdglm(c(AirPassengers) ~ pol(D = 0.99), family = Poisson)
-plot(fitted.data, plot.pkg = "base") |> save.fig(file = "~/Workbench/kDGLM/extra/artigo/plot31.pdf")
+plot(fitted.data)
 ```
 
 One can also add more complex structures to the model using the functions $har$, $reg$, $AR$, $TF$ and $noise$:
 
 ```{r}
 fitted.data <- kdglm(c(AirPassengers) ~ pol(D = 0.99, order = 2) + har(period = 12) + noise(R1 = 0.01), family = Poisson)
-plot(fitted.data, plot.pkg = "base") |> save.fig(file = "~/Workbench/kDGLM/extra/artigo/plot32.pdf")
+plot(fitted.data)
 ```
 
 For more details, see [Structures](structures.html).
 
-For dynamic regressions, the `kdglm` package adopts the same convetions as the `lm` and `glm` functions:
+For dynamic regressions, the **kdglm** package adopts the same convetions as the **lm** and **glm** functions:
 
 ```{r}
 # Total number of cases
@@ -275,7 +273,7 @@ fitted.data <- kdglm(`< 5 year` ~ pol(2, D = 0.95) + har(12, D = 0.975) + Vaccin
   family = Multinom,
   data = chickenPox
 )
-plot(fitted.data, plot.pkg = "base") |> save.fig(file = "~/Workbench/kDGLM/extra/artigo/plot33.pdf")
+plot(fitted.data, plot.pkg = "base")
 ```
 
 For the multinomial case, where we the outcome of the model is a vector, the user may include several formulas, one for each index of the outcome vector:
@@ -283,18 +281,18 @@ For the multinomial case, where we the outcome of the model is a vector, the use
 ```{r}
 fitted.data <- kdglm(
   `< 5 year` ~ pol(2, D = 0.95) + har(12, D = 0.975) + Vaccine,
-  `5 to 9 years` ~ pol(2, D = 0.95) + har(12, D = 0.975) + Vaccine,
   `10 to 14 years` ~ pol(2, D = 0.95) + har(12, D = 0.975) + Vaccine,
+  `15 to 49 years` ~ pol(2, D = 0.95) + har(12, D = 0.975) + Vaccine,
   `50 years or more` ~ pol(2, D = 0.95) + har(12, D = 0.975) + Vaccine,
   N = chickenPox$Total,
   family = Multinom,
   data = chickenPox
 )
-plot(fitted.data, plot.pkg = "base") |> save.fig(file = "~/Workbench/kDGLM/extra/artigo/plot34.pdf")
+plot(fitted.data, plot.pkg = "base")
 ```
 
 
-Lastly, some outcomes may require extra arguments for the parameters of the observational model. For instance, the `kdglm` package allows for dynamic structure for all parameters of a model, so for the Normal family, the user may include dynamic structure for both mean and variance:
+Lastly, some outcomes may require extra arguments for the parameters of the observational model. For instance, the **kdglm** package allows for dynamic structure for all parameters of a model, so for the Normal family, the user may include dynamic structure for both mean and variance:
 
 ```{r}
 fitted.data <- kdglm(corn.log.return ~ 1,
@@ -302,7 +300,7 @@ fitted.data <- kdglm(corn.log.return ~ 1,
   family = Normal,
   data = cornWheat[1:500, ]
 )
-plot(fitted.data, plot.pkg = "base") |> save.fig(file = "~/Workbench/kDGLM/extra/artigo/plot35.pdf")
+plot(fitted.data, plot.pkg = "base")
 ```
 
 For more details about each outcome see [Outcomes](outcomes.html).

@@ -4,7 +4,7 @@
 \alias{eval_dlm_norm_const}
 \title{Auxiliary function for evaluating normalizing constant for the posterior of a fitted DLM.}
 \usage{
-eval_dlm_norm_const(model, lin.pred = model$n > 2 * model$k)
+eval_dlm_norm_const(model, lin.pred = FALSE)
 }
 \arguments{
 \item{model}{fitted_dlm: A fitted_dlm object.}
@@ -37,6 +37,7 @@ Other auxiliary functions for fitted_dlm objects:
 \code{\link{coef.fitted_dlm}()},
 \code{\link{fit_model}()},
 \code{\link{forecast.fitted_dlm}()},
+\code{\link{kdglm}()},
 \code{\link{simulate.fitted_dlm}()},
 \code{\link{smoothing}()},
 \code{\link{update.fitted_dlm}()}

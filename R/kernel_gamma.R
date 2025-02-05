@@ -37,7 +37,7 @@
 #'
 #' @references
 #'    \insertAllCited{}
-Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, offset = as.matrix(data)**0,alt.method=FALSE) {
+Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, offset = as.matrix(data)**0, alt.method = FALSE) {
   if (min(data, na.rm = TRUE) < 0) {
     stop("Error: data must be a positive vector/matrix.")
   }

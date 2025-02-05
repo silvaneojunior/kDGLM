@@ -54,6 +54,8 @@ base_block <- function(..., order, name,
     }
   } else if (is.matrix(D)) {
     D <- array(D, c(dim(D)[1], dim(D)[2], t))
+  } else if (length(dim(D)) == 3 & dim(D)[3]==1) {
+    D <- array(D, c(dim(D)[1], dim(D)[2], t))
   }
   t <- if (t == 1) {
     dim(D)[3]
@@ -200,6 +202,7 @@ base_block <- function(..., order, name,
 #' Creates the structure for a polynomial block with desired order.
 #'
 #' @param ... Named values for the planning matrix.
+#' @param X Vector or scalar: An argument providing the values of the covariate X_t.
 #' @param order Positive integer: The order of the polynomial structure.
 #' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
 #' @param D Array, Matrix, vector or scalar: The values for the discount factors associated with the latent states at each time. If D is an array, its dimensions should be n x n x t, where n is the order of the polynomial block and t is the length of the outcomes. If D is a matrix, its dimensions should be n x n and the same discount matrix will be used in all observations. If D is a vector, it should have size t and it is interpreted as the discount factor at each observed time (same discount for all variable). If D is a scalar, the same discount will be used for all latent states at all times.
@@ -310,6 +313,7 @@ polynomial_block <- function(..., order = 1, name = "Var.Poly",
 #'
 #'
 #' @param ... Named values for the planning matrix.
+#' @param X Vector or scalar: An argument providing the values of the covariate X_t.
 #' @param period Positive integer: The size of the harmonic cycle.
 #' @param order Positive integer: The order of the harmonic structure.
 #' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
@@ -416,6 +420,7 @@ harmonic_block <- function(..., period, order = 1, name = "Var.Sazo",
 #'
 #'
 #' @param ... Named values for the planning matrix.
+#' @param X Vector or scalar: An argument providing the values of the covariate X_t.
 #' @param period Positive integer: The size of the seasonal cycle. This block has one latent state for each element of the cycle, such that the number of latent states n is equal to the period.
 #' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
 #' @param D Vector or scalar: The values for the discount factors associated with the first latent state (the current effect) at each time. If D is a vector, it should have size t and it is interpreted as the discount factor at each observed time. If D is a scalar, the same discount will be used at all times.
@@ -505,8 +510,8 @@ ffs_block <- function(..., period, name = "Var.FFS",
     )
 
   block <- (block.state + block.aux)
-  block$a1=a1
-  block$R1=R1
+  block$a1 <- a1
+  block$R1 <- R1
   block <- block |> zero_sum_prior()
 
   G <- matrix(0, period, period)
@@ -636,11 +641,11 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #' This block also supports Transfer Functions, being necessary to specify the associated pulse when calling the TF_block function (see arg.).
 #'
 #' @param ... Named values for the planning matrix.
+#' @param X Vector or scalar: An argument providing the values of the covariate X_t.
 #' @param order Positive integer: The order of the AR block.
 #' @param noise.var Non-negative scalar: The variance of the white noise added to the latent state.
 #' @param noise.disc Vector or scalar: The value for the discount factor associated with the current latent state. If noise.disc is a vector, it should have size t and it is interpreted as the discount factor at each observed time. If D is a scalar, the same discount will be used for all observation.
 #' @param pulse Vector or scalar: An optional argument providing the values for the pulse for a Transfer Function. Default is 0 (no Transfer Function).
-#' @param X Vector or scalar: An argument providing the values for the pulse for a Transfer Function.
 #' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
 #' @param AR.support String: Either "constrained" or "free" (default). If AR.support is "constrained", then the AR coefficients will be forced to be on the interval (-1,1), otherwise, the coefficients will be unrestricted. Beware that, under no restriction on the coefficients, there is no guarantee that the estimated coefficients will imply in a stationary process, furthermore, if the order of the AR block is greater than 1. As such the restriction of the coefficients support is only available for AR blocks with order equal to 1.
 #' @param h Vector or scalar: A drift to be add in the states after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a vector, it should have size t, and each value will be applied in their respective time. If a scalar, the passed value will be used for all observations.
@@ -825,6 +830,7 @@ TF_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
 #' The variance of the noise cannot be formally estimated, as such we use a discount strategy similar to that of \insertCite{WestHarr-DLM;textual}{kDGLM} to specify it.
 #'
 #' @param ... Named values for the planning matrix.
+#' @param X Vector or scalar: An argument providing the values of the covariate X_t.
 #' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
 #' @param D scalar or vector: A sequence of values specifying the desired discount factor for each time. It should have length 1 or t, where t is the size of the series. If both D and H are specified, the value of D is ignored.
 #' @param R1 scalar: The prior variance of the noise.
@@ -1223,13 +1229,13 @@ specify.dlm_block <- function(x, ...) {
 
 #' @rdname harmonic_block
 #' @export
-har <- function(period, order = 1, D = 0.98, a1 = 0, R1 = 4, name = "Var.Sazo") {
-  harmonic_block(mu = 1, period = period, order = order, D = D, a1 = a1, R1 = R1, name = name)
+har <- function(period, order = 1, D = 0.98, a1 = 0, R1 = 4, name = "Var.Sazo",X=1) {
+  harmonic_block(mu = X, period = period, order = order, D = D, a1 = a1, R1 = R1, name = name)
 }
 #' @rdname harmonic_block
 #' @export
-ffs <- function(period, D = 0.95, a1 = 0, R1 = 9, name = "Var.FFS") {
-  harmonic_block(mu = 1, period = period, D = D, a1 = a1, R1 = R1, name = name)
+ffs <- function(period, D = 0.95, a1 = 0, R1 = 9, name = "Var.FFS",X=1) {
+  harmonic_block(mu = X, period = period, D = D, a1 = a1, R1 = R1, name = name)
 }
 #' @rdname regression_block
 #' @export
@@ -1238,24 +1244,27 @@ reg <- function(X, max.lag = 0, zero.fill = TRUE, D = 0.95, a1 = 0, R1 = 9, name
 }
 #' @rdname polynomial_block
 #' @export
-pol <- function(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly") {
-  polynomial_block(mu = 1, order = order, D = D, a1 = a1, R1 = R1, name = name)
+pol <- function(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly",X=1) {
+  polynomial_block(mu = X, order = order, D = D, a1 = a1, R1 = R1, name = name)
 }
 #' @rdname tf_block
 #' @export
-AR <- function(order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, a1.coef = NULL, R1.coef = NULL, name = "Var.AR") {
-  TF_block(mu = 1, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, a1.coef = a1.coef, R1.coef = R1.coef, name = name)
+AR <- function(order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)), name = "Var.AR",X=1) {
+  TF_block(mu = X, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, a1.coef = a1.coef, R1.coef = R1.coef, name = name)
 }
 #' @rdname tf_block
 #' @export
-TF <- function(X, order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, a1.coef = NULL, R1.coef = NULL, a1.pulse = 0, R1.pulse = 4, name = "Var.AR") {
+TF <- function(pulse, order = 1, noise.var = NULL, noise.disc = NULL,
+               a1 = 0, R1 = 9,
+               a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)),
+               a1.pulse = 0, R1.pulse = 4, name = "Var.AR",X=1) {
   TF_block(
-    mu = 1, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, a1.coef = a1.coef, R1.coef = R1.coef,
-    pulse = X, a1.pulse = a1.pulse, R1.pulse = R1.pulse, name = name
+    mu = X, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, a1.coef = a1.coef, R1.coef = R1.coef,
+    pulse = pulse, a1.pulse = a1.pulse, R1.pulse = R1.pulse, name = name
   )
 }
 #' @rdname noise_block
 #' @export
-noise <- function(name = "Noise", D = 0.99, R1 = 0.1, H = 0) {
-  noise_block(mu = 1, D = D, R1 = R1, H = H, name = name)
+noise <- function(name = "Noise", D = 0.99, R1 = 0.1, H = 0,X=1) {
+  noise_block(mu = X, D = D, R1 = R1, H = H, name = name)
 }
