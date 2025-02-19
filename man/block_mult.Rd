@@ -32,6 +32,7 @@ Other auxiliary functions for structural blocks:
 \code{\link{TF_block}()},
 \code{\link{block_rename}()},
 \code{\link{block_superpos}()},
+\code{\link{ffs_block}()},
 \code{\link{harmonic_block}()},
 \code{\link{intervention}()},
 \code{\link{noise_block}()},

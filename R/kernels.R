@@ -327,6 +327,15 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
         At <- Ct.step %*% FF.cur.step[, pred.index] %*% Qt.inv
         mt.step <- mt.step + At %*% error.ft
         Ct.step <- Ct.step + At %*% error.Qt %*% t(At)
+        if (any(is.nan(Qt.star.part))) {
+          stop(paste0("The approximate posterior at time ", t, " could not be computed."))
+        }
+        if (any(is.nan(Ct.step))) {
+          # print(eigen(Qt.step.part))
+          # print(Qt.step.part)
+          # print(Qt.star.part)
+          stop(paste0("Invalid covariance matrix at time ", t, "."))
+        }
         if (max(Ct.step - transpose(Ct.step)) > 2e-6) {
           Ct.step <- (Ct.step + transpose(Ct.step)) / 2
         }
