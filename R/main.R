@@ -81,7 +81,8 @@
 #' # Gamma case
 #' structure <- polynomial_block(mu = 1, D = 0.95)
 #'
-#' outcome <- Gamma(phi = 0.5, mu = "mu", data = cornWheat$corn.log.return[1:500]**2)
+#' Y <- (cornWheat$corn.log.return[1:500] - mean(cornWheat$corn.log.return[1:500]))**2
+#' outcome <- Gamma(phi = 0.5, mu = "mu", data = Y)
 #' fitted.data <- fit_model(structure, corn = outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
@@ -114,7 +115,7 @@
 #'
 #' For the details about the Dynamic Linear Models see  \insertCite{WestHarr-DLM;textual}{kDGLM} and \insertCite{Petris-DLM;textual}{kDGLM}.
 #'
-#' @seealso auxiliary functions for creating outcomes \code{\link{Poisson}}, \code{\link{Multinom}}, \code{\link{Normal}}, \code{\link{Gamma}}, \code{\link{Dirichlet}}
+#' @seealso auxiliary functions for creating outcomes \code{\link{Poisson}}, \code{\link{Multinom}}, \code{\link{Normal}}, \code{\link{Gamma}}
 #' @seealso auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{TF_block}}
 #' @seealso auxiliary functions for defining priors \code{\link{zero_sum_prior}}, \code{\link{CAR_prior}}
 #'
@@ -187,13 +188,13 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, condition = "TRUE", metr
         pred.cred <- 0.95
       }
 
-      ref.strucuture <- structure
+      ref.structure <- structure
 
-      if (any(names(search.args) %in% ref.strucuture$pred.names)) {
+      if (any(names(search.args) %in% ref.structure$pred.names)) {
         stop(paste0(
           "Error: Ambiguous label for hyper parameter. Cannot have a hyper parameter with the same name of a linear predictor\n
          The user passed the following hyper parameters: ", paste0(names(search.args), collapse = ", "), ".\n",
-          "The model has the the following linear predictors: ", paste0(ref.strucuture$pred.names, collapse = ", "), "."
+          "The model has the the following linear predictors: ", paste0(ref.structure$pred.names, collapse = ", "), "."
         ))
       }
 
@@ -237,7 +238,7 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, condition = "TRUE", metr
           ))
         }
         structure <- do.call(function(...) {
-          specify.dlm_block(ref.strucuture, ...)
+          specify.dlm_block(ref.structure, ...)
         }, search.data[i, 1:(vals.size - 3), drop = FALSE])
 
         if (structure$status == "undefined") {
@@ -430,6 +431,7 @@ fit_model_single <- function(structure, outcomes, smooth = TRUE, p.monit = NA) {
     FF.labs = structure$FF.labs,
     G = G,
     G.labs = structure$G.labs,
+    G.idx = structure$G.idx,
     D = D,
     h = h,
     H = H,
@@ -502,7 +504,7 @@ fit_model_single <- function(structure, outcomes, smooth = TRUE, p.monit = NA) {
 #' @export
 smoothing <- function(model) {
   if (!model$smooth) {
-    smoothed <- generic_smoother(model$mt, model$Ct, model$at, model$Rt, model$G, model$G.labs)
+    smoothed <- generic_smoother(model$mt, model$Ct, model$at, model$Rt, model$G, model$G.labs, model$G.idx)
     model$mts <- smoothed$mts
     model$Cts <- smoothed$Cts
 
@@ -621,12 +623,27 @@ forecast.fitted_dlm <- function(object, t = 1,
   }
 
   G.labs <- object$G.labs
+  G.idx <- object$G.idx
   G <- array(object$G[, , t_last], c(n, n, t))
-  G.flags <- G.labs == "Pulse"
+  G.flags <- G.labs == "Multi.Pulse"
   if (any(G.flags)) {
     for (i in seq_len(n)[rowSums(G.flags) > 0]) {
       for (j in seq_len(n)[G.flags[i, ]]) {
-        label <- paste0(object$var.labels[j])
+        label <- object$var.labels[j]
+        if (label %in% names(extra.args)) {
+          G[i, j, ] <- extra.args[[label]]
+        } else {
+          stop(paste0("Error: Missing extra argument: ", label))
+        }
+      }
+    }
+  }
+
+  G.flags <- G.labs == "Single.Pulse"
+  if (any(G.flags)) {
+    for (i in seq_len(n)[rowSums(G.flags) > 0]) {
+      for (j in seq_len(n)[G.flags[i, ]]) {
+        label <- object$var.labels[i]
         if (label %in% names(extra.args)) {
           G[i, j, ] <- extra.args[[label]]
         } else {
@@ -731,7 +748,7 @@ forecast.fitted_dlm <- function(object, t = 1,
 
 
   for (t_i in seq_len(t)) {
-    next.step <- one_step_evolve(last.m, last.C, G[, , t_i] |> matrix(n, n), G.labs, D.placeholder, h[, t_i], H[, , t_i] + D)
+    next.step <- one_step_evolve(last.m, last.C, G[, , t_i] |> matrix(n, n), G.labs, G.idx, D.placeholder, h[, t_i], H[, , t_i] + D)
     last.m <- next.step$at
     last.C <- next.step$Rt
 
@@ -1080,8 +1097,9 @@ update.fitted_dlm <- function(object, ...) {
   }
 
   G.labs <- object$G.labs
+  G.idx <- object$G.idx
   G <- array(object$G[, , t_last], c(n, n, t.max))
-  G.flags <- G.labs == "Pulse"
+  G.flags <- G.labs == "Multi.Pulse"
   if (any(G.flags)) {
     for (i in seq_len(n)[rowSums(G.flags) > 0]) {
       for (j in seq_len(n)[G.flags[i, ]]) {
@@ -1097,6 +1115,24 @@ update.fitted_dlm <- function(object, ...) {
       }
     }
   }
+  G.flags <- G.labs == "Single.Pulse"
+  if (any(G.flags)) {
+    for (i in seq_len(n)[rowSums(G.flags) > 0]) {
+      for (j in seq_len(n)[G.flags[i, ]]) {
+        label <- paste0(object$var.labels[i])
+        if (label %in% names(args)) {
+          if (length(args[[label]]) != t.max) {
+            stop(paste0("Error: ", label, " and outcomes have different size. Expected, ", t.max, ", got ", length(args[[label]]), "."))
+          }
+          G[i, j, ] <- args[[label]]
+        } else {
+          stop(paste0("Error: Missing extra argument: ", label))
+        }
+      }
+    }
+  }
+
+
 
   FF.labs <- object$FF.labs
   FF <- array(object$FF[, , t_last], c(n, k, t.max), dimnames = dimnames(object$FF))
@@ -1175,6 +1211,7 @@ update.fitted_dlm <- function(object, ...) {
     FF.labs = FF.labs,
     G = G,
     G.labs = G.labs,
+    G.idx = G.idx,
     D = D,
     h = h,
     H = H,
@@ -1339,6 +1376,7 @@ coef.fitted_dlm <- function(object, t.eval = seq_len(object$t), lag = -1, pred.c
   W <- object$W
   G <- object$G
   G.labs <- object$G.labs
+  G.idx <- object$G.idx
 
   for (i in c(init.t:final.t)) {
     if (i <= lag) {
@@ -1357,7 +1395,7 @@ coef.fitted_dlm <- function(object, t.eval = seq_len(object$t), lag = -1, pred.c
     next.step <- list("at" = mt, "Rt" = Ct)
     if (lag_i >= 1) {
       for (t in c(lag_i:1)) {
-        next.step <- one_step_evolve(next.step$at, next.step$Rt, G[, , i - t + 1], G.labs, D.holder, h[, i - t + 1], W[, , i - t + 1])
+        next.step <- one_step_evolve(next.step$at, next.step$Rt, G[, , i - t + 1], G.labs, G.idx, D.holder, h[, i - t + 1], W[, , i - t + 1])
       }
     }
     lin.pred <- calc_lin_pred(
@@ -1550,6 +1588,7 @@ coef.fitted_dlm <- function(object, t.eval = seq_len(object$t), lag = -1, pred.c
 simulate.fitted_dlm <- function(object, nsim, seed = NULL, lag = -1, ...) {
   G <- object$G
   G.labs <- object$G.labs
+  G.idx <- object$G.idx
   FF <- object$FF
   FF.labs <- object$FF.labs
   pred.names <- object$pred.names
@@ -1599,7 +1638,7 @@ simulate.fitted_dlm <- function(object, nsim, seed = NULL, lag = -1, ...) {
         at.next <- object$at[, t + 1]
         Rt.next <- object$Rt[, , t + 1]
 
-        G.ref <- calc_current_G(mt.now, Ct.now, G[, , t + 1], G.labs)$G
+        G.ref <- calc_current_G(mt.now, Ct.now, G[, , t + 1], G.labs, G.idx)$G
         simple.Rt.inv <- Ct.now %*% crossprod(G.ref, ginv(Rt.next))
         simple.Rt.inv.t <- transpose(simple.Rt.inv)
 
@@ -1696,6 +1735,7 @@ eval_dlm_post <- function(theta, model, lin.pred = FALSE) {
   pred.names <- model$pred.names
   G <- model$G
   G.labs <- model$G.labs
+  G.idx <- model$G.idx
 
   if (lin.pred) {
     mt <- model$mt
@@ -1722,7 +1762,7 @@ eval_dlm_post <- function(theta, model, lin.pred = FALSE) {
         Ct.step <- Ct[, , i] |> matrix(n, n)
         at.step <- at[, i + 1]
         Rt.step <- Rt[, , i + 1]
-        G.step <- calc_current_G(mt.step, Ct.step, G[, , i + 1], G.labs)$G
+        G.step <- calc_current_G(mt.step, Ct.step, G[, , i + 1], G.labs, G.idx)$G
 
         simple.Rt.inv <- Ct.step %*% transpose(G.step) %*% ginv(Rt.step)
 
@@ -1758,7 +1798,7 @@ eval_dlm_post <- function(theta, model, lin.pred = FALSE) {
         mt.step <- mt[, i, drop = FALSE]
         Ct.step <- Ct[, , i]
         Rt.step <- Rt[, , i + 1]
-        G.step <- calc_current_G(theta[, i], Ct.placeholder, G[, , i + 1], G.labs)$G
+        G.step <- calc_current_G(theta[, i], Ct.placeholder, G[, , i + 1], G.labs, G.idx)$G
 
         simple.Rt.inv <- Ct.step %*% transpose(G.step) %*% ginv(Rt.step)
 
@@ -1805,6 +1845,7 @@ eval_dlm_prior <- function(theta, model, lin.pred = FALSE) {
   R1 <- model$R1
   G <- model$G
   G.labs <- model$G.labs
+  G.idx <- model$G.idx
   FF <- model$FF
   FF.labs <- model$FF.labs
   pred.names <- model$pred.names
@@ -1827,7 +1868,7 @@ eval_dlm_prior <- function(theta, model, lin.pred = FALSE) {
     Rt <- R1 + At %*% error.Qt %*% t(At)
     if (t > 1) {
       for (i in 2:t) {
-        next.step <- one_step_evolve(at, Rt, G[, , i], G.labs, D_placeholder, h[, i, drop = FALSE], W[, , i])
+        next.step <- one_step_evolve(at, Rt, G[, , i], G.labs, G.idx, D_placeholder, h[, i, drop = FALSE], W[, , i])
 
         lin.pred <- calc_lin_pred(next.step$at, next.step$Rt, FF[, , i] |> matrix(n, k), FF.labs, pred.names)
         ft <- lin.pred$ft
@@ -1846,7 +1887,7 @@ eval_dlm_prior <- function(theta, model, lin.pred = FALSE) {
     log.prior <- dmvnorm(theta[, 1], a1, R1)
     if (t > 1) {
       for (i in 2:t) {
-        next.step <- one_step_evolve(theta[, i - 1], R1_placeholder, G[, , i], G.labs, D_placeholder, h[, i, drop = FALSE], W[, , i])
+        next.step <- one_step_evolve(theta[, i - 1], R1_placeholder, G[, , i], G.labs, G.idx, D_placeholder, h[, i, drop = FALSE], W[, , i])
         log.prior <- log.prior + dmvnorm(theta[, i], next.step$at, next.step$Rt)
       }
     }
@@ -2043,7 +2084,8 @@ eval_dlm_norm_const <- function(model, lin.pred = FALSE) {
 #' ##################################################################
 #'
 #' # Gamma case
-#' fitted.data <- kdglm(corn.log.return[1:500]**2 ~ 1, phi = 0.5, family = Gamma, data = cornWheat)
+#' Y <- (cornWheat$corn.log.return[1:500] - mean(cornWheat$corn.log.return[1:500]))**2
+#' fitted.data <- kdglm(Y ~ 1, phi = 0.5, family = Gamma, data = cornWheat)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
@@ -2057,7 +2099,7 @@ eval_dlm_norm_const <- function(model, lin.pred = FALSE) {
 #'
 #' For the details about the Dynamic Linear Models see  \insertCite{WestHarr-DLM;textual}{kDGLM} and \insertCite{Petris-DLM;textual}{kDGLM}.
 #'
-#' @seealso auxiliary functions for creating outcomes \code{\link{Poisson}}, \code{\link{Multinom}}, \code{\link{Normal}}, \code{\link{Gamma}}, \code{\link{Dirichlet}}
+#' @seealso auxiliary functions for creating outcomes \code{\link{Poisson}}, \code{\link{Multinom}}, \code{\link{Normal}}, \code{\link{Gamma}}
 #' @seealso auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{TF_block}}
 #' @seealso auxiliary functions for defining priors \code{\link{zero_sum_prior}}, \code{\link{CAR_prior}}
 #'

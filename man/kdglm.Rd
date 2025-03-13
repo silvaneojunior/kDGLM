@@ -67,13 +67,14 @@ plot(fitted.data, plot.pkg = "base")
 ##################################################################
 
 # Gamma case
-fitted.data <- kdglm(corn.log.return[1:500]**2 ~ 1, phi = 0.5, family = Gamma, data = cornWheat)
+Y <- (cornWheat$corn.log.return[1:500] - mean(cornWheat$corn.log.return[1:500]))**2
+fitted.data <- kdglm(Y ~ 1, phi = 0.5, family = Gamma, data = cornWheat)
 summary(fitted.data)
 plot(fitted.data, plot.pkg = "base")
 
 }
 \seealso{
-auxiliary functions for creating outcomes \code{\link{Poisson}}, \code{\link{Multinom}}, \code{\link{Normal}}, \code{\link{Gamma}}, \code{\link{Dirichlet}}
+auxiliary functions for creating outcomes \code{\link{Poisson}}, \code{\link{Multinom}}, \code{\link{Normal}}, \code{\link{Gamma}}
 
 auxiliary functions for creating structural blocks \code{\link{polynomial_block}}, \code{\link{regression_block}}, \code{\link{harmonic_block}}, \code{\link{TF_block}}
 

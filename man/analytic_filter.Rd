@@ -12,6 +12,7 @@ analytic_filter(
   FF.labs,
   G,
   G.labs,
+  G.idx,
   D,
   h,
   H,
@@ -33,6 +34,8 @@ analytic_filter(
 \item{G}{array: A 3D-array containing the evolution matrix at each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.}
 
 \item{G.labs}{matrix: A character matrix containing the label associated with each value in G.}
+
+\item{G.idx}{matrix: A numeric matrix containing the index associated with each value in G.}
 
 \item{D}{array: A 3D-array containing the discount factor matrix at each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.}
 
@@ -58,6 +61,7 @@ A list containing the following values:
    \item FF array: The same as the argument (same values).
    \item G matrix: The same as the argument (same values).
    \item G.labs matrix: The same as the argument (same values).
+   \item G.idx matrix: The same as the argument (same values).
    \item D array: The same as the argument (same values).
    \item h array: The same as the argument (same values).
    \item H array: The same as the argument (same values).

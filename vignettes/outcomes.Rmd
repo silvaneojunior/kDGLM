@@ -356,8 +356,9 @@ The arguments `phi`, `mu`, `alpha`, `beta` and `sigma` should be character strin
 
 ```{r, results='hide'}
 structure <- polynomial_block(mu = 1, D = 0.95)
+Y <- (cornWheat$corn.log.return[1:500] - mean(cornWheat$corn.log.return[1:500]))**2
 
-outcome <- Gamma(phi = 0.5, mu = "mu", data = cornWheat$corn.log.return[1:500]**2)
+outcome <- Gamma(phi = 0.5, mu = "mu", data = Y)
 fitted.data <- fit_model(structure, outcome)
 plot(fitted.data, plot.pkg = "base")
 ```

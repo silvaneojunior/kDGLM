@@ -106,7 +106,7 @@ CAR_prior <- function(block, adj.matrix, scale, rho, sum.zero = FALSE, var.index
   if (!is.symmetric(adj.matrix)) {
     stop("Error: adj.matrix is not symmetric.")
   }
-  rho <- 0.99
+  # rho <- 0.99
 
   D.mat <- diag(rowSums(adj.matrix))
   R <- (D.mat - adj.matrix)
