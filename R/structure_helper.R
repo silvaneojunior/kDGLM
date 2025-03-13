@@ -104,7 +104,7 @@ base_block <- function(..., order, name,
       dim(h)
     }, collapse = "x"), "."))
   }
-  h <- matrix(h, order, t, byrow = (length(h) != order))
+  h <- matrix(h, order, t, byrow = (length(h) != order) & length(dim(h)) != 2)
 
   D <- array(D, c(order, order, t))
   H <- array(H, c(order, order, t))
@@ -173,6 +173,7 @@ base_block <- function(..., order, name,
     "FF.labs" = FF.labs,
     "G" = array(G, c(order, order, t)),
     "G.labs" = matrix("const", order, order),
+    "G.idx" = matrix(NA, order, order),
     "D" = D,
     "h" = h,
     "H" = H,
@@ -219,6 +220,7 @@ base_block <- function(..., order, name,
 #'    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
 #'    \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #'    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
+#'    \item G.idx Matrix: A n x n character matrix containing the index each element of G.
 #'    \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #'    \item h Matrix: The mean for the random noise of the temporal evolution. Its dimension should be n x t.
 #'    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.
@@ -331,6 +333,7 @@ polynomial_block <- function(..., order = 1, name = "Var.Poly",
 #'    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
 #'    \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #'    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
+#'    \item G.idx Matrix: A n x n character matrix containing the index each element of G.
 #'    \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #'    \item h Matrix: The mean for the random noise of the temporal evolution. Its dimension should be n x t.
 #'    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.
@@ -438,6 +441,7 @@ harmonic_block <- function(..., period, order = 1, name = "Var.Sazo",
 #'    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
 #'    \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #'    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
+#'    \item G.idx Matrix: A n x n character matrix containing the index each element of G.
 #'    \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #'    \item h Matrix: The mean for the random noise of the temporal evolution. Its dimension should be n x t.
 #'    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.
@@ -562,6 +566,7 @@ ffs_block <- function(..., period, sum.zero = FALSE, name = "Var.FFS",
 #'    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
 #'    \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #'    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
+#'    \item G.idx Matrix: A n x n character matrix containing the index each element of G.
 #'    \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #'    \item h Matrix: The mean for the random noise of the temporal evolution. Its dimension should be n x t.
 #'    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.
@@ -657,12 +662,14 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #' @param noise.var Non-negative scalar: The variance of the white noise added to the latent state.
 #' @param noise.disc Vector or scalar: The value for the discount factor associated with the current latent state. If noise.disc is a vector, it should have size t and it is interpreted as the discount factor at each observed time. If D is a scalar, the same discount will be used for all observation.
 #' @param pulse Vector or scalar: An optional argument providing the values for the pulse for a Transfer Function. Default is 0 (no Transfer Function).
+#' @param X Vector or scalar: An argument providing the values for the pulse for a Transfer Function.
 #' @param name String: An optional argument providing the name for this block. Can be useful to identify the models with meaningful labels, also, the name used will be used in some auxiliary functions.
 #' @param AR.support String: Either "constrained" or "free" (default). If AR.support is "constrained", then the AR coefficients will be forced to be on the interval (-1,1), otherwise, the coefficients will be unrestricted. Beware that, under no restriction on the coefficients, there is no guarantee that the estimated coefficients will imply in a stationary process, furthermore, if the order of the AR block is greater than 1. As such the restriction of the coefficients support is only available for AR blocks with order equal to 1.
 #' @param h Vector or scalar: A drift to be add in the states after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a vector, it should have size t, and each value will be applied in their respective time. If a scalar, the passed value will be used for all observations.
 #' @param a1 Vector or scalar: The prior mean for the states associated with this block at time 1. If a1 is a vector, its dimension should be equal to the order of the AR block. If a1 is a scalar, its value will be used for all coefficients.
 #' @param R1 Matrix, vector or scalar: The prior covariance matrix for the states associated with this block at time 1. If R1 is a matrix, its dimensions should be n x n, where n is the order of the AR block. If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.
 #' @param monitoring bool: A flag indicating if the latent state should be monitored (if automated monitoring is used). The default is TRUE.
+#' @param multi.states bool: If FALSE (default) a single latent state will be created affecting all linear predictor and being affected by all pulses. If TRUE, each linear predictor will have its own latent state, but all latent states will share the same AR coefficients and all pulse effects (each state will have its own pulse though).
 #' @param D.coef Array, Matrix, vector or scalar: The values for the discount factors associated with the AR coefficients at each time. If D.coef is an array, its dimensions should be n x n x t, where n is the order of the AR block and t is the length of the outcomes. If D.coef is a matrix, its dimensions should be n x n and the same discount matrix will be used in all observations. If D.coef is a vector, it should have size t and it is interpreted as the discount factor at each observed time (same discount for all variable). If D.coef is a scalar, the same discount will be used for all AR coefficients at all times.
 #' @param h.coef Matrix, vector or scalar: A drift to be add in the AR coefficients after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, its dimension should be n x t, where n is the order of the AR block and t is the length of the series. If a scalar, the passed value will be used for all coefficients at each time.
 #' @param H.coef Array, Matrix, vector or scalar: The values for the covariance matrix for the noise factor associated with the AR coefficients at each time. If H.coef is a array, its dimensions should be n x n x t, where n is the order of the AR block and t is the length of the outcomes. If H.coef is a matrix, its dimensions should be n x n and its values will be used for each time. If H.coef is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of H.coef in the diagonal.
@@ -682,6 +689,7 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #'    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
 #'    \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #'    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
+#'    \item G.idx Matrix: A n x n character matrix containing the index each element of G.
 #'    \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #'    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.
 #'    \item a1 Vector: The prior mean for the latent vector.
@@ -730,6 +738,7 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #'    \insertAllCited{}
 TF_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0, name = "Var.AR", AR.support = "free",
                      h = 0, a1 = 0, R1 = 4, monitoring = TRUE,
+                     multi.states = FALSE,
                      D.coef = 1, h.coef = 0, H.coef = 0, a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)), monitoring.coef = rep(FALSE, order),
                      D.pulse = 1, h.pulse = 0, H.pulse = 0, a1.pulse = 0, R1.pulse = 4, monitoring.pulse = FALSE) {
   if (AR.support == "constrained" & order > 1) {
@@ -750,15 +759,32 @@ TF_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
     stop(paste0("Error: Incompatible length between noise.var, noise.disc and h. Expected values to be 1 or equal, got", ts, ".", collapse = ", "))
   }
 
+  if (multi.states) {
+    order.states <- length(list(...))
+    if (order.states == 1) {
+      stop("multi.states is TRUE, but only one linear predictor was provided.")
+    }
+  } else {
+    order.states <- 1
+  }
+
   h.placeholder <- h
-  h <- matrix(0, order, t)
+  h <- matrix(0, order * order.states, t)
   h[1, ] <- h.placeholder
-  H <- array(0, c(order, order, t))
+  H <- array(0, c(order * order.states, order * order.states, t))
   H[1, 1, ] <- noise.var
-  D <- array(1, c(order, order, t))
+  D <- array(1, c(order * order.states, order * order.states, t))
   D[1, 1, ] <- noise.disc
   block.state <-
-    base_block(..., order = order, name = paste0(name, ".State"), a1 = a1, R1 = R1, D = D, h = h, H = H, monitoring = c(monitoring, rep(FALSE, order - 1)))
+    base_block(..., order = order * order.states, name = paste0(name, ".State"), a1 = a1, R1 = R1, D = D, h = h, H = H, monitoring = rep(c(monitoring, rep(FALSE, order - 1)), order.states))
+
+  if (multi.states) {
+    block.state$FF[(1:order.states - 1) * order + 1, , ] <-
+      apply(block.state$FF[1, , , drop = FALSE], 3, function(x) {
+        diag(c(x), nrow = order.states)
+      }) |>
+      array(c(order.states, order.states, dim(block.state$FF)[3]))
+  }
 
   dummy.var <- list()
   dummy.var[[names(list(...))[1]]] <- rep(0, block.state$t)
@@ -772,42 +798,52 @@ TF_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
     )
 
   block <- block.state + block.coeff
-  block$var.names[[1]] <- 2 * (1:order) - 1
-  block$var.names[[2]] <- 2 * (1:order)
-  names(block$var.names[[1]]) <- names(block$var.names[[2]]) <- paste0("Lag.", 0:(order - 1))
+  names(block$var.names[[1]]) <- paste0(sapply(block$pred.names, function(x) {
+    rep(x, order)
+  }), ".", rep(paste0("Lag.", 0:(order - 1)), order.states))
 
-  ord <- sort(rep(1:order, 2)) + rep(c(0, order), order)
-  block$a1 <- block$a1[ord, drop = FALSE]
-  block$R1 <- block$R1[ord, ord, drop = FALSE]
-  block$D <- block$D[ord, ord, , drop = FALSE]
-  block$h <- block$h[ord, , drop = FALSE]
-  block$H <- block$H[ord, ord, , drop = FALSE]
+  names(block$var.names[[2]]) <- paste0("Lag.", 0:(order - 1))
+
+
+  block$a1 <- block$a1
+  block$R1 <- block$R1
+  block$D <- block$D
+  block$h <- block$h
+  block$H <- block$H
 
   k <- block$k
-
-  if (order == 1) {
-    G <- diag(2)
-    G.labs <- matrix("const", 2, 2)
-    G[1, 1] <- NA
-    G.labs[1, 1] <- tolower(AR.support)
-  } else {
-    G <- matrix(0, 2 * order, 2 * order)
-    G.labs <- matrix("const", 2 * order, 2 * order)
-    G[1, 1:order] <- NA
-    G.labs[1, 2 * (1:order) - 1] <- tolower(AR.support)
-    G[2:order, -(order:(2 * order))] <- diag(order - 1)
-    G[(order + 1):(2 * order), (order + 1):(2 * order)] <- diag(order)
-    index <- sort(c(c(1:order), c(1:order)))
-    G <- G[index + c(0, order), index + c(0, order)]
+  n.param <- (order.states + 1) * order
+  G <- matrix(0, n.param, n.param)
+  G.labs <- matrix("const", n.param, n.param)
+  G.idx <- matrix(NA, n.param, n.param)
+  for (i in 1:order.states) {
+    i <- (i - 1) * order + 1
+    G[i, i + (1:order - 1)] <- NA
+    G.labs[i, i + (1:order - 1)] <- tolower(AR.support)
+    G.idx[i, i + (1:order - 1)] <- order.states * order + (1:order)
+    if (order > 1) {
+      G[i + (2:order - 1), i + (2:order - 2)] <- diag(order - 1)
+    }
   }
-  block$G <- array(G, c(2 * order, 2 * order, block$t))
+  G[order.states * order + (1:order), order.states * order + (1:order)] <- diag(order)
+
+  block$G <- array(G, c(n.param, n.param, block$t))
   block$G.labs <- G.labs
+  block$G.idx <- G.idx
   block$order <- order
   block$type <- "AR"
   block$AR.support <- AR.support
 
   if (any(pulse != 0)) {
-    k <- if.null(dim(pulse)[2], 1)
+    pulse <- as.matrix(pulse)
+    if (multi.states) {
+      if (if.null(dim(pulse)[2], 1) != order.states) {
+        stop("Number of linear predictors is different from the number of pulses.")
+      }
+      k <- 1
+    } else {
+      k <- if.null(dim(pulse)[2], 1)
+    }
     t <- if.null(dim(pulse)[1], length(pulse))
     dummy.var <- list()
     dummy.var[[names(list(...))[1]]] <- rep(0, t)
@@ -820,17 +856,26 @@ TF_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
     block.pulse <-
       do.call(
         function(...) {
-          base_block(..., order = k, name = paste0(name, ".Pulse"), a1 = a1.pulse, R1 = R1.pulse, D = D.pulse, h = h.pulse, H = H.pulse, monitoring = monitoring.pulse)
+          base_block(..., order = k, name = paste0(name, ".Pulse.effect"), a1 = a1.pulse, R1 = R1.pulse, D = D.pulse, h = h.pulse, H = H.pulse, monitoring = monitoring.pulse)
         },
         dummy.var
       )
 
-    names(block.pulse$var.names[[paste0(name, ".Pulse")]]) <- paste0(1:k)
+    names(block.pulse$var.names[[paste0(name, ".Pulse.effect")]]) <- paste0(1:k)
 
     block.pulse$G <- diag(k)
     block <- block + block.pulse
-    block$G[1, (2 * order + 1):(2 * order + k), ] <- t(matrix(pulse, block$t, k))
-    block$G.labs[1, (2 * order + 1):(2 * order + k)] <- "Pulse"
+    if (multi.states) {
+      pulse <- t(matrix(pulse, block$t, order.states))
+      for (i in 1:order.states) {
+        idx <- 1 + (i - 1) * order
+        block$G[idx, n.param + 1, ] <- pulse[i, ]
+        block$G.labs[idx, n.param + 1] <- "Single.Pulse"
+      }
+    } else {
+      block$G[1, (n.param + 1):(n.param + k), ] <- t(matrix(pulse, block$t, k))
+      block$G.labs[1, (n.param + 1):(n.param + k)] <- "Multi.Pulse"
+    }
   }
   return(block)
 }
@@ -991,6 +1036,7 @@ block_superpos <- function(...) {
   FF.labs <- matrix("const", n, k, dimnames = list(NULL, pred.names))
   G <- array(0, c(n, n, t))
   G.labs <- matrix("const", n, n)
+  G.idx <- matrix(NA, n, n)
   D <- array(0, c(n, n, t))
   h <- matrix(0, n, t)
   H <- array(0, c(n, n, t))
@@ -1011,6 +1057,7 @@ block_superpos <- function(...) {
 
     G[current.range, current.range, ] <- block$G
     G.labs[current.range, current.range] <- block$G.labs
+    G.idx[current.range, current.range] <- block$G.idx + position - 1
     D[current.range, current.range, ] <- block$D
     h[current.range, ] <- block$h
     H[current.range, current.range, ] <- block$H
@@ -1033,6 +1080,7 @@ block_superpos <- function(...) {
     "FF.labs" = FF.labs,
     "G" = G,
     "G.labs" = G.labs,
+    "G.idx" = G.idx,
     "D" = D,
     "h" = h,
     "H" = H,

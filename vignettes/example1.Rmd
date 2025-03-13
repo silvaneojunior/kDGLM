@@ -284,8 +284,8 @@ structure <- structure |>
 
 search.model <- fit_model(
   structure, outcome,
-  lag = -1, # Using the model likelihood (f(y|M)) as the comparisson metric.
-  H = seq.int(0, 0.1, l = 101)
+  H = seq.int(0, 0.04, l = 101),
+  metric.cutoff = 0
 )
 fitted.model <- search.model$model
 ```

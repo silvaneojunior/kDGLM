@@ -30,18 +30,20 @@
 #'
 #' structure <- polynomial_block(mu = 1, D = 0.95)
 #'
-#' outcome <- Gamma(phi = 0.5, mu = "mu", data = cornWheat$corn.log.return[1:500]**2)
+#' Y <- (cornWheat$corn.log.return[1:500] - mean(cornWheat$corn.log.return[1:500]))**2
+#' outcome <- Gamma(phi = 0.5, mu = "mu", data = Y)
 #' fitted.data <- fit_model(structure, corn = outcome)
 #' summary(fitted.data)
 #' plot(fitted.data, plot.pkg = "base")
 #'
 #' @references
 #'    \insertAllCited{}
-Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA, data, offset = as.matrix(data)**0, alt.method = FALSE) {
+Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA,
+                  data, offset = as.matrix(data)**0) {
   if (min(data, na.rm = TRUE) <= 0) {
     stop("Error: data must be a strictly positive vector/matrix.")
   }
-  # alt.method <- FALSE
+  alt.method <- FALSE
   data <- as.matrix(data)
 
   # phi=deparse(substitute(phi))[[1]] |> check.expr()

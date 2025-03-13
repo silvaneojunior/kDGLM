@@ -58,45 +58,9 @@ var_decomp <- function(S) {
   })
   pivot <- attr(chol.decomp, "pivot")
   oo <- order(pivot)
-  chol.decomp <- chol.decomp[, oo]
+  chol.decomp <- chol.decomp[, oo, drop = FALSE]
   return(chol.decomp)
 }
-
-# var_decomp <- function(S) {
-#   Chol.decomp <- cholesky(S)
-#   if (prod(diag(Chol.decomp), na.rm = TRUE) == 0 || any(is.na(Chol.decomp))) {
-#     svd.decomp <- svd(S)
-#     d <- sqrt(svd.decomp$d)
-#     u.t <- transpose(svd.decomp$u)
-#     return(diag(d, nrow = length(d)) %*% u.t)
-#   } else {
-#     return(Chol.decomp)
-#   }
-# }
-
-
-# var_decomp3 <- function(S) {
-#   Chol.decomp <- cholesky(S)
-#   flags=is.nan(diag(Chol.decomp))
-#   while(any(flags)){
-#     Chol.decomp[flags,flags]=cholesky(S[flags,flags])
-#     Chol.decomp[which(flags)[1]-1,]=0
-#     flags=is.nan(diag(Chol.decomp))
-#   }
-#   return(Chol.decomp)
-# }
-
-# var_decomp2 <- function(S) {
-#   Chol.decomp <- cholesky(S)
-#   if (prod(diag(Chol.decomp), na.rm = TRUE) == 0 || any(is.na(Chol.decomp))) {
-#     svd.decomp <- svd(S)
-#     d <- sqrt(svd.decomp$d)
-#     u.t <- transpose(svd.decomp$u)
-#     return(diag(d, nrow = length(d)) %*% u.t)
-#   } else {
-#     return(Chol.decomp)
-#   }
-# }
 
 #' ginv
 #'
@@ -106,8 +70,8 @@ var_decomp <- function(S) {
 #'
 #' @keywords internal
 ginv <- function(S) {
-  n <- dim(S)[1]
   S <- as.matrix(S)
+  n <- dim(S)[1]
   chol.decomp <- suppressWarnings({
     chol(S, pivot = TRUE)
   })
@@ -115,8 +79,10 @@ ginv <- function(S) {
   pivot <- attr(chol.decomp, "pivot")
   oo <- order(pivot)
   inv <- matrix(0, n, n)
-  inv[1:rank, 1:rank] <- chol2inv(chol.decomp[1:rank, 1:rank])
-  inv <- inv[oo, oo]
+  if (rank > 0) {
+    inv[1:rank, 1:rank] <- chol2inv(chol.decomp[1:rank, 1:rank])
+  }
+  inv <- inv[oo, oo, drop = FALSE]
   return(inv)
 }
 
@@ -139,37 +105,20 @@ dmvnorm <- function(x, mu, Sigma) {
   x <- x[index]
   mu <- mu[index]
   Sigma <- Sigma[index, index, drop = FALSE]
-  diag(Sigma) <- diag(Sigma) + 1e-8
 
 
   Chol.decomp <- var_decomp(Sigma)
   flags.valid <- diag(Chol.decomp) > 0
   inv.chol.Sigma <- Chol.decomp * 0
 
-  inv.chol.Sigma[flags.valid, flags.valid] <-
-    backsolve(Chol.decomp[flags.valid, flags.valid], diag(sum(flags.valid)))
+  # print(diag(Chol.decomp))
+  if (sum(flags.valid) > 0) {
+    inv.chol.Sigma[flags.valid, flags.valid] <-
+      backsolve(Chol.decomp[flags.valid, flags.valid], diag(sum(flags.valid)))
+  }
   diag.chol.inv <- diag(inv.chol.Sigma)
 
   norm.x <- transpose(inv.chol.Sigma) %*% (x - mu)
-
-  # Chol.decomp <- cholesky(Sigma)
-  # if (prod(diag(Chol.decomp), na.rm = TRUE) < 1e-12 || any(is.na(Chol.decomp))) {
-  #   svd.decomp <- svd(Sigma)
-  #   Q.l <- svd.decomp$u
-  #   Q.r <- svd.decomp$v
-  #   D <- svd.decomp$d
-  #   D <- ifelse(D > 1e-12, 1 / sqrt(D), 0)
-  #   D.mat <- diag(length(D))
-  #   diag(D.mat) <- D
-  #   inv.chol.Sigma <- (Q.l %*% D.mat %*% transpose(Q.r))
-  #   diag.chol.inv <- D
-  # } else {
-  #   inv.chol.Sigma <- (backsolve(Chol.decomp, diag(length(mu))))
-  #   diag.chol.inv <- diag(inv.chol.Sigma)
-  # }
-  #
-  # flags.valid <- diag.chol.inv > 1e-12
-  # norm.x <- transpose(inv.chol.Sigma) %*% (x - mu)
 
   sum(dnorm(norm.x[flags.valid], log = TRUE)) +
     sum(log(abs(diag.chol.inv[flags.valid])))

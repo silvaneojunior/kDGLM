@@ -1,5 +1,5 @@
-pandoc: 3.1.1
-pkgdown: 2.0.9
+pandoc: '3.2'
+pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   example1: example1.html
@@ -7,5 +7,4 @@ articles:
   intro: intro.html
   outcomes: outcomes.html
   structures: structures.html
-last_built: 2025-01-09T15:56Z
-
+last_built: 2025-04-08T18:18Z

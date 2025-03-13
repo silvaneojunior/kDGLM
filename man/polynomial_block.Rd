@@ -47,6 +47,7 @@ A dlm_block object containing the following values:
    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
    \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
+   \item G.idx Matrix: A n x n character matrix containing the index each element of G.
    \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
    \item h Matrix: The mean for the random noise of the temporal evolution. Its dimension should be n x t.
    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.
