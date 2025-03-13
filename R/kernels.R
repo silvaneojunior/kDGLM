@@ -8,6 +8,7 @@
 #' @param Rt array: A 3D-array representing the one-step-ahead covariance matrix of the latent states at each time based upon the filtered covariance matrix. The third dimension should represent the time index.
 #' @param G array: A 3D-array representing the transition matrix of the model at each time.
 #' @param G.labs matrix: A character matrix containing the type associated with each value in G.
+#' @param G.idx matrix: A numeric matrix containing the index associated with each value in G.
 #'
 #' @return A list containing the smoothed mean (mts) and covariance (Cts) of the latent states at each time. Their dimension follows, respectively, the dimensions of mt and Ct.
 #'
@@ -26,7 +27,7 @@
 #' @seealso \code{\link{analytic_filter}}
 #' @references
 #'    \insertAllCited{}
-generic_smoother <- function(mt, Ct, at, Rt, G, G.labs) {
+generic_smoother <- function(mt, Ct, at, Rt, G, G.labs, G.idx) {
   T_len <- dim(mt)[2]
   mts <- mt
   Cts <- Ct
@@ -35,7 +36,7 @@ generic_smoother <- function(mt, Ct, at, Rt, G, G.labs) {
       mt.step <- mt[, t, drop = FALSE]
       Ct.step <- Ct[, , t]
       Rt.step <- Rt[, , t + 1]
-      G.step <- calc_current_G(mt.step, Ct.step, G[, , t + 1], G.labs)$G
+      G.step <- calc_current_G(mt.step, Ct.step, G[, , t + 1], G.labs, G.idx)$G
       # G.step <- G[, , t + 1]
 
       simple.Rt.inv <- Ct.step %*% transpose(G.step) %*% ginv(Rt.step)
@@ -59,6 +60,7 @@ generic_smoother <- function(mt, Ct, at, Rt, G, G.labs) {
 #' @param FF.labs matrix: A character matrix containing the label associated with each value in FF.
 #' @param G array: A 3D-array containing the evolution matrix at each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #' @param G.labs matrix: A character matrix containing the label associated with each value in G.
+#' @param G.idx matrix: A numeric matrix containing the index associated with each value in G.
 #' @param D array: A 3D-array containing the discount factor matrix at each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
 #' @param h matrix: A drift to be added after the temporal evolution (can be interpreted as the mean of the random noise at each time). Its dimension should be n x t, where t is the length of the series and n is the number of latent states.
 #' @param H array: A 3D-array containing the covariance matrix of the noise at each time. Its dimension should be the same as D.
@@ -80,6 +82,7 @@ generic_smoother <- function(mt, Ct, at, Rt, G, G.labs) {
 #'    \item FF array: The same as the argument (same values).
 #'    \item G matrix: The same as the argument (same values).
 #'    \item G.labs matrix: The same as the argument (same values).
+#'    \item G.idx matrix: The same as the argument (same values).
 #'    \item D array: The same as the argument (same values).
 #'    \item h array: The same as the argument (same values).
 #'    \item H array: The same as the argument (same values).
@@ -103,7 +106,7 @@ generic_smoother <- function(mt, Ct, at, Rt, G, G.labs) {
 #' @references
 #'    \insertAllCited{}
 analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
-                            FF, FF.labs, G, G.labs, D, h, H,
+                            FF, FF.labs, G, G.labs, G.idx, D, h, H,
                             p.monit = NA, monitoring = FALSE) {
   # Defining quantities
   T_len <- dim(FF)[3]
@@ -209,7 +212,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
 
       next.step <- one_step_evolve(
         last.m, last.C,
-        G.now, G.labs,
+        G.now, G.labs, G.idx,
         D.p.inv, h[, t], H.now
       )
 
@@ -366,7 +369,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
     ft = ft, Qt = Qt,
     ft.star = ft.star, Qt.star = Qt.star,
     FF = FF, FF.labs = FF.labs,
-    G = G, G.labs = G.labs,
+    G = G, G.labs = G.labs, G.idx = G.idx,
     D = D, h = h, H = H, W = W,
     log.like.null = log.like.null,
     log.like.alt = log.like.alt,
@@ -377,7 +380,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
   return(result)
 }
 
-calc_current_G <- function(m0, C0, G, G.labs) {
+calc_current_G <- function(m0, C0, G, G.labs, G.idx) {
   n <- length(m0)
   G.now <- G |> matrix(n, n)
 
@@ -388,41 +391,45 @@ calc_current_G <- function(m0, C0, G, G.labs) {
     for (index.row in index.na) {
       index.col <- seq_len(n)[is.na(G.now[index.row, ])]
       flags.const <- G.labs[index.row, index.col] == "constrained"
+
+      index.coef <- G.idx[index.row, index.col][flags.const]
       if (any(flags.const)) {
         index.const <- index.col[flags.const]
-        rho <- tanh(m0[index.const + 1])
+        rho <- tanh(m0[index.coef])
         G.now[index.row, index.const] <- rho
-        G.now[index.row, index.const + 1] <- (1 + rho) * (1 - rho) * m0[index.const]
+        G.now[index.row, index.coef] <- (1 + rho) * (1 - rho) * m0[index.const]
         drift[index.row] <- drift[index.row] - sum((1 + rho) * (1 - rho) * m0[index.col] * m0[index.col + 1])
       }
 
       flags.free <- G.labs[index.row, index.col] == "free"
+      index.coef <- G.idx[index.row, index.col][flags.free]
       if (any(flags.free)) {
         index.free <- index.col[flags.free]
-        G.now[index.row, index.free] <- m0[index.free + 1]
-        G.now[index.row, index.free + 1] <- m0[index.free]
-        drift[index.row] <- drift[index.row] - sum(m0[index.free] * m0[index.free + 1])
+        G.now[index.row, index.free] <- m0[index.coef]
+        G.now[index.row, index.coef] <- m0[index.free]
+        drift[index.row] <- drift[index.row] - sum(m0[index.free] * m0[index.coef])
       }
 
 
       m1 <- m0
       C1 <- C0
       flags.kl <- G.labs[index.row, index.col] == "kl"
+      index.coef <- G.idx[index.row, index.col][flags.kl]
       if (any(flags.kl)) {
         index.kl <- index.col[flags.kl]
         for (i in index.kl) {
-          m1[i] <- m0[i] * m0[i + 1] + C0[i, i + 1]
-          C1[i, i] <- C0[i, i] * C0[i + 1, i + 1] +
-            C0[i, i + 1]**2 +
-            2 * m0[i] * m0[i + 1] * C0[i, i + 1] +
-            (m0[i]**2) * C0[i + 1, i + 1] + (m0[i + 1]**2) * C0[i, i]
+          m1[i] <- m0[i] * m0[index.coef] + C0[i, index.coef]
+          C1[i, i] <- C0[i, i] * C0[index.coef, index.coef] +
+            C0[i, index.coef]**2 +
+            2 * m0[i] * m0[index.coef] * C0[i, index.coef] +
+            (m0[i]**2) * C0[index.coef, index.coef] + (m0[index.coef]**2) * C0[i, i]
           cov.vec <- c(
-            C0[i, i + 1] * m0[i] + C0[i, i] * m0[i + 1],
-            C0[i, i + 1] * m0[i + 1] + C0[i + 1, i + 1] * m0[i]
+            C0[i, index.coef] * m0[i] + C0[i, i] * m0[index.coef],
+            C0[i, index.coef] * m0[index.coef] + C0[index.coef, index.coef] * m0[i]
           )
           C1[-i, i] <-
             C1[i, -i] <-
-            cov.vec %*% ginv(C0[i:(i + 1), i:(i + 1)]) %*% C0[i:(i + 1), -i]
+            cov.vec %*% ginv(C0[c(i, index.coef), c(i, index.coef)]) %*% C0[c(i, index.coef), -i]
           G.now[i, i] <- 1
         }
         a1 <- G.now %*% m1
@@ -469,8 +476,8 @@ calc_current_G <- function(m0, C0, G, G.labs) {
   list("a1" = a1, "R1" = R1, "G" = G.now, "drift" = drift)
 }
 
-one_step_evolve <- function(m0, C0, G, G.labs, D.inv, h, H) {
-  G.vals <- calc_current_G(m0, C0, G, G.labs)
+one_step_evolve <- function(m0, C0, G, G.labs, G.idx, D.inv, h, H) {
+  G.vals <- calc_current_G(m0, C0, G, G.labs, G.idx)
 
   # print('####################')
   # print(cbind(m0,G.vals$m1))

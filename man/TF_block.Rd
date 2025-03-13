@@ -18,6 +18,7 @@ TF_block(
   a1 = 0,
   R1 = 4,
   monitoring = TRUE,
+  multi.states = FALSE,
   D.coef = 1,
   h.coef = 0,
   H.coef = 0,
@@ -82,6 +83,8 @@ TF(
 
 \item{monitoring}{bool: A flag indicating if the latent state should be monitored (if automated monitoring is used). The default is TRUE.}
 
+\item{multi.states}{bool: If FALSE (default) a single latent state will be created affecting all linear predictor and being affected by all pulses. If TRUE, each linear predictor will have its own latent state, but all latent states will share the same AR coefficients and all pulse effects (each state will have its own pulse though).}
+
 \item{D.coef}{Array, Matrix, vector or scalar: The values for the discount factors associated with the AR coefficients at each time. If D.coef is an array, its dimensions should be n x n x t, where n is the order of the AR block and t is the length of the outcomes. If D.coef is a matrix, its dimensions should be n x n and the same discount matrix will be used in all observations. If D.coef is a vector, it should have size t and it is interpreted as the discount factor at each observed time (same discount for all variable). If D.coef is a scalar, the same discount will be used for all AR coefficients at all times.}
 
 \item{h.coef}{Matrix, vector or scalar: A drift to be add in the AR coefficients after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a matrix, its dimension should be n x t, where n is the order of the AR block and t is the length of the series. If a scalar, the passed value will be used for all coefficients at each time.}
@@ -106,7 +109,7 @@ TF(
 
 \item{monitoring.pulse}{Vector: A vector of flags indicating which pulse coefficients should be monitored (if automated monitoring is used). Its size should be n, where n is the number of pulses. The default is that no pulse coefficient should be monitored.}
 
-\item{X}{Vector or scalar: An argument providing the values of the covariate X_t.}
+\item{X}{Vector or scalar: An argument providing the values for the pulse for a Transfer Function.}
 }
 \value{
 A dlm_block object containing the following values:
@@ -115,6 +118,7 @@ A dlm_block object containing the following values:
    \item FF.labs Matrix: A n x k character matrix describing the type of value of each element of FF.
    \item G Matrix: A 3D-array containing the evolution matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
    \item G.labs Matrix: A n x n character matrix describing the type of value of each element of G.
+   \item G.idx Matrix: A n x n character matrix containing the index each element of G.
    \item D Array: A 3D-array containing the discount factor matrix for each time. Its dimension should be n x n x t, where n is the number of latent states and t is the time series length.
    \item H Array: A 3D-array containing the covariance matrix of the noise for each time. Its dimension should be the same as D.
    \item a1 Vector: The prior mean for the latent vector.

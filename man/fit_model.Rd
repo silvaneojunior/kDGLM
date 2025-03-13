@@ -118,7 +118,7 @@ plot(fitted.data, plot.pkg = "base")
 # Gamma case
 structure <- polynomial_block(mu = 1, D = 0.95)
 
-outcome <- Gamma(phi = 0.5, mu = "mu", data = cornWheat$corn.log.return[1:500]**2)
+outcome <- Gamma(phi = 0.5, mu = "mu", data = (cornWheat$corn.log.return[1:500] - mean(cornWheat$corn.log.return[1:500]))**2)
 fitted.data <- fit_model(structure, corn = outcome)
 summary(fitted.data)
 plot(fitted.data, plot.pkg = "base")

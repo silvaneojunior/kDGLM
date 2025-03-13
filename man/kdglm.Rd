@@ -67,7 +67,7 @@ plot(fitted.data, plot.pkg = "base")
 ##################################################################
 
 # Gamma case
-fitted.data <- kdglm(corn.log.return[1:500]**2 ~ 1, phi = 0.5, family = Gamma, data = cornWheat)
+fitted.data <- kdglm((cornWheat$corn.log.return[1:500] - mean(cornWheat$corn.log.return[1:500]))**2 ~ 1, phi = 0.5, family = Gamma, data = cornWheat)
 summary(fitted.data)
 plot(fitted.data, plot.pkg = "base")
 
