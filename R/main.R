@@ -1420,7 +1420,12 @@ coef.fitted_dlm <- function(object, t.eval = seq_len(object$t), lag = -1, pred.c
 
         pred.index <- match(outcome$pred.names, object$pred.names)
 
-        cur.step <- outcome$apply_offset(lin.pred$ft[pred.index, , drop = FALSE], lin.pred$Qt[pred.index, pred.index, drop = FALSE], outcome$offset[i, ])
+        if(any(outcome$offset[i, ]==0)){
+          outcome$offset[i, ]=outcome$offset[i, ]+1e-6
+        }
+
+        cur.step <- outcome$apply_offset(lin.pred$ft[pred.index, , drop = FALSE], lin.pred$Qt[pred.index, pred.index, drop = FALSE],
+                                         outcome$offset[i, ])
 
         if (outcome$convert.canom.flag) {
           ft.canom <- outcome$convert.mat.canom %*% cur.step$ft

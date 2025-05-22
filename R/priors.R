@@ -36,10 +36,10 @@ zero_sum_prior <- function(block, var.index = 1:block$n, weights = rep(1, length
   for (i in 1:block$t) {
     D <- block$D[var.index, var.index, i]
     d <- D[D != 0]
-    if (min(d) != max(d)) {
+    if (length(unique(d))!=1) {
       warning("Not all latent states have the same discount factor. All values will be set to the minimum.")
     }
-    block$D[var.index, var.index, i] <- min(d)
+    block$D[var.index, var.index, i] <- d[1]
     block$D[-var.index, var.index, i] <- block$D[var.index, -var.index, i] <- 0
     block$h[var.index, i] <- block$h[var.index, i] - mean(block$h[var.index, i])
     block$H[var.index, var.index, i] <- transf %*% block$H[var.index, var.index, i] %*% transf
@@ -141,10 +141,10 @@ CAR_prior <- function(block, adj.matrix, scale, rho, sum.zero = FALSE, var.index
   for (i in 1:block$t) {
     D <- block$D[var.index, var.index, i]
     d <- D[D != 0]
-    if (min(d) != max(d)) {
-      warning("Not all latent states have the same discount factor. All values will be set to the average value.")
+    if (length(unique(d))!=1) {
+      warning("Not all latent states have the same discount factor. All values will be set to the minimum.")
     }
-    block$D[var.index, var.index, i] <- mean(D[D != 0])
+    block$D[var.index, var.index, i] <- d[1]
     block$D[-var.index, var.index, ] <- block$D[var.index, -var.index, ] <- 0
     block$h[var.index, i] <- block$h[var.index, i] - mean(block$h[var.index, i])
     block$H[var.index, var.index, i] <- transf %*% block$H[var.index, var.index, i] %*% transf

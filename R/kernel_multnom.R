@@ -42,7 +42,7 @@
 #' @references
 #'    \insertAllCited{}
 Multinom <- function(p, data, offset = as.matrix(data)**0, base.class = NULL) {
-  if (any(ceiling(data) != floor(data))) {
+  if (any(ceiling(data) != floor(data),na.rm=TRUE)) {
     stop("Error: data must be an intenger matrix.")
   }
   alt.method <- FALSE
@@ -98,11 +98,11 @@ Multinom <- function(p, data, offset = as.matrix(data)**0, base.class = NULL) {
       offset <- matrix(offset, r, t)
       offset.class <- offset[-r, ]
       offset.ref <- matrix(offset[r, ], r - 1, t, byrow = TRUE)
-      return(list("ft" = ft + log(offset.class / offset.ref), "Qt" = Qt))
+      return(list("ft" = ft + log(offset.class) - log(offset.ref), "Qt" = Qt))
     },
     link_function = function(x) {
       t <- length(x)
-      return(log(x[-t, ] / x[t, ]))
+      return(log(x[-t, ]) - log(x[t, ]))
     },
     inv_link_function = function(x) {
       y <- exp(x)

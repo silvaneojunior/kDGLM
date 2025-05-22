@@ -39,11 +39,11 @@
 #' @references
 #'    \insertAllCited{}
 Gamma <- function(phi = NA, mu = NA, alpha = NA, beta = NA, sigma = NA,
-                  data, offset = as.matrix(data)**0) {
+                  data, offset = as.matrix(data)**0,alt.method=FALSE) {
   if (min(data, na.rm = TRUE) <= 0) {
     stop("Error: data must be a strictly positive vector/matrix.")
   }
-  alt.method <- FALSE
+  # alt.method <- FALSE
   data <- as.matrix(data)
 
   # phi=deparse(substitute(phi))[[1]] |> check.expr()
