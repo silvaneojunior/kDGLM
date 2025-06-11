@@ -4,7 +4,7 @@
 \alias{eval_dlm_log_like}
 \title{Auxiliary function for evaluating the prior density of a DLM}
 \usage{
-eval_dlm_log_like(theta, model, lin.pred = FALSE)
+eval_dlm_log_like(theta, model, lin.pred = FALSE, safe.mode)
 }
 \arguments{
 \item{theta}{Matrix: A matrix representing the set of parameter for which to evaluate the density. Its size should be n x t, where n is the number of latent states and t is the length of the time series;}

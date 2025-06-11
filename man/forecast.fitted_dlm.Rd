@@ -10,6 +10,7 @@
   plot = ifelse(requireNamespace("plotly", quietly = TRUE), "plotly",
     ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot2", "base")),
   pred.cred = 0.95,
+  safe.mode = TRUE,
   ...
 )
 }

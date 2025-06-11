@@ -4,7 +4,7 @@
 \alias{simulate.fitted_dlm}
 \title{Draw samples from the distribution of the latent states}
 \usage{
-\method{simulate}{fitted_dlm}(object, nsim, seed = NULL, lag = -1, ...)
+\method{simulate}{fitted_dlm}(object, nsim, seed = NULL, lag = -1, safe.mode = TRUE, ...)
 }
 \arguments{
 \item{object}{fitted_dlm: A fitted model from which to sample.}
@@ -14,6 +14,8 @@
 \item{seed}{integer: An object specifying if and how the random number generator should be initialized.}
 
 \item{lag}{integer: The relative offset for forecast. Values for time t will be calculated based on the filtered values of time t-h. If lag is negative, then the smoothed distribution for the latent states will be used.}
+
+\item{safe.mode}{boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.}
 
 \item{...}{Extra arguments passed to the plot method.}
 }

@@ -12,6 +12,7 @@
 #' @param metric.cutoff integer: The number of observations to ignore when calculating the metrics. Default is 1/10 of the number of observations (rounded down). Only used when performing sensitivity analysis.
 #' @param save.models boolean: A flag indicating if all evaluated models should be saved. If FALSE, only the best model (according to the chosen metric) will be saved. Only used when performing sensitivity analysis.
 #' @param silent boolean: A flag indicating if a progress bar should be printed. Only used when performing sensitivity analysis.
+#' @param safe.mode boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.
 #'
 #' @return A fitted_dlm object.
 #' @export
@@ -120,7 +121,7 @@
 #' @seealso auxiliary functions for defining priors \code{\link{zero_sum_prior}}, \code{\link{CAR_prior}}
 #'
 #' @family auxiliary functions for fitted_dlm objects
-fit_model <- function(..., smooth = TRUE, p.monit = NA, condition = "TRUE", metric = "log.like", lag = 1, pred.cred = 0.95, metric.cutoff = NA, save.models = FALSE, silent = FALSE) {
+fit_model <- function(..., smooth = TRUE, p.monit = NA, condition = "TRUE", metric = "log.like", lag = 1, pred.cred = 0.95, metric.cutoff = NA, save.models = FALSE, silent = FALSE, safe.mode = TRUE) {
   extra.args <- list(...)
   structure <- list()
   outcomes <- list()
@@ -178,7 +179,7 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, condition = "TRUE", metr
   }
 
   if (structure$status == "defined") {
-    return(fit_model_single(structure, outcomes, smooth, p.monit))
+    return(fit_model_single(structure, outcomes, smooth, p.monit, safe.mode))
   } else {
     if (is.null(pred.cred) || is.na(pred.cred)) {
       pred.cred <- 0.95
@@ -249,7 +250,7 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, condition = "TRUE", metr
           stop(paste0("Error: invalid value for D. Expected a real number between 0 and 1, got: ", paste(structure$D[if.na(structure$D, 0) < 0 | if.na(structure$D, 0) > 1], collapse = ", "), "."))
         }
 
-        fitted.model <- fit_model_single(structure = structure, outcomes = outcomes, smooth = FALSE, p.monit = p.monit)
+        fitted.model <- fit_model_single(structure = structure, outcomes = outcomes, smooth = FALSE, p.monit = p.monit, safe.mode = safe.mode)
 
         T_len <- fitted.model$t
         if (is.na(metric.cutoff)) {
@@ -308,9 +309,10 @@ fit_model <- function(..., smooth = TRUE, p.monit = NA, condition = "TRUE", metr
 #' @param outcomes dlm_distr or list of dlm_distr objects: The model outcomes.
 #' @param smooth boolean: A flag indicating if the smoothed distribution for the latent states should be calculated.
 #' @param p.monit numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.
+#' @param safe.mode boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.
 #'
 #' @return A fitted_dlm object.
-fit_model_single <- function(structure, outcomes, smooth = TRUE, p.monit = NA) {
+fit_model_single <- function(structure, outcomes, smooth = TRUE, p.monit = NA, safe.mode = TRUE) {
   if (structure$status == "undefined") {
     stop("Error: One or more hiper parameter are undefined. Did you forget to pass the hyper-parameters?")
   }
@@ -436,7 +438,8 @@ fit_model_single <- function(structure, outcomes, smooth = TRUE, p.monit = NA) {
     h = h,
     H = H,
     p.monit = p.monit,
-    monitoring = structure$monitoring
+    monitoring = structure$monitoring,
+    safe.mode = safe.mode
   )
 
 
@@ -587,6 +590,7 @@ smoothing <- function(model) {
 forecast.fitted_dlm <- function(object, t = 1,
                                 plot = ifelse(requireNamespace("plotly", quietly = TRUE), "plotly", ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot2", "base")),
                                 pred.cred = 0.95,
+                                safe.mode = TRUE,
                                 ...) {
   if (plot == TRUE) {
     plot <- ifelse(requireNamespace("plotly", quietly = TRUE), "plotly", ifelse(requireNamespace("ggplot2", quietly = TRUE), "ggplot2", "base"))
@@ -758,7 +762,8 @@ forecast.fitted_dlm <- function(object, t = 1,
     lin.pred <- calc_lin_pred(
       last.m, last.C,
       FF[, , t_i] |> matrix(n, k, dimnames = list(NULL, pred.names)),
-      FF.labs, pred.names, 1:k
+      FF.labs, pred.names, 1:k,
+      safe.mode = safe.mode
     )
     f1[, t_i] <- lin.pred$ft
     Q1[, , t_i] <- lin.pred$Qt
@@ -1019,6 +1024,7 @@ update.fitted_dlm <- function(object, ...) {
   t_last <- object$t
   k <- object$k
   r <- object$r
+  safe.mode <- args$safe.mode
   outcomes.old <- object$outcomes
   outcomes.new <- list()
   for (name in names(outcomes.old)) {
@@ -1216,7 +1222,8 @@ update.fitted_dlm <- function(object, ...) {
     h = h,
     H = H,
     p.monit = object$p.monit,
-    monitoring = object$monitoring
+    monitoring = object$monitoring,
+    safe.mode = safe.mode
   )
 
   object$mt <- matrix(c(object$mt, new.data$mt), c(n, t.max + t_last), dimnames = dimnames(object$mt))
@@ -1258,6 +1265,7 @@ update.fitted_dlm <- function(object, ...) {
 #' @param pred.cred numeric: The credibility level for the C.I..
 #' @param eval.pred boolean: A flag indicating if the predictions should be calculated.
 #' @param eval.metric boolean: A flag indicating if the model density (f(M|y)) should be calculated. Only used when lag<0.
+#' @param safe.mode boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.
 #' @param ... Extra arguments passed to the coef method.
 #'
 #' @return A list containing:
@@ -1290,7 +1298,7 @@ update.fitted_dlm <- function(object, ...) {
 #' var.vals <- coef(fitted.data)
 #'
 #' @family auxiliary functions for fitted_dlm objects
-coef.fitted_dlm <- function(object, t.eval = seq_len(object$t), lag = -1, pred.cred = 0.95, eval.pred = FALSE, eval.metric = FALSE, ...) {
+coef.fitted_dlm <- function(object, t.eval = seq_len(object$t), lag = -1, pred.cred = 0.95, eval.pred = FALSE, eval.metric = FALSE, safe.mode = TRUE, ...) {
   if (round(lag) != lag) {
     stop(paste0("Error: lag should be a integer. Got ", lag, "."))
   }
@@ -1402,7 +1410,8 @@ coef.fitted_dlm <- function(object, t.eval = seq_len(object$t), lag = -1, pred.c
       next.step$at |> matrix(n, 1),
       next.step$Rt, FF[, , i] |> matrix(n, k, dimnames = list(NULL, pred.names)),
       FF.labs, pred.names,
-      pred.index = 1:k
+      pred.index = 1:k,
+      safe.mode = safe.mode
     )
 
     mt.pred[, i - init.t + 1] <- next.step$at
@@ -1420,12 +1429,10 @@ coef.fitted_dlm <- function(object, t.eval = seq_len(object$t), lag = -1, pred.c
 
         pred.index <- match(outcome$pred.names, object$pred.names)
 
-        if(any(outcome$offset[i, ]==0)){
-          outcome$offset[i, ]=outcome$offset[i, ]+1e-6
-        }
-
-        cur.step <- outcome$apply_offset(lin.pred$ft[pred.index, , drop = FALSE], lin.pred$Qt[pred.index, pred.index, drop = FALSE],
-                                         outcome$offset[i, ])
+        cur.step <- outcome$apply_offset(
+          lin.pred$ft[pred.index, , drop = FALSE], lin.pred$Qt[pred.index, pred.index, drop = FALSE],
+          outcome$offset[i, ]
+        )
 
         if (outcome$convert.canom.flag) {
           ft.canom <- outcome$convert.mat.canom %*% cur.step$ft
@@ -1566,6 +1573,7 @@ coef.fitted_dlm <- function(object, t.eval = seq_len(object$t), lag = -1, pred.c
 #' @param nsim integer: The number of samples to draw.
 #' @param seed integer: An object specifying if and how the random number generator should be initialized.
 #' @param lag integer: The relative offset for forecast. Values for time t will be calculated based on the filtered values of time t-h. If lag is negative, then the smoothed distribution for the latent states will be used.
+#' @param safe.mode boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.
 #' @param ... Extra arguments passed to the plot method.
 #'
 #' @return A list containing the following values:
@@ -1590,7 +1598,7 @@ coef.fitted_dlm <- function(object, t.eval = seq_len(object$t), lag = -1, pred.c
 #' sample <- simulate(fitted.data, 5000)
 #'
 #' @family auxiliary functions for fitted_dlm objects
-simulate.fitted_dlm <- function(object, nsim, seed = NULL, lag = -1, ...) {
+simulate.fitted_dlm <- function(object, nsim, seed = NULL, lag = -1, safe.mode = TRUE, ...) {
   G <- object$G
   G.labs <- object$G.labs
   G.idx <- object$G.idx
@@ -1665,7 +1673,7 @@ simulate.fitted_dlm <- function(object, nsim, seed = NULL, lag = -1, ...) {
     if (any(is.na(FF.step))) {
       lambda.cur <- sapply(seq_len(nsim),
         function(j) {
-          calc_lin_pred(theta.sample[, t, j], Ct.placeholder, FF.step, FF.labs, pred.names)$ft
+          calc_lin_pred(theta.sample[, t, j], Ct.placeholder, FF.step, FF.labs, pred.names, safe.mode)$ft
         },
         simplify = "matrix"
       )
@@ -1713,6 +1721,7 @@ simulate.fitted_dlm <- function(object, nsim, seed = NULL, lag = -1, ...) {
 #' @param theta Matrix: A matrix representing the set of parameter for which to evaluate the density. Its size should be n x t, where n is the number of latent states and t is the length of the time series;
 #' @param model fitted_dlm: A fitted_dlm object.
 #' @param lin.pred boolean: A flag indicating if theta represents the linear predictors.
+#' @param safe.mode boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.
 #' @return A scalar representing the log density evaluated at theta.
 #' @export
 #'
@@ -1730,7 +1739,7 @@ simulate.fitted_dlm <- function(object, nsim, seed = NULL, lag = -1, ...) {
 #'   AirPassengers = outcome
 #' )
 #' eval_dlm_post(fitted.data$mts, fitted.data)
-eval_dlm_post <- function(theta, model, lin.pred = FALSE) {
+eval_dlm_post <- function(theta, model, lin.pred = FALSE, safe.mode = TRUE) {
   t <- model$t
   n <- model$n
   k <- model$k
@@ -1750,7 +1759,7 @@ eval_dlm_post <- function(theta, model, lin.pred = FALSE) {
     at <- model$at
     Rt <- model$Rt
 
-    lin.pred <- calc_lin_pred(mt.step, Ct.step, FF[, , 1] |> matrix(n, k), FF.labs, pred.names)
+    lin.pred <- calc_lin_pred(mt.step, Ct.step, FF[, , 1] |> matrix(n, k), FF.labs, pred.names, safe.mode)
     ft <- lin.pred$ft
     Qt <- lin.pred$Qt
     FF.step <- lin.pred$FF
@@ -1774,7 +1783,7 @@ eval_dlm_post <- function(theta, model, lin.pred = FALSE) {
         mt.step <- mt.step + simple.Rt.inv %*% (mts - at.step)
         Ct.step <- Ct.step + simple.Rt.inv %*% (Cts - Rt.step) %*% transpose(simple.Rt.inv)
 
-        lin.pred <- calc_lin_pred(mt.step, Ct.step, FF[, , i] |> matrix(n, k), FF.labs, pred.names)
+        lin.pred <- calc_lin_pred(mt.step, Ct.step, FF[, , i] |> matrix(n, k), FF.labs, pred.names, safe.mode)
         ft <- lin.pred$ft
         Qt <- lin.pred$Qt
         FF.step <- lin.pred$FF
@@ -1823,6 +1832,7 @@ eval_dlm_post <- function(theta, model, lin.pred = FALSE) {
 #' @param theta matrix: A matrix representing the set of parameter for which to evaluate the density. Its size should be n x t, where n is the number of latent states and t is the length of the time series;
 #' @param model fitted_dlm object: A fitted_dlm object.
 #' @param lin.pred boolean: A flag indicating if theta represents the linear predictors.
+#' @param safe.mode boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.
 #'
 #' @return A scalar representing the log density evaluated at theta.
 #' @export
@@ -1841,7 +1851,7 @@ eval_dlm_post <- function(theta, model, lin.pred = FALSE) {
 #'   AirPassengers = outcome
 #' )
 #' eval_dlm_prior(fitted.data$mts, fitted.data)
-eval_dlm_prior <- function(theta, model, lin.pred = FALSE) {
+eval_dlm_prior <- function(theta, model, lin.pred = FALSE, safe.mode = TRUE) {
   t <- model$t
   n <- model$n
   k <- model$k
@@ -1861,7 +1871,7 @@ eval_dlm_prior <- function(theta, model, lin.pred = FALSE) {
   D_placeholder <- R1**0
 
   if (lin.pred) {
-    lin.pred <- calc_lin_pred(a1, R1, FF[, , 1] |> matrix(n, k), FF.labs, pred.names)
+    lin.pred <- calc_lin_pred(a1, R1, FF[, , 1] |> matrix(n, k), FF.labs, pred.names, safe.mode)
     ft <- lin.pred$ft
     Qt <- lin.pred$Qt
     FF.step <- lin.pred$FF
@@ -1875,7 +1885,7 @@ eval_dlm_prior <- function(theta, model, lin.pred = FALSE) {
       for (i in 2:t) {
         next.step <- one_step_evolve(at, Rt, G[, , i], G.labs, G.idx, D_placeholder, h[, i, drop = FALSE], W[, , i])
 
-        lin.pred <- calc_lin_pred(next.step$at, next.step$Rt, FF[, , i] |> matrix(n, k), FF.labs, pred.names)
+        lin.pred <- calc_lin_pred(next.step$at, next.step$Rt, FF[, , i] |> matrix(n, k), FF.labs, pred.names, safe.mode)
         ft <- lin.pred$ft
         Qt <- lin.pred$Qt
         FF.step <- lin.pred$FF
@@ -1925,7 +1935,7 @@ eval_dlm_prior <- function(theta, model, lin.pred = FALSE) {
 #'   AirPassengers = outcome
 #' )
 #' eval_dlm_log_like(fitted.data$mts, fitted.data)
-eval_dlm_log_like <- function(theta, model, lin.pred = FALSE) {
+eval_dlm_log_like <- function(theta, model, lin.pred = FALSE, safe.mode) {
   t <- model$t
   n <- model$n
   k <- model$k
@@ -1957,7 +1967,7 @@ eval_dlm_log_like <- function(theta, model, lin.pred = FALSE) {
     }
   } else {
     for (i in seq_len(t)) {
-      lin.pred <- calc_lin_pred(theta[, i, drop = FALSE], Ct.placeholder, FF[, , i] |> matrix(n, k), FF.labs, pred.names)
+      lin.pred <- calc_lin_pred(theta[, i, drop = FALSE], Ct.placeholder, FF[, , i] |> matrix(n, k), FF.labs, pred.names, safe.mode)
       ft <- lin.pred$ft
       Qt <- lin.pred$Qt
       for (outcome in model$outcomes) {
@@ -2010,7 +2020,7 @@ eval_dlm_log_like <- function(theta, model, lin.pred = FALSE) {
 #' eval_dlm_norm_const(fitted.data)
 #'
 #' @family auxiliary functions for fitted_dlm objects
-eval_dlm_norm_const <- function(model, lin.pred = FALSE) {
+eval_dlm_norm_const <- function(model, lin.pred = FALSE, safe.mode) {
   if (!model$smooth) {
     stop("Error: The model is not smoothed.")
   }
@@ -2025,7 +2035,7 @@ eval_dlm_norm_const <- function(model, lin.pred = FALSE) {
     fts <- model$ft
     Ct.placeholder <- model$Ct[, , t] * 0
     for (i in 1:t) {
-      lin.pred.list <- calc_lin_pred(model$mts[, i], Ct.placeholder, FF[, , i] |> matrix(n, k), FF.labs, pred.names)
+      lin.pred.list <- calc_lin_pred(model$mts[, i], Ct.placeholder, FF[, , i] |> matrix(n, k), FF.labs, pred.names, safe.mode)
       ft <- lin.pred.list$ft
       fts[, i] <- ft
     }

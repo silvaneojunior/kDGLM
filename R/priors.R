@@ -36,7 +36,7 @@ zero_sum_prior <- function(block, var.index = 1:block$n, weights = rep(1, length
   for (i in 1:block$t) {
     D <- block$D[var.index, var.index, i]
     d <- D[D != 0]
-    if (length(unique(d))!=1) {
+    if (length(unique(d)) != 1) {
       warning("Not all latent states have the same discount factor. All values will be set to the minimum.")
     }
     block$D[var.index, var.index, i] <- d[1]
@@ -141,7 +141,7 @@ CAR_prior <- function(block, adj.matrix, scale, rho, sum.zero = FALSE, var.index
   for (i in 1:block$t) {
     D <- block$D[var.index, var.index, i]
     d <- D[D != 0]
-    if (length(unique(d))!=1) {
+    if (length(unique(d)) != 1) {
       warning("Not all latent states have the same discount factor. All values will be set to the minimum.")
     }
     block$D[var.index, var.index, i] <- d[1]

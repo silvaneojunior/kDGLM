@@ -17,7 +17,8 @@ analytic_filter(
   h,
   H,
   p.monit = NA,
-  monitoring = FALSE
+  monitoring = FALSE,
+  safe.mode = TRUE
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ analytic_filter(
 \item{p.monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.}
 
 \item{monitoring}{numeric: A vector of flags indicating which latent states should be monitored.}
+
+\item{safe.mode}{boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.}
 }
 \value{
 A list containing the following values:

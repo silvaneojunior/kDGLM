@@ -4,7 +4,13 @@
 \alias{fit_model_single}
 \title{Fitting one kDGLM models}
 \usage{
-fit_model_single(structure, outcomes, smooth = TRUE, p.monit = NA)
+fit_model_single(
+  structure,
+  outcomes,
+  smooth = TRUE,
+  p.monit = NA,
+  safe.mode = TRUE
+)
 }
 \arguments{
 \item{structure}{dlm_block: The structural blocks of the model. All block must be completely defined.}
@@ -14,6 +20,8 @@ fit_model_single(structure, outcomes, smooth = TRUE, p.monit = NA)
 \item{smooth}{boolean: A flag indicating if the smoothed distribution for the latent states should be calculated.}
 
 \item{p.monit}{numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.}
+
+\item{safe.mode}{boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.}
 }
 \value{
 A fitted_dlm object.

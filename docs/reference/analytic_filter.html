@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kDGLM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,8 @@
 <span>  <span class="va">h</span>,</span>
 <span>  <span class="va">H</span>,</span>
 <span>  p.monit <span class="op">=</span> <span class="cn">NA</span>,</span>
-<span>  monitoring <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  monitoring <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  safe.mode <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -117,6 +118,10 @@
 
 <dt id="arg-monitoring">monitoring<a class="anchor" aria-label="anchor" href="#arg-monitoring"></a></dt>
 <dd><p>numeric: A vector of flags indicating which latent states should be monitored.</p></dd>
+
+
+<dt id="arg-safe-mode">safe.mode<a class="anchor" aria-label="anchor" href="#arg-safe-mode"></a></dt>
+<dd><p>boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.</p></dd>
 
 </dl></div>
     <div class="section level2">

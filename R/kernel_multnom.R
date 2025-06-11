@@ -42,7 +42,7 @@
 #' @references
 #'    \insertAllCited{}
 Multinom <- function(p, data, offset = as.matrix(data)**0, base.class = NULL) {
-  if (any(ceiling(data) != floor(data),na.rm=TRUE)) {
+  if (any(ceiling(data) != floor(data), na.rm = TRUE)) {
     stop("Error: data must be an intenger matrix.")
   }
   alt.method <- FALSE

@@ -9,7 +9,7 @@ Predictions can be made with smoothed values, with filtered values or h-steps ah
 
     <a class="navbar-brand me-2" href="../index.html">kDGLM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -57,6 +57,7 @@ Predictions can be made with smoothed values, with filtered values or h-steps ah
 <span>  pred.cred <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  eval.pred <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  eval.metric <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  safe.mode <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -87,6 +88,10 @@ Predictions can be made with smoothed values, with filtered values or h-steps ah
 
 <dt id="arg-eval-metric">eval.metric<a class="anchor" aria-label="anchor" href="#arg-eval-metric"></a></dt>
 <dd><p>boolean: A flag indicating if the model density (f(M|y)) should be calculated. Only used when lag&lt;0.</p></dd>
+
+
+<dt id="arg-safe-mode">safe.mode<a class="anchor" aria-label="anchor" href="#arg-safe-mode"></a></dt>
+<dd><p>boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

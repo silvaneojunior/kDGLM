@@ -4,7 +4,7 @@
 \alias{eval_dlm_norm_const}
 \title{Auxiliary function for evaluating normalizing constant for the posterior of a fitted DLM.}
 \usage{
-eval_dlm_norm_const(model, lin.pred = FALSE)
+eval_dlm_norm_const(model, lin.pred = FALSE, safe.mode)
 }
 \arguments{
 \item{model}{fitted_dlm: A fitted_dlm object.}

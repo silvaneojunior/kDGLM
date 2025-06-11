@@ -4,7 +4,7 @@
 \alias{eval_dlm_prior}
 \title{Auxiliary function for evaluating the prior density of a DLM}
 \usage{
-eval_dlm_prior(theta, model, lin.pred = FALSE)
+eval_dlm_prior(theta, model, lin.pred = FALSE, safe.mode = TRUE)
 }
 \arguments{
 \item{theta}{matrix: A matrix representing the set of parameter for which to evaluate the density. Its size should be n x t, where n is the number of latent states and t is the length of the time series;}
@@ -12,6 +12,8 @@ eval_dlm_prior(theta, model, lin.pred = FALSE)
 \item{model}{fitted_dlm object: A fitted_dlm object.}
 
 \item{lin.pred}{boolean: A flag indicating if theta represents the linear predictors.}
+
+\item{safe.mode}{boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.}
 }
 \value{
 A scalar representing the log density evaluated at theta.

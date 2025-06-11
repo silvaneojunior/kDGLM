@@ -165,6 +165,7 @@ Normal <- function(mu, V = NA, Tau = NA, Sd = NA, data) {
       param.names = generic_param_names(r)
     )
     parms$V <- Var
+    parms$S <- ginv(Var)
     convert.mat.canom <- convert.mat.default <- diag(r)
     convert.canom.flag <- FALSE
 
@@ -376,6 +377,7 @@ Normal <- function(mu, V = NA, Tau = NA, Sd = NA, data) {
 #' @family auxiliary functions for a Normal outcome
 update_Normal <- function(conj.param, ft, Qt, y, parms) {
   V <- parms$V
+  S <- parms$S
   if (length(V) == 1) {
     null.flag <- V == 0
   } else {
@@ -387,7 +389,7 @@ update_Normal <- function(conj.param, ft, Qt, y, parms) {
     ft <- y
   } else {
     Tau0 <- ginv(Qt)
-    Tau1 <- ginv(parms$V)
+    Tau1 <- S
 
     Qt <- ginv(Tau0 + Tau1)
     ft <- Qt %*% (Tau0 %*% ft + Tau1 %*% y)

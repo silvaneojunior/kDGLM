@@ -66,6 +66,7 @@ generic_smoother <- function(mt, Ct, at, Rt, G, G.labs, G.idx) {
 #' @param H array: A 3D-array containing the covariance matrix of the noise at each time. Its dimension should be the same as D.
 #' @param p.monit numeric (optional): The prior probability of changes in the latent space variables that are not part of its dynamic.
 #' @param monitoring numeric: A vector of flags indicating which latent states should be monitored.
+#' @param safe.mode boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.
 #'
 #' @importFrom Rfast transpose
 #'
@@ -107,7 +108,8 @@ generic_smoother <- function(mt, Ct, at, Rt, G, G.labs, G.idx) {
 #'    \insertAllCited{}
 analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
                             FF, FF.labs, G, G.labs, G.idx, D, h, H,
-                            p.monit = NA, monitoring = FALSE) {
+                            p.monit = NA, monitoring = FALSE,
+                            safe.mode = TRUE) {
   # Defining quantities
   T_len <- dim(FF)[3]
   n <- dim(FF)[1]
@@ -222,7 +224,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
       models[[model]]$W <- next.step$W
       models[[model]]$H <- H.now
 
-      lin.pred <- calc_lin_pred(at.step, Rt.step, FF.step, FF.labs, pred.names, 1:k)
+      lin.pred <- calc_lin_pred(at.step, Rt.step, FF.step, FF.labs, pred.names, 1:k, safe.mode = safe.mode)
       models[[model]]$ft <- ft.step <- lin.pred$ft
       models[[model]]$Qt <- Qt.step <- lin.pred$Qt
       models[[model]]$FF <- lin.pred$FF
@@ -289,7 +291,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
       offset.step <- outcome$offset[t, ]
       data.step <- outcome$data[t, ]
       if (!outcome$na.flag[t]) {
-        lin.pred <- calc_lin_pred(mt.step, Ct.step, FF.step, FF.labs, pred.names, pred.index)
+        lin.pred <- calc_lin_pred(mt.step, Ct.step, FF.step, FF.labs, pred.names, pred.index, safe.mode = safe.mode)
         ft.step.part <- lin.pred$ft
         Qt.step.part <- lin.pred$Qt
         Qt.inv <- ginv(Qt.step.part)
@@ -329,22 +331,15 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
 
         At <- Ct.step %*% FF.cur.step[, pred.index] %*% Qt.inv
         mt.step <- mt.step + At %*% error.ft
-        Ct.step <- Ct.step + At %*% error.Qt %*% t(At)
-        if (any(is.nan(Qt.star.part))) {
-          stop(paste0("The approximate posterior at time ", t, " could not be computed."))
-        }
-        if (any(is.nan(Ct.step))) {
-          # print(eigen(Qt.step.part))
-          # print(Qt.step.part)
-          # print(Qt.star.part)
-          stop(paste0("Invalid covariance matrix at time ", t, "."))
-        }
-        if (max(Ct.step - transpose(Ct.step)) > 2e-6) {
-          Ct.step <- (Ct.step + transpose(Ct.step)) / 2
+        Ct.step <- Ct.step + tcrossprod(At %*% error.Qt, At)
+        if (safe.mode) {
+          if (any(is.nan(Qt.star.part))) {
+            stop(paste0("The approximate posterior at time ", t, " could not be computed."))
+          }
         }
       }
     }
-    lin.pred <- calc_lin_pred(mt.step, Ct.step, FF.step, FF.labs, pred.names, 1:k)
+    lin.pred <- calc_lin_pred(mt.step, Ct.step, FF.step, FF.labs, pred.names, 1:k, safe.mode = safe.mode)
     ft.star.step <- lin.pred$ft
     Qt.star.step <- lin.pred$Qt
     models[["null.model"]]$at.step <- mt.step
@@ -492,7 +487,7 @@ one_step_evolve <- function(m0, C0, G, G.labs, G.idx, D.inv, h, H) {
   list("at" = at, "Rt" = Rt, "G" = G.now, "h" = h + drift, "W" = W)
 }
 
-calc_current_F <- function(at, Rt, FF, FF.labs, pred.names) {
+calc_current_F <- function(at, Rt, FF, FF.labs, pred.names, safe.mode) {
   n <- dim(FF)[1]
   k <- dim(FF)[2]
 
@@ -500,46 +495,52 @@ calc_current_F <- function(at, Rt, FF, FF.labs, pred.names) {
   at.mod <- c(at)
   Rt.mod <- Rt
   count.na <- sum(is.na(FF))
-  if (any(is.na(FF) & (FF.labs == "const" | FF.labs == "Covariate"))) {
-    stop("Error: Unexpected NA values in the FF matrix.")
-  }
-  while (count.na > 0) {
-    flag.na <- colSums(is.na(FF)) > 0
-    index.na <- seq_len(k)[flag.na]
-    for (index.pred in index.na) {
-      flag.var <- is.na(FF[, index.pred])
-      index.var <- seq_len(n)[flag.var]
-      for (index.effect in index.var) {
-        effect.name <- FF.labs[index.effect, index.pred]
-        effect.vals <- FF[, effect.name == pred.names]
-        if (any(is.na(effect.vals))) {
-          break
-        }
-        FF[index.effect, index.pred] <- sum(effect.vals * at.mod)
-        FF[, index.pred] <- FF[, index.pred] + effect.vals * at.mod[index.effect]
-        charge[index.pred, 1] <- charge[index.pred, 1] - at.mod[index.effect] * sum(effect.vals * at.mod)
-
-        # FF[index.effect, index.pred] <- sum(effect.vals*exp(at.mod))
-        # FF[, index.pred] <- FF[, index.pred] +  at.mod[index.effect]*effect.vals*exp(at.mod)
-        # charge[index.pred, 1] <- charge[index.pred, 1] - sum(at.mod[index.effect]*at.mod*effect.vals*exp(at.mod))
-
-        # FF[index.effect, index.pred] <- sum(effect.vals * log(exp(at.mod) + 1))
-        # FF[, index.pred] <- FF[, index.pred] + at.mod[index.effect] * effect.vals / (1 + exp(-at.mod))
-        # charge[index.pred, 1] <- charge[index.pred, 1] - sum(at.mod[index.effect] * at.mod * effect.vals / (1 + exp(-at.mod)))
+  if (count.na > 0) {
+    if (safe.mode) {
+      if (any(is.na(FF) & (FF.labs == "const" | FF.labs == "Covariate"))) {
+        stop("Error: Unexpected NA values in the FF matrix.")
       }
     }
-    new.count.na <- sum(is.na(FF))
-    if (count.na == new.count.na) {
-      stop("Error: A circularity was detected in the specification of FF. Revise the definition of the linear predictors.")
+    while (count.na > 0) {
+      flag.na <- colSums(is.na(FF)) > 0
+      index.na <- seq_len(k)[flag.na]
+      for (index.pred in index.na) {
+        flag.var <- is.na(FF[, index.pred])
+        index.var <- seq_len(n)[flag.var]
+        for (index.effect in index.var) {
+          effect.name <- FF.labs[index.effect, index.pred]
+          effect.vals <- FF[, effect.name == pred.names]
+          if (any(is.na(effect.vals))) {
+            break
+          }
+          FF[index.effect, index.pred] <- sum(effect.vals * at.mod)
+          FF[, index.pred] <- FF[, index.pred] + effect.vals * at.mod[index.effect]
+          charge[index.pred, 1] <- charge[index.pred, 1] - at.mod[index.effect] * sum(effect.vals * at.mod)
+
+          # FF[index.effect, index.pred] <- sum(effect.vals*exp(at.mod))
+          # FF[, index.pred] <- FF[, index.pred] +  at.mod[index.effect]*effect.vals*exp(at.mod)
+          # charge[index.pred, 1] <- charge[index.pred, 1] - sum(at.mod[index.effect]*at.mod*effect.vals*exp(at.mod))
+
+          # FF[index.effect, index.pred] <- sum(effect.vals * log(exp(at.mod) + 1))
+          # FF[, index.pred] <- FF[, index.pred] + at.mod[index.effect] * effect.vals / (1 + exp(-at.mod))
+          # charge[index.pred, 1] <- charge[index.pred, 1] - sum(at.mod[index.effect] * at.mod * effect.vals / (1 + exp(-at.mod)))
+        }
+      }
+      new.count.na <- sum(is.na(FF))
+      if (safe.mode) {
+        if (count.na == new.count.na) {
+          stop("Error: A circularity was detected in the specification of FF. Revise the definition of the linear predictors.")
+        }
+      }
+      count.na <- new.count.na
     }
-    count.na <- new.count.na
   }
 
   list("FF" = FF, "FF.diff" = charge)
 }
 
-calc_lin_pred <- function(at, Rt, FF, FF.labs, pred.names, pred.index) {
-  FF.vals <- calc_current_F(at, Rt, FF, FF.labs, pred.names)
+calc_lin_pred <- function(at, Rt, FF, FF.labs, pred.names, pred.index, safe.mode) {
+  FF.vals <- calc_current_F(at, Rt, FF, FF.labs, pred.names, safe.mode = safe.mode)
   FF <- FF.vals$FF
   FF.sep <- FF[, pred.index]
   FF.diff <- FF.vals$FF.diff

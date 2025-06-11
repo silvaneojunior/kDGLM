@@ -14,7 +14,8 @@ fit_model(
   pred.cred = 0.95,
   metric.cutoff = NA,
   save.models = FALSE,
-  silent = FALSE
+  silent = FALSE,
+  safe.mode = TRUE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ fit_model(
 \item{save.models}{boolean: A flag indicating if all evaluated models should be saved. If FALSE, only the best model (according to the chosen metric) will be saved. Only used when performing sensitivity analysis.}
 
 \item{silent}{boolean: A flag indicating if a progress bar should be printed. Only used when performing sensitivity analysis.}
+
+\item{safe.mode}{boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.}
 }
 \value{
 A fitted_dlm object.

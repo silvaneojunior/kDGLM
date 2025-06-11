@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kDGLM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -969,6 +969,10 @@ block with
 and a AR structure for the mean fitted with simulated data. We will
 refrain to show the code for fitting the model itself, since we will
 discuss the tools for fitting in a section of its own.</p>
+<pre><code>, , 1
+
+     eta
+[1,]   1</code></pre>
 <p><img src="structures_files/figure-html/unnamed-chunk-17-1.png" width="672"></p>
 <div class="section level3">
 <h3 id="some-comments-about-autoregressive-models-in-the-normal-family">Some comments about autoregressive models in the Normal family<a class="anchor" aria-label="anchor" href="#some-comments-about-autoregressive-models-in-the-normal-family"></a>
@@ -1035,7 +1039,7 @@ function instead of the <code>TF_block</code>.</p>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Y</mi><mi>t</mi></msub><annotation encoding="application/x-tex">Y_t</annotation></semantics></math>
 of length
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/regression_block.html">regression_block</a></span><span class="op">(</span></span>
 <span>  mu <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">Y</span><span class="op">[</span><span class="op">-</span><span class="cn">T</span><span class="op">]</span><span class="op">)</span>,</span>
 <span>  max.lag <span class="op">=</span> <span class="va">k</span></span>
@@ -1057,7 +1061,7 @@ Y_t&amp;=\mu_t+\sum_{i=1}^{k}\phi_{i,t}(Y_{t-1}-\mu_{t-1})+\epsilon_t,\\
 <div class="section level2">
 <h2 id="a-structure-for-overdispersed-models">A structure for overdispersed models<a class="anchor" aria-label="anchor" href="#a-structure-for-overdispersed-models"></a>
 </h2>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/noise_block.html">noise_block</a></span><span class="op">(</span><span class="va">...</span>, name <span class="op">=</span> <span class="st">"Noise"</span>, D <span class="op">=</span> <span class="fl">0.99</span>, R1 <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># When used in a formula</span></span>
@@ -1109,7 +1113,7 @@ Y_t|\theta_t &amp;\sim Poisson\left(\eta_t\right),\\
 </annotation></semantics></math></p>
 <p>Bellow we present that model fitted using the <code>kDGLM</code>
 package:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">level</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span></span>
 <span>  rate <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  order <span class="op">=</span> <span class="fl">3</span>,</span>
@@ -1130,7 +1134,7 @@ data at the beginning and at the end of the series has very low values,
 such that a Normal model would be inappropriate. In such scenario, a
 better approach would be to add an noise component to the linear
 predictor, such that it can capture the overdispersion:</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">level</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span></span>
 <span>  mu <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  order <span class="op">=</span> <span class="fl">3</span>,</span>
@@ -1222,7 +1226,7 @@ and then “combine” all blocks together. The <strong>kDGLM</strong>
 package allows this operation through the function
 <code>block_superpos</code> or, equivalently, through the <code>+</code>
 operator:</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">block_1</span> <span class="op">&lt;-</span> <span class="va">...</span></span>
 <span><span class="va">.</span></span>
 <span><span class="va">.</span></span>
@@ -1239,7 +1243,7 @@ faster. To demonstrate the usage of the <code>+</code> operator, suppose
 we would like to create a model using four of the structures presented
 previously (a polynomial trend, a dynamic regression, a harmonic trend
 and an AR model). We could do so with the following code:</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">poly_subblock</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>eta <span class="op">=</span> <span class="fl">1</span>, name <span class="op">=</span> <span class="st">"Poly"</span>, D <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">regr_subblock</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/regression_block.html">regression_block</a></span><span class="op">(</span>eta <span class="op">=</span> <span class="va">X</span>, name <span class="op">=</span> <span class="st">"Regr"</span>, D <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
@@ -1312,7 +1316,7 @@ the <code>...</code> argument. Indeed, if the user does so, several
 linear predictors will be created in the same block (one for each unique
 name), all of which are affected by the associated latent state. For
 instance, take the following code:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>lambda1 <span class="op">=</span> <span class="fl">1</span>, lambda2 <span class="op">=</span> <span class="fl">1</span>, lambda3 <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># Common factor</span></span></code></pre></div>
 <p>The code above creates
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>3</mn><annotation encoding="application/x-tex">3</annotation></semantics></math>
@@ -1340,7 +1344,7 @@ is a shared effect among those linear predictors which could be used to
 induce association among predictors. The specification of independent
 effects to each linear predictor can be done by using different blocks
 to each latent state:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>lambda1 <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="co"># theta_1</span></span>
 <span>  <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>lambda2 <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="co"># theta_2</span></span>
 <span>  <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>lambda3 <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="co"># theta_3</span></span></code></pre></div>
@@ -1349,7 +1353,7 @@ block, i.e., the name of a linear predictor was passed as an argument in
 one block, but is absent in another, it is understood that particular
 block has no effect on the linear predictor that is absent, such that
 the previous code would be equivalent to:</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Longer version of the previous code for the sake of clarity.</span></span>
 <span><span class="co"># In general, when a block does not affect a particular linear predictor, that linear predictor should be ommited when creating the block.</span></span>
 <span><span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>lambda1 <span class="op">=</span> <span class="fl">1</span>, lambda2 <span class="op">=</span> <span class="fl">0</span>, lambda3 <span class="op">=</span> <span class="fl">0</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="co"># theta_1</span></span>
@@ -1371,7 +1375,7 @@ linear predictors, such that:</p>
 section, which guides the creation of common factors among predictors.
 One can use multiple blocks in the same structure to define linear
 predictors that share some (but not all) of their components:</p>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>lambda1 <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="co"># theta_1</span></span>
 <span>  <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>lambda2 <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="co"># theta_2</span></span>
 <span>  <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>lambda3 <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="co"># theta_3</span></span>
@@ -1393,7 +1397,7 @@ predictors. For example, we could have a model with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>3</mn><annotation encoding="application/x-tex">3</annotation></semantics></math>
 linear predictors, each one having a mixture of shared components and
 exclusive components:</p>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#### Global level with linear growth ####</span></span>
 <span><span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>lambda1 <span class="op">=</span> <span class="fl">1</span>, lambda2 <span class="op">=</span> <span class="fl">1</span>, lambda3 <span class="op">=</span> <span class="fl">1</span>, D <span class="op">=</span> <span class="fl">0.95</span>, order <span class="op">=</span> <span class="fl">2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="co">#### Local variables for lambda1 ####</span></span>
@@ -1413,7 +1417,7 @@ apply <code>block_mult</code> function and the associated operator
 <code>*</code>. This function allows the user to create multiple blocks
 with identical structure, but each one being associated with a different
 linear predictor. The usage of this function is as simple as:</p>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">base.block</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>eta <span class="op">=</span> <span class="fl">1</span>, name <span class="op">=</span> <span class="st">"Poly"</span>, D <span class="op">=</span> <span class="fl">0.95</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># final.block &lt;- block_mult(base.block, 4)</span></span>
@@ -1426,12 +1430,12 @@ block is independent of each other (i.e., they have their own latent
 states) and each block is associated with a different set of linear
 predictors. The name of the linear predictors associated with each block
 are taken to be the original names with an index:</p>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">final.block</span><span class="op">$</span><span class="va">pred.names</span></span></code></pre></div>
 <pre><code>[1] "eta.1" "eta.2" "eta.3" "eta.4"</code></pre>
 <p>Naturally, the user might want to rename the linear predictors to a
 more intuitive label. For such task, we provide the function:</p>
-<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">final.block</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/block_rename.html">block_rename</a></span><span class="op">(</span><span class="va">final.block</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Matthew"</span>, <span class="st">"Mark"</span>, <span class="st">"Luke"</span>, <span class="st">"John"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">final.block</span><span class="op">$</span><span class="va">pred.names</span></span></code></pre></div>
 </div>
@@ -1466,7 +1470,7 @@ with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϕ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\phi_t</annotation></semantics></math>
 (which we will call <code>phi</code>, although the user may call it
 whatever it pleases the user):</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">phi_block</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>phi <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p>Notice that we are creating a linear predictor
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϕ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\phi_t</annotation></semantics></math>
@@ -1480,7 +1484,7 @@ could be any other structural block (harmonic, regression, auto
 regression, etc.).</p>
 <p>Now we can create a structural block for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\theta_t</annotation></semantics></math>:</p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">theta_block</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="st">"phi"</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p>The code above creates a linear predictor
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>λ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\lambda_t</annotation></semantics></math>
@@ -1508,7 +1512,7 @@ components in
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mi>t</mi></msub><annotation encoding="application/x-tex">F_t</annotation></semantics></math>
 in order to create an even more complex structure. For instance, take
 the following code:</p>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>eta1 <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>eta2 <span class="op">=</span> <span class="st">"eta1"</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>eta3 <span class="op">=</span> <span class="st">"eta2"</span>, order <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
@@ -1554,7 +1558,7 @@ might wish to integrate information from this prior model into the new
 fitting. To facilitate the specification of a joint prior for any set of
 latent states, the <strong>kDGLM</strong> package offers the
 <code>joint_prior</code> function:</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/joint_prior.html">joint_prior</a></span><span class="op">(</span><span class="va">block</span>, var.index <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="va">block</span><span class="op">$</span><span class="va">n</span>, a1 <span class="op">=</span> <span class="va">block</span><span class="op">$</span><span class="va">a1</span><span class="op">[</span><span class="va">var.index</span><span class="op">]</span>, R1 <span class="op">=</span> <span class="va">block</span><span class="op">$</span><span class="va">R1</span><span class="op">[</span><span class="va">var.index</span>, <span class="va">var.index</span><span class="op">]</span><span class="op">)</span></span></code></pre></div>
 <p>The <code>joint_prior</code> function accepts a
 <code>dlm_block</code> object and returns the same object with a
@@ -1563,7 +1567,7 @@ modified prior.</p>
 The syntax of this function is designed to facilitate the use of the
 pipe operator (either <code>|&gt;</code> or <code>%&gt;%</code>),
 allowing for seamless integration into piped sequences. For example:</p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, D <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/block_mult.html">block_mult</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/joint_prior.html">joint_prior</a></span><span class="op">(</span>a1 <span class="op">=</span> <span class="va">prior.mean</span>, R1 <span class="op">=</span> <span class="va">prior.var</span><span class="op">)</span></span>

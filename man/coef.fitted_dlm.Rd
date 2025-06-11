@@ -11,6 +11,7 @@
   pred.cred = 0.95,
   eval.pred = FALSE,
   eval.metric = FALSE,
+  safe.mode = TRUE,
   ...
 )
 }
@@ -26,6 +27,8 @@
 \item{eval.pred}{boolean: A flag indicating if the predictions should be calculated.}
 
 \item{eval.metric}{boolean: A flag indicating if the model density (f(M|y)) should be calculated. Only used when lag<0.}
+
+\item{safe.mode}{boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.}
 
 \item{...}{Extra arguments passed to the coef method.}
 }

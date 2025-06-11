@@ -70,20 +70,24 @@ var_decomp <- function(S) {
 #'
 #' @keywords internal
 ginv <- function(S) {
-  S <- as.matrix(S)
-  n <- dim(S)[1]
-  chol.decomp <- suppressWarnings({
-    chol(S, pivot = TRUE)
-  })
-  rank <- attr(chol.decomp, "rank")
-  pivot <- attr(chol.decomp, "pivot")
-  oo <- order(pivot)
-  inv <- matrix(0, n, n)
-  if (rank > 0) {
-    inv[1:rank, 1:rank] <- chol2inv(chol.decomp[1:rank, 1:rank])
+  if (length(S) == 1) {
+    return(1 / S)
+  } else {
+    S <- as.matrix(S)
+    n <- dim(S)[1]
+    chol.decomp <- suppressWarnings({
+      chol(S, pivot = TRUE)
+    })
+    rank <- attr(chol.decomp, "rank")
+    pivot <- attr(chol.decomp, "pivot")
+    oo <- order(pivot)
+    inv <- matrix(0, n, n)
+    if (rank > 0) {
+      inv[1:rank, 1:rank] <- chol2inv(chol.decomp[1:rank, 1:rank])
+    }
+    inv <- inv[oo, oo, drop = FALSE]
+    return(inv)
   }
-  inv <- inv[oo, oo, drop = FALSE]
-  return(inv)
 }
 
 
