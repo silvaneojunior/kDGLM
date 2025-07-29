@@ -261,7 +261,7 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
       log.like.null[t] <- models$null.model$log.like
       log.like.alt[t] <- models$alt.model$log.like
       bayes.factor <- sum(log.like.null[(t - monit.win + 1):t] +
-        -log.like.alt[(t - monit.win + 1):t], na.rm = TRUE) |>
+                            -log.like.alt[(t - monit.win + 1):t], na.rm = TRUE) |>
         if.nan(0)
 
       if (monit.win > 0) {
@@ -307,8 +307,8 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
 
         conj.prior <- outcome$conj_distr(ft.step.part, Qt.step.part, parms = outcome$parms)
         conj.post <- outcome$update(conj.prior,
-          ft = ft.step.part, Qt = Qt.step.part,
-          y = data.step, parms = outcome$parms
+                                    ft = ft.step.part, Qt = Qt.step.part,
+                                    y = data.step, parms = outcome$parms
         )
         if (outcome$alt.method) {
           norm.post <- conj.post
@@ -506,24 +506,25 @@ calc_current_F <- function(at, Rt, FF, FF.labs, pred.names, safe.mode) {
       index.na <- seq_len(k)[flag.na]
       for (index.pred in index.na) {
         flag.var <- is.na(FF[, index.pred])
-        index.var <- seq_len(n)[flag.var]
+        index.var <- which(flag.var)
         for (index.effect in index.var) {
           effect.name <- FF.labs[index.effect, index.pred]
-          effect.vals <- FF[, effect.name == pred.names]
+          effect.vals <- FF[, effect.name]
           if (any(is.na(effect.vals))) {
             break
+          }else{
+            FF[index.effect, index.pred] <- sum(effect.vals * at.mod)
+            FF[, index.pred] <- FF[, index.pred] + effect.vals * at.mod[index.effect]
+            charge[index.pred, 1] <- charge[index.pred, 1] - at.mod[index.effect] * sum(effect.vals * at.mod)
+
+            # FF[index.effect, index.pred] <- sum(effect.vals*exp(at.mod))
+            # FF[, index.pred] <- FF[, index.pred] +  at.mod[index.effect]*effect.vals*exp(at.mod)
+            # charge[index.pred, 1] <- charge[index.pred, 1] - sum(at.mod[index.effect]*at.mod*effect.vals*exp(at.mod))
+
+            # FF[index.effect, index.pred] <- sum(effect.vals * log(exp(at.mod) + 1))
+            # FF[, index.pred] <- FF[, index.pred] + at.mod[index.effect] * effect.vals / (1 + exp(-at.mod))
+            # charge[index.pred, 1] <- charge[index.pred, 1] - sum(at.mod[index.effect] * at.mod * effect.vals / (1 + exp(-at.mod)))
           }
-          FF[index.effect, index.pred] <- sum(effect.vals * at.mod)
-          FF[, index.pred] <- FF[, index.pred] + effect.vals * at.mod[index.effect]
-          charge[index.pred, 1] <- charge[index.pred, 1] - at.mod[index.effect] * sum(effect.vals * at.mod)
-
-          # FF[index.effect, index.pred] <- sum(effect.vals*exp(at.mod))
-          # FF[, index.pred] <- FF[, index.pred] +  at.mod[index.effect]*effect.vals*exp(at.mod)
-          # charge[index.pred, 1] <- charge[index.pred, 1] - sum(at.mod[index.effect]*at.mod*effect.vals*exp(at.mod))
-
-          # FF[index.effect, index.pred] <- sum(effect.vals * log(exp(at.mod) + 1))
-          # FF[, index.pred] <- FF[, index.pred] + at.mod[index.effect] * effect.vals / (1 + exp(-at.mod))
-          # charge[index.pred, 1] <- charge[index.pred, 1] - sum(at.mod[index.effect] * at.mod * effect.vals / (1 + exp(-at.mod)))
         }
       }
       new.count.na <- sum(is.na(FF))

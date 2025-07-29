@@ -799,14 +799,7 @@ TF_block <- function(..., order, noise.var = NULL, noise.disc = NULL, pulse = 0,
 
 
   block <- block.state + block.coeff
-
-  if (multi.states) {
-    names(block$var.names[[1]]) <- paste0(sapply(block$pred.names, function(x) {
-      rep(x, order)
-    }), ".", rep(paste0("Lag.", 0:(order - 1)), order.states))
-  } else {
-    names(block$var.names[[1]]) <- paste0("State.", rep(paste0("Lag.", 0:(order - 1)), order.states))
-  }
+  names(block$var.names[[1]]) <- paste0("State.", rep(paste0("Lag.", 0:(order - 1)), order.states))
   names(block$var.names[[2]]) <- paste0("Lag.", 0:(order - 1))
 
 

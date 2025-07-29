@@ -2128,7 +2128,7 @@ kdglm <- function(formula, ..., family, data = NULL, offset = NULL, p.monit = NA
   data.name <- deparse(substitute(data))
 
   extra.args <- list(...)
-  Y <- model.frame(update.formula(formula, . ~ 1), data = data)
+  Y <- model.frame(update.formula(formula, . ~ 1), data = data,na.action=na.pass)
   name.Y <- names(Y)[1]
   Y <- Y[, 1]
   if (is.null(offset)) {
@@ -2181,7 +2181,7 @@ kdglm <- function(formula, ..., family, data = NULL, offset = NULL, p.monit = NA
       names.Y <- name.Y
       for (item in extra.args) {
         if (typeof(item) == "language") {
-          Y.i <- model.frame(update.formula(item, . ~ 1), data = data)
+          Y.i <- model.frame(update.formula(item, . ~ 1), data = data,na.action=na.pass)
           name.Y.i <- names(Y.i)[1]
           Y.i <- Y.i[, 1]
           args.i <- formula.to.structure(item, data, label = name.Y.i)
@@ -2191,7 +2191,7 @@ kdglm <- function(formula, ..., family, data = NULL, offset = NULL, p.monit = NA
           extra.vals <- extra.vals - Y.i
         }
       }
-      if (any(extra.vals < 0) | all(extra.vals == 0)) {
+      if (any(extra.vals[!is.na(extra.vals)] < 0)) {
         stop("Invalid base category.")
       }
 
