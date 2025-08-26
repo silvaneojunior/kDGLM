@@ -1,7 +1,7 @@
 Package: kDGLM
 Type: Package
 Title: Bayesian Analysis of Dynamic Generalized Linear Models
-Version: 1.2.8
+Version: 1.2.10
 Authors@R: c(
         person(given="Silvaneo", family ="dos Santos Jr.", email = "silvaneojunior@utexas.edu", role = c("aut", "cre")),
         person(given="Mariane Branco", family ="Alves", email = "mariane@im.ufrj.br", role = c("aut")), 

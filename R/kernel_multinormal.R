@@ -444,7 +444,7 @@ multi_normal_gamma_pred <- function(conj.param, outcome = NULL, parms = list(), 
   beta0 <- conj.param[, seq.int(4, r * 4, 4), drop = FALSE]
 
   nu <- 2 * alpha0
-  sigma2 <- (beta0 / alpha0) * (1 + 1 / c0)
+  sigma2 <- ifelse(is.infinite(alpha0),beta0 * (1 + 1 / c0),(beta0 / alpha0) * (1 + 1 / c0))
   s <- sqrt(sigma2)
 
   if (pred.flag) {

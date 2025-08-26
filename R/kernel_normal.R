@@ -390,6 +390,12 @@ update_Normal <- function(conj.param, ft, Qt, y, parms) {
   } else {
     Tau0 <- ginv(Qt)
     Tau1 <- S
+    NA.flags=is.na(y)
+    if(any(NA.flags)){
+      Tau1[NA.flags,]=0
+      Tau1[,NA.flags]=0
+      y[NA.flags]=0
+    }
 
     Qt <- ginv(Tau0 + Tau1)
     ft <- Qt %*% (Tau0 %*% ft + Tau1 %*% y)
@@ -540,7 +546,11 @@ convert_NG_Normal <- function(ft, Qt, parms = list()) {
   helper <- -3 + 3 * sqrt(1 + 2 * Qt[2, 2] / 3)
   # helper=Qt[2,2]
   alpha <- 1 / helper
-  beta <- alpha * exp(-ft[2, ] - Qt[2, 2] / 2)
+  if(is.infinite(alpha)){
+    beta <- exp(-ft[2, ] - Qt[2, 2] / 2)
+  }else{
+    beta <- alpha * exp(-ft[2, ] - Qt[2, 2] / 2)
+  }
   return(list("mu0" = mu0, "c0" = c0, "alpha" = alpha, "beta" = beta))
 }
 
@@ -549,8 +559,15 @@ convert_Normal_NG <- function(conj.param, parms = list()) {
   f1 <- conj.param$mu #-q12
   f2 <- digamma(conj.param$alpha) - log(conj.param$beta + 1e-40)
   # f2 <- log(conj.param$alpha)-log(conj.param$beta)
-  q1 <- conj.param$beta / (conj.param$c * conj.param$alpha)
-  q2 <- trigamma(conj.param$alpha)
+  if(is.infinite(conj.param$alpha)){
+    f2 <- - log(conj.param$beta + 1e-40)
+    q1 <- conj.param$beta / conj.param$c
+    q2 <- 0
+  }else{
+    f2 <- digamma(conj.param$alpha) - log(conj.param$beta + 1e-40)
+    q1 <- conj.param$beta / (conj.param$c * conj.param$alpha)
+    q2 <- trigamma(conj.param$alpha)
+  }
   q12 <- 0
 
   ft <- c(f1, f2)
