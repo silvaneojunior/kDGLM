@@ -1223,7 +1223,7 @@ update.fitted_dlm <- function(object, ...) {
     H = H,
     p.monit = object$p.monit,
     monitoring = object$monitoring,
-    safe.mode = safe.mode
+    safe.mode = object$safe.mode
   )
 
   object$mt <- matrix(c(object$mt, new.data$mt), c(n, t.max + t_last), dimnames = dimnames(object$mt))
