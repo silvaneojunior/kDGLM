@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kDGLM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,19 +92,33 @@
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The filtering algorithm used in this package requires a proper prior for the latent space. As such, this implementation of the CAR prior imposes a zero-sum constraint in the regional effects.
 The discount factor must be the same for all variables whose prior is being modified.</p>
-<p>For a revision of the CAR prior, see AlexCar;textualkDGLM.</p>
-<p>For the details about the implementation see ArtigoPacote;textualkDGLM.</p>
+<p>For a revision of the CAR prior, see Schmidt and Nobre (2018)
+.</p>
+<p>For the details about the implementation see dos Santos et al. (2024)
+.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p></p>
+    <p>Junior,
+Silvaneo
+Vieira dos Santos, Mariane
+Branco Alves, Helio
+S. Migon (2024).
+“kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models.”<br><br> Alexandra
+M. Schmidt, Widemberg
+S. Nobre (2018).
+“Conditional Autoregressive (CAR) Model.”
+In <em>Wiley StatsRef: Statistics Reference Online</em>, chapter Conditional Autoregressive (CAR) Model, 1-11.
+John Wiley &amp; Sons, Ltd.
+ISBN 9781118445112, <a href="https://doi.org/10.1002/9781118445112.stat08048" class="external-link">doi:10.1002/9781118445112.stat08048</a>
+, https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781118445112.stat08048, <a href="https://onlinelibrary.wiley.com/doi/abs/10.1002/9781118445112.stat08048" class="external-link">https://onlinelibrary.wiley.com/doi/abs/10.1002/9781118445112.stat08048</a>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Auxiliary functions for creating structural blocks <code><a href="polynomial_block.html">polynomial_block</a></code>, <code><a href="regression_block.html">regression_block</a></code>, <code><a href="harmonic_block.html">harmonic_block</a></code>, <code><a href="tf_block.html">TF_block</a></code>.</p>
 <p>Other auxiliary functions for defining priors.:
-<code><a href="joint_prior.html">joint_prior</a>()</code>,
-<code><a href="zero_sum_prior.html">zero_sum_prior</a>()</code></p></div>
+<code><a href="joint_prior.html">joint_prior()</a></code>,
+<code><a href="zero_sum_prior.html">zero_sum_prior()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -158,7 +172,7 @@ The discount factor must be the same for all variables whose prior is being modi
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

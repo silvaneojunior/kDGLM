@@ -18,7 +18,16 @@ harmonic_block(
   monitoring = rep(FALSE, order * 2)
 )
 
-har(period, order = 1, D = 0.98, a1 = 0, R1 = 4, name = "Var.Sazo", X = 1)
+har(
+  period,
+  order = 1,
+  D = 0.98,
+  a1 = 0,
+  R1 = 4,
+  monitoring = rep(FALSE, order * 2),
+  name = "Var.Sazo",
+  X = 1
+)
 }
 \arguments{
 \item{...}{Named values for the planning matrix.}

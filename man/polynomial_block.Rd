@@ -17,7 +17,15 @@ polynomial_block(
   monitoring = c(TRUE, rep(FALSE, order - 1))
 )
 
-pol(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly", X = 1)
+pol(
+  order = 1,
+  D = 0.95,
+  a1 = 0,
+  R1 = 9,
+  monitoring = c(TRUE, rep(FALSE, order - 1)),
+  name = "Var.Poly",
+  X = 1
+)
 }
 \arguments{
 \item{...}{Named values for the planning matrix.}

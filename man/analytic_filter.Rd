@@ -72,6 +72,7 @@ A list containing the following values:
    \item monitoring numeric: The same as the argument (same values).
    \item outcomes list: The same as the argument outcomes (same values).
    \item pred.names numeric: The names of the linear predictors.
+   \item safe.mode bool: The same as the argument outcomes (same values).
 }
 }
 \description{

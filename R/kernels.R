@@ -91,6 +91,7 @@ generic_smoother <- function(mt, Ct, at, Rt, G, G.labs, G.idx) {
 #'    \item monitoring numeric: The same as the argument (same values).
 #'    \item outcomes list: The same as the argument outcomes (same values).
 #'    \item pred.names numeric: The names of the linear predictors.
+#'    \item safe.mode bool: The same as the argument outcomes (same values).
 #' }
 #'
 #' @keywords internal
@@ -370,7 +371,8 @@ analytic_filter <- function(outcomes, a1 = 0, R1 = 1,
     log.like.alt = log.like.alt,
     alt.flags = alt.flags,
     monitoring = monitoring, smooth = FALSE,
-    outcomes = outcomes, pred.names = pred.names
+    outcomes = outcomes, pred.names = pred.names,
+    safe.mode = safe.mode
   )
   return(result)
 }

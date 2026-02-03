@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kDGLM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -269,8 +269,8 @@ engine to be used. Should be one of <code>'auto'</code>,
 <strong>ggplot2</strong> packge and, if it also fails, the native
 functions provided by <strong>R</strong> will be used.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="fitting_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="fitting_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="672"></p>
 <p>The remaining functions and methods in this section have similar
 usage as the <code>plot.fitte_dlm</code> method, as such, for the sake
 of brevity, we will only highlight the unique arguments and/or behaviors
@@ -280,7 +280,7 @@ detailed descriptions of any function.</p>
 <p>To see a summary of the fitted model, one can use the
 <code>summary</code> method:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.model</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.model</span><span class="op">)</span></span></code></pre></div>
 <pre><code>Fitted DGLM with 1 outcomes.
 
 distributions:
@@ -373,19 +373,19 @@ distribution.</p>
 used:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fitted.coef</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fitted.model</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.coef</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="fitting_files/figure-html/unnamed-chunk-7-1.png" width="672"></p>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.coef</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="fitting_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="672"></p>
 <p>If the user wants to see only a restricted set of latent states, the
 extra argument <code>var</code> can be used to specify the label of the
 variables to plot:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.coef</span>, <span class="st">"Var.Poly.Level"</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="fitting_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.coef</span>, <span class="st">"Var.Poly.Level"</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="fitting_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="672"></p>
 <p>The user may also plot the linear predictors, by specifying the name
 of the linear predictor:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.coef</span>, <span class="st">"rate"</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="fitting_files/figure-html/unnamed-chunk-9-1.png" width="672"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.coef</span>, <span class="st">"rate"</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="fitting_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="672"></p>
 <p>Lastly, although we do not recommend it, the user may also extract
 some of these information directly from the <code>fitted_dlm</code>
 object.</p>
@@ -449,14 +449,15 @@ they were:</p>
 <span><span class="va">fitted.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">structure</span> <span class="op">*</span> <span class="fl">2</span>, chickenPox <span class="op">=</span> <span class="va">outcome</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://generics.r-lib.org/reference/forecast.html" class="external-link">forecast</a></span><span class="op">(</span><span class="va">fitted.model</span>, t <span class="op">=</span> <span class="fl">24</span>, plot <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span> <span class="co"># Missing extra arguments</span></span></code></pre></div>
-<pre><code>Error in forecast.fitted_dlm(fitted.model, t = 24, plot = "base"): Error: Missing extra argument: Vaccine.1.Covariate</code></pre>
+<pre><code> [1m [33mError [39m in `forecast.fitted_dlm()`: [22m
+ [33m! [39m Error: Missing extra argument: Vaccine.1.Covariate</code></pre>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://generics.r-lib.org/reference/forecast.html" class="external-link">forecast</a></span><span class="op">(</span><span class="va">fitted.model</span>,</span>
 <span>  t <span class="op">=</span> <span class="fl">24</span>,</span>
 <span>  Vaccine.1.Covariate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="fl">24</span><span class="op">)</span>, <span class="co"># Extra argument for covariate 1</span></span>
 <span>  Vaccine.2.Covariate <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">TRUE</span>, <span class="fl">24</span><span class="op">)</span>, plot <span class="op">=</span> <span class="st">"base"</span></span>
 <span><span class="op">)</span> <span class="co"># Extra argument for covariate 2</span></span></code></pre></div>
-<p><img src="fitting_files/figure-html/unnamed-chunk-13-1.png" width="672"></p>
+<p><img src="fitting_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="672"></p>
 <p>For more details on the usage of this function, see the associated
 documentation.</p>
 </div>
@@ -486,7 +487,7 @@ example:</p>
 <span>  <span class="va">level</span>, <span class="va">season</span>, <span class="co"># Strucuture</span></span>
 <span>  AirPassengers <span class="op">=</span> <span class="va">outcome</span></span>
 <span><span class="op">)</span> <span class="co"># outcome</span></span>
-<span><span class="va">updated.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">fitted.model</span>,</span>
+<span><span class="va">updated.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">fitted.model</span>,</span>
 <span>  AirPassengers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span><span class="op">[</span><span class="fl">101</span><span class="op">:</span><span class="fl">144</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Note that the name of the argument containing the new observations
@@ -527,8 +528,8 @@ information in the model structure. For that we provide the
 <span>  AirPassengers <span class="op">=</span> <span class="fu"><a href="../reference/Poisson.html">Poisson</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="st">"rate"</span>, data <span class="op">=</span> <span class="va">data</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="fitting_files/figure-html/unnamed-chunk-16-1.png" width="672"></p>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="fitting_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="672"></p>
 <p>See the documentation of the <code>intervention</code> function for
 more details about its arguments. Also, we strongly recommend the user
 to consult <span class="citation">West and Harrison (<a href="#ref-WestHarr-DLM">1997</a>)</span>, chapter 11 for a detailed
@@ -560,8 +561,8 @@ dynamic.</p>
 <span>  p.monit <span class="op">=</span> <span class="fl">0.05</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="fitting_files/figure-html/unnamed-chunk-17-1.png" width="672"></p>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="fitting_files/figure-html/unnamed-chunk-17-1.png" class="r-plt" alt="" width="672"></p>
 <p>The approach used for automated monitoring is almost identical to
 that of <span class="citation">West and Harrison (<a href="#ref-WestHarr-DLM">1997</a>)</span>, chapter 11.4, using Bayes’
 factor, such that
@@ -586,7 +587,7 @@ label for the unspecified parameter:</p>
 <p>By setting the discount factor as a string, the structural block
 becomes partially :</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">level</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">level</span><span class="op">)</span></span></code></pre></div>
 <pre><code>Basic DLM block.
 latent states: 
     Var.Poly: Level, Slope (2 variable(s))
@@ -606,7 +607,8 @@ unless the value of <code>D1</code> is specified:</p>
 <span><span class="va">season</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/harmonic_block.html">harmonic_block</a></span><span class="op">(</span>rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, period <span class="op">=</span> <span class="fl">12</span>, D <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span></span>
 <span><span class="va">outcome</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Poisson.html">Poisson</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="st">"rate"</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">fitted.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">level</span>, <span class="va">season</span>, AirPassengers <span class="op">=</span> <span class="va">outcome</span><span class="op">)</span></span></code></pre></div>
-<pre><code>Error in fit_model(level, season, AirPassengers = outcome): Error: No model to test. Verify if the hyper-parameters are properly specified and if a valid value for condition argument is being passed.</code></pre>
+<pre><code> [1m [33mError [39m in `fit_model()`: [22m
+ [33m! [39m Error: No model to test. Verify if the hyper-parameters are properly specified and if a valid value for condition argument is being passed.</code></pre>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># D1 is set within the fit method</span></span>
 <span><span class="va">season</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/harmonic_block.html">harmonic_block</a></span><span class="op">(</span>rate <span class="op">=</span> <span class="fl">1</span>, order <span class="op">=</span> <span class="fl">2</span>, period <span class="op">=</span> <span class="fl">12</span>, D <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span></span>
@@ -667,7 +669,7 @@ evaluated.</p>
 <span>  D.level <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.8</span>, <span class="fl">1</span>, l <span class="op">=</span> <span class="fl">11</span><span class="op">)</span>,</span>
 <span>  D.sazo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.95</span>, <span class="fl">1</span>, l <span class="op">=</span> <span class="fl">11</span><span class="op">)</span>,</span>
 <span>  condition <span class="op">=</span> <span class="st">"sazo.effect==1 | D.sazo==1"</span></span>
-<span><span class="op">)</span><span class="op">$</span><span class="va">search.data</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span><span class="op">$</span><span class="va">search.data</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p>It is important to note that not all hyper parameters can be tested
 directly by the <code>fit_model</code> function, indeed, only the
 components associated with
@@ -699,7 +701,7 @@ inclusion/exclusion of each block:</p>
 <span>  pol.ord.3 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, pol.ord.4 <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  condition <span class="op">=</span> <span class="st">"pol.ord.1+pol.ord.2+pol.ord.3+pol.ord.4==1"</span></span>
 <span>  <span class="co"># Only test combinations with exactly one polynomial block.</span></span>
-<span><span class="op">)</span><span class="op">$</span><span class="va">search.data</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span><span class="op">$</span><span class="va">search.data</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/headtail.html" class="external-link">head</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="sampling-and-hyper-parameter-estimation">Sampling and hyper parameter estimation<a class="anchor" aria-label="anchor" href="#sampling-and-hyper-parameter-estimation"></a>
@@ -793,8 +795,8 @@ functions.</p>
 <span><span class="op">}</span></span>
 <span><span class="va">log.post.H</span> <span class="op">&lt;-</span> <span class="va">log.prior.H</span> <span class="op">+</span> <span class="va">log.like.H</span></span>
 <span><span class="va">post.H</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">exp</a></span><span class="op">(</span><span class="va">log.post.H</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">log.post.H</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">H.range</span>, <span class="va">post.H</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"H"</span>, ylab <span class="op">=</span> <span class="st">"f(H|y)"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="fitting_files/figure-html/unnamed-chunk-26-1.png" width="672"></p>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">H.range</span>, <span class="va">post.H</span>, type <span class="op">=</span> <span class="st">"l"</span>, xlab <span class="op">=</span> <span class="st">"H"</span>, ylab <span class="op">=</span> <span class="st">"f(H|y)"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="fitting_files/figure-html/unnamed-chunk-26-1.png" class="r-plt" alt="" width="672"></p>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -833,7 +835,7 @@ models (springer series in statistics)</em>. Hardcover; Springer-Verlag.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

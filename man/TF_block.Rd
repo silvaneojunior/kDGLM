@@ -39,8 +39,10 @@ AR(
   noise.disc = NULL,
   a1 = 0,
   R1 = 9,
+  monitoring = TRUE,
   a1.coef = c(1, rep(0, order - 1)),
   R1.coef = c(1, rep(0.25, order - 1)),
+  monitoring.coef = rep(FALSE, order),
   name = "Var.AR",
   X = 1
 )
@@ -52,10 +54,13 @@ TF(
   noise.disc = NULL,
   a1 = 0,
   R1 = 9,
+  monitoring = TRUE,
   a1.coef = c(1, rep(0, order - 1)),
   R1.coef = c(1, rep(0.25, order - 1)),
+  monitoring.coef = rep(FALSE, order),
   a1.pulse = 0,
   R1.pulse = 4,
+  monitoring.pulse = FALSE,
   name = "Var.AR",
   X = 1
 )

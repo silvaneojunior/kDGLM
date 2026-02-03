@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kDGLM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -357,8 +357,8 @@ focus on the usage of the <code>Normal</code> function.</p>
 <span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">fitted.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">level</span>, <span class="va">season</span>, <span class="va">outcome</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="outcomes_files/figure-html/unnamed-chunk-3-1.png" width="672"></p>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="outcomes_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="672"></p>
 <p>Notice that, since this is the univariate case, the <code>data</code>
 argument can be a vector.</p>
 </div>
@@ -417,8 +417,8 @@ usage of the <code>Normal</code> function.</p>
 <span></span>
 <span><span class="va">outcome</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Normal.html">Normal</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="st">"mu"</span>, V <span class="op">=</span> <span class="st">"V"</span>, data <span class="op">=</span> <span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">fitted.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">structure</span>, <span class="va">outcome</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="outcomes_files/figure-html/unnamed-chunk-5-1.png" width="672"></p>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="outcomes_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="672"></p>
 <p>Currently, we also support models with bivariate Normal outcomes. In
 this scenario we assume the following model:</p>
 <p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>Y</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">|</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>,</mo><msub><mi>V</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>∼</mo><msub><mi>𝒩</mi><mn>2</mn></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>,</mo><msub><mi>V</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>μ</mi><mrow><mn>1</mn><mo>,</mo><mi>t</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>μ</mi><mrow><mn>2</mn><mi>t</mi></mrow></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>V</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msubsup><mi>τ</mi><mrow><mn>1</mn><mo>,</mo><mi>t</mi></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msubsup></mtd><mtd columnalign="center" style="text-align: center"><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mrow><mn>1</mn><mo>,</mo><mi>t</mi></mrow></msub><msub><mi>τ</mi><mrow><mn>2</mn><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn><mi>/</mi><mn>2</mn></mrow></msup><msub><mi>ρ</mi><mi>t</mi></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msup><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>τ</mi><mrow><mn>1</mn><mo>,</mo><mi>t</mi></mrow></msub><msub><mi>τ</mi><mrow><mn>2</mn><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn><mi>/</mi><mn>2</mn></mrow></msup><msub><mi>ρ</mi><mi>t</mi></msub></mtd><mtd columnalign="center" style="text-align: center"><msubsup><mi>τ</mi><mn>2</mn><mrow><mi>−</mi><mn>1</mn></mrow></msubsup></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><mo>,</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><mrow><mi>i</mi><mo>,</mo><mi>t</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mi>λ</mi><mrow><mi>i</mi><mo>,</mo><mi>t</mi></mrow></msub><mo>,</mo><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>τ</mi><mrow><mi>i</mi><mo>,</mo><mi>t</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>ln</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>λ</mi><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo>+</mo><mn>2</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="false" form="postfix">}</mo><mo>,</mo><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>ρ</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>tanh</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>λ</mi><mrow><mn>5</mn><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="false" form="postfix">}</mo><mi>.</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd></mtr></mtable><annotation encoding="application/x-tex">
@@ -471,15 +471,15 @@ the linear predictor associated with
 <h5 id="predictions">Predictions<a class="anchor" aria-label="anchor" href="#predictions"></a>
 </h5>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="outcomes_files/figure-html/unnamed-chunk-7-1.png" width="672"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="outcomes_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="672"></p>
 </div>
 <div class="section level5">
 <h5 id="correlation">Correlation<a class="anchor" aria-label="anchor" href="#correlation"></a>
 </h5>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, linear.predictors <span class="op">=</span> <span class="st">"atanh.rho"</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="outcomes_files/figure-html/unnamed-chunk-8-1.png" width="672"></p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, linear.predictors <span class="op">=</span> <span class="st">"atanh.rho"</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="outcomes_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="672"></p>
 </div>
 </div>
 <p>Notice that, by the second plot, the correlation between the series
@@ -553,8 +553,8 @@ usage of the <code>Poisson</code> function.</p>
 <span><span class="va">fitted.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">level</span>, <span class="va">season</span>,</span>
 <span>  AirPassengers <span class="op">=</span> <span class="va">outcome</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="outcomes_files/figure-html/unnamed-chunk-10-1.png" width="672"></p>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="outcomes_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="672"></p>
 <p>Notice that, while creating the structure, we defined a linear
 predictor named <code>rate</code>, whose behavior is being explained by
 a second order polynomial trend and seasonal component defined by a
@@ -699,12 +699,12 @@ is considered known and equal to <code>phi</code> for all
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">structure</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fl">1</span>, D <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span>
-<span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">**</span><span class="fl">2</span></span>
+<span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span> <span class="op">-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">**</span><span class="fl">2</span></span>
 <span></span>
 <span><span class="va">outcome</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Gamma.html">Gamma</a></span><span class="op">(</span>phi <span class="op">=</span> <span class="fl">0.5</span>, mu <span class="op">=</span> <span class="st">"mu"</span>, data <span class="op">=</span> <span class="va">Y</span><span class="op">)</span></span>
 <span><span class="va">fitted.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">structure</span>, <span class="va">outcome</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="outcomes_files/figure-html/unnamed-chunk-12-1.png" width="672"></p>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="outcomes_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="multinomial-case">Multinomial case<a class="anchor" aria-label="anchor" href="#multinomial-case"></a>
@@ -815,9 +815,9 @@ well as a explanation for the way we chose to include it.</p>
 <span></span>
 <span><span class="va">outcome</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Multinom.html">Multinom</a></span><span class="op">(</span>p <span class="op">=</span> <span class="va">structure</span><span class="op">$</span><span class="va">pred.names</span>, data <span class="op">=</span> <span class="va">chickenPox</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">5</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">fitted.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">structure</span>, chickenPox <span class="op">=</span> <span class="va">outcome</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="outcomes_files/figure-html/unnamed-chunk-14-1.png" width="672"></p>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="outcomes_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="672"></p>
 <div class="section level3">
 <h3 id="some-comments-on-the-usage-of-an-offset">Some comments on the usage of an offset<a class="anchor" aria-label="anchor" href="#some-comments-on-the-usage-of-an-offset"></a>
 </h3>
@@ -946,7 +946,7 @@ fitting two Poisson series:</p>
 <span>  Infants <span class="op">=</span> <span class="fu"><a href="../reference/Poisson.html">Poisson</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="st">"mu.2"</span>, data <span class="op">=</span> <span class="va">chickenPox</span><span class="op">[</span>, <span class="fl">2</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span><span class="op">)</span></span></code></pre></div>
 <p>It is important to note that the Multivariate Normal and the
 Multinomial cases are multivariated outcomes and are
 <strong>not</strong> considered multiple outcomes on their own, but
@@ -1002,13 +1002,13 @@ and
 <span>  <span class="fu"><a href="../reference/harmonic_block.html">harmonic_block</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fl">1</span>, period <span class="op">=</span> <span class="fl">12</span>, order <span class="op">=</span> <span class="fl">2</span>, D <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="../reference/noise_block.html">noise_block</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="../reference/polynomial_block.html">polynomial_block</a></span><span class="op">(</span>p <span class="op">=</span> <span class="fl">1</span>, D <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span> <span class="op">*</span> <span class="fl">2</span></span>
 <span></span>
-<span><span class="va">outcome1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Poisson.html">Poisson</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="st">"mu"</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">chickenPox</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">outcome1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Poisson.html">Poisson</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="st">"mu"</span>, data <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rowSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">chickenPox</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">outcome2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Multinom.html">Multinom</a></span><span class="op">(</span>p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"p.1"</span>, <span class="st">"p.2"</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">chickenPox</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">fitted.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">structure</span>, Total <span class="op">=</span> <span class="va">outcome1</span>, Proportions <span class="op">=</span> <span class="va">outcome2</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="outcomes_files/figure-html/unnamed-chunk-16-1.png" width="672"></p>
+<span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.model</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="outcomes_files/figure-html/unnamed-chunk-16-1.png" class="r-plt" alt="" width="672"></p>
 <p>See <span class="citation">Schmidt et al. (<a href="#ref-AlexMP">2022</a>)</span> for a discussion of
 Multinomial-Poisson models. More applications are presented in the
 advanced examples section of the vignette.</p>
@@ -1057,7 +1057,7 @@ models (springer series in statistics)</em>. Hardcover; Springer-Verlag.
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

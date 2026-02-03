@@ -18,7 +18,15 @@ ffs_block(
   monitoring = FALSE
 )
 
-ffs(period, D = 0.95, a1 = 0, R1 = 9, name = "Var.FFS", X = 1)
+ffs(
+  period,
+  D = 0.95,
+  a1 = 0,
+  R1 = 9,
+  monitoring = FALSE,
+  name = "Var.FFS",
+  X = 1
+)
 }
 \arguments{
 \item{...}{Named values for the planning matrix.}

@@ -70,9 +70,9 @@ var_decomp <- function(S) {
 #'
 #' @keywords internal
 ginv <- function(S) {
-  if(length(S)==1){
-    return(1/S)
-  }else{
+  if (length(S) == 1) {
+    return(1 / S)
+  } else {
     S <- as.matrix(S)
     n <- dim(S)[1]
     chol.decomp <- suppressWarnings({
@@ -89,7 +89,6 @@ ginv <- function(S) {
     return(inv)
   }
 }
-
 
 
 #' dmvnorm

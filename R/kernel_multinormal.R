@@ -173,7 +173,8 @@ update_multi_NG_correl <- function(conj.param, ft, Qt, y, parms) {
 
   if (r.valid > 1) {
     for (i in 2:(r.valid)) {
-      {      x <- c(ft.up)
+      {
+        x <- c(ft.up)
         rho <- matrix(0, r, r)
         rho[upper.index] <- rho[lower.index] <- tanh(x[cor.index])
         sd <- diag(exp(-x[var.index] / 2))
@@ -444,7 +445,7 @@ multi_normal_gamma_pred <- function(conj.param, outcome = NULL, parms = list(), 
   beta0 <- conj.param[, seq.int(4, r * 4, 4), drop = FALSE]
 
   nu <- 2 * alpha0
-  sigma2 <- ifelse(is.infinite(alpha0),beta0 * (1 + 1 / c0),(beta0 / alpha0) * (1 + 1 / c0))
+  sigma2 <- ifelse(is.infinite(alpha0), beta0 * (1 + 1 / c0), (beta0 / alpha0) * (1 + 1 / c0))
   s <- sqrt(sigma2)
 
   if (pred.flag) {

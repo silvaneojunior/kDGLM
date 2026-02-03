@@ -21,7 +21,9 @@
 
 \item{plot}{boolean or character: A flag indicating if a plot should be produced. Should be one of FALSE, TRUE, 'base', 'ggplot2' or 'plotly'.}
 
-\item{pred.cred}{numeric: The credibility level for the C.I..}
+\item{pred.cred}{numeric: The credibility level for the C.I.}
+
+\item{safe.mode}{boolean: A flag indicating if consistency check should be performed at each time step. Recommended to be left on, but if you know what you are doing (i.e., you tested the model and it is safe) and need to fit it several times, you can disable the checks to save some time.}
 
 \item{...}{Extra variables necessary for prediction (covariates, etc.).}
 }

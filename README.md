@@ -1,6 +1,6 @@
 # kDGLM: An R package for Bayesian analysis of Generalized Dynamic Linear Models
 
-Welcome to the `kDGLM` GitHub repository! `kDGLM` is an innovative R package tailored for Bayesian analysis of Generalized Dynamic Linear Models (GDLM), catering to both uni- and multivariate exponential families. This package is your go-to tool for sequential inference on time series data, offering a broad spectrum of functionalities including fitting, smoothing, monitoring, and feed-forward interventions.
+Welcome to the `kDGLM` GitHub repository! `kDGLM` is an innovative R package tailored for Bayesian analysis of Dynamic Generalized Linear Models (DGLM), catering to both uni- and multivariate exponential families. This package is your go-to tool for sequential inference on time series data, offering a broad spectrum of functionalities including fitting, smoothing, monitoring, and feed-forward interventions.
 
 Developed based on the methodology proposed in Alves et al.([2024](https://doi.org/10.48550/arXiv.2201.05387)), `kDGLM` integrates seamlessly with established techniques in the literature, particularly those applied in Gaussian Dynamic Models. It supports various features such as discount strategies, autoregressive components, transfer functions, and more, leveraging the Kalman filter and smoothing properties for exceptional computational efficiency. With kDGLM, you can expect almost instantaneous fitting times that scale linearly with your time series length, making it an invaluable tool for analyzing extended time series datasets.
 

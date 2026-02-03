@@ -198,7 +198,6 @@ base_block <- function(..., order, name,
 }
 
 
-
 #' Structural blocks for polynomial trends and regressions
 #'
 #' Creates the structure for a polynomial block with desired order.
@@ -1288,38 +1287,38 @@ specify.dlm_block <- function(x, ...) {
 
 #' @rdname harmonic_block
 #' @export
-har <- function(period, order = 1, D = 0.98, a1 = 0, R1 = 4, name = "Var.Sazo", X = 1) {
-  harmonic_block(mu = X, period = period, order = order, D = D, a1 = a1, R1 = R1, name = name)
+har <- function(period, order = 1, D = 0.98, a1 = 0, R1 = 4, monitoring = rep(FALSE, order * 2), name = "Var.Sazo", X = 1) {
+  harmonic_block(mu = X, period = period, order = order, D = D, a1 = a1, R1 = R1, name = name, monitoring = monitoring)
 }
 #' @rdname ffs_block
 #' @export
-ffs <- function(period, D = 0.95, a1 = 0, R1 = 9, name = "Var.FFS", X = 1) {
-  harmonic_block(mu = X, period = period, D = D, a1 = a1, R1 = R1, name = name)
+ffs <- function(period, D = 0.95, a1 = 0, R1 = 9, monitoring = FALSE, name = "Var.FFS", X = 1) {
+  harmonic_block(mu = X, period = period, D = D, a1 = a1, R1 = R1, name = name, monitoring = monitoring)
 }
 #' @rdname regression_block
 #' @export
-reg <- function(X, max.lag = 0, zero.fill = TRUE, D = 0.95, a1 = 0, R1 = 9, name = "Var.Reg") {
-  regression_block(mu = X, max.lag = max.lag, zero.fill = zero.fill, D = D, a1 = a1, R1 = R1, name = name)
+reg <- function(X, max.lag = 0, zero.fill = TRUE, D = 0.95, a1 = 0, R1 = 9, monitoring = rep(FALSE, max.lag + 1), name = "Var.Reg") {
+  regression_block(mu = X, max.lag = max.lag, zero.fill = zero.fill, D = D, a1 = a1, R1 = R1, name = name, monitoring = monitoring)
 }
 #' @rdname polynomial_block
 #' @export
-pol <- function(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly", X = 1) {
-  polynomial_block(mu = X, order = order, D = D, a1 = a1, R1 = R1, name = name)
+pol <- function(order = 1, D = 0.95, a1 = 0, R1 = 9, monitoring = c(TRUE, rep(FALSE, order - 1)), name = "Var.Poly", X = 1) {
+  polynomial_block(mu = X, order = order, D = D, a1 = a1, R1 = R1, name = name, monitoring = monitoring)
 }
 #' @rdname tf_block
 #' @export
-AR <- function(order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)), name = "Var.AR", X = 1) {
-  TF_block(mu = X, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, a1.coef = a1.coef, R1.coef = R1.coef, name = name)
+AR <- function(order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, monitoring = TRUE, a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)), monitoring.coef = rep(FALSE, order), name = "Var.AR", X = 1) {
+  TF_block(mu = X, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, a1.coef = a1.coef, R1.coef = R1.coef, name = name, monitoring = monitoring, monitoring.coef = monitoring.coef)
 }
 #' @rdname tf_block
 #' @export
 TF <- function(pulse, order = 1, noise.var = NULL, noise.disc = NULL,
-               a1 = 0, R1 = 9,
-               a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)),
-               a1.pulse = 0, R1.pulse = 4, name = "Var.AR", X = 1) {
+               a1 = 0, R1 = 9, monitoring = TRUE,
+               a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)), monitoring.coef = rep(FALSE, order),
+               a1.pulse = 0, R1.pulse = 4, monitoring.pulse = FALSE, name = "Var.AR", X = 1) {
   TF_block(
-    mu = X, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, a1.coef = a1.coef, R1.coef = R1.coef,
-    pulse = pulse, a1.pulse = a1.pulse, R1.pulse = R1.pulse, name = name
+    mu = X, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, monitoring = monitoring, a1.coef = a1.coef, R1.coef = R1.coef, monitoring.coef = monitoring.coef,
+    pulse = pulse, a1.pulse = a1.pulse, R1.pulse = R1.pulse, monitoring.pulse = monitoring.pulse, name = name,
   )
 }
 #' @rdname noise_block

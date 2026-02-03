@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kDGLM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,6 +66,7 @@
 <span>  D <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  a1 <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  R1 <span class="op">=</span> <span class="fl">9</span>,</span>
+<span>  monitoring <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="va">max.lag</span> <span class="op">+</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span>  name <span class="op">=</span> <span class="st">"Var.Reg"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -79,7 +80,8 @@
 
 
 <dt id="arg-max-lag">max.lag<a class="anchor" aria-label="anchor" href="#arg-max-lag"></a></dt>
-<dd><p>Non-negative integer: An optional argument providing the maximum lag for the explanatory variables. If a positive value is provided, this block will create additional latent states to measure the lagged effect of X_t up until the given value. See WestHarr-DLM;textualkDGLM, subsection 9.2.2 item (3).</p></dd>
+<dd><p>Non-negative integer: An optional argument providing the maximum lag for the explanatory variables. If a positive value is provided, this block will create additional latent states to measure the lagged effect of X_t up until the given value. See West and Harrison (1997)
+, subsection 9.2.2 item (3).</p></dd>
 
 
 <dt id="arg-zero-fill">zero.fill<a class="anchor" aria-label="anchor" href="#arg-zero-fill"></a></dt>
@@ -144,28 +146,38 @@
     <p>For the ..., D, H, a1 and R1 arguments, the user may set one or more of its values as a string.
 By doing so, the user will leave the block partially undefined.
 The user must then pass the undefined parameter values as named arguments to the <code><a href="fit_model.html">fit_model</a></code> function. Also, multiple values can be passed, allowing for a sensitivity analysis for the value of this parameter.</p>
-<p>For the details about the implementation see ArtigoPacote;textualkDGLM.</p>
-<p>For the details about dynamic regression models in the context of DLM's, see WestHarr-DLM;textualkDGLM, chapters 6 and 9.</p>
+<p>For the details about the implementation see dos Santos et al. (2024)
+.</p>
+<p>For the details about dynamic regression models in the context of DLM's, see West and Harrison (1997)
+, chapters 6 and 9.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p></p>
+    <p>Junior,
+Silvaneo
+Vieira dos Santos, Mariane
+Branco Alves, Helio
+S. Migon (2024).
+“kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models.”<br><br> Mike West, Jeff Harrison (1997).
+<em>Bayesian Forecasting and Dynamic Models (Springer Series in Statistics)</em>.
+Springer-Verlag.
+ISBN 0387947256.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="fit_model.html">fit_model</a></code></p>
 <p>Other auxiliary functions for structural blocks:
-<code><a href="tf_block.html">TF_block</a>()</code>,
-<code><a href="block_mult.html">block_mult</a>()</code>,
-<code><a href="block_rename.html">block_rename</a>()</code>,
-<code><a href="block_superpos.html">block_superpos</a>()</code>,
-<code><a href="ffs_block.html">ffs_block</a>()</code>,
-<code><a href="harmonic_block.html">harmonic_block</a>()</code>,
-<code><a href="intervention.html">intervention</a>()</code>,
-<code><a href="noise_block.html">noise_block</a>()</code>,
-<code><a href="polynomial_block.html">polynomial_block</a>()</code>,
-<code><a href="specify.dlm_block.html">specify.dlm_block</a>()</code>,
-<code><a href="summary.dlm_block.html">summary.dlm_block</a>()</code></p></div>
+<code><a href="tf_block.html">TF_block()</a></code>,
+<code><a href="block_mult.html">block_mult()</a></code>,
+<code><a href="block_rename.html">block_rename()</a></code>,
+<code><a href="block_superpos.html">block_superpos()</a></code>,
+<code><a href="ffs_block.html">ffs_block()</a></code>,
+<code><a href="harmonic_block.html">harmonic_block()</a></code>,
+<code><a href="intervention.html">intervention()</a></code>,
+<code><a href="noise_block.html">noise_block()</a></code>,
+<code><a href="polynomial_block.html">polynomial_block()</a></code>,
+<code><a href="specify.dlm_block.html">specify.dlm_block()</a></code>,
+<code><a href="summary.dlm_block.html">summary.dlm_block()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -217,7 +229,7 @@ The user must then pass the undefined parameter values as named arguments to the
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

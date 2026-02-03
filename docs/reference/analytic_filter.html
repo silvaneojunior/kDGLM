@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kDGLM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.12</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -145,16 +145,42 @@
 <li><p>monitoring numeric: The same as the argument (same values).</p></li>
 <li><p>outcomes list: The same as the argument outcomes (same values).</p></li>
 <li><p>pred.names numeric: The names of the linear predictors.</p></li>
+<li><p>safe.mode bool: The same as the argument outcomes (same values).</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>For the models covered in this package, we always use the approach described in ArtigokParametrico;textualkDGLM, including, in particular, the filtering algorithm presented in that work.</p>
-<p>For the details about the implementation see ArtigoPacote;textualkDGLM.</p>
-<p>For the details about the algorithm implemented see ArtigokParametrico;textualkDGLM, Petris-DLM;textualkDGLM, chapter 2, WestHarr-DLM;textualkDGLM, chapter 4, and Kalman_filter_origins;textualkDGLM.</p>
+    <p>For the models covered in this package, we always use the approach described in Alves et al. (2024)
+, including, in particular, the filtering algorithm presented in that work.</p>
+<p>For the details about the implementation see dos Santos et al. (2024)
+.</p>
+<p>For the details about the algorithm implemented see Alves et al. (2024)
+, Petris et al. (2009)
+, chapter 2, West and Harrison (1997)
+, chapter 4, and Kalman (1960)
+.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p></p>
+    <p>Mariane
+Branco Alves, Helio
+S. Migon, Raíra Marotta, Junior,
+Silvaneo
+Vieira dos Santos (2024).
+“k-parametric Dynamic Generalized Linear Models: a sequential approach via Information Geometry.”
+2201.05387.<br><br> Junior,
+Silvaneo
+Vieira dos Santos, Mariane
+Branco Alves, Helio
+S. Migon (2024).
+“kDGLM: an R package for Bayesian analysis of Dynamic Generialized Linear Models.”<br><br> Rudolph
+Emil Kalman (1960).
+“A New Approach to Linear Filtering and Prediction Problems.”
+<em>Transactions of the ASME–Journal of Basic Engineering</em>, <b>82</b>(Series D), 35–45.<br><br> Giovanni Petris, Sonia Petrone, Patrizia Campagnoli (2009).
+<em>Dynamic Linear Models with R</em>,  useR!
+Springer-Verlag, New York.<br><br> Mike West, Jeff Harrison (1997).
+<em>Bayesian Forecasting and Dynamic Models (Springer Series in Statistics)</em>.
+Springer-Verlag.
+ISBN 0387947256.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -171,7 +197,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>
