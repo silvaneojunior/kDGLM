@@ -23,6 +23,8 @@ ffs(
   D = 0.95,
   a1 = 0,
   R1 = 9,
+  h = 0,
+  H = 0,
   monitoring = FALSE,
   name = "Var.FFS",
   X = 1

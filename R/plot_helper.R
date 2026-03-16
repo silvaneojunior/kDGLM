@@ -97,10 +97,41 @@ plot.fitted_dlm <- function(x, outcomes = NULL, latent.states = NULL, linear.pre
 
   coefs <- coef.fitted_dlm(x, t.eval = (cutoff + 1):t_last, lag = lag, pred.cred = pred.cred, eval.pred = TRUE, eval.metric = FALSE)
   eval <- coefs$data
+  eval.levels <- levels(eval$Serie)
+  eval$Serie <- as.character(eval$Serie)
 
   outcomes.labels <- outcome.names[flags.outcomes]
   theta.labels <- theta.names[flags.theta]
   lambda.labels <- lambda.names[flags.lambda]
+
+  for (out in outcomes.labels) {
+    if (out %in% theta.labels) {
+      outcomes.labels[which(outcomes.labels == out)] <-
+        eval$Serie[which(eval$Serie == out)] <-
+        eval.levels[which(eval.levels == out)] <-
+        paste0(out, " (outcome)")
+      theta.labels[which(theta.labels == out)] <- paste0(out, " (latent state)")
+    }
+    if (out %in% lambda.labels) {
+      outcomes.labels[which(outcomes.labels == out)] <-
+        eval$Serie[which(eval$Serie == out)] <-
+        eval.levels[which(eval.levels == out)] <-
+        paste0(out, " (outcome)")
+      lambda.labels[which(lambda.labels == out)] <- paste0(out, " (linear predictor)")
+    }
+  }
+  eval$Serie <- factor(eval$Serie, levels = eval.levels)
+  for (theta in theta.labels) {
+    if (theta %in% lambda.labels) {
+      theta.labels[which(theta.labels == theta)] <- paste0(theta, " (latent state)")
+      lambda.labels[which(lambda.labels == theta)] <- paste0(theta, " (linear predictor)")
+    }
+  }
+
+  label.type <- c(
+    rep("outcome", length(outcomes.labels)),
+    rep("var", length(theta.labels) + length(lambda.labels))
+  )
 
   eval <- eval[eval$Serie %in% outcomes.labels, ]
 
@@ -249,11 +280,10 @@ plot.fitted_dlm <- function(x, outcomes = NULL, latent.states = NULL, linear.pre
     plt <- NULL
   } else {
     plt <- ggplot2::ggplot() +
-      ggplot2::geom_ribbon(data = eval, na.rm = TRUE, ggplot2::aes_string(x = "Time", fill = "Serie", ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25) +
-      ggplot2::geom_line(data = eval, na.rm = TRUE, ggplot2::aes_string(x = "Time", color = "Serie", y = "Prediction", linetype = "'Fitted values'")) +
-      ggplot2::geom_point(data = eval[!is.na(eval$Observation), ], na.rm = TRUE, ggplot2::aes_string(x = "Time", color = "Serie", y = "Observation", shape = '"Observation"'), alpha = 0.5) +
+      ggplot2::geom_ribbon(data = eval, na.rm = TRUE, ggplot2::aes(x = .data$Time, fill = .data$Serie, ymin = .data$C.I.lower, ymax = .data$C.I.upper), alpha = 0.25) +
+      ggplot2::geom_line(data = eval, na.rm = TRUE, ggplot2::aes(x = .data$Time, color = .data$Serie, y = .data$Prediction, linetype = "Fitted values")) +
+      ggplot2::geom_point(data = eval[!is.na(eval$Observation), ], na.rm = TRUE, ggplot2::aes(x = .data$Time, color = .data$Serie, y = .data$Observation), alpha = 0.5) +
       ggplot2::scale_linetype_manual("", values = linetypes) +
-      ggplot2::scale_shape_manual("", values = shapes) +
       ggplot2::scale_fill_manual("", na.value = NA, values = fills) +
       ggplot2::scale_color_manual("", na.value = NA, values = colors) +
       ggplot2::scale_x_continuous("Time") +
@@ -264,7 +294,7 @@ plot.fitted_dlm <- function(x, outcomes = NULL, latent.states = NULL, linear.pre
       plt <- plt +
         ggplot2::geom_vline(
           data = data.frame(xintercept = (1:t_last)[x$alt.flags == 1], linetype = "Detected changes"),
-          ggplot2::aes_string(xintercept = "xintercept", linetype = "linetype")
+          ggplot2::aes(xintercept = "xintercept", linetype = "linetype")
         )
     }
     if (plot.pkg == "plotly") {
@@ -272,9 +302,9 @@ plot.fitted_dlm <- function(x, outcomes = NULL, latent.states = NULL, linear.pre
         warning("The plotly package is required for plotly plots.")
       } else {
         plt <- plotly::ggplotly(plt + ggplot2::ylab(plotly::TeX("Y_t"))) |> plotly::config(mathjax = "cdn")
-
+        count <- sum(label.type == "out") + n.series
         for (i in (1:n.series) - 1) {
-          if (sort(series.names)[i + 1] %in% c(outcome.names, "Detected changes")) {
+          if (label.type[i + 1] == "out") {
             plt$x$data[[i + 1]]$legendgroup <-
               plt$x$data[[i + 1 + n.series]]$legendgroup <-
               plt$x$data[[i + 1]]$name <-
@@ -282,8 +312,8 @@ plot.fitted_dlm <- function(x, outcomes = NULL, latent.states = NULL, linear.pre
 
             plt$x$data[[i + 1]]$showlegend <- FALSE
 
-            plt$x$data[[i + 1 + 2 * n.series]]$legendgroup <-
-              plt$x$data[[i + 1 + 2 * n.series]]$name <- paste0(sort(series.names)[i + 1], ": observations")
+            plt$x$data[[i + 1 + count]]$legendgroup <-
+              plt$x$data[[i + 1 + count]]$name <- paste0(sort(series.names)[i + 1], ": observations")
           } else {
             plt$x$data[[i + 1]]$showlegend <- FALSE
             plt$x$data[[i + 1]]$legendgroup <-
@@ -507,7 +537,7 @@ plot.dlm_coef <- function(x, var = rownames(x$theta.mean)[x$dynamic], cutoff = f
     # fix GeomRibbon
     # ggplot2::GeomRibbon$handle_na <- function(data, params) {  data }
 
-    plt <- ggplot2::ggplot(plot.data, ggplot2::aes_string(x = "Time", fill = "Label", color = "color.name")) +
+    plt <- ggplot2::ggplot(plot.data, ggplot2::aes(x = .data$Time, fill = .data$Label, color = .data$color.name)) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed") +
       ggplot2::scale_x_continuous("Time") +
       ggplot2::scale_color_manual("", values = color.list, na.value = NA) +
@@ -516,8 +546,8 @@ plot.dlm_coef <- function(x, var = rownames(x$theta.mean)[x$dynamic], cutoff = f
       ggplot2::scale_y_continuous("Parameter value") +
       ggplot2::theme_bw() +
       ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90)) +
-      ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper"), alpha = 0.25, color = NA, na.rm = TRUE) +
-      ggplot2::geom_line(ggplot2::aes_string(y = "Mean"), na.rm = TRUE) +
+      ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$C.I.lower, ymax = .data$C.I.upper), alpha = 0.25, color = NA, na.rm = TRUE) +
+      ggplot2::geom_line(ggplot2::aes(y = .data$Mean), na.rm = TRUE) +
       ggplot2::coord_cartesian(ylim = c(min.value, max.value))
     if (plot.pkg == "plotly") {
       if (!requireNamespace("plotly", quietly = TRUE)) {

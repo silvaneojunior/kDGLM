@@ -8,7 +8,7 @@
 #' @param metric.lag Integer: The number of steps ahead used for the evaluating the predictions used when calculating metrics. Use metric.lag<0 for the smoothed distribution, If metric.lag==0 for the filtered distribution and metric.lag=h for the h-step-ahead prediction.
 #' @param metric.cutoff Integer: The cutoff time index for the metric calculation. Values before that time will be ignored.
 #' @param pred.cred numeric: The credibility interval to be used for the interval score.
-#' @param ... Extra arguments passed to the coef method.#'
+#' @param ... Extra arguments passed to the coef method.
 #' @rdname summary.fitted_dlm
 #' @export
 #' @importFrom stats pnorm

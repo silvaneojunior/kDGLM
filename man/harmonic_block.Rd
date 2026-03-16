@@ -24,6 +24,8 @@ har(
   D = 0.98,
   a1 = 0,
   R1 = 4,
+  h = 0,
+  H = 0,
   monitoring = rep(FALSE, order * 2),
   name = "Var.Sazo",
   X = 1

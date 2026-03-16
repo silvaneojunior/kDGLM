@@ -25,6 +25,8 @@ reg(
   D = 0.95,
   a1 = 0,
   R1 = 9,
+  h = 0,
+  H = 0,
   monitoring = rep(FALSE, max.lag + 1),
   name = "Var.Reg"
 )

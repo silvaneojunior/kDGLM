@@ -1,6 +1,6 @@
 #' print.fitted_dlm
 #'
-#' This method is wrapper for the summary.fitted_dlm methdd.
+#' This method is wrapper for the summary.fitted_dlm method.
 #'
 #' @param x A fitted_dlm object.
 #' @param ... Arguments passed to summary.fitted_dlm

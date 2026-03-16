@@ -27,7 +27,7 @@
 
 \item{pred.cred}{numeric: The credibility interval to be used for the interval score.}
 
-\item{...}{Extra arguments passed to the coef method.#'}
+\item{...}{Extra arguments passed to the coef method.}
 }
 \value{
 No return value, called to print a summary of the fitted kDGLM model.

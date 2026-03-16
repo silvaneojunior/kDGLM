@@ -15,7 +15,7 @@
 No return value, called to print a summary of the fitted kDGLM model.
 }
 \description{
-This method is wrapper for the summary.fitted_dlm methdd.
+This method is wrapper for the summary.fitted_dlm method.
 }
 \seealso{
 \code{\link{summary.fitted_dlm}}

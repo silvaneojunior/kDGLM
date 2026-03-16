@@ -10,7 +10,8 @@ vignette: >
   %\VignetteIndexEntry{Creation of model outcomes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{geobr}
+  %\VignetteDepends{geodata}
+  %\VignetteDepends{terra}
   %\VignetteDepends{sf}
   %\VignetteDepends{spdep}
   %\VignetteDepends{tidyverse}

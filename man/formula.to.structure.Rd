@@ -16,4 +16,3 @@
 \description{
 formula.to.structure
 }
-\keyword{internal}

@@ -541,6 +541,7 @@ smoothing <- function(model) {
 #'    \item plot (if so chosen): A plotly or ggplot object.
 #' }
 #' @importFrom Rfast transpose data.frame.to_matrix
+#' @importFrom rlang .data
 #' @import graphics
 #' @import grDevices
 #' @rdname forecast.fitted_dlm
@@ -937,10 +938,10 @@ forecast.fitted_dlm <- function(object, t = 1,
       # ggplot2::GeomRibbon$handle_na <- function(data, params) {  data }
 
       names(colors) <- names(fills) <- series.names
-      plt.obj <- ggplot2::ggplot(plot.data, ggplot2::aes_string(x = "Time")) +
-        ggplot2::geom_line(ggplot2::aes_string(y = "Prediction", linetype = "type", color = "Serie"), na.rm = TRUE) +
-        ggplot2::geom_ribbon(ggplot2::aes_string(ymin = "C.I.lower", ymax = "C.I.upper", fill = "Serie", group = "group.ribbon"), alpha = 0.25, color = NA, na.rm = TRUE) +
-        ggplot2::geom_point(ggplot2::aes_string(y = "Observation", shape = "shape.point", color = "Serie"), alpha = 0.5, na.rm = TRUE) +
+      plt.obj <- ggplot2::ggplot(plot.data, ggplot2::aes(x = .data$Time)) +
+        ggplot2::geom_line(ggplot2::aes(y = .data$Prediction, linetype = .data$type, color = .data$Serie), na.rm = TRUE) +
+        ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$C.I.lower, ymax = .data$C.I.upper, fill = .data$Serie, group = .data$group.ribbon), alpha = 0.25, color = NA, na.rm = TRUE) +
+        ggplot2::geom_point(ggplot2::aes(y = .data$Observation, shape = .data$shape.point, color = .data$Serie), alpha = 0.5, na.rm = TRUE) +
         ggplot2::scale_fill_manual("", values = fills, na.value = NA) +
         ggplot2::scale_color_manual("", values = colors, na.value = NA) +
         ggplot2::scale_linetype_manual("", values = c("solid", "dashed")) +
@@ -2223,7 +2224,7 @@ kdglm <- function(formula, ..., family, data = NULL, offset = NULL, p.monit = NA
 #'
 #' @importFrom stats update.formula model.matrix
 #'
-#' @keywords internal
+#' @export
 formula.to.structure <- function(formula, data, label = "mu") {
   terms <- attr(terms(formula), "term.labels")
   intercept.add <- attr(terms(formula), "intercept") & !any(grepl("pol(", terms, fixed = TRUE))
@@ -2231,6 +2232,7 @@ formula.to.structure <- function(formula, data, label = "mu") {
   terms <- attr(terms(formula), "term.labels")
   args <- list()
   terms.mat <- c()
+
   if (length(terms) >= 1) {
     for (i in 1:length(terms)) {
       var <- eval(parse(text = terms[i]), envir = data)

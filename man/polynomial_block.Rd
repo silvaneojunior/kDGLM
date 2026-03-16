@@ -22,6 +22,8 @@ pol(
   D = 0.95,
   a1 = 0,
   R1 = 9,
+  h = 0,
+  H = 0,
   monitoring = c(TRUE, rep(FALSE, order - 1)),
   name = "Var.Poly",
   X = 1

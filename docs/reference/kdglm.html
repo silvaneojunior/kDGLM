@@ -112,7 +112,7 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Poisson case</span></span></span>
 <span class="r-in"><span><span class="va">fitted.data</span> <span class="op">&lt;-</span> <span class="fu">kdglm</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span> <span class="op">~</span> <span class="fu"><a href="polynomial_block.html">pol</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="harmonic_block.html">har</a></span><span class="op">(</span><span class="fl">12</span>, order <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, family <span class="op">=</span> <span class="va">Poisson</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitted DGLM with 1 outcomes.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> distributions:</span>
@@ -128,13 +128,13 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Interval Score        : 140.37692</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mean Abs. Scaled Error:   0.51246</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="kdglm-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">##################################################################</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Multinomial case</span></span></span>
-<span class="r-in"><span><span class="va">chickenPox</span><span class="op">$</span><span class="va">Total</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">chickenPox</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">5</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">chickenPox</span><span class="op">$</span><span class="va">Total</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/rowSums.html" class="external-link">rowSums</a></span><span class="op">(</span><span class="va">chickenPox</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">5</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">chickenPox</span><span class="op">$</span><span class="va">Vaccine</span> <span class="op">&lt;-</span> <span class="va">chickenPox</span><span class="op">$</span><span class="va">date</span> <span class="op">&gt;=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2013-09-01"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fitted.data</span> <span class="op">&lt;-</span> <span class="fu">kdglm</span><span class="op">(</span><span class="va">`&lt; 5 year`</span> <span class="op">~</span> <span class="fu"><a href="polynomial_block.html">pol</a></span><span class="op">(</span><span class="fl">2</span>, D <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="harmonic_block.html">har</a></span><span class="op">(</span><span class="fl">12</span>, D <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="noise_block.html">noise</a></span><span class="op">(</span>R1 <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">+</span> <span class="va">Vaccine</span>,</span></span>
 <span class="r-in"><span>  <span class="va">`5 to 9 years`</span> <span class="op">~</span> <span class="fu"><a href="polynomial_block.html">pol</a></span><span class="op">(</span><span class="fl">2</span>, D <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="harmonic_block.html">har</a></span><span class="op">(</span><span class="fl">12</span>, D <span class="op">=</span> <span class="fl">0.975</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="noise_block.html">noise</a></span><span class="op">(</span>R1 <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span> <span class="op">+</span> <span class="va">Vaccine</span>,</span></span>
@@ -144,7 +144,7 @@
 <span class="r-in"><span>  family <span class="op">=</span> <span class="va">Multinom</span>,</span></span>
 <span class="r-in"><span>  data <span class="op">=</span> <span class="va">chickenPox</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitted DGLM with 1 outcomes.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> distributions:</span>
@@ -160,14 +160,14 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Interval Score        :  255.27963</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mean Abs. Scaled Error:    1.24724</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="kdglm-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">##################################################################</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Univariate Normal case</span></span></span>
 <span class="r-in"><span><span class="va">fitted.data</span> <span class="op">&lt;-</span> <span class="fu">kdglm</span><span class="op">(</span><span class="va">corn.log.return</span> <span class="op">~</span> <span class="fl">1</span>, V <span class="op">=</span> <span class="op">~</span><span class="fl">1</span>, family <span class="op">=</span> <span class="va">Normal</span>, data <span class="op">=</span> <span class="va">cornWheat</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span>, <span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitted DGLM with 1 outcomes.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> distributions:</span>
@@ -183,15 +183,15 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Interval Score        : 0.07564</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mean Abs. Scaled Error: 0.76327</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="kdglm-3.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">##################################################################</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Gamma case</span></span></span>
-<span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">**</span><span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span> <span class="op">-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">**</span><span class="fl">2</span></span></span>
 <span class="r-in"><span><span class="va">fitted.data</span> <span class="op">&lt;-</span> <span class="fu">kdglm</span><span class="op">(</span><span class="va">Y</span> <span class="op">~</span> <span class="fl">1</span>, phi <span class="op">=</span> <span class="fl">0.5</span>, family <span class="op">=</span> <span class="va">Gamma</span>, data <span class="op">=</span> <span class="va">cornWheat</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitted DGLM with 1 outcomes.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> distributions:</span>
@@ -207,7 +207,7 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> Interval Score        : 0.00197</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mean Abs. Scaled Error: 0.93721</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="kdglm-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

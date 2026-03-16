@@ -53,7 +53,7 @@
 <span>  beta <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  sigma <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  <span class="va">data</span>,</span>
-<span>  offset <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span><span class="op">^</span><span class="fl">0</span></span>
+<span>  offset <span class="op">=</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/coerce.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span><span class="op">^</span><span class="fl">0</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -130,10 +130,10 @@ S. Migon (2024).
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">structure</span> <span class="op">&lt;-</span> <span class="fu"><a href="polynomial_block.html">polynomial_block</a></span><span class="op">(</span>mu <span class="op">=</span> <span class="fl">1</span>, D <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">**</span><span class="fl">2</span></span></span>
+<span class="r-in"><span><span class="va">Y</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span> <span class="op">-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/summarize-generics.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">cornWheat</span><span class="op">$</span><span class="va">corn.log.return</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">500</span><span class="op">]</span><span class="op">)</span><span class="op">)</span><span class="op">**</span><span class="fl">2</span></span></span>
 <span class="r-in"><span><span class="va">outcome</span> <span class="op">&lt;-</span> <span class="fu">Gamma</span><span class="op">(</span>phi <span class="op">=</span> <span class="fl">0.5</span>, mu <span class="op">=</span> <span class="st">"mu"</span>, data <span class="op">=</span> <span class="va">Y</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fitted.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="fit_model.html">fit_model</a></span><span class="op">(</span><span class="va">structure</span>, corn <span class="op">=</span> <span class="va">outcome</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fitted.data</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Fitted DGLM with 1 outcomes.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> distributions:</span>
@@ -149,7 +149,7 @@ S. Migon (2024).
 <span class="r-out co"><span class="r-pr">#&gt;</span> Interval Score        : 0.00197</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Mean Abs. Scaled Error: 0.93721</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rspatial.github.io/terra/reference/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fitted.data</span>, plot.pkg <span class="op">=</span> <span class="st">"base"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="Gamma-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
