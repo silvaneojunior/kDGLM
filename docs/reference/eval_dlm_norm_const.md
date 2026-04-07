@@ -27,13 +27,13 @@ fitted DLM.
 ## See also
 
 Other auxiliary functions for fitted_dlm objects:
-[`coef.fitted_dlm()`](coef.fitted_dlm.md),
-[`fit_model()`](fit_model.md),
-[`forecast.fitted_dlm()`](forecast.fitted_dlm.md),
-[`kdglm()`](kdglm.md),
-[`simulate.fitted_dlm()`](simulate.fitted_dlm.md),
-[`smoothing()`](smoothing.md),
-[`update.fitted_dlm()`](update.fitted_dlm.md)
+[`coef.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/coef.fitted_dlm.md),
+[`fit_model()`](https://silvaneojunior.github.io/kDGLM/reference/fit_model.md),
+[`forecast.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/forecast.fitted_dlm.md),
+[`kdglm()`](https://silvaneojunior.github.io/kDGLM/reference/kdglm.md),
+[`simulate.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/simulate.fitted_dlm.md),
+[`smoothing()`](https://silvaneojunior.github.io/kDGLM/reference/smoothing.md),
+[`update.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/update.fitted_dlm.md)
 
 ## Examples
 

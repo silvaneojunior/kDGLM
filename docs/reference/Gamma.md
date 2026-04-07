@@ -87,11 +87,13 @@ Generialized Linear Models.”
 
 ## See also
 
-[`fit_model`](fit_model.md)
+[`fit_model`](https://silvaneojunior.github.io/kDGLM/reference/fit_model.md)
 
 Other auxiliary functions for a creating outcomes:
-[`Multinom()`](Multinom.md), [`Normal()`](Normal.md),
-[`Poisson()`](Poisson.md), [`summary.dlm_distr()`](summary.dlm_distr.md)
+[`Multinom()`](https://silvaneojunior.github.io/kDGLM/reference/Multinom.md),
+[`Normal()`](https://silvaneojunior.github.io/kDGLM/reference/Normal.md),
+[`Poisson()`](https://silvaneojunior.github.io/kDGLM/reference/Poisson.md),
+[`summary.dlm_distr()`](https://silvaneojunior.github.io/kDGLM/reference/summary.dlm_distr.md)
 
 ## Examples
 

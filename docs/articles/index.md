@@ -2,9 +2,12 @@
 
 ### Vignettes
 
-- [Introduction](intro.md):
-- [Creation of model structures](structures.md):
-- [Creation of model outcomes](outcomes.md):
-- [Fitting and analysing models](fitting.md):
+- [Introduction](https://silvaneojunior.github.io/kDGLM/articles/intro.md):
+- [Creation of model
+  structures](https://silvaneojunior.github.io/kDGLM/articles/structures.md):
+- [Creation of model
+  outcomes](https://silvaneojunior.github.io/kDGLM/articles/outcomes.md):
+- [Fitting and analysing
+  models](https://silvaneojunior.github.io/kDGLM/articles/fitting.md):
 - [Space-time model hospital admissions from
-  gastroenteritis](example1.md):
+  gastroenteritis](https://silvaneojunior.github.io/kDGLM/articles/example1.md):

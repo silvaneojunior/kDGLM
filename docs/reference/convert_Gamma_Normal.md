@@ -34,5 +34,6 @@ The parameters of the conjugated distribution of the linear predictor.
 ## See also
 
 Other auxiliary functions for a Gamma outcome with known shape:
-[`convert_Normal_Gamma()`](convert_Normal_Gamma.md),
-[`gamma_pred()`](gamma_pred.md), [`update_Gamma()`](update_Gamma.md)
+[`convert_Normal_Gamma()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Normal_Gamma.md),
+[`gamma_pred()`](https://silvaneojunior.github.io/kDGLM/reference/gamma_pred.md),
+[`update_Gamma()`](https://silvaneojunior.github.io/kDGLM/reference/update_Gamma.md)

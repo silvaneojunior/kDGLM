@@ -38,13 +38,13 @@ updating, it should be passed along with the observed data. See example.
 ## See also
 
 Other auxiliary functions for fitted_dlm objects:
-[`coef.fitted_dlm()`](coef.fitted_dlm.md),
-[`eval_dlm_norm_const()`](eval_dlm_norm_const.md),
-[`fit_model()`](fit_model.md),
-[`forecast.fitted_dlm()`](forecast.fitted_dlm.md),
-[`kdglm()`](kdglm.md),
-[`simulate.fitted_dlm()`](simulate.fitted_dlm.md),
-[`smoothing()`](smoothing.md)
+[`coef.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/coef.fitted_dlm.md),
+[`eval_dlm_norm_const()`](https://silvaneojunior.github.io/kDGLM/reference/eval_dlm_norm_const.md),
+[`fit_model()`](https://silvaneojunior.github.io/kDGLM/reference/fit_model.md),
+[`forecast.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/forecast.fitted_dlm.md),
+[`kdglm()`](https://silvaneojunior.github.io/kDGLM/reference/kdglm.md),
+[`simulate.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/simulate.fitted_dlm.md),
+[`smoothing()`](https://silvaneojunior.github.io/kDGLM/reference/smoothing.md)
 
 ## Examples
 

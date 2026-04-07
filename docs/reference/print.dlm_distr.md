@@ -25,4 +25,4 @@ No return value, called to print a summary of a kDGLM outcome.
 
 ## See also
 
-[`summary.dlm_distr`](summary.dlm_distr.md)
+[`summary.dlm_distr`](https://silvaneojunior.github.io/kDGLM/reference/summary.dlm_distr.md)

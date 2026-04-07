@@ -46,7 +46,7 @@ if.nan <- function(vec, val) {
 
 #' var_decomp
 #'
-#' This function receives a covariance matrix S and creates a matrix Q, so that t(Q) %*% Q=S.
+#' This function receives a covariance matrix S and creates a matrix Q, so that t(Q) \%*\% Q = S.
 #'
 #' @param S A covariance matrix
 #'

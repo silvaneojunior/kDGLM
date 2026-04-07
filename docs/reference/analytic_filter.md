@@ -190,6 +190,6 @@ Models (Springer Series in Statistics)*. Springer-Verlag. ISBN
 
 ## See also
 
-[`fit_model`](fit_model.md)
+[`fit_model`](https://silvaneojunior.github.io/kDGLM/reference/fit_model.md)
 
-[`generic_smoother`](generic_smoother.md)
+[`generic_smoother`](https://silvaneojunior.github.io/kDGLM/reference/generic_smoother.md)

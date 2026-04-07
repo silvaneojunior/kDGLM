@@ -50,7 +50,8 @@ Generialized Linear Models.”
 ## See also
 
 Other auxiliary functions for defining priors.:
-[`CAR_prior()`](CAR_prior.md), [`zero_sum_prior()`](zero_sum_prior.md)
+[`CAR_prior()`](https://silvaneojunior.github.io/kDGLM/reference/CAR_prior.md),
+[`zero_sum_prior()`](https://silvaneojunior.github.io/kDGLM/reference/zero_sum_prior.md)
 
 ## Examples
 

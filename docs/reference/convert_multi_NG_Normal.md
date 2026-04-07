@@ -37,5 +37,6 @@ The parameters of the conjugated distribution of the linear predictor.
 ## See also
 
 Other auxiliary functions for a Normal outcome:
-[`multi_normal_gamma_pred()`](multi_normal_gamma_pred.md),
-[`normal_pred()`](normal_pred.md), [`update_Normal()`](update_Normal.md)
+[`multi_normal_gamma_pred()`](https://silvaneojunior.github.io/kDGLM/reference/multi_normal_gamma_pred.md),
+[`normal_pred()`](https://silvaneojunior.github.io/kDGLM/reference/normal_pred.md),
+[`update_Normal()`](https://silvaneojunior.github.io/kDGLM/reference/update_Normal.md)

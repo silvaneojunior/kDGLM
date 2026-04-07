@@ -54,6 +54,6 @@ A list containing the following values:
 ## See also
 
 Other auxiliary functions for a Multinomial outcome:
-[`convert_Multinom_Normal()`](convert_Multinom_Normal.md),
-[`convert_Normal_Multinom()`](convert_Normal_Multinom.md),
-[`update_Multinom()`](update_Multinom.md)
+[`convert_Multinom_Normal()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Multinom_Normal.md),
+[`convert_Normal_Multinom()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Normal_Multinom.md),
+[`update_Multinom()`](https://silvaneojunior.github.io/kDGLM/reference/update_Multinom.md)

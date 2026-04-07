@@ -66,25 +66,30 @@ For the details about the Dynamic Linear Models see West and Harrison
 
 ## See also
 
-auxiliary functions for creating outcomes [`Poisson`](Poisson.md),
-[`Multinom`](Multinom.md), [`Normal`](Normal.md), [`Gamma`](Gamma.md)
+auxiliary functions for creating outcomes
+[`Poisson`](https://silvaneojunior.github.io/kDGLM/reference/Poisson.md),
+[`Multinom`](https://silvaneojunior.github.io/kDGLM/reference/Multinom.md),
+[`Normal`](https://silvaneojunior.github.io/kDGLM/reference/Normal.md),
+[`Gamma`](https://silvaneojunior.github.io/kDGLM/reference/Gamma.md)
 
 auxiliary functions for creating structural blocks
-[`polynomial_block`](polynomial_block.md),
-[`regression_block`](regression_block.md),
-[`harmonic_block`](harmonic_block.md), [`TF_block`](tf_block.md)
+[`polynomial_block`](https://silvaneojunior.github.io/kDGLM/reference/polynomial_block.md),
+[`regression_block`](https://silvaneojunior.github.io/kDGLM/reference/regression_block.md),
+[`harmonic_block`](https://silvaneojunior.github.io/kDGLM/reference/harmonic_block.md),
+[`TF_block`](https://silvaneojunior.github.io/kDGLM/reference/tf_block.md)
 
 auxiliary functions for defining priors
-[`zero_sum_prior`](zero_sum_prior.md), [`CAR_prior`](CAR_prior.md)
+[`zero_sum_prior`](https://silvaneojunior.github.io/kDGLM/reference/zero_sum_prior.md),
+[`CAR_prior`](https://silvaneojunior.github.io/kDGLM/reference/CAR_prior.md)
 
 Other auxiliary functions for fitted_dlm objects:
-[`coef.fitted_dlm()`](coef.fitted_dlm.md),
-[`eval_dlm_norm_const()`](eval_dlm_norm_const.md),
-[`fit_model()`](fit_model.md),
-[`forecast.fitted_dlm()`](forecast.fitted_dlm.md),
-[`simulate.fitted_dlm()`](simulate.fitted_dlm.md),
-[`smoothing()`](smoothing.md),
-[`update.fitted_dlm()`](update.fitted_dlm.md)
+[`coef.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/coef.fitted_dlm.md),
+[`eval_dlm_norm_const()`](https://silvaneojunior.github.io/kDGLM/reference/eval_dlm_norm_const.md),
+[`fit_model()`](https://silvaneojunior.github.io/kDGLM/reference/fit_model.md),
+[`forecast.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/forecast.fitted_dlm.md),
+[`simulate.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/simulate.fitted_dlm.md),
+[`smoothing()`](https://silvaneojunior.github.io/kDGLM/reference/smoothing.md),
+[`update.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/update.fitted_dlm.md)
 
 ## Examples
 

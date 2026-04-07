@@ -2,47 +2,61 @@
 
 ## Table of contents
 
-1.  [Introduction:](intro.md) \>
-    - [Introduction](intro.html#introduction)
-    - [Notation](intro.html#notation)
-2.  [Creating the model structure:](structures.md) \>
+1.  [Introduction:](https://silvaneojunior.github.io/kDGLM/articles/intro.md)
+    \>
+    - [Introduction](https://silvaneojunior.github.io/kDGLM/articles/intro.html#introduction)
+    - [Notation](https://silvaneojunior.github.io/kDGLM/articles/intro.html#notation)
+2.  [Creating the model
+    structure:](https://silvaneojunior.github.io/kDGLM/articles/structures.md)
+    \>
     - [A structure for polynomial trend
-      models](structures.html#a-structure-for-polynomial-trend-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-polynomial-trend-models)
     - [A structure for dynamic regression
-      models](structures.html#a-structure-for-dynamic-regression-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-dynamic-regression-models)
     - [A structure for harmonic trend
-      models](structures.html#a-structure-for-harmonic-trend-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-harmonic-trend-models)
     - [A structure for autoregresive
-      models](structures.html#a-structure-for-autoregresive-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-autoregresive-models)
     - [A structure for overdispersed
-      models](structures.html#a-structure-for-overdispersed-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-overdispersed-models)
     - [Handling multiple structural
-      blocks](structures.html#handling-multiple-structural-blocks)
+      blocks](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-structural-blocks)
     - [Handling multiple linear
-      predictors](structures.html#handling-multiple-linear-predictors)
+      predictors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-linear-predictors)
     - [Handling unknown components in the planning matrix
-      $`F_t`$](structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
-    - [Special priors](structures.html#special-priors)
-3.  [Creating the model outcome:](outcomes.md) \>
-    - [Normal case](outcomes.html#normal-case)
-    - [Poisson case](outcomes.html#poisson-case)
-    - [Gamma case](outcomes.html#gamma-case)
-    - [Multinomial case](outcomes.html#multinomial-case)
+      $`F_t`$](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
+    - [Special
+      priors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#special-priors)
+3.  [Creating the model
+    outcome:](https://silvaneojunior.github.io/kDGLM/articles/outcomes.md)
+    \>
+    - [Normal
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#normal-case)
+    - [Poisson
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#poisson-case)
+    - [Gamma
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#gamma-case)
+    - [Multinomial
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#multinomial-case)
     - [Handling multiple
-      outcomes](outcomes.html#handling-multiple-outcomes)
-4.  [Fitting and analysing models:](fitting.md) \>
-    - [Filtering and smoothing](fitting.html#filtering-and-smoothing)
-    - [Extracting components](fitting.html#extracting-components)
-    - [Forecasting](fitting.html#forecasting)
+      outcomes](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#handling-multiple-outcomes)
+4.  [Fitting and analysing
+    models:](https://silvaneojunior.github.io/kDGLM/articles/fitting.md)
+    \>
+    - [Filtering and
+      smoothing](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#filtering-and-smoothing)
+    - [Extracting
+      components](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#extracting-components)
+    - [Forecasting](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#forecasting)
     - [Intervention and
-      monitoring](fitting.html#intervention-and-monitoring)
+      monitoring](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#intervention-and-monitoring)
     - [Tools for sensibility
-      analysis](fitting.html#tools-for-sensibility-analysis)
+      analysis](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#tools-for-sensibility-analysis)
     - [Sampling and hyper parameter
-      estimation](fitting.html#sampling-and-hyper-parameter-estimation)
+      estimation](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#sampling-and-hyper-parameter-estimation)
 5.  Advanced examples:\>
     - [Space-time model hospital admissions from
-      gastroenteritis](example1.md)
+      gastroenteritis](https://silvaneojunior.github.io/kDGLM/articles/example1.md)
 
 ## Fitting and analysing models
 
@@ -67,7 +81,7 @@ of smoothing is usually negligible.
 
 `p_monit` controls the sensitivity of the automated monitoring and we
 shall discuss its usage in subsection [Intervention and
-monitoring](fitting.html#intervention-and-monitoring).
+monitoring](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#intervention-and-monitoring).
 
 Bellow we present a code that fits a Poisson model:
 
@@ -79,8 +93,8 @@ outcome <- Poisson(lambda = "rate", data = c(AirPassengers))
 
 fitted.model <- fit_model(
   level, season, # Strucuture
-  AirPassengers = outcome
-) # outcome
+  AirPassengers = outcome # outcome
+)
 ```
 
 The first two lines create structural blocks representing a random walk
@@ -88,10 +102,12 @@ on $`\mu_t`$ and a seasonal component described by harmonics. The fourth
 line creates a Poisson outcome such that the rate parameter `lambda` is
 equal to $`\exp\{\text{rate}\}`$, where `rate` is the label given to the
 linear predictor when creating the structural blocks (see section
-[Creating the model structure](structures.md) for details about the
-linear predictor). The last line receives the model structure and the
-Poisson outcome and fits the model, obtaining the parameters for the
-filtered and smoothed distribution of all latent states.
+[Creating the model
+structure](https://silvaneojunior.github.io/kDGLM/articles/structures.md)
+for details about the linear predictor). The last line receives the
+model structure and the Poisson outcome and fits the model, obtaining
+the parameters for the filtered and smoothed distribution of all latent
+states.
 
 The user can see how the model fits the data using the `plot` method,
 the syntax of which is as follows:
@@ -166,7 +182,7 @@ use the `coef` or `plot` methods.
 
 For more details about the usage of the `summary` method, see the
 associated documentation
-([`help(summary.fitted_dlm)`](../reference/summary.fitted_dlm.md)).
+([`help(summary.fitted_dlm)`](https://silvaneojunior.github.io/kDGLM/reference/summary.fitted_dlm.md)).
 
 ## Extracting components
 
@@ -368,8 +384,8 @@ season <- harmonic_block(rate = 1, period = 12, order = 2, D = 0.975)
 outcome <- Poisson(lambda = "rate", data = c(AirPassengers)[1:100])
 fitted.model <- fit_model(
   level, season, # Strucuture
-  AirPassengers = outcome
-) # outcome
+  AirPassengers = outcome # outcome
+)
 updated.fit <- update(fitted.model,
   AirPassengers = list(data = c(AirPassengers)[101:144])
 )
@@ -531,7 +547,8 @@ fit.dlm_block(...,
 ```
 
 The argumetns `...`, `smooth` and `p.monit` were discussed in Subsection
-[Filtering and smoothing](fitting.html#filtering-and-smoothing).
+[Filtering and
+smoothing](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#filtering-and-smoothing).
 
 Beyond `dlm_blocks` and `dlm_distr` objects, the `...` argument also
 must containing, for each undefined parameter (if any exist), the values

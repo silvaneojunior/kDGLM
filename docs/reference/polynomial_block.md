@@ -22,6 +22,8 @@ pol(
   D = 0.95,
   a1 = 0,
   R1 = 9,
+  h = 0,
+  H = 0,
   monitoring = c(TRUE, rep(FALSE, order - 1)),
   name = "Var.Poly",
   X = 1
@@ -167,9 +169,10 @@ A dlm_block object containing the following values:
 For the ..., D, H, a1 and R1 arguments, the user may set one or more of
 its values as a string. By doing so, the user will leave the block
 partially undefined. The user must then pass the undefined parameter
-values as named arguments to the [`fit_model`](fit_model.md) function.
-Also, multiple values can be passed, allowing for a sensitivity analysis
-for the value of this parameter.
+values as named arguments to the
+[`fit_model`](https://silvaneojunior.github.io/kDGLM/reference/fit_model.md)
+function. Also, multiple values can be passed, allowing for a
+sensitivity analysis for the value of this parameter.
 
 For the details about the implementation see dos Santos et al. (2024) .
 
@@ -191,17 +194,20 @@ Models (Springer Series in Statistics)*. Springer-Verlag. ISBN
 
 ## See also
 
-[`fit_model`](fit_model.md)
+[`fit_model`](https://silvaneojunior.github.io/kDGLM/reference/fit_model.md)
 
 Other auxiliary functions for structural blocks:
-[`TF_block()`](tf_block.md), [`block_mult()`](block_mult.md),
-[`block_rename()`](block_rename.md),
-[`block_superpos()`](block_superpos.md), [`ffs_block()`](ffs_block.md),
-[`harmonic_block()`](harmonic_block.md),
-[`intervention()`](intervention.md), [`noise_block()`](noise_block.md),
-[`regression_block()`](regression_block.md),
-[`specify.dlm_block()`](specify.dlm_block.md),
-[`summary.dlm_block()`](summary.dlm_block.md)
+[`TF_block()`](https://silvaneojunior.github.io/kDGLM/reference/tf_block.md),
+[`block_mult()`](https://silvaneojunior.github.io/kDGLM/reference/block_mult.md),
+[`block_rename()`](https://silvaneojunior.github.io/kDGLM/reference/block_rename.md),
+[`block_superpos()`](https://silvaneojunior.github.io/kDGLM/reference/block_superpos.md),
+[`ffs_block()`](https://silvaneojunior.github.io/kDGLM/reference/ffs_block.md),
+[`harmonic_block()`](https://silvaneojunior.github.io/kDGLM/reference/harmonic_block.md),
+[`intervention()`](https://silvaneojunior.github.io/kDGLM/reference/intervention.md),
+[`noise_block()`](https://silvaneojunior.github.io/kDGLM/reference/noise_block.md),
+[`regression_block()`](https://silvaneojunior.github.io/kDGLM/reference/regression_block.md),
+[`specify.dlm_block()`](https://silvaneojunior.github.io/kDGLM/reference/specify.dlm_block.md),
+[`summary.dlm_block()`](https://silvaneojunior.github.io/kDGLM/reference/summary.dlm_block.md)
 
 ## Examples
 

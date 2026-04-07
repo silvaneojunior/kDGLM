@@ -1,6 +1,6 @@
 # print.fitted_dlm
 
-This method is wrapper for the summary.fitted_dlm methdd.
+This method is wrapper for the summary.fitted_dlm method.
 
 ## Usage
 
@@ -25,4 +25,4 @@ No return value, called to print a summary of the fitted kDGLM model.
 
 ## See also
 
-[`summary.fitted_dlm`](summary.fitted_dlm.md)
+[`summary.fitted_dlm`](https://silvaneojunior.github.io/kDGLM/reference/summary.fitted_dlm.md)

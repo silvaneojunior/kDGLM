@@ -55,6 +55,6 @@ A list containing the following values:
 ## See also
 
 Other auxiliary functions for a Gamma outcome with known shape:
-[`convert_Gamma_Normal()`](convert_Gamma_Normal.md),
-[`convert_Normal_Gamma()`](convert_Normal_Gamma.md),
-[`update_Gamma()`](update_Gamma.md)
+[`convert_Gamma_Normal()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Gamma_Normal.md),
+[`convert_Normal_Gamma()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Normal_Gamma.md),
+[`update_Gamma()`](https://silvaneojunior.github.io/kDGLM/reference/update_Gamma.md)

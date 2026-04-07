@@ -28,4 +28,4 @@ The combined replicated blocks as a dlm_block.
 
 ## See also
 
-[`block_mult`](block_mult.md)
+[`block_mult`](https://silvaneojunior.github.io/kDGLM/reference/block_mult.md)

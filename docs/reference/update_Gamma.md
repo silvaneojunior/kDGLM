@@ -44,6 +44,6 @@ The parameters of the posterior distribution.
 ## See also
 
 Other auxiliary functions for a Gamma outcome with known shape:
-[`convert_Gamma_Normal()`](convert_Gamma_Normal.md),
-[`convert_Normal_Gamma()`](convert_Normal_Gamma.md),
-[`gamma_pred()`](gamma_pred.md)
+[`convert_Gamma_Normal()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Gamma_Normal.md),
+[`convert_Normal_Gamma()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Normal_Gamma.md),
+[`gamma_pred()`](https://silvaneojunior.github.io/kDGLM/reference/gamma_pred.md)

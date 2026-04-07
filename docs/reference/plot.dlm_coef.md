@@ -54,12 +54,12 @@ credibility interval with the observed data.
 
 ## See also
 
-[`fit_model`](fit_model.md),[`coef`](https://rdrr.io/r/stats/coef.html)
+[`fit_model`](https://silvaneojunior.github.io/kDGLM/reference/fit_model.md),[`coef`](https://rdrr.io/r/stats/coef.html)
 
 Other auxiliary visualization functions for the fitted_dlm class:
-[`plot.fitted_dlm()`](plot.fitted_dlm.md),
-[`summary.fitted_dlm()`](summary.fitted_dlm.md),
-[`summary.searched_dlm()`](summary.searched_dlm.md)
+[`plot.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/plot.fitted_dlm.md),
+[`summary.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/summary.fitted_dlm.md),
+[`summary.searched_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/summary.searched_dlm.md)
 
 ## Examples
 

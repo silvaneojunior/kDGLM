@@ -34,6 +34,6 @@ The parameters of the conjugated distribution of the linear predictor.
 ## See also
 
 Other auxiliary functions for a Multinomial outcome:
-[`convert_Normal_Multinom()`](convert_Normal_Multinom.md),
-[`multnom_pred()`](multnom_pred.md),
-[`update_Multinom()`](update_Multinom.md)
+[`convert_Normal_Multinom()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Normal_Multinom.md),
+[`multnom_pred()`](https://silvaneojunior.github.io/kDGLM/reference/multnom_pred.md),
+[`update_Multinom()`](https://silvaneojunior.github.io/kDGLM/reference/update_Multinom.md)

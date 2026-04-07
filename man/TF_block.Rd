@@ -44,6 +44,8 @@ AR(
   monitoring = TRUE,
   a1.coef = c(1, rep(0, order - 1)),
   R1.coef = c(1, rep(0.25, order - 1)),
+  h.coef = 0,
+  H.coef = 0,
   monitoring.coef = rep(FALSE, order),
   name = "Var.AR",
   X = 1
@@ -121,6 +123,8 @@ TF(
 \item{R1.pulse}{Matrix, vector or scalar: The prior covariance matrix for the coefficients associated with the pulses at time 1. If R1.pulse is a matrix, its dimensions should be n x n, where n is the number of pulses. If R1.pulse is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1.pulse in the diagonal.}
 
 \item{monitoring.pulse}{Vector: A vector of flags indicating which pulse coefficients should be monitored (if automated monitoring is used). Its size should be n, where n is the number of pulses. The default is that no pulse coefficient should be monitored.}
+
+\item{H}{array, matrix, vector or scalar: The values for the covariance matrix for the noise factor of the states at each time. If H is an array, its dimensions should be n x n x t, where n is the order of the TF block and t is the length of the series. If H is a matrix, its dimensions should be n x n and its values will be used for each time. If H is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of H in the diagonal.}
 
 \item{X}{Vector or scalar: An argument providing the values for the pulse for a Transfer Function.}
 }

@@ -10,6 +10,6 @@ var_decomp(S)
 \item{S}{A covariance matrix}
 }
 \description{
-This function receives a covariance matrix S and creates a matrix Q, so that t(Q) %*% Q=S.
+This function receives a covariance matrix S and creates a matrix Q, so that t(Q) \%*\% Q = S.
 }
 \keyword{internal}

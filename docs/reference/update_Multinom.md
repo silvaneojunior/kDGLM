@@ -44,6 +44,6 @@ The parameters of the posterior distribution.
 ## See also
 
 Other auxiliary functions for a Multinomial outcome:
-[`convert_Multinom_Normal()`](convert_Multinom_Normal.md),
-[`convert_Normal_Multinom()`](convert_Normal_Multinom.md),
-[`multnom_pred()`](multnom_pred.md)
+[`convert_Multinom_Normal()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Multinom_Normal.md),
+[`convert_Normal_Multinom()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Normal_Multinom.md),
+[`multnom_pred()`](https://silvaneojunior.github.io/kDGLM/reference/multnom_pred.md)

@@ -44,9 +44,13 @@ AR(
   noise.disc = NULL,
   a1 = 0,
   R1 = 9,
+  h = 0,
+  H = 0,
   monitoring = TRUE,
   a1.coef = c(1, rep(0, order - 1)),
   R1.coef = c(1, rep(0.25, order - 1)),
+  h.coef = 0,
+  H.coef = 0,
   monitoring.coef = rep(FALSE, order),
   name = "Var.AR",
   X = 1
@@ -59,12 +63,18 @@ TF(
   noise.disc = NULL,
   a1 = 0,
   R1 = 9,
+  h = 0,
+  H = 0,
   monitoring = TRUE,
   a1.coef = c(1, rep(0, order - 1)),
   R1.coef = c(1, rep(0.25, order - 1)),
+  h.coef = 0,
+  H.coef = 0,
   monitoring.coef = rep(FALSE, order),
   a1.pulse = 0,
   R1.pulse = 4,
+  h.pulse = 0,
+  H.pulse = 0,
   monitoring.pulse = FALSE,
   name = "Var.AR",
   X = 1
@@ -266,6 +276,16 @@ TF(
   where n is the number of pulses. The default is that no pulse
   coefficient should be monitored.
 
+- H:
+
+  array, matrix, vector or scalar: The values for the covariance matrix
+  for the noise factor of the states at each time. If H is an array, its
+  dimensions should be n x n x t, where n is the order of the TF block
+  and t is the length of the series. If H is a matrix, its dimensions
+  should be n x n and its values will be used for each time. If H is a
+  vector or scalar, a discount factor matrix will be created as a
+  diagonal matrix with the values of H in the diagonal.
+
 - X:
 
   Vector or scalar: An argument providing the values for the pulse for a
@@ -335,7 +355,8 @@ For the ..., noise.var, noise.disc, D, H, a1, R1, a1, R1, a1.pulse,
 R1.pulse, D.pulse, h.pulse, H.pulse arguments, the user may set one or
 more of its values as a string. By doing so, the user will leave the
 block partially undefined. The user must then pass the undefined
-parameter values as named arguments to the [`fit_model`](fit_model.md)
+parameter values as named arguments to the
+[`fit_model`](https://silvaneojunior.github.io/kDGLM/reference/fit_model.md)
 function. Also, multiple values can be passed, allowing for a
 sensitivity analysis for the value of this parameter.
 
@@ -363,17 +384,20 @@ Models (Springer Series in Statistics)*. Springer-Verlag. ISBN
 
 ## See also
 
-[`fit_model`](fit_model.md)
+[`fit_model`](https://silvaneojunior.github.io/kDGLM/reference/fit_model.md)
 
 Other auxiliary functions for structural blocks:
-[`block_mult()`](block_mult.md), [`block_rename()`](block_rename.md),
-[`block_superpos()`](block_superpos.md), [`ffs_block()`](ffs_block.md),
-[`harmonic_block()`](harmonic_block.md),
-[`intervention()`](intervention.md), [`noise_block()`](noise_block.md),
-[`polynomial_block()`](polynomial_block.md),
-[`regression_block()`](regression_block.md),
-[`specify.dlm_block()`](specify.dlm_block.md),
-[`summary.dlm_block()`](summary.dlm_block.md)
+[`block_mult()`](https://silvaneojunior.github.io/kDGLM/reference/block_mult.md),
+[`block_rename()`](https://silvaneojunior.github.io/kDGLM/reference/block_rename.md),
+[`block_superpos()`](https://silvaneojunior.github.io/kDGLM/reference/block_superpos.md),
+[`ffs_block()`](https://silvaneojunior.github.io/kDGLM/reference/ffs_block.md),
+[`harmonic_block()`](https://silvaneojunior.github.io/kDGLM/reference/harmonic_block.md),
+[`intervention()`](https://silvaneojunior.github.io/kDGLM/reference/intervention.md),
+[`noise_block()`](https://silvaneojunior.github.io/kDGLM/reference/noise_block.md),
+[`polynomial_block()`](https://silvaneojunior.github.io/kDGLM/reference/polynomial_block.md),
+[`regression_block()`](https://silvaneojunior.github.io/kDGLM/reference/regression_block.md),
+[`specify.dlm_block()`](https://silvaneojunior.github.io/kDGLM/reference/specify.dlm_block.md),
+[`summary.dlm_block()`](https://silvaneojunior.github.io/kDGLM/reference/summary.dlm_block.md)
 
 ## Examples
 

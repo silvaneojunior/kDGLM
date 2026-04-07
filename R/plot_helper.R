@@ -55,7 +55,8 @@ plot.fitted_dlm <- function(x, outcomes = NULL, latent.states = NULL, linear.pre
   t_last <- x$t
   outcome.names <- sapply(names(x$outcomes), function(name) {
     paste0(name, x$outcomes[[name]]$sufix)
-  })
+  }, simplify = FALSE)
+  outcome.names <- do.call(c, args = outcome.names)
   theta.names <- x$var.labels
   lambda.names <- x$pred.names
 

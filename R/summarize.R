@@ -101,7 +101,7 @@ summary.fitted_dlm <- function(object, t = object$t, lag = -1, metric.lag = 1, m
   t.coef <- mean.coef / std.coef
   p.val <- 2 * (1 - pnorm(abs(mean.coef) / std.coef))
   status <- rep(" ", length(var.labels))
-  status[p.val <= 0.01] <- "."
+  status[p.val <= 0.1] <- "."
   status[p.val <= 0.05] <- "*"
   status[p.val <= 0.01] <- "**"
   status[p.val <= 0.001] <- "***"

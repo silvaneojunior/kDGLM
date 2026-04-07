@@ -29,6 +29,6 @@ The parameters of the Normal distribution of the linear predictor.
 ## See also
 
 Other auxiliary functions for a Multinomial outcome:
-[`convert_Multinom_Normal()`](convert_Multinom_Normal.md),
-[`multnom_pred()`](multnom_pred.md),
-[`update_Multinom()`](update_Multinom.md)
+[`convert_Multinom_Normal()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Multinom_Normal.md),
+[`multnom_pred()`](https://silvaneojunior.github.io/kDGLM/reference/multnom_pred.md),
+[`update_Multinom()`](https://silvaneojunior.github.io/kDGLM/reference/update_Multinom.md)

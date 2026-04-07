@@ -75,13 +75,14 @@ https://onlinelibrary.wiley.com/doi/pdf/10.1002/9781118445112.stat08048,
 ## See also
 
 Auxiliary functions for creating structural blocks
-[`polynomial_block`](polynomial_block.md),
-[`regression_block`](regression_block.md),
-[`harmonic_block`](harmonic_block.md), [`TF_block`](tf_block.md).
+[`polynomial_block`](https://silvaneojunior.github.io/kDGLM/reference/polynomial_block.md),
+[`regression_block`](https://silvaneojunior.github.io/kDGLM/reference/regression_block.md),
+[`harmonic_block`](https://silvaneojunior.github.io/kDGLM/reference/harmonic_block.md),
+[`TF_block`](https://silvaneojunior.github.io/kDGLM/reference/tf_block.md).
 
 Other auxiliary functions for defining priors.:
-[`joint_prior()`](joint_prior.md),
-[`zero_sum_prior()`](zero_sum_prior.md)
+[`joint_prior()`](https://silvaneojunior.github.io/kDGLM/reference/joint_prior.md),
+[`zero_sum_prior()`](https://silvaneojunior.github.io/kDGLM/reference/zero_sum_prior.md)
 
 ## Examples
 

@@ -53,5 +53,6 @@ A list containing the following values:
 ## See also
 
 Other auxiliary functions for a Normal outcome:
-[`convert_multi_NG_Normal()`](convert_multi_NG_Normal.md),
-[`normal_pred()`](normal_pred.md), [`update_Normal()`](update_Normal.md)
+[`convert_multi_NG_Normal()`](https://silvaneojunior.github.io/kDGLM/reference/convert_multi_NG_Normal.md),
+[`normal_pred()`](https://silvaneojunior.github.io/kDGLM/reference/normal_pred.md),
+[`update_Normal()`](https://silvaneojunior.github.io/kDGLM/reference/update_Normal.md)

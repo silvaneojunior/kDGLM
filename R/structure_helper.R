@@ -667,6 +667,7 @@ regression_block <- function(..., max.lag = 0, zero.fill = TRUE, name = "Var.Reg
 #' @param h Vector or scalar: A drift to be add in the states after the temporal evolution (can be interpreted as the mean of the random noise at each time). If a vector, it should have size t, and each value will be applied in their respective time. If a scalar, the passed value will be used for all observations.
 #' @param a1 Vector or scalar: The prior mean for the states associated with this block at time 1. If a1 is a vector, its dimension should be equal to the order of the AR block. If a1 is a scalar, its value will be used for all coefficients.
 #' @param R1 Matrix, vector or scalar: The prior covariance matrix for the states associated with this block at time 1. If R1 is a matrix, its dimensions should be n x n, where n is the order of the AR block. If R1 is a vector or scalar, a covariance matrix will be created as a diagonal matrix with the values of R1 in the diagonal.
+#' @param H array, matrix, vector or scalar: The values for the covariance matrix for the noise factor of the states at each time. If H is an array, its dimensions should be n x n x t, where n is the order of the TF block and t is the length of the series. If H is a matrix, its dimensions should be n x n and its values will be used for each time. If H is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of H in the diagonal.
 #' @param monitoring bool: A flag indicating if the latent state should be monitored (if automated monitoring is used). The default is TRUE.
 #' @param multi.states bool: If FALSE (default) a single latent state will be created affecting all linear predictor and being affected by all pulses. If TRUE, each linear predictor will have its own latent state, but all latent states will share the same AR coefficients and all pulse effects (each state will have its own pulse though).
 #' @param D.coef Array, Matrix, vector or scalar: The values for the discount factors associated with the AR coefficients at each time. If D.coef is an array, its dimensions should be n x n x t, where n is the order of the AR block and t is the length of the outcomes. If D.coef is a matrix, its dimensions should be n x n and the same discount matrix will be used in all observations. If D.coef is a vector, it should have size t and it is interpreted as the discount factor at each observed time (same discount for all variable). If D.coef is a scalar, the same discount will be used for all AR coefficients at all times.
@@ -1288,27 +1289,37 @@ specify.dlm_block <- function(x, ...) {
 #' @rdname harmonic_block
 #' @export
 har <- function(period, order = 1, D = 0.98, a1 = 0, R1 = 4, h = 0, H = 0, monitoring = rep(FALSE, order * 2), name = "Var.Sazo", X = 1) {
-  harmonic_block(mu = X, period = period, order = order, D = D, a1 = a1, R1 = R1, h = h, H = H, name = name, monitoring = monitoring)
+  create.multi.block(X, function(input) {
+    harmonic_block(mu = input, period = period, order = order, D = D, a1 = a1, R1 = R1, h = h, H = H, name = name, monitoring = monitoring)
+  })
 }
 #' @rdname ffs_block
 #' @export
 ffs <- function(period, D = 0.95, a1 = 0, R1 = 9, h = 0, H = 0, monitoring = FALSE, name = "Var.FFS", X = 1) {
-  harmonic_block(mu = X, period = period, D = D, a1 = a1, R1 = R1, h = h, H = H, name = name, monitoring = monitoring)
+  create.multi.block(X, function(input) {
+    harmonic_block(mu = input, period = period, D = D, a1 = a1, R1 = R1, h = h, H = H, name = name, monitoring = monitoring)
+  })
 }
 #' @rdname regression_block
 #' @export
 reg <- function(X, max.lag = 0, zero.fill = TRUE, D = 0.95, a1 = 0, R1 = 9, h = 0, H = 0, monitoring = rep(FALSE, max.lag + 1), name = "Var.Reg") {
-  regression_block(mu = X, max.lag = max.lag, zero.fill = zero.fill, D = D, a1 = a1, R1 = R1, h = h, H = H, name = name, monitoring = monitoring)
+  create.multi.block(X, function(input) {
+    regression_block(mu = input, max.lag = max.lag, zero.fill = zero.fill, D = D, a1 = a1, R1 = R1, h = h, H = H, name = name, monitoring = monitoring)
+  })
 }
 #' @rdname polynomial_block
 #' @export
 pol <- function(order = 1, D = 0.95, a1 = 0, R1 = 9, h = 0, H = 0, monitoring = c(TRUE, rep(FALSE, order - 1)), name = "Var.Poly", X = 1) {
-  polynomial_block(mu = X, order = order, D = D, a1 = a1, R1 = R1, h = h, H = H, name = name, monitoring = monitoring)
+  create.multi.block(X, function(input) {
+    polynomial_block(mu = input, order = order, D = D, a1 = a1, R1 = R1, h = h, H = H, name = name, monitoring = monitoring)
+  })
 }
 #' @rdname tf_block
 #' @export
-AR <- function(order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, h = 0, H = 0, monitoring = TRUE, a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)), monitoring.coef = rep(FALSE, order), name = "Var.AR", X = 1) {
-  TF_block(mu = X, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, h = h, H = H, a1.coef = a1.coef, R1.coef = R1.coef, h.coef = h.coef, H.coef = H.coef, name = name, monitoring = monitoring, monitoring.coef = monitoring.coef)
+AR <- function(order = 1, noise.var = NULL, noise.disc = NULL, a1 = 0, R1 = 9, h = 0, H = 0, monitoring = TRUE, a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)), h.coef = 0, H.coef = 0, monitoring.coef = rep(FALSE, order), name = "Var.AR", X = 1) {
+  create.multi.block(X, function(input) {
+    TF_block(mu = input, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, h = h, H = H, a1.coef = a1.coef, R1.coef = R1.coef, h.coef = h.coef, H.coef = H.coef, name = name, monitoring = monitoring, monitoring.coef = monitoring.coef)
+  })
 }
 #' @rdname tf_block
 #' @export
@@ -1316,13 +1327,43 @@ TF <- function(pulse, order = 1, noise.var = NULL, noise.disc = NULL,
                a1 = 0, R1 = 9, h = 0, H = 0, monitoring = TRUE,
                a1.coef = c(1, rep(0, order - 1)), R1.coef = c(1, rep(0.25, order - 1)), h.coef = 0, H.coef = 0, monitoring.coef = rep(FALSE, order),
                a1.pulse = 0, R1.pulse = 4, h.pulse = 0, H.pulse = 0, monitoring.pulse = FALSE, name = "Var.AR", X = 1) {
-  TF_block(
-    mu = X, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, h = h, H = H, monitoring = monitoring, a1.coef = a1.coef, R1.coef = R1.coef, h.coef = h.coef, H.coef = H.coef, monitoring.coef = monitoring.coef,
-    pulse = pulse, a1.pulse = a1.pulse, R1.pulse = R1.pulse, h.pulse = h.pulse, H.pulse = H.pulse, monitoring.pulse = monitoring.pulse, name = name,
-  )
+  create.multi.block(X, function(input) {
+    TF_block(
+      mu = input, order = order, noise.var = noise.var, noise.disc = noise.disc, a1 = a1, R1 = R1, h = h, H = H, monitoring = monitoring, a1.coef = a1.coef, R1.coef = R1.coef, h.coef = h.coef, H.coef = H.coef, monitoring.coef = monitoring.coef,
+      pulse = pulse, a1.pulse = a1.pulse, R1.pulse = R1.pulse, h.pulse = h.pulse, H.pulse = H.pulse, monitoring.pulse = monitoring.pulse, name = name,
+    )
+  })
 }
 #' @rdname noise_block
 #' @export
 noise <- function(name = "Noise", D = 0.99, R1 = 0.1, H = 0, X = 1) {
-  noise_block(mu = X, D = D, R1 = R1, H = H, name = name)
+  create.multi.block(X, function(input) {
+    noise_block(mu = input, D = D, R1 = R1, H = H, name = name)
+  })
+}
+
+
+#' create.multi.block
+#'
+#' Creates replicates of a block for each variable defined by X (either by formula or by a value)
+#'
+#' @importFrom rlang is_formula
+#'
+#' @keywords internal
+create.multi.block <- function(X, block.func) {
+  if (is_formula(X)) {
+    X <- model.matrix(X)
+    if (dim(X)[2] > 1) {
+      block <- block.func(X[, 1])
+      for (i in 2:dim(X)[2]) {
+        block <- block + block.func(X[, i])
+      }
+    } else {
+      block <- block.func(X)
+    }
+    block <- block.func(X[, 1])
+  } else {
+    block <- block.func(X)
+  }
+  return(block)
 }

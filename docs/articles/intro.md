@@ -2,47 +2,61 @@
 
 ## Table of contents
 
-1.  [Introduction:](intro.md) \>
-    - [Introduction](intro.html#introduction)
-    - [Notation](intro.html#notation)
-2.  [Creating the model structure:](structures.md) \>
+1.  [Introduction:](https://silvaneojunior.github.io/kDGLM/articles/intro.md)
+    \>
+    - [Introduction](https://silvaneojunior.github.io/kDGLM/articles/intro.html#introduction)
+    - [Notation](https://silvaneojunior.github.io/kDGLM/articles/intro.html#notation)
+2.  [Creating the model
+    structure:](https://silvaneojunior.github.io/kDGLM/articles/structures.md)
+    \>
     - [A structure for polynomial trend
-      models](structures.html#a-structure-for-polynomial-trend-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-polynomial-trend-models)
     - [A structure for dynamic regression
-      models](structures.html#a-structure-for-dynamic-regression-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-dynamic-regression-models)
     - [A structure for harmonic trend
-      models](structures.html#a-structure-for-harmonic-trend-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-harmonic-trend-models)
     - [A structure for autoregresive
-      models](structures.html#a-structure-for-autoregresive-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-autoregresive-models)
     - [A structure for overdispersed
-      models](structures.html#a-structure-for-overdispersed-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-overdispersed-models)
     - [Handling multiple structural
-      blocks](structures.html#handling-multiple-structural-blocks)
+      blocks](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-structural-blocks)
     - [Handling multiple linear
-      predictors](structures.html#handling-multiple-linear-predictors)
+      predictors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-linear-predictors)
     - [Handling unknown components in the planning matrix
-      $`F_t`$](structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
-    - [Special priors](structures.html#special-priors)
-3.  [Creating the model outcome:](outcomes.md) \>
-    - [Normal case](outcomes.html#normal-case)
-    - [Poisson case](outcomes.html#poisson-case)
-    - [Gamma case](outcomes.html#gamma-case)
-    - [Multinomial case](outcomes.html#multinomial-case)
+      $`F_t`$](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
+    - [Special
+      priors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#special-priors)
+3.  [Creating the model
+    outcome:](https://silvaneojunior.github.io/kDGLM/articles/outcomes.md)
+    \>
+    - [Normal
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#normal-case)
+    - [Poisson
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#poisson-case)
+    - [Gamma
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#gamma-case)
+    - [Multinomial
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#multinomial-case)
     - [Handling multiple
-      outcomes](outcomes.html#handling-multiple-outcomes)
-4.  [Fitting and analysing models:](fitting.md) \>
-    - [Filtering and smoothing](fitting.html#filtering-and-smoothing)
-    - [Extracting components](fitting.html#extracting-components)
-    - [Forecasting](fitting.html#forecasting)
+      outcomes](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#handling-multiple-outcomes)
+4.  [Fitting and analysing
+    models:](https://silvaneojunior.github.io/kDGLM/articles/fitting.md)
+    \>
+    - [Filtering and
+      smoothing](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#filtering-and-smoothing)
+    - [Extracting
+      components](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#extracting-components)
+    - [Forecasting](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#forecasting)
     - [Intervention and
-      monitoring](fitting.html#intervention-and-monitoring)
+      monitoring](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#intervention-and-monitoring)
     - [Tools for sensitivity
-      analysis](fitting.html#tools-for-sensitivity-analysis)
+      analysis](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#tools-for-sensitivity-analysis)
     - [Sampling and hyper parameter
-      estimation](fitting.html#sampling-and-hyper-parameter-estimation)
+      estimation](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#sampling-and-hyper-parameter-estimation)
 5.  Advanced examples:\>
     - [Space-time model hospital admissions from
-      gastroenteritis](example1.md)
+      gastroenteritis](https://silvaneojunior.github.io/kDGLM/articles/example1.md)
 
 ## Introduction
 
@@ -292,7 +306,7 @@ additional latent states to enhance outcome explanation.
 
 Lastly, this general model framework can be extended to encompass
 multiple outcome models. For further details, see [Handling multiple
-outcomes](outcomes.html#handling-multiple-outcomes).
+outcomes](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#handling-multiple-outcomes).
 
 Given the complexity of manually specifying all model components, the
 **kDGLM** package includes a range of auxiliary functions to simplify
@@ -302,8 +316,9 @@ this process. The subsequent section delves into these tools.
 
 The **kDGLM** package supports the joint modelling of multiple time
 series, each with it own structure and distribution (see [Handling
-multiple outcomes](outcomes.html#handling-multiple-outcomes)). This
-flexibility comes with a somewhat complex syntax, designed to allow
+multiple
+outcomes](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#handling-multiple-outcomes)).
+This flexibility comes with a somewhat complex syntax, designed to allow
 analysts to meticulously define every aspect of the model. While we have
 aimed to create an intuitive yet powerful syntax, we recognize that it
 may feel overwhelming for new users. To address this, the **kDGLM**
@@ -322,21 +337,12 @@ fitted.data <- kdglm(c(AirPassengers) ~ 1, family = Poisson)
 plot(fitted.data)
 ```
 
-    Warning:  [1m [22m`aes_string()` was deprecated in ggplot2 3.0.0.
-     [36mℹ [39m Please use tidy evaluation idioms with `aes()`.
-     [36mℹ [39m See also `vignette("ggplot2-in-packages")` for more information.
-     [36mℹ [39m The deprecated feature was likely used in the  [34mkDGLM [39m package.
-      Please report the issue at  [3m [34m<https://github.com/silvaneojunior/kDGLM/issues> [39m [23m.
-     [90mThis warning is displayed once per session. [39m
-     [90mCall `lifecycle::last_lifecycle_warnings()` to see where this warning was [39m
-     [90mgenerated. [39m
-
 Detail about the `plot` method can be found in [Filtering and
-smoothing](fitting.html#Filtering-and-smoothing), for now we focus only
-on the usage of the **kdglm** function. By the default, the intercept of
-a model is considered dynamic in a discount factor of $`0.95`$. One can
-specify the details of the intercept using the `pol` function inside the
-formula:
+smoothing](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#Filtering-and-smoothing),
+for now we focus only on the usage of the **kdglm** function. By the
+default, the intercept of a model is considered dynamic in a discount
+factor of $`0.95`$. One can specify the details of the intercept using
+the `pol` function inside the formula:
 
 ``` r
 fitted.data <- kdglm(c(AirPassengers) ~ pol(D = 0.99), family = Poisson)
@@ -351,7 +357,8 @@ fitted.data <- kdglm(c(AirPassengers) ~ pol(D = 0.99, order = 2) + har(period = 
 plot(fitted.data)
 ```
 
-For more details, see [Structures](structures.md).
+For more details, see
+[Structures](https://silvaneojunior.github.io/kDGLM/articles/structures.md).
 
 For dynamic regressions, the **kdglm** package adopts the same
 convetions as the **lm** and **glm** functions:
@@ -408,7 +415,8 @@ plot(fitted.data, plot.pkg = "base")
 
 ![](intro_files/figure-html/unnamed-chunk-7-1.png)
 
-For more details about each outcome see [Outcomes](outcomes.md).
+For more details about each outcome see
+[Outcomes](https://silvaneojunior.github.io/kDGLM/articles/outcomes.md).
 
 ## References
 

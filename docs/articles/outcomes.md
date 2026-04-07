@@ -2,47 +2,61 @@
 
 ## Table of contents
 
-1.  [Introduction:](intro.md) \>
-    - [Introduction](intro.html#introduction)
-    - [Notation](intro.html#notation)
-2.  [Creating the model structure:](structures.md) \>
+1.  [Introduction:](https://silvaneojunior.github.io/kDGLM/articles/intro.md)
+    \>
+    - [Introduction](https://silvaneojunior.github.io/kDGLM/articles/intro.html#introduction)
+    - [Notation](https://silvaneojunior.github.io/kDGLM/articles/intro.html#notation)
+2.  [Creating the model
+    structure:](https://silvaneojunior.github.io/kDGLM/articles/structures.md)
+    \>
     - [A structure for polynomial trend
-      models](structures.html#a-structure-for-polynomial-trend-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-polynomial-trend-models)
     - [A structure for dynamic regression
-      models](structures.html#a-structure-for-dynamic-regression-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-dynamic-regression-models)
     - [A structure for harmonic trend
-      models](structures.html#a-structure-for-harmonic-trend-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-harmonic-trend-models)
     - [A structure for autoregresive
-      models](structures.html#a-structure-for-autoregresive-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-autoregresive-models)
     - [A structure for overdispersed
-      models](structures.html#a-structure-for-overdispersed-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-overdispersed-models)
     - [Handling multiple structural
-      blocks](structures.html#handling-multiple-structural-blocks)
+      blocks](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-structural-blocks)
     - [Handling multiple linear
-      predictors](structures.html#handling-multiple-linear-predictors)
+      predictors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-linear-predictors)
     - [Handling unknown components in the planning matrix
-      $`F_t`$](structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
-    - [Special priors](structures.html#special-priors)
-3.  [Creating the model outcome:](outcomes.md) \>
-    - [Normal case](outcomes.html#normal-case)
-    - [Poisson case](outcomes.html#poisson-case)
-    - [Gamma case](outcomes.html#gamma-case)
-    - [Multinomial case](outcomes.html#multinomial-case)
+      $`F_t`$](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
+    - [Special
+      priors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#special-priors)
+3.  [Creating the model
+    outcome:](https://silvaneojunior.github.io/kDGLM/articles/outcomes.md)
+    \>
+    - [Normal
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#normal-case)
+    - [Poisson
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#poisson-case)
+    - [Gamma
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#gamma-case)
+    - [Multinomial
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#multinomial-case)
     - [Handling multiple
-      outcomes](outcomes.html#handling-multiple-outcomes)
-4.  [Fitting and analysing models:](fitting.md) \>
-    - [Filtering and smoothing](fitting.html#filtering-and-smoothing)
-    - [Extracting components](fitting.html#extracting-components)
-    - [Forecasting](fitting.html#forecasting)
+      outcomes](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#handling-multiple-outcomes)
+4.  [Fitting and analysing
+    models:](https://silvaneojunior.github.io/kDGLM/articles/fitting.md)
+    \>
+    - [Filtering and
+      smoothing](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#filtering-and-smoothing)
+    - [Extracting
+      components](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#extracting-components)
+    - [Forecasting](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#forecasting)
     - [Intervention and
-      monitoring](fitting.html#intervention-and-monitoring)
+      monitoring](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#intervention-and-monitoring)
     - [Tools for sensibility
-      analysis](fitting.html#tools-for-sensibility-analysis)
+      analysis](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#tools-for-sensibility-analysis)
     - [Sampling and hyper parameter
-      estimation](fitting.html#sampling-and-hyper-parameter-estimation)
+      estimation](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#sampling-and-hyper-parameter-estimation)
 5.  Advanced examples:\>
     - [Space-time model hospital admissions from
-      gastroenteritis](example1.md)
+      gastroenteritis](https://silvaneojunior.github.io/kDGLM/articles/example1.md)
 
 ## Creation of model outcomes
 

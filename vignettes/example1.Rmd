@@ -335,6 +335,8 @@ require(tidyverse)
 require(sf)
 require(spdep)
 
+geodata_path(tempdir())
+
 br.base <- gadm(country = "BRA", level = 1) |>
   st_as_sf() |>
   mutate(abbrev_state = str_split_i(HASC_1, ".", 2))

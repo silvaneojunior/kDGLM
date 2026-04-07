@@ -43,6 +43,6 @@ The parameters of the posterior distribution.
 ## See also
 
 Other auxiliary functions for a Normal outcome:
-[`convert_multi_NG_Normal()`](convert_multi_NG_Normal.md),
-[`multi_normal_gamma_pred()`](multi_normal_gamma_pred.md),
-[`normal_pred()`](normal_pred.md)
+[`convert_multi_NG_Normal()`](https://silvaneojunior.github.io/kDGLM/reference/convert_multi_NG_Normal.md),
+[`multi_normal_gamma_pred()`](https://silvaneojunior.github.io/kDGLM/reference/multi_normal_gamma_pred.md),
+[`normal_pred()`](https://silvaneojunior.github.io/kDGLM/reference/normal_pred.md)

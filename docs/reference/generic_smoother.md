@@ -91,6 +91,6 @@ Models (Springer Series in Statistics)*. Springer-Verlag. ISBN
 
 ## See also
 
-[`fit_model`](fit_model.md)
+[`fit_model`](https://silvaneojunior.github.io/kDGLM/reference/fit_model.md)
 
-[`analytic_filter`](analytic_filter.md)
+[`analytic_filter`](https://silvaneojunior.github.io/kDGLM/reference/analytic_filter.md)

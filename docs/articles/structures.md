@@ -2,47 +2,61 @@
 
 ## Table of contents
 
-1.  [Introduction:](intro.md) \>
-    - [Introduction](intro.html#introduction)
-    - [Notation](intro.html#notation)
-2.  [Creating the model structure:](structures.md) \>
+1.  [Introduction:](https://silvaneojunior.github.io/kDGLM/articles/intro.md)
+    \>
+    - [Introduction](https://silvaneojunior.github.io/kDGLM/articles/intro.html#introduction)
+    - [Notation](https://silvaneojunior.github.io/kDGLM/articles/intro.html#notation)
+2.  [Creating the model
+    structure:](https://silvaneojunior.github.io/kDGLM/articles/structures.md)
+    \>
     - [A structure for polynomial trend
-      models](structures.html#a-structure-for-polynomial-trend-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-polynomial-trend-models)
     - [A structure for dynamic regression
-      models](structures.html#a-structure-for-dynamic-regression-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-dynamic-regression-models)
     - [A structure for harmonic trend
-      models](structures.html#a-structure-for-harmonic-trend-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-harmonic-trend-models)
     - [A structure for autoregresive
-      models](structures.html#a-structure-for-autoregresive-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-autoregresive-models)
     - [A structure for overdispersed
-      models](structures.html#a-structure-for-overdispersed-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-overdispersed-models)
     - [Handling multiple structural
-      blocks](structures.html#handling-multiple-structural-blocks)
+      blocks](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-structural-blocks)
     - [Handling multiple linear
-      predictors](structures.html#handling-multiple-linear-predictors)
+      predictors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-linear-predictors)
     - [Handling unknown components in the planning matrix
-      $`F_t`$](structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
-    - [Special priors](structures.html#special-priors)
-3.  [Creating the model outcome:](outcomes.md) \>
-    - [Normal case](outcomes.html#normal-case)
-    - [Poisson case](outcomes.html#poisson-case)
-    - [Gamma case](outcomes.html#gamma-case)
-    - [Multinomial case](outcomes.html#multinomial-case)
+      $`F_t`$](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
+    - [Special
+      priors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#special-priors)
+3.  [Creating the model
+    outcome:](https://silvaneojunior.github.io/kDGLM/articles/outcomes.md)
+    \>
+    - [Normal
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#normal-case)
+    - [Poisson
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#poisson-case)
+    - [Gamma
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#gamma-case)
+    - [Multinomial
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#multinomial-case)
     - [Handling multiple
-      outcomes](outcomes.html#handling-multiple-outcomes)
-4.  [Fitting and analysing models:](fitting.md) \>
-    - [Filtering and smoothing](fitting.html#filtering-and-smoothing)
-    - [Extracting components](fitting.html#extracting-components)
-    - [Forecasting](fitting.html#forecasting)
+      outcomes](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#handling-multiple-outcomes)
+4.  [Fitting and analysing
+    models:](https://silvaneojunior.github.io/kDGLM/articles/fitting.md)
+    \>
+    - [Filtering and
+      smoothing](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#filtering-and-smoothing)
+    - [Extracting
+      components](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#extracting-components)
+    - [Forecasting](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#forecasting)
     - [Intervention and
-      monitoring](fitting.html#intervention-and-monitoring)
+      monitoring](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#intervention-and-monitoring)
     - [Tools for sensibility
-      analysis](fitting.html#tools-for-sensibility-analysis)
+      analysis](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#tools-for-sensibility-analysis)
     - [Sampling and hyper parameter
-      estimation](fitting.html#sampling-and-hyper-parameter-estimation)
+      estimation](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#sampling-and-hyper-parameter-estimation)
 5.  Advanced examples:\>
     - [Space-time model hospital admissions from
-      gastroenteritis](example1.md)
+      gastroenteritis](https://silvaneojunior.github.io/kDGLM/articles/example1.md)
 
 ## Creation of model structures
 
@@ -92,33 +106,34 @@ functions and operations to help the user manipulate created structural
 blocks.
 
 In Subsections [A structure for polynomial trend
-models](structures.html#a-structure-for-polynomial-trend-models), [A
-structure for dynamic regression
-models](structures.html#a-structure-for-dynamic-regression-models), [A
-structure for harmonic trend
-models](structures.html#a-structure-for-harmonic-trend-models), [A
-structure for autoregresive
-models](structures.html#a-structure-for-autoregresive-models) and [A
-structure for overdispersed
-models](structures.html#a-structure-for-overdispersed-models) introduce
-the several functions design to facilitate the creation of single
-structural blocks. In those sections we begin by examining simplistic
-models, characterized by a single structural block and one linear
-predictor, with a completely known $`F_t`$ matrix. Subsection [Handling
-multiple structural
-blocks](structures.html#handling-multiple-structural-blocks) builds upon
-these concepts, exploring models that incorporate multiple structural
-blocks while maintaining a singular linear predictor. The focus shifts
-in Subsection [Handling multiple linear
-predictors](structures.html#handling-multiple-linear-predictors), where
-we delve into the specification of multiple linear predictors within the
-same model. In Section [Handling unknown components in the planning
-matrix
-$`F_t`$](structures.html#handling-unknown-components-in-the-planning-matrix-f_t),
+models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-polynomial-trend-models),
+[A structure for dynamic regression
+models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-dynamic-regression-models),
+[A structure for harmonic trend
+models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-harmonic-trend-models),
+[A structure for autoregresive
+models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-autoregresive-models)
+and [A structure for overdispersed
+models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-overdispersed-models)
+introduce the several functions design to facilitate the creation of
+single structural blocks. In those sections we begin by examining
+simplistic models, characterized by a single structural block and one
+linear predictor, with a completely known $`F_t`$ matrix. Subsection
+[Handling multiple structural
+blocks](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-structural-blocks)
+builds upon these concepts, exploring models that incorporate multiple
+structural blocks while maintaining a singular linear predictor. The
+focus shifts in Subsection [Handling multiple linear
+predictors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-linear-predictors),
+where we delve into the specification of multiple linear predictors
+within the same model. In Section [Handling unknown components in the
+planning matrix
+$`F_t`$](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-unknown-components-in-the-planning-matrix-f_t),
 the discussion turns to scenarios where $`F_t`$ includes one or more
 unknown components. Finally, Subsection [Special
-priors](structures.html#special-priors) provides a brief examination of
-functions used to define specialized priors.
+priors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#special-priors)
+provides a brief examination of functions used to define specialized
+priors.
 
 ## A structure for polynomial trend models
 
@@ -135,13 +150,14 @@ pol(order = 1, D = 0.95, a1 = 0, R1 = 9, name = "Var.Poly")
 ```
 
 Recall the notation introduced in Section
-[Notation](intro.html#notation) and revisited at the beginning of this
-vignette. The `polynomial_block` function will create a structural block
-based on West and Harrison ([1997](#ref-WestHarr-DLM)), chapter 7. The
-`pol` function is a simplified version meant to be used inside formulas
-in the `kdglm` function and has the same syntax as the
-`polynomial_block` function. This involves the creation of a latent
-vector $`\vec{\theta}_t=(\theta_{1,t},...,\theta_{n,t})'`$, such that:
+[Notation](https://silvaneojunior.github.io/kDGLM/articles/intro.html#notation)
+and revisited at the beginning of this vignette. The `polynomial_block`
+function will create a structural block based on West and Harrison
+([1997](#ref-WestHarr-DLM)), chapter 7. The `pol` function is a
+simplified version meant to be used inside formulas in the `kdglm`
+function and has the same syntax as the `polynomial_block` function.
+This involves the creation of a latent vector
+$`\vec{\theta}_t=(\theta_{1,t},...,\theta_{n,t})'`$, such that:
 
 ``` math
 \begin{equation}
@@ -165,7 +181,8 @@ $`n`$ with the value passed.
 
 The optional `name` argument aids in identifying each structural block
 in post-fitting analysis, such as plotting or result examination (see
-Section [Fitting and analysing models](fitting.md)).
+Section [Fitting and analysing
+models](https://silvaneojunior.github.io/kDGLM/articles/fitting.md)).
 
 The `D`, `h`, `H`, `a1`, and `R1` arguments correspond to $`D_t`$,
 $`\vec{h}_t`$, $`H_t`$, $`\vec{a}_1`$ and $`R_1`$, respectively.
@@ -222,10 +239,10 @@ method to replace labels with concrete values or pass the value of the
 value of those hyper-parameter as named values to the `fit_model`
 function to systematically evaluate models with different values for
 these labels. Section [Tools for sensitivity
-analysis](fitting.html#tools-for-sensitivity-analysis) elaborates on the
-available tools for sensitivity analysis. Further information about both
-`specify` and `fit_model` is available in the reference manual or
-through the `help` function.
+analysis](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#tools-for-sensitivity-analysis)
+elaborates on the available tools for sensitivity analysis. Further
+information about both `specify` and `fit_model` is available in the
+reference manual or through the `help` function.
 
 Notice that the user does not need to specify the matrix $`G_t`$, since
 it is implicitly determined by the equation and the order of the
@@ -236,7 +253,7 @@ that is not yet implemented.
 
 The argument `...` is used to specify the matrix $`F_t`$ (see details in
 Subsection [Handling multiple linear
-predictors](structures.html#handling-multiple-linear-predictors)).
+predictors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-linear-predictors)).
 Specifically, the user must provide a list of named values which are
 arbitrary labels to each linear predictor $`\lambda_{i,t}`$ ,
 $`i=1,\ldots,k`$, and its associated value represents the effect of the
@@ -277,8 +294,8 @@ further illustrated in the examples further exhibited in this section.
 
 Lastly, the argument `monitoring` shall be explained later, in
 Subsection [Intervention and
-monitoring](fitting.html#intervention-and-monitoring), which discusses
-automated monitoring and interventions.
+monitoring](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#intervention-and-monitoring),
+which discusses automated monitoring and interventions.
 
 To exemplify the usage of this function, let us assume that we have a
 simple Normal model with known variance $`\sigma^2`$, in which $`\eta`$
@@ -339,7 +356,8 @@ co-variate. For instance, it could be assumed that a regressor has a
 seasonal effect on a linear predictor. This this could be accommodated
 by the insertion of the values of the regressor associated to a seasonal
 block. The use of seasonal blocks is illustrated in Section [Space-time
-model hospital admissions from gastroenteritis](example1.md).
+model hospital admissions from
+gastroenteritis](https://silvaneojunior.github.io/kDGLM/articles/example1.md).
 
 So far, we have only discussed the creation of static latent effects,
 but the inclusion of stochastic temporal dynamics is very
@@ -360,10 +378,12 @@ the `plot` method. We advise the reader to initially concentrate solely
 on the application of the `polynomial_block`. The functionalities and
 detailed usage of the other functions and methods, `Normal`,
 `fit_model`, and `plot`, will be explored in later sections,
-specifically in Sections [Creating the model outcome:](outcomes.md) and
-[Fitting and analysing models:](fitting.md). The inclusion of these
-functions in the current example is primarily to offer a comprehensive
-and operational code sample.
+specifically in Sections [Creating the model
+outcome:](https://silvaneojunior.github.io/kDGLM/articles/outcomes.md)
+and [Fitting and analysing
+models:](https://silvaneojunior.github.io/kDGLM/articles/fitting.md).
+The inclusion of these functions in the current example is primarily to
+offer a comprehensive and operational code sample.
 
 ![](structures_files/figure-html/unnamed-chunk-6-1.png)
 
@@ -373,8 +393,8 @@ readers are encouraged to consult West and Harrison
 ([1997](#ref-WestHarr-DLM)), Chapters 6, 7, and 9. Additionally, we
 strongly recommend that all users refer to the associated documentation
 for more detailed information. This can be accessed by using the
-[`help(polynomial_block)`](../reference/polynomial_block.md) function or
-consulting the reference manual.
+[`help(polynomial_block)`](https://silvaneojunior.github.io/kDGLM/reference/polynomial_block.md)
+function or consulting the reference manual.
 
 ## A structure for dynamic regression models
 
@@ -639,7 +659,8 @@ function based on the previous equations, but some explanation is still
 needed for the `AR.support` argument, plus the arguments related with
 the so called *pulse*. We do advise all users to consult the associated
 documentation for more details (see
-[`help(TF_block)`](../reference/tf_block.md) or the reference manual).
+[`help(TF_block)`](https://silvaneojunior.github.io/kDGLM/reference/tf_block.md)
+or the reference manual).
 
 The `AR.support` is a character string, either `"constrained"` or
 `"free"`. If `AR.support` is `"constrained"`, then the AR coefficients
@@ -1075,9 +1096,10 @@ polynomial_block(lambda1 = 1, lambda2 = 0, lambda3 = 0, order = 1) + # theta_1
 ```
 
 As discussed in the end of Subsection [Handling multiple structural
-blocks](structures.html#handling-multiple-structural-blocks), the effect
-of each block over the linear predictors will be added to each other. As
-such both codes will create $`3`$ linear predictors, such that:
+blocks](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-structural-blocks),
+the effect of each block over the linear predictors will be added to
+each other. As such both codes will create $`3`$ linear predictors, such
+that:
 
 ``` math
 
@@ -1251,8 +1273,8 @@ matrices, we use the Extended Kalman Filter ([Kalman,
 ## Special priors
 
 As discussed in Subsection [A structure for polynomial trend
-models](structures.html#a-structure-for-polynomial-trend-models), the
-default prior for the polynomial block—as well as for other
+models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-polynomial-trend-models),
+the default prior for the polynomial block—as well as for other
 blocks—assumes that the latent states are independent with a mean $`0`$
 and a variance of $`9`$. Users have the flexibility to modify this prior
 to any combination of mean vector and covariance matrix, although the

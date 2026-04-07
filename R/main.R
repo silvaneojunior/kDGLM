@@ -2224,7 +2224,7 @@ kdglm <- function(formula, ..., family, data = NULL, offset = NULL, p.monit = NA
 #'
 #' @importFrom stats update.formula model.matrix
 #'
-#' @export
+#' @keywords internal
 formula.to.structure <- function(formula, data, label = "mu") {
   terms <- attr(terms(formula), "term.labels")
   intercept.add <- attr(terms(formula), "intercept") & !any(grepl("pol(", terms, fixed = TRUE))
@@ -2235,8 +2235,10 @@ formula.to.structure <- function(formula, data, label = "mu") {
 
   if (length(terms) >= 1) {
     for (i in 1:length(terms)) {
-      var <- eval(parse(text = terms[i]), envir = data)
-      if (inherits(var, "dlm_block")) {
+      dlm_block_flag <- any(sapply(c("har(", "ffs(", "reg(", "pol(", "AR(", "TF(", "noise("), function(x) {
+        grepl(x, terms[i], fixed = TRUE)
+      }))
+      if (dlm_block_flag) {
         args <- append(args, list(eval(parse(text = terms[i]), envir = data)))
       } else {
         terms.mat <- append(terms.mat, terms[i])

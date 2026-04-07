@@ -15,7 +15,7 @@ This block also supports Transfer Functions, being necessary to specify the asso
 
     <a class="navbar-brand me-2" href="../index.html">kDGLM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.12</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,9 +91,13 @@ This block also supports Transfer Functions, being necessary to specify the asso
 <span>  noise.disc <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  a1 <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  R1 <span class="op">=</span> <span class="fl">9</span>,</span>
+<span>  h <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  H <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  monitoring <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  a1.coef <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">order</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  R1.coef <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="va">order</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  h.coef <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  H.coef <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  monitoring.coef <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="va">order</span><span class="op">)</span>,</span>
 <span>  name <span class="op">=</span> <span class="st">"Var.AR"</span>,</span>
 <span>  X <span class="op">=</span> <span class="fl">1</span></span>
@@ -106,12 +110,18 @@ This block also supports Transfer Functions, being necessary to specify the asso
 <span>  noise.disc <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  a1 <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  R1 <span class="op">=</span> <span class="fl">9</span>,</span>
+<span>  h <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  H <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  monitoring <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  a1.coef <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="va">order</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  R1.coef <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="va">order</span> <span class="op">-</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  h.coef <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  H.coef <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  monitoring.coef <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">FALSE</span>, <span class="va">order</span><span class="op">)</span>,</span>
 <span>  a1.pulse <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  R1.pulse <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  h.pulse <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  H.pulse <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  monitoring.pulse <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  name <span class="op">=</span> <span class="st">"Var.AR"</span>,</span>
 <span>  X <span class="op">=</span> <span class="fl">1</span></span>
@@ -216,6 +226,10 @@ This block also supports Transfer Functions, being necessary to specify the asso
 
 <dt id="arg-monitoring-pulse">monitoring.pulse<a class="anchor" aria-label="anchor" href="#arg-monitoring-pulse"></a></dt>
 <dd><p>Vector: A vector of flags indicating which pulse coefficients should be monitored (if automated monitoring is used). Its size should be n, where n is the number of pulses. The default is that no pulse coefficient should be monitored.</p></dd>
+
+
+<dt id="arg-h">H<a class="anchor" aria-label="anchor" href="#arg-h"></a></dt>
+<dd><p>array, matrix, vector or scalar: The values for the covariance matrix for the noise factor of the states at each time. If H is an array, its dimensions should be n x n x t, where n is the order of the TF block and t is the length of the series. If H is a matrix, its dimensions should be n x n and its values will be used for each time. If H is a vector or scalar, a discount factor matrix will be created as a diagonal matrix with the values of H in the diagonal.</p></dd>
 
 
 <dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>

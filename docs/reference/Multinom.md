@@ -54,11 +54,13 @@ Generialized Linear Models.”
 
 ## See also
 
-[`fit_model`](fit_model.md)
+[`fit_model`](https://silvaneojunior.github.io/kDGLM/reference/fit_model.md)
 
 Other auxiliary functions for a creating outcomes:
-[`Gamma()`](Gamma.md), [`Normal()`](Normal.md),
-[`Poisson()`](Poisson.md), [`summary.dlm_distr()`](summary.dlm_distr.md)
+[`Gamma()`](https://silvaneojunior.github.io/kDGLM/reference/Gamma.md),
+[`Normal()`](https://silvaneojunior.github.io/kDGLM/reference/Normal.md),
+[`Poisson()`](https://silvaneojunior.github.io/kDGLM/reference/Poisson.md),
+[`summary.dlm_distr()`](https://silvaneojunior.github.io/kDGLM/reference/summary.dlm_distr.md)
 
 ## Examples
 
@@ -82,8 +84,8 @@ summary(fitted.data)
 #> Static coeficients (smoothed):
 #>                  Estimate Std. Error   t value Pr(>|t|)
 #> Var.Reg.1         0.39743    0.25059  1.58601    0.113   
-#> Var.Reg.2         0.47441    0.26448  1.79376    0.073   
-#> Var.Reg.3         0.48811    0.28497  1.71284    0.087   
+#> Var.Reg.2         0.47441    0.26448  1.79376    0.073 . 
+#> Var.Reg.3         0.48811    0.28497  1.71284    0.087 . 
 #> Var.Reg.4        -0.26900    0.23557 -1.14192    0.253   
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1

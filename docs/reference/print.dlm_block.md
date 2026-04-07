@@ -25,4 +25,4 @@ No return value, called to print a summary of a kDGLM structure.
 
 ## See also
 
-[`summary.dlm_block`](summary.dlm_block.md)
+[`summary.dlm_block`](https://silvaneojunior.github.io/kDGLM/reference/summary.dlm_block.md)

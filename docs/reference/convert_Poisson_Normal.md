@@ -33,6 +33,6 @@ The parameters of the conjugated distribution of the linear predictor.
 ## See also
 
 Other auxiliary functions for a Poisson outcome:
-[`convert_Normal_Poisson()`](convert_Normal_Poisson.md),
-[`poisson_pred()`](poisson_pred.md),
-[`update_Poisson()`](update_Poisson.md)
+[`convert_Normal_Poisson()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Normal_Poisson.md),
+[`poisson_pred()`](https://silvaneojunior.github.io/kDGLM/reference/poisson_pred.md),
+[`update_Poisson()`](https://silvaneojunior.github.io/kDGLM/reference/update_Poisson.md)

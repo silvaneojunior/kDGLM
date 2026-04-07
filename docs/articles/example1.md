@@ -2,47 +2,61 @@
 
 ## Table of contents
 
-1.  [Introduction:](intro.md) \>
-    - [Introduction](intro.html#introduction)
-    - [Notation](intro.html#notation)
-2.  [Creating the model structure:](structures.md) \>
+1.  [Introduction:](https://silvaneojunior.github.io/kDGLM/articles/intro.md)
+    \>
+    - [Introduction](https://silvaneojunior.github.io/kDGLM/articles/intro.html#introduction)
+    - [Notation](https://silvaneojunior.github.io/kDGLM/articles/intro.html#notation)
+2.  [Creating the model
+    structure:](https://silvaneojunior.github.io/kDGLM/articles/structures.md)
+    \>
     - [A structure for polynomial trend
-      models](structures.html#a-structure-for-polynomial-trend-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-polynomial-trend-models)
     - [A structure for dynamic regression
-      models](structures.html#a-structure-for-dynamic-regression-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-dynamic-regression-models)
     - [A structure for harmonic trend
-      models](structures.html#a-structure-for-harmonic-trend-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-harmonic-trend-models)
     - [A structure for autoregresive
-      models](structures.html#a-structure-for-autoregresive-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-autoregresive-models)
     - [A structure for overdispersed
-      models](structures.html#a-structure-for-overdispersed-models)
+      models](https://silvaneojunior.github.io/kDGLM/articles/structures.html#a-structure-for-overdispersed-models)
     - [Handling multiple structural
-      blocks](structures.html#handling-multiple-structural-blocks)
+      blocks](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-structural-blocks)
     - [Handling multiple linear
-      predictors](structures.html#handling-multiple-linear-predictors)
+      predictors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-multiple-linear-predictors)
     - [Handling unknown components in the planning matrix
-      $`F_t`$](structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
-    - [Special priors](structures.html#special-priors)
-3.  [Creating the model outcome:](outcomes.md) \>
-    - [Normal case](outcomes.html#normal-case)
-    - [Poisson case](outcomes.html#poisson-case)
-    - [Gamma case](outcomes.html#gamma-case)
-    - [Multinomial case](outcomes.html#multinomial-case)
+      $`F_t`$](https://silvaneojunior.github.io/kDGLM/articles/structures.html#handling-unknown-components-in-the-planning-matrix-f_t)
+    - [Special
+      priors](https://silvaneojunior.github.io/kDGLM/articles/structures.html#special-priors)
+3.  [Creating the model
+    outcome:](https://silvaneojunior.github.io/kDGLM/articles/outcomes.md)
+    \>
+    - [Normal
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#normal-case)
+    - [Poisson
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#poisson-case)
+    - [Gamma
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#gamma-case)
+    - [Multinomial
+      case](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#multinomial-case)
     - [Handling multiple
-      outcomes](outcomes.html#handling-multiple-outcomes)
-4.  [Fitting and analysing models:](fitting.md) \>
-    - [Filtering and smoothing](fitting.html#filtering-and-smoothing)
-    - [Extracting components](fitting.html#extracting-components)
-    - [Forecasting](fitting.html#forecasting)
+      outcomes](https://silvaneojunior.github.io/kDGLM/articles/outcomes.html#handling-multiple-outcomes)
+4.  [Fitting and analysing
+    models:](https://silvaneojunior.github.io/kDGLM/articles/fitting.md)
+    \>
+    - [Filtering and
+      smoothing](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#filtering-and-smoothing)
+    - [Extracting
+      components](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#extracting-components)
+    - [Forecasting](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#forecasting)
     - [Intervention and
-      monitoring](fitting.html#intervention-and-monitoring)
+      monitoring](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#intervention-and-monitoring)
     - [Tools for sensibility
-      analysis](fitting.html#tools-for-sensibility-analysis)
+      analysis](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#tools-for-sensibility-analysis)
     - [Sampling and hyper parameter
-      estimation](fitting.html#sampling-and-hyper-parameter-estimation)
+      estimation](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#sampling-and-hyper-parameter-estimation)
 5.  Advanced examples:\>
     - [Space-time model hospital admissions from
-      gastroenteritis](example1.md)
+      gastroenteritis](https://silvaneojunior.github.io/kDGLM/articles/example1.md)
 
 ## Applied example: Space-time model for hospital admissions from gastroenteritis
 
@@ -61,7 +75,7 @@ includes:
   date (to be used as a offset).
 
 Supplementary information can be found in the documentation (see
-[`help(gastroBR)`](../reference/gastroBR.md))).
+[`help(gastroBR)`](https://silvaneojunior.github.io/kDGLM/reference/gastroBR.md))).
 
 ## Initial model: Total hospital admissions
 
@@ -284,8 +298,8 @@ looking at the data, i.e., we do not known of any particular event that
 we expect to impact our outcome.
 
 Following what was presented in the Subsection [Intervention and
-monitoring](fitting.html#intervention-and-monitoring), we can use the
-following code to fit our model:
+monitoring](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#intervention-and-monitoring),
+we can use the following code to fit our model:
 
 ``` r
 structure <- polynomial_block(
@@ -450,6 +464,8 @@ require(tidyverse)
 require(sf)
 require(spdep)
 
+geodata_path(tempdir())
+
 br.base <- gadm(country = "BRA", level = 1) |>
   st_as_sf() |>
   mutate(abbrev_state = str_split_i(HASC_1, ".", 2))
@@ -504,13 +520,13 @@ estimation of $`\tau`$, the parameter associated with the CAR prior. A
 study is being developed to address this limitation. For now, we opt to
 conduct a sensitivity analysis to determine an optimal value for $`tau`$
 using the tools presented in Subsection [Tools for sensitivity
-analysis](fitting.html#tools-for-sensitivity-analysis). The optimal
-value found was $`\tau=0.005`$.
+analysis](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#tools-for-sensitivity-analysis).
+The optimal value found was $`\tau=0.005`$.
 
 Alternatively, if real-time inference is not a priority for the analyst,
 a complete posterior for $`\tau`$ can be obtained by adapting the code
 from Subsection [Sampling and hyper parameter
-estimation](fitting.html#sampling-and-hyper-parameter-estimation),
+estimation](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#sampling-and-hyper-parameter-estimation),
 without incurring a high computational cost.
 
 Notice that we are assuming a very similar model to that which was used
@@ -565,15 +581,6 @@ fitted.model <- model.search
 ``` r
 plot(fitted.model)
 ```
-
-    Warning:  [1m [22m`aes_string()` was deprecated in ggplot2 3.0.0.
-     [36mℹ [39m Please use tidy evaluation idioms with `aes()`.
-     [36mℹ [39m See also `vignette("ggplot2-in-packages")` for more information.
-     [36mℹ [39m The deprecated feature was likely used in the  [34mkDGLM [39m package.
-      Please report the issue at  [3m [34m<https://github.com/silvaneojunior/kDGLM/issues> [39m [23m.
-     [90mThis warning is displayed once per session. [39m
-     [90mCall `lifecycle::last_lifecycle_warnings()` to see where this warning was [39m
-     [90mgenerated. [39m
 
 ``` r
 (plot(fitted.model, outcomes = c("MG", "SP", "ES", "RJ", "CE", "BA", "RS", "SC", "AM", "AC"), lag = 1, plot.pkg = "ggplot2") +

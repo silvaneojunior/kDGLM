@@ -26,4 +26,4 @@ The combined blocks as a dlm_block.
 
 ## See also
 
-[`block_superpos`](block_superpos.md)
+[`block_superpos`](https://silvaneojunior.github.io/kDGLM/reference/block_superpos.md)

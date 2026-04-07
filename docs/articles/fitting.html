@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">kDGLM</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.12</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.2.14</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -225,8 +225,8 @@ monitoring</a>.</p>
 <span></span>
 <span><span class="va">fitted.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span></span>
 <span>  <span class="va">level</span>, <span class="va">season</span>, <span class="co"># Strucuture</span></span>
-<span>  AirPassengers <span class="op">=</span> <span class="va">outcome</span></span>
-<span><span class="op">)</span> <span class="co"># outcome</span></span></code></pre></div>
+<span>  AirPassengers <span class="op">=</span> <span class="va">outcome</span> <span class="co"># outcome</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>The first two lines create structural blocks representing a random
 walk on
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\mu_t</annotation></semantics></math>
@@ -485,8 +485,8 @@ example:</p>
 <span><span class="va">outcome</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/Poisson.html">Poisson</a></span><span class="op">(</span>lambda <span class="op">=</span> <span class="st">"rate"</span>, data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="va">fitted.model</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/fit_model.html">fit_model</a></span><span class="op">(</span></span>
 <span>  <span class="va">level</span>, <span class="va">season</span>, <span class="co"># Strucuture</span></span>
-<span>  AirPassengers <span class="op">=</span> <span class="va">outcome</span></span>
-<span><span class="op">)</span> <span class="co"># outcome</span></span>
+<span>  AirPassengers <span class="op">=</span> <span class="va">outcome</span> <span class="co"># outcome</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">updated.fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rspatial.github.io/terra/reference/update.html" class="external-link">update</a></span><span class="op">(</span><span class="va">fitted.model</span>,</span>
 <span>  AirPassengers <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">AirPassengers</span><span class="op">)</span><span class="op">[</span><span class="fl">101</span><span class="op">:</span><span class="fl">144</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>

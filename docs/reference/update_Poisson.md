@@ -42,6 +42,6 @@ The parameters of the posterior distribution.
 ## See also
 
 Other auxiliary functions for a Poisson outcome:
-[`convert_Normal_Poisson()`](convert_Normal_Poisson.md),
-[`convert_Poisson_Normal()`](convert_Poisson_Normal.md),
-[`poisson_pred()`](poisson_pred.md)
+[`convert_Normal_Poisson()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Normal_Poisson.md),
+[`convert_Poisson_Normal()`](https://silvaneojunior.github.io/kDGLM/reference/convert_Poisson_Normal.md),
+[`poisson_pred()`](https://silvaneojunior.github.io/kDGLM/reference/poisson_pred.md)

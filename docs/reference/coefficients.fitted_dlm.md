@@ -50,4 +50,4 @@ A list containing:
 
 ## See also
 
-[`coef.fitted_dlm`](coef.fitted_dlm.md)
+[`coef.fitted_dlm`](https://silvaneojunior.github.io/kDGLM/reference/coef.fitted_dlm.md)

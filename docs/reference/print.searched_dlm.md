@@ -25,4 +25,4 @@ No return value, called to print a summary of a searched_dlm object.
 
 ## See also
 
-[`summary.searched_dlm`](summary.searched_dlm.md)
+[`summary.searched_dlm`](https://silvaneojunior.github.io/kDGLM/reference/summary.searched_dlm.md)

@@ -22,5 +22,7 @@ No return value, called to print a summary of a kDGLM outcome.
 ## See also
 
 Other auxiliary functions for a creating outcomes:
-[`Gamma()`](Gamma.md), [`Multinom()`](Multinom.md),
-[`Normal()`](Normal.md), [`Poisson()`](Poisson.md)
+[`Gamma()`](https://silvaneojunior.github.io/kDGLM/reference/Gamma.md),
+[`Multinom()`](https://silvaneojunior.github.io/kDGLM/reference/Multinom.md),
+[`Normal()`](https://silvaneojunior.github.io/kDGLM/reference/Normal.md),
+[`Poisson()`](https://silvaneojunior.github.io/kDGLM/reference/Poisson.md)

@@ -26,14 +26,17 @@ names.
 ## See also
 
 Other auxiliary functions for structural blocks:
-[`TF_block()`](tf_block.md), [`block_mult()`](block_mult.md),
-[`block_superpos()`](block_superpos.md), [`ffs_block()`](ffs_block.md),
-[`harmonic_block()`](harmonic_block.md),
-[`intervention()`](intervention.md), [`noise_block()`](noise_block.md),
-[`polynomial_block()`](polynomial_block.md),
-[`regression_block()`](regression_block.md),
-[`specify.dlm_block()`](specify.dlm_block.md),
-[`summary.dlm_block()`](summary.dlm_block.md)
+[`TF_block()`](https://silvaneojunior.github.io/kDGLM/reference/tf_block.md),
+[`block_mult()`](https://silvaneojunior.github.io/kDGLM/reference/block_mult.md),
+[`block_superpos()`](https://silvaneojunior.github.io/kDGLM/reference/block_superpos.md),
+[`ffs_block()`](https://silvaneojunior.github.io/kDGLM/reference/ffs_block.md),
+[`harmonic_block()`](https://silvaneojunior.github.io/kDGLM/reference/harmonic_block.md),
+[`intervention()`](https://silvaneojunior.github.io/kDGLM/reference/intervention.md),
+[`noise_block()`](https://silvaneojunior.github.io/kDGLM/reference/noise_block.md),
+[`polynomial_block()`](https://silvaneojunior.github.io/kDGLM/reference/polynomial_block.md),
+[`regression_block()`](https://silvaneojunior.github.io/kDGLM/reference/regression_block.md),
+[`specify.dlm_block()`](https://silvaneojunior.github.io/kDGLM/reference/specify.dlm_block.md),
+[`summary.dlm_block()`](https://silvaneojunior.github.io/kDGLM/reference/summary.dlm_block.md)
 
 ## Examples
 

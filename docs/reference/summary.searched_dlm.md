@@ -22,6 +22,6 @@ No return value, called to print a summary of a searched_dlm object.
 ## See also
 
 Other auxiliary visualization functions for the fitted_dlm class:
-[`plot.dlm_coef()`](plot.dlm_coef.md),
-[`plot.fitted_dlm()`](plot.fitted_dlm.md),
-[`summary.fitted_dlm()`](summary.fitted_dlm.md)
+[`plot.dlm_coef()`](https://silvaneojunior.github.io/kDGLM/reference/plot.dlm_coef.md),
+[`plot.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/plot.fitted_dlm.md),
+[`summary.fitted_dlm()`](https://silvaneojunior.github.io/kDGLM/reference/summary.fitted_dlm.md)
