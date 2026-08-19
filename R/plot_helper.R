@@ -303,9 +303,9 @@ plot.fitted_dlm <- function(x, outcomes = NULL, latent.states = NULL, linear.pre
         warning("The plotly package is required for plotly plots.")
       } else {
         plt <- plotly::ggplotly(plt + ggplot2::ylab(plotly::TeX("Y_t"))) |> plotly::config(mathjax = "cdn")
-        count <- sum(label.type == "out") + n.series
+        count <- sum(label.type == "outcome") + n.series
         for (i in (1:n.series) - 1) {
-          if (label.type[i + 1] == "out") {
+          if (label.type[i + 1] == "outcome") {
             plt$x$data[[i + 1]]$legendgroup <-
               plt$x$data[[i + 1 + n.series]]$legendgroup <-
               plt$x$data[[i + 1]]$name <-
@@ -315,6 +315,7 @@ plot.fitted_dlm <- function(x, outcomes = NULL, latent.states = NULL, linear.pre
 
             plt$x$data[[i + 1 + count]]$legendgroup <-
               plt$x$data[[i + 1 + count]]$name <- paste0(sort(series.names)[i + 1], ": observations")
+            plt$x$data[[i + 1 + count]]$showlegend <- TRUE
           } else {
             plt$x$data[[i + 1]]$showlegend <- FALSE
             plt$x$data[[i + 1]]$legendgroup <-

@@ -77,10 +77,6 @@ MathJax.Hub.Config({
   <li>[Sampling and hyper parameter estimation](fitting.html#sampling-and-hyper-parameter-estimation)
   </ul></details>
   </li>
-<li><details><summary>Advanced examples:> </summary><ul>
-  <li>[Space-time model hospital admissions from gastroenteritis](example1.html)
-  </details>
-</ul></li>
 </ol>
 
 # Creation of model structures
@@ -220,7 +216,7 @@ By setting `eta=X`, we specify that there is a linear predictor called *eta*, an
 
 It should be noted that `kDGLM` has a specific structural block designed for regressions, `regression_block`, but we also allow any structural block to be used for a regression, by just setting the value assigned to the predictor equal to the regressor vector $X_t, t=1, \ldots, X_T$. 
 
-The user can specify complex temporal dynamics for the effects of any co-variate. For instance, it could be assumed that a regressor has a seasonal effect on a linear predictor. This this could be accommodated by the insertion of the values of the regressor associated to a seasonal block. The use of seasonal blocks is illustrated in Section [Space-time model hospital admissions from gastroenteritis](example1.html).
+The user can specify complex temporal dynamics for the effects of any co-variate. For instance, it could be assumed that a regressor has a seasonal effect on a linear predictor. This this could be accommodated by the insertion of the values of the regressor associated to a seasonal block. The use of seasonal blocks is illustrated in Section [Space-time model hospital admissions from gastroenteritis](https://silvaneojunior.github.io/kDGLM/articles/example1.html).
 
 So far, we have only discussed the creation of static latent effects, but the inclusion of stochastic temporal dynamics is very straightforward. One must simply specify the values of `H` to be greater than $0$ and/or the values of `D` to be lesser than $1$:
 

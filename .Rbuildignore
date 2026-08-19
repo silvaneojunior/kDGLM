@@ -2,6 +2,7 @@
 ^\.Rproj\.user$
 ^LICENSE\.md$
 ^extra$
+^vignettes/example.*$
 ^docs$
 ^_pkgdown.yml$
 ^CITATION.cff$

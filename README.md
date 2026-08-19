@@ -73,4 +73,5 @@ We welcome contributions! If you're interested in improving kDGLM, please consid
 - Raíra Marotta, who gently provided the base code for the initial versions.
 
 # Contact
+
 For support or to provide feedback, please contact [Silvaneo dos Santos Jr.](mailto:silvaneo@dme.ufrj.br) or open an issue on the GitHub repository.

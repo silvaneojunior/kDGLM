@@ -5,9 +5,9 @@ to see their documentation.
 
 - generics:
 
-  [`forecast`](https://generics.r-lib.org/reference/forecast.html),
-  [`specify`](https://generics.r-lib.org/reference/specify.html)
+  [`forecast()`](https://generics.r-lib.org/reference/forecast.html),
+  [`specify()`](https://generics.r-lib.org/reference/specify.html)
 
 - stats:
 
-  [`simulate`](https://rdrr.io/r/stats/simulate.html)
+  [`simulate()`](https://rdrr.io/r/stats/simulate.html)

@@ -70,12 +70,7 @@ MathJax.Hub.Config({
   <li>[Intervention and monitoring](fitting.html#intervention-and-monitoring)
   <li>[Tools for sensitivity analysis](fitting.html#tools-for-sensitivity-analysis)
   <li>[Sampling and hyper parameter estimation](fitting.html#sampling-and-hyper-parameter-estimation)
-  </ul></details>
-  </li>
-<li><details><summary>Advanced examples:> </summary><ul>
-  <li>[Space-time model hospital admissions from gastroenteritis](example1.html)
-  </details>
-</ul></li>
+  </ul></details></li>
 </ol>
 
 # Introduction

@@ -10,11 +10,6 @@ vignette: >
   %\VignetteIndexEntry{Creation of model outcomes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  %\VignetteDepends{geodata}
-  %\VignetteDepends{terra}
-  %\VignetteDepends{sf}
-  %\VignetteDepends{spdep}
-  %\VignetteDepends{tidyverse}
 ---
 
 ```{r, include = FALSE}
@@ -81,10 +76,6 @@ MathJax.Hub.Config({
   <li>[Sampling and hyper parameter estimation](fitting.html#sampling-and-hyper-parameter-estimation)
   </ul></details>
   </li>
-<li><details><summary>Advanced examples:> </summary><ul>
-  <li>[Space-time model hospital admissions from gastroenteritis](example1.html)
-  </details>
-</ul></li>
 </ol>
 
 # Creation of model outcomes

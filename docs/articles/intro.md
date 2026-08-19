@@ -54,9 +54,6 @@
       analysis](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#tools-for-sensitivity-analysis)
     - [Sampling and hyper parameter
       estimation](https://silvaneojunior.github.io/kDGLM/articles/fitting.html#sampling-and-hyper-parameter-estimation)
-5.  Advanced examples:\>
-    - [Space-time model hospital admissions from
-      gastroenteritis](https://silvaneojunior.github.io/kDGLM/articles/example1.md)
 
 ## Introduction
 
